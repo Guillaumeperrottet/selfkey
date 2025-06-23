@@ -81,7 +81,29 @@ export default async function AdminPage({ params }: Props) {
     inventory: inventoryMap[room.id] || 0,
   }));
 
-  const isStripeConfigured =
+  // Si on a un stripeAccountId mais pas encore marqué comme onboarded,
+  // vérifier le statut réel auprès de Stripe
+  if (establishment.stripeAccountId && !establishment.stripeOnboarded) {
+    try {
+      const { getAccountStatus } = await import("@/lib/stripe-connect");
+      const accountStatus = await getAccountStatus(
+        establishment.stripeAccountId
+      );
+
+      if (accountStatus.chargesEnabled && accountStatus.detailsSubmitted) {
+        // Mettre à jour le statut dans la base de données
+        await prisma.establishment.update({
+          where: { slug: hotel },
+          data: { stripeOnboarded: true },
+        });
+        establishment.stripeOnboarded = true;
+      }
+    } catch (error) {
+      console.error("Erreur vérification statut Stripe:", error);
+    }
+  }
+
+  const finalIsStripeConfigured =
     establishment.stripeAccountId && establishment.stripeOnboarded;
 
   return (
@@ -133,7 +155,7 @@ export default async function AdminPage({ params }: Props) {
         </div>
 
         {/* Dashboard inventaire et réservations */}
-        {isStripeConfigured && dbRooms.length > 0 ? (
+        {finalIsStripeConfigured && dbRooms.length > 0 ? (
           <AdminDashboard
             hotelSlug={hotel}
             hotelConfig={config}
@@ -143,15 +165,15 @@ export default async function AdminPage({ params }: Props) {
         ) : (
           <div className="bg-white rounded-lg shadow-md p-6 text-center">
             <div className="text-4xl mb-4">
-              {!isStripeConfigured ? "⚠️" : "🏨"}
+              {!finalIsStripeConfigured ? "⚠️" : "🏨"}
             </div>
             <h2 className="text-xl font-semibold text-gray-800 mb-2">
-              {!isStripeConfigured
+              {!finalIsStripeConfigured
                 ? "Configuration Stripe requise"
                 : "Ajoutez vos premières chambres"}
             </h2>
             <p className="text-gray-600">
-              {!isStripeConfigured
+              {!finalIsStripeConfigured
                 ? "Veuillez d'abord configurer votre compte Stripe pour accepter les paiements."
                 : "Créez vos types de chambres pour commencer à accepter des réservations."}
             </p>

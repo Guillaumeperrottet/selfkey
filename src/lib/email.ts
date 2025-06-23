@@ -1,7 +1,10 @@
 import { Resend } from "resend";
 import { HotelConfig } from "@/types/hotel";
 
-const resend = new Resend(process.env.RESEND_API_KEY!);
+// Resend est optionnel - ne pas planter si pas configuré
+const resend = process.env.RESEND_API_KEY
+  ? new Resend(process.env.RESEND_API_KEY)
+  : null;
 
 interface BookingConfirmationData {
   clientName: string;
@@ -69,6 +72,16 @@ export async function sendBookingConfirmation(
   `;
 
   try {
+    // Si Resend n'est pas configuré, on simule l'envoi
+    if (!resend) {
+      console.log("📧 Email simulé (Resend non configuré):", {
+        to: booking.clientEmail,
+        subject: `Confirmation de réservation - ${hotelConfig.name}`,
+        booking: booking,
+      });
+      return { id: "simulated-email" };
+    }
+
     const { data, error } = await resend.emails.send({
       from: `${hotelConfig.name} <no-reply@votrapp.com>`,
       to: [booking.clientEmail],

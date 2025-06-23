@@ -15,10 +15,27 @@ export function StripeOnboarding({ hotelSlug }: Props) {
   );
   const [needsOnboarding, setNeedsOnboarding] = useState(false);
   const [email, setEmail] = useState("");
+  const [setupError, setSetupError] = useState<string | null>(null);
+  const [connectEnabled, setConnectEnabled] = useState(true);
 
   useEffect(() => {
     checkStripeStatus();
+    checkConnectSetup();
   }, [hotelSlug]);
+
+  const checkConnectSetup = async () => {
+    try {
+      const response = await fetch("/api/stripe/setup-check");
+      const setup = await response.json();
+
+      if (!setup.isSetup || !setup.connectEnabled) {
+        setSetupError(setup.error);
+        setConnectEnabled(false);
+      }
+    } catch (error) {
+      console.error("Erreur vérification setup:", error);
+    }
+  };
 
   const checkStripeStatus = async () => {
     try {
@@ -71,6 +88,44 @@ export function StripeOnboarding({ hotelSlug }: Props) {
       setIsLoading(false);
     }
   };
+
+  // Afficher l'erreur de configuration Connect en premier
+  if (!connectEnabled && setupError) {
+    return (
+      <div className="bg-red-50 border border-red-200 rounded-lg p-6">
+        <div className="flex items-center mb-4">
+          <div className="text-red-600 text-2xl mr-3">🚫</div>
+          <div>
+            <h3 className="text-lg font-semibold text-red-800">
+              Stripe Connect non configuré
+            </h3>
+            <p className="text-red-700">{setupError}</p>
+          </div>
+        </div>
+
+        <div className="bg-red-100 rounded-lg p-4">
+          <h4 className="font-semibold text-red-800 mb-2">
+            Étapes pour configurer Stripe Connect :
+          </h4>
+          <ol className="list-decimal list-inside space-y-2 text-red-700">
+            <li>Connectez-vous à votre dashboard Stripe</li>
+            <li>Allez dans Paramètres → Connect</li>
+            <li>Activez Stripe Connect pour votre plateforme</li>
+            <li>Configurez votre profil de plateforme</li>
+          </ol>
+
+          <a
+            href="https://dashboard.stripe.com/settings/connect/platform-profile"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-block mt-4 bg-red-600 text-white py-2 px-4 rounded-md hover:bg-red-700 transition-colors"
+          >
+            Configurer Stripe Connect
+          </a>
+        </div>
+      </div>
+    );
+  }
 
   if (accountStatus && !needsOnboarding) {
     return (

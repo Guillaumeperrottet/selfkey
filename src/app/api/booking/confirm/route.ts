@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { updateBookingWithPayment } from "@/lib/booking";
 import { sendBookingConfirmation } from "@/lib/email";
-import { getHotelConfig } from "@/lib/hotel-config";
+import { prisma } from "@/lib/prisma";
 
 export async function POST(request: NextRequest) {
   try {
@@ -15,33 +15,43 @@ export async function POST(request: NextRequest) {
     }
 
     // Mettre à jour la réservation avec le PaymentIntent ID
-    const booking = await updateBookingWithPayment(bookingId, paymentIntentId);
+    await updateBookingWithPayment(bookingId, paymentIntentId);
 
-    // Récupérer la config de l'hôtel
-    const hotelConfig = await getHotelConfig(booking.hotelSlug);
-    if (!hotelConfig) {
-      throw new Error("Configuration hôtel non trouvée");
+    // Récupérer les infos de l'établissement et de la chambre
+    const bookingWithDetails = await prisma.booking.findUnique({
+      where: { id: bookingId },
+      include: {
+        establishment: true,
+        room: true,
+      },
+    });
+
+    if (!bookingWithDetails) {
+      throw new Error("Réservation non trouvée");
     }
 
-    // Trouver les détails de la chambre
-    const room = hotelConfig.rooms.find((r) => r.id === booking.roomId);
-    if (!room) {
-      throw new Error("Chambre non trouvée");
-    }
-
-    // Envoyer l'email de confirmation
+    // Envoyer l'email de confirmation (simulé pour le moment)
     try {
       await sendBookingConfirmation(
         {
-          clientName: booking.clientName,
-          clientEmail: booking.clientEmail,
-          roomName: room.name,
-          roomId: booking.roomId,
-          amount: booking.amount,
-          currency: booking.currency,
-          bookingDate: booking.bookingDate,
+          clientName: bookingWithDetails.clientName,
+          clientEmail: bookingWithDetails.clientEmail,
+          roomName: bookingWithDetails.room.name,
+          roomId: bookingWithDetails.roomId,
+          amount: bookingWithDetails.amount,
+          currency: bookingWithDetails.currency,
+          bookingDate: bookingWithDetails.bookingDate,
         },
-        hotelConfig
+        {
+          name: bookingWithDetails.establishment.name,
+          currency: "CHF",
+          rooms: [],
+          logo: "",
+          colors: { primary: "#000" },
+          contact: { email: "", phone: "" },
+          stripe_key: "",
+          stripe_account_id: "",
+        }
       );
     } catch (emailError) {
       console.error("Erreur envoi email:", emailError);

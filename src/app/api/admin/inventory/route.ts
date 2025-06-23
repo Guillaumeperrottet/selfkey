@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { updateInventory } from "@/lib/availability";
-import { getHotelConfig } from "@/lib/hotel-config";
+import { prisma } from "@/lib/prisma";
 
 export async function POST(request: NextRequest) {
   try {
@@ -13,17 +13,25 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Vérifier que l'hôtel existe
-    const hotelConfig = await getHotelConfig(hotelSlug);
-    if (!hotelConfig) {
+    // Vérifier que l'hôtel existe dans la base de données
+    const establishment = await prisma.establishment.findUnique({
+      where: { slug: hotelSlug },
+      include: {
+        rooms: {
+          where: { isActive: true },
+        },
+      },
+    });
+
+    if (!establishment) {
       return NextResponse.json({ error: "Hôtel non trouvé" }, { status: 404 });
     }
 
     // Mettre à jour l'inventaire pour chaque chambre
     const updatePromises = Object.entries(inventory).map(
       ([roomId, quantity]) => {
-        // Vérifier que la chambre existe dans la config
-        const room = hotelConfig.rooms.find((r) => r.id === roomId);
+        // Vérifier que la chambre existe dans la base de données
+        const room = establishment.rooms.find((r) => r.id === roomId);
         if (!room) {
           throw new Error(`Chambre ${roomId} non trouvée`);
         }
@@ -38,7 +46,10 @@ export async function POST(request: NextRequest) {
   } catch (error) {
     console.error("Erreur API admin inventory:", error);
     return NextResponse.json(
-      { error: "Erreur interne du serveur" },
+      {
+        error:
+          error instanceof Error ? error.message : "Erreur interne du serveur",
+      },
       { status: 500 }
     );
   }
