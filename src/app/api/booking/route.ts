@@ -5,7 +5,15 @@ import { prisma } from "@/lib/prisma";
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    const { hotelSlug, roomId, clientName, clientEmail, phone, amount } = body;
+    const {
+      hotelSlug,
+      roomId,
+      clientName,
+      clientEmail,
+      phone,
+      guests,
+      amount,
+    } = body;
 
     // Validation des données
     if (
@@ -14,6 +22,7 @@ export async function POST(request: NextRequest) {
       !clientName ||
       !clientEmail ||
       !phone ||
+      !guests ||
       !amount
     ) {
       return NextResponse.json(
@@ -56,6 +65,7 @@ export async function POST(request: NextRequest) {
       clientName,
       clientEmail,
       phone,
+      guests,
       amount,
     });
 

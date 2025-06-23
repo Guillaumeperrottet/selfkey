@@ -33,6 +33,7 @@ export interface BookingData {
   clientName: string;
   clientEmail: string;
   phone: string;
+  guests: number;
   amount: number;
 }
 

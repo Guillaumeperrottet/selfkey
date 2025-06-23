@@ -18,7 +18,6 @@ model Establishment {
   createdAt         DateTime @default(now())
   
   rooms          Room[]
-  dailyInventory DailyInventory[]
   bookings       Booking[]
   
   @@map("establishments")
@@ -33,23 +32,9 @@ model Room {
   createdAt     DateTime      @default(now())
   establishment Establishment @relation(fields: [hotelSlug], references: [slug], onDelete: Cascade)
   
-  dailyInventory DailyInventory[]
   bookings       Booking[]
   
   @@map("rooms")
-}
-
-model DailyInventory {
-  id            String        @id @default(cuid())
-  hotelSlug     String
-  roomId        String        // Référence vers Room.id maintenant
-  date          DateTime      @db.Date
-  quantity      Int
-  establishment Establishment @relation(fields: [hotelSlug], references: [slug])
-  room          Room          @relation(fields: [roomId], references: [id], onDelete: Cascade)
-  
-  @@unique([hotelSlug, roomId, date])
-  @@map("daily_inventory")
 }
 
 model Booking {
@@ -59,6 +44,7 @@ model Booking {
   clientName            String
   clientEmail           String
   phone                 String
+  guests                Int           @default(1) // Nombre de personnes
   amount                Float
   currency              String        @default("CHF")
   platformCommission    Float         @default(0) // Commission prise par la plateforme

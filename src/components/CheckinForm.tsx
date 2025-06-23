@@ -17,6 +17,7 @@ export function CheckinForm({ hotelSlug, hotelConfig, availableRooms }: Props) {
     clientName: "",
     clientEmail: "",
     phone: "",
+    guests: 1,
   });
   const [isLoading, setIsLoading] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
@@ -33,6 +34,7 @@ export function CheckinForm({ hotelSlug, hotelConfig, availableRooms }: Props) {
     if (!formData.clientEmail.trim())
       newErrors.clientEmail = "L'email est requis";
     if (!formData.phone.trim()) newErrors.phone = "Le téléphone est requis";
+    if (formData.guests < 1) newErrors.guests = "Au moins 1 personne";
 
     // Validation email simple
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -63,6 +65,7 @@ export function CheckinForm({ hotelSlug, hotelConfig, availableRooms }: Props) {
           clientName: formData.clientName,
           clientEmail: formData.clientEmail,
           phone: formData.phone,
+          guests: formData.guests,
           amount: selectedRoomData.price,
         }),
       });
@@ -202,6 +205,35 @@ export function CheckinForm({ hotelSlug, hotelConfig, availableRooms }: Props) {
             />
             {errors.phone && (
               <p className="mt-1 text-sm text-red-600">{errors.phone}</p>
+            )}
+          </div>
+
+          <div>
+            <label
+              htmlFor="guests"
+              className="block text-sm font-medium text-gray-700 mb-1"
+            >
+              Nombre de personnes *
+            </label>
+            <select
+              id="guests"
+              value={formData.guests}
+              onChange={(e) =>
+                setFormData((prev) => ({
+                  ...prev,
+                  guests: parseInt(e.target.value),
+                }))
+              }
+              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+            >
+              {[1, 2, 3, 4, 5, 6].map((num) => (
+                <option key={num} value={num}>
+                  {num} {num === 1 ? "personne" : "personnes"}
+                </option>
+              ))}
+            </select>
+            {errors.guests && (
+              <p className="mt-1 text-sm text-red-600">{errors.guests}</p>
             )}
           </div>
         </div>

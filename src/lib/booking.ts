@@ -6,10 +6,6 @@ export async function createBooking(
   hotelSlug: string,
   bookingData: BookingData
 ) {
-  // Vérifier la disponibilité avant de créer la réservation
-  const today = new Date();
-  today.setHours(0, 0, 0, 0);
-
   // Vérifier que la chambre existe et appartient à l'hôtel
   const room = await prisma.room.findFirst({
     where: {
@@ -28,34 +24,25 @@ export async function createBooking(
     throw new Error("Prix incorrect");
   }
 
-  const inventory = await prisma.dailyInventory.findUnique({
-    where: {
-      hotelSlug_roomId_date: {
-        hotelSlug,
-        roomId: bookingData.roomId,
-        date: today,
-      },
-    },
-  });
+  // Une chambre = une disponibilité unique
+  // Vérifier qu'il n'y a pas déjà une réservation pour cette chambre aujourd'hui
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  const tomorrow = new Date(today.getTime() + 24 * 60 * 60 * 1000);
 
-  const bookingCount = await prisma.booking.count({
+  const existingBooking = await prisma.booking.findFirst({
     where: {
       hotelSlug,
       roomId: bookingData.roomId,
       bookingDate: {
         gte: today,
-        lt: new Date(today.getTime() + 24 * 60 * 60 * 1000),
-      },
-      stripePaymentIntentId: {
-        not: null, // Seulement les réservations payées
+        lt: tomorrow,
       },
     },
   });
 
-  const available = (inventory?.quantity || 0) - bookingCount;
-
-  if (available <= 0) {
-    throw new Error("Chambre non disponible");
+  if (existingBooking) {
+    throw new Error("Cette chambre est déjà réservée pour aujourd'hui");
   }
 
   // Récupérer les infos de l'établissement pour calculer la commission
@@ -82,6 +69,7 @@ export async function createBooking(
       clientName: bookingData.clientName,
       clientEmail: bookingData.clientEmail,
       phone: bookingData.phone,
+      guests: bookingData.guests,
       amount: bookingData.amount,
       currency: "CHF",
       platformCommission,
