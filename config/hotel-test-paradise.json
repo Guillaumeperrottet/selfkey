@@ -1,0 +1,13 @@
+{
+  "name": "Hôtel Test Paradise",
+  "logo": "/logos/test-paradise.png",
+  "colors": {
+    "primary": "#10b981"
+  },
+  "contact": {
+    "email": "test@paradise-hotel.com",
+    "phone": "+41 26 987 65 43"
+  },
+  "stripe_key": "pk_test_51234567890abcdef...",
+  "currency": "CHF"
+}

@@ -1,0 +1,113 @@
+import { prisma } from "./prisma";
+
+export interface CreateRoomData {
+  name: string;
+  price: number;
+}
+
+export async function createRoom(hotelSlug: string, roomData: CreateRoomData) {
+  // Vérifier que l'établissement existe
+  const establishment = await prisma.establishment.findUnique({
+    where: { slug: hotelSlug },
+  });
+
+  if (!establishment) {
+    throw new Error("Établissement non trouvé");
+  }
+
+  // Créer la chambre
+  const room = await prisma.room.create({
+    data: {
+      hotelSlug,
+      name: roomData.name.trim(),
+      price: roomData.price,
+      isActive: true,
+    },
+  });
+
+  return room;
+}
+
+export async function updateRoom(
+  roomId: string,
+  roomData: Partial<CreateRoomData>
+) {
+  const updateData: Partial<{ name: string; price: number }> = {};
+
+  if (roomData.name !== undefined) {
+    updateData.name = roomData.name.trim();
+  }
+
+  if (roomData.price !== undefined) {
+    updateData.price = roomData.price;
+  }
+
+  const room = await prisma.room.update({
+    where: { id: roomId },
+    data: updateData,
+  });
+
+  return room;
+}
+
+export async function deleteRoom(roomId: string) {
+  // Vérifier s'il y a des réservations futures pour cette chambre
+  const futureBookings = await prisma.booking.findFirst({
+    where: {
+      roomId,
+      bookingDate: {
+        gte: new Date(),
+      },
+    },
+  });
+
+  if (futureBookings) {
+    throw new Error(
+      "Impossible de supprimer une chambre avec des réservations existantes"
+    );
+  }
+
+  // Soft delete - marquer comme inactive
+  const room = await prisma.room.update({
+    where: { id: roomId },
+    data: { isActive: false },
+  });
+
+  // Supprimer l'inventaire futur pour cette chambre
+  const tomorrow = new Date();
+  tomorrow.setDate(tomorrow.getDate() + 1);
+  tomorrow.setHours(0, 0, 0, 0);
+
+  await prisma.dailyInventory.deleteMany({
+    where: {
+      roomId,
+      date: {
+        gte: tomorrow,
+      },
+    },
+  });
+
+  return room;
+}
+
+export async function getRoomsForHotel(hotelSlug: string) {
+  const rooms = await prisma.room.findMany({
+    where: {
+      hotelSlug,
+      isActive: true,
+    },
+    orderBy: {
+      createdAt: "asc",
+    },
+  });
+
+  return rooms;
+}
+
+export async function getRoomById(roomId: string) {
+  const room = await prisma.room.findUnique({
+    where: { id: roomId },
+  });
+
+  return room;
+}

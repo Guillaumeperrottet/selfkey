@@ -1,0 +1,72 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Establishment {
+  id                String   @id @default(cuid())
+  slug              String   @unique
+  name              String
+  stripeAccountId   String?  // ID du compte Stripe Connect
+  stripeOnboarded   Boolean  @default(false)
+  commissionRate    Float    @default(0) // Pourcentage de commission
+  fixedFee          Float    @default(0) // Frais fixe par transaction
+  createdAt         DateTime @default(now())
+  
+  rooms          Room[]
+  dailyInventory DailyInventory[]
+  bookings       Booking[]
+  
+  @@map("establishments")
+}
+
+model Room {
+  id            String        @id @default(cuid())
+  hotelSlug     String
+  name          String        // Nom de la chambre (ex: "Chambre Standard", "Suite Deluxe")
+  price         Float         // Prix en CHF
+  isActive      Boolean       @default(true) // Pour soft delete
+  createdAt     DateTime      @default(now())
+  establishment Establishment @relation(fields: [hotelSlug], references: [slug], onDelete: Cascade)
+  
+  dailyInventory DailyInventory[]
+  bookings       Booking[]
+  
+  @@map("rooms")
+}
+
+model DailyInventory {
+  id            String        @id @default(cuid())
+  hotelSlug     String
+  roomId        String        // Référence vers Room.id maintenant
+  date          DateTime      @db.Date
+  quantity      Int
+  establishment Establishment @relation(fields: [hotelSlug], references: [slug])
+  room          Room          @relation(fields: [roomId], references: [id], onDelete: Cascade)
+  
+  @@unique([hotelSlug, roomId, date])
+  @@map("daily_inventory")
+}
+
+model Booking {
+  id                    String        @id @default(cuid())
+  hotelSlug             String
+  roomId                String        // Référence vers Room.id maintenant
+  clientName            String
+  clientEmail           String
+  phone                 String
+  amount                Float
+  currency              String        @default("CHF")
+  platformCommission    Float         @default(0) // Commission prise par la plateforme
+  ownerAmount          Float         // Montant reçu par le propriétaire
+  bookingDate          DateTime      @default(now())
+  stripePaymentIntentId String?
+  establishment        Establishment @relation(fields: [hotelSlug], references: [slug])
+  room                 Room          @relation(fields: [roomId], references: [id])
+  
+  @@map("bookings")
+}
