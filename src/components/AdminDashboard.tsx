@@ -1,9 +1,9 @@
 "use client";
 
-import { useState } from "react";
-import { HotelConfig, Room } from "@/types/hotel";
-
-interface RoomWithInventory extends Room {
+interface RoomWithInventory {
+  id: string;
+  name: string;
+  price: number;
   inventory: number;
 }
 
@@ -13,108 +13,34 @@ interface Booking {
   clientName: string;
   clientEmail: string;
   phone: string;
+  guests: number;
   amount: number;
   currency: string;
   bookingDate: Date;
   stripePaymentIntentId: string | null;
+  room: {
+    name: string;
+  };
+}
+
+interface Establishment {
+  id: string;
+  name: string;
+  slug: string;
+  stripeAccountId: string | null;
+  stripeOnboarded: boolean;
+  commissionRate: number;
+  fixedFee: number;
+  createdAt: Date;
 }
 
 interface Props {
-  hotelSlug: string;
-  hotelConfig: HotelConfig;
+  establishment: Establishment;
   rooms: RoomWithInventory[];
   bookings: Booking[];
 }
 
-export function AdminDashboard({
-  hotelSlug,
-  hotelConfig,
-  rooms,
-  bookings,
-}: Props) {
-  const [inventory, setInventory] = useState<Record<string, number>>(
-    Object.fromEntries(rooms.map((room) => [room.id, room.inventory]))
-  );
-  const [isLoading, setIsLoading] = useState(false);
-  const [message, setMessage] = useState<{
-    type: "success" | "error";
-    text: string;
-  } | null>(null);
-
-  const updateRoomInventory = (roomId: string, change: number) => {
-    setInventory((prev) => ({
-      ...prev,
-      [roomId]: Math.max(0, (prev[roomId] || 0) + change),
-    }));
-  };
-
-  const saveInventory = async () => {
-    setIsLoading(true);
-    setMessage(null);
-
-    try {
-      const response = await fetch("/api/admin/inventory", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          hotelSlug,
-          inventory,
-        }),
-      });
-
-      if (!response.ok) {
-        throw new Error("Erreur lors de la sauvegarde");
-      }
-
-      setMessage({
-        type: "success",
-        text: "Inventaire sauvegardé avec succès !",
-      });
-    } catch {
-      setMessage({ type: "error", text: "Erreur lors de la sauvegarde" });
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  const resetForTomorrow = async () => {
-    if (
-      !confirm(
-        "Êtes-vous sûr de vouloir réinitialiser l'inventaire pour demain ?"
-      )
-    ) {
-      return;
-    }
-
-    setIsLoading(true);
-    setMessage(null);
-
-    try {
-      const response = await fetch("/api/admin/reset", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ hotelSlug }),
-      });
-
-      if (!response.ok) {
-        throw new Error("Erreur lors de la réinitialisation");
-      }
-
-      setMessage({
-        type: "success",
-        text: "Inventaire réinitialisé pour demain !",
-      });
-    } catch {
-      setMessage({ type: "error", text: "Erreur lors de la réinitialisation" });
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
+export function AdminDashboard({ establishment, rooms, bookings }: Props) {
   const confirmedBookings = bookings.filter((b) => b.stripePaymentIntentId);
   const bookingsByRoom = Object.groupBy(confirmedBookings, (b) => b.roomId);
 
@@ -123,38 +49,18 @@ export function AdminDashboard({
       <div className="container mx-auto px-4 py-8 max-w-4xl">
         {/* Header */}
         <div className="text-center mb-8">
-          {hotelConfig.logo && (
-            <img
-              src={hotelConfig.logo}
-              alt={hotelConfig.name}
-              className="h-16 mx-auto mb-4"
-            />
-          )}
           <h1 className="text-3xl font-bold text-gray-900 mb-2">
-            Dashboard Staff - {hotelConfig.name}
+            Dashboard Admin - {establishment.name}
           </h1>
           <p className="text-gray-600">
-            Gestion des chambres disponibles pour ce soir
+            Vue d&apos;ensemble des chambres et réservations
           </p>
         </div>
 
-        {/* Messages */}
-        {message && (
-          <div
-            className={`mb-6 p-4 rounded-lg ${
-              message.type === "success"
-                ? "bg-green-50 border border-green-200 text-green-700"
-                : "bg-red-50 border border-red-200 text-red-700"
-            }`}
-          >
-            {message.text}
-          </div>
-        )}
-
-        {/* Inventaire des chambres */}
+        {/* Statut des chambres */}
         <div className="bg-white rounded-lg shadow-md p-6 mb-6">
           <h2 className="text-xl font-semibold text-gray-900 mb-6">
-            Chambres disponibles ce soir
+            Statut des chambres aujourd&apos;hui
           </h2>
 
           <div className="space-y-4">
@@ -168,57 +74,39 @@ export function AdminDashboard({
                     {room.name}
                   </h3>
                   <p className="text-sm text-gray-500">
-                    Chambre {room.id} • {room.price} {hotelConfig.currency}
+                    {room.price} CHF par nuit
                   </p>
                   {bookingsByRoom[room.id] && (
-                    <p className="text-sm text-green-600 mt-1">
-                      {bookingsByRoom[room.id]?.length} réservation(s)
-                      confirmée(s)
-                    </p>
+                    <div className="mt-2">
+                      <p className="text-sm text-blue-600">
+                        Réservée par: {bookingsByRoom[room.id]?.[0]?.clientName}
+                      </p>
+                      <p className="text-xs text-gray-500">
+                        {bookingsByRoom[room.id]?.[0]?.guests} personne(s) •{" "}
+                        {bookingsByRoom[room.id]?.[0]?.clientEmail}
+                      </p>
+                    </div>
                   )}
                 </div>
 
                 <div className="flex items-center space-x-4">
-                  <button
-                    onClick={() => updateRoomInventory(room.id, -1)}
-                    disabled={inventory[room.id] <= 0}
-                    className="w-10 h-10 rounded-full bg-red-100 text-red-600 hover:bg-red-200 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center font-bold"
-                  >
-                    -
-                  </button>
-
-                  <span className="text-2xl font-bold text-gray-900 min-w-[3rem] text-center">
-                    {inventory[room.id] || 0}
-                  </span>
-
-                  <button
-                    onClick={() => updateRoomInventory(room.id, 1)}
-                    className="w-10 h-10 rounded-full bg-green-100 text-green-600 hover:bg-green-200 flex items-center justify-center font-bold"
-                  >
-                    +
-                  </button>
+                  <div className="flex items-center space-x-2">
+                    <div
+                      className={`w-4 h-4 rounded-full ${
+                        room.inventory > 0 ? "bg-green-500" : "bg-red-500"
+                      }`}
+                    ></div>
+                    <span
+                      className={`font-medium ${
+                        room.inventory > 0 ? "text-green-700" : "text-red-700"
+                      }`}
+                    >
+                      {room.inventory > 0 ? "Disponible" : "Réservée"}
+                    </span>
+                  </div>
                 </div>
               </div>
             ))}
-          </div>
-
-          <div className="flex gap-4 mt-6">
-            <button
-              onClick={saveInventory}
-              disabled={isLoading}
-              style={{ backgroundColor: hotelConfig.colors.primary }}
-              className="flex-1 py-3 px-4 text-white font-medium rounded-md hover:opacity-90 disabled:opacity-50 disabled:cursor-not-allowed transition-opacity"
-            >
-              {isLoading ? "Sauvegarde..." : "Sauvegarder l'inventaire"}
-            </button>
-
-            <button
-              onClick={resetForTomorrow}
-              disabled={isLoading}
-              className="px-6 py-3 bg-gray-600 text-white font-medium rounded-md hover:bg-gray-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-            >
-              Reset pour demain
-            </button>
           </div>
         </div>
 
@@ -246,10 +134,13 @@ export function AdminDashboard({
                           {booking.clientEmail}
                         </p>
                         <p className="text-sm text-gray-600">{booking.phone}</p>
+                        <p className="text-sm text-blue-600">
+                          {booking.guests} personne(s)
+                        </p>
                       </div>
                       <div className="text-right">
                         <p className="font-medium text-gray-900">
-                          {room?.name} - Chambre {booking.roomId}
+                          {room?.name}
                         </p>
                         <p className="text-sm text-gray-600">
                           {booking.amount} {booking.currency}
@@ -280,7 +171,7 @@ export function AdminDashboard({
         <div className="mt-6 grid grid-cols-1 md:grid-cols-3 gap-4">
           <div className="bg-white rounded-lg shadow-md p-4 text-center">
             <div className="text-2xl font-bold text-blue-600">
-              {Object.values(inventory).reduce((sum, count) => sum + count, 0)}
+              {rooms.filter((room) => room.inventory > 0).length}
             </div>
             <div className="text-sm text-gray-600">Chambres disponibles</div>
           </div>
@@ -298,7 +189,7 @@ export function AdminDashboard({
                 (sum, booking) => sum + booking.amount,
                 0
               )}{" "}
-              {hotelConfig.currency}
+              CHF
             </div>
             <div className="text-sm text-gray-600">Revenus du jour</div>
           </div>

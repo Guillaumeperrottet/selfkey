@@ -1,21 +1,14 @@
-import { notFound } from "next/navigation";
-import { getHotelConfig } from "@/lib/hotel-config";
 import { prisma } from "@/lib/prisma";
 import { AdminDashboard } from "@/components/AdminDashboard";
 import { StripeOnboarding } from "@/components/StripeOnboarding";
 import { RoomManagement } from "@/components/RoomManagement";
 
 interface Props {
-  params: { hotel: string };
+  params: Promise<{ hotel: string }>;
 }
 
 export default async function AdminPage({ params }: Props) {
-  const { hotel } = params;
-
-  const config = await getHotelConfig(hotel);
-  if (!config) {
-    notFound();
-  }
+  const { hotel } = await params;
 
   // Récupérer ou créer l'établissement
   let establishment = await prisma.establishment.findUnique({
@@ -23,10 +16,11 @@ export default async function AdminPage({ params }: Props) {
   });
 
   if (!establishment) {
+    // Créer l'établissement avec des valeurs par défaut
     establishment = await prisma.establishment.create({
       data: {
         slug: hotel,
-        name: config.name,
+        name: hotel.charAt(0).toUpperCase() + hotel.slice(1).replace(/-/g, " "),
       },
     });
   }
@@ -45,14 +39,6 @@ export default async function AdminPage({ params }: Props) {
   const today = new Date();
   today.setHours(0, 0, 0, 0);
 
-  // Récupérer l'inventaire actuel
-  const inventory = await prisma.dailyInventory.findMany({
-    where: {
-      hotelSlug: hotel,
-      date: today,
-    },
-  });
-
   // Récupérer les réservations du jour
   const todayBookings = await prisma.booking.findMany({
     where: {
@@ -70,15 +56,15 @@ export default async function AdminPage({ params }: Props) {
     },
   });
 
-  const inventoryMap = Object.fromEntries(
-    inventory.map((i) => [i.roomId, i.quantity])
-  );
+  // Dans le système simplifié, chaque chambre a une disponibilité de 1
+  // On calcule les chambres disponibles en soustrayant les réservations
+  const bookedRoomIds = todayBookings.map((booking) => booking.roomId);
 
   const roomsWithInventory = dbRooms.map((room) => ({
     id: room.id,
     name: room.name,
     price: room.price,
-    inventory: inventoryMap[room.id] || 0,
+    inventory: bookedRoomIds.includes(room.id) ? 0 : 1, // 0 si réservée, 1 si disponible
   }));
 
   // Si on a un stripeAccountId mais pas encore marqué comme onboarded,
@@ -111,15 +97,8 @@ export default async function AdminPage({ params }: Props) {
       <div className="container mx-auto px-4 py-8 max-w-6xl">
         {/* Header */}
         <div className="text-center mb-8">
-          {config.logo && (
-            <img
-              src={config.logo}
-              alt={config.name}
-              className="h-16 mx-auto mb-4"
-            />
-          )}
           <h1 className="text-3xl font-bold text-gray-900 mb-2">
-            Dashboard Admin - {config.name}
+            Dashboard Admin - {establishment.name}
           </h1>
           <p className="text-gray-600">
             Gestion des chambres, inventaire et configuration des paiements
@@ -128,7 +107,7 @@ export default async function AdminPage({ params }: Props) {
 
         {/* Configuration Stripe */}
         <div className="mb-8">
-          <StripeOnboarding hotelSlug={hotel} hotelName={config.name} />
+          <StripeOnboarding hotelSlug={hotel} hotelName={establishment.name} />
         </div>
 
         {/* Affichage commission si configurée */}
@@ -151,14 +130,13 @@ export default async function AdminPage({ params }: Props) {
 
         {/* Gestion des chambres */}
         <div className="mb-8">
-          <RoomManagement hotelSlug={hotel} currency={config.currency} />
+          <RoomManagement hotelSlug={hotel} currency="CHF" />
         </div>
 
         {/* Dashboard inventaire et réservations */}
         {finalIsStripeConfigured && dbRooms.length > 0 ? (
           <AdminDashboard
-            hotelSlug={hotel}
-            hotelConfig={config}
+            establishment={establishment}
             rooms={roomsWithInventory}
             bookings={todayBookings}
           />
