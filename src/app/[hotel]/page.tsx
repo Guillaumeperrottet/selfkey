@@ -1,28 +1,22 @@
 import { notFound } from "next/navigation";
-import { getHotelConfig, validateHotelSlug } from "@/lib/hotel-config";
-import { getAvailableRooms } from "@/lib/availability";
 import { CheckinForm } from "@/components/CheckinForm";
 import { prisma } from "@/lib/prisma";
 
 interface Props {
-  params: {
+  params: Promise<{
     hotel: string;
-  };
+  }>;
 }
 
 export default async function HotelPage({ params }: Props) {
-  const { hotel } = params;
+  const { hotel } = await params;
 
-  if (!validateHotelSlug(hotel)) {
+  // Validation simple du slug
+  if (!/^[a-z0-9-]+$/.test(hotel)) {
     notFound();
   }
 
-  const config = await getHotelConfig(hotel);
-  if (!config) {
-    notFound();
-  }
-
-  // Vérifier que l'établissement existe
+  // Récupérer l'établissement depuis la base de données
   const establishment = await prisma.establishment.findUnique({
     where: { slug: hotel },
   });
@@ -45,15 +39,8 @@ export default async function HotelPage({ params }: Props) {
         <div className="container mx-auto px-4 py-8 max-w-2xl">
           {/* Header */}
           <div className="text-center mb-8">
-            {config.logo && (
-              <img
-                src={config.logo}
-                alt={config.name}
-                className="h-16 mx-auto mb-4"
-              />
-            )}
             <h1 className="text-3xl font-bold text-gray-900 mb-2">
-              {config.name}
+              {establishment.name}
             </h1>
             <p className="text-gray-600">Check-in tardif</p>
           </div>
@@ -67,38 +54,38 @@ export default async function HotelPage({ params }: Props) {
               L&apos;établissement configure actuellement ses chambres. Veuillez
               réessayer dans quelques instants.
             </p>
-            <div className="bg-gray-50 rounded-lg p-4">
-              <p className="text-sm text-gray-700 mb-2">
-                <strong>Besoin d&apos;aide ?</strong>
-              </p>
-              <p className="text-sm text-gray-600">
-                Email: {config.contact.email}
-                <br />
-                Téléphone: {config.contact.phone}
-              </p>
-            </div>
           </div>
         </div>
       </div>
     );
   }
 
-  const availableRooms = await getAvailableRooms(hotel);
+  // Récupérer les chambres disponibles directement
+  const rooms = await prisma.room.findMany({
+    where: {
+      hotelSlug: hotel,
+      isActive: true,
+    },
+    select: {
+      id: true,
+      name: true,
+      price: true,
+    },
+  });
+
+  // Ajouter un nombre fixe de disponibilité pour le moment
+  const availableRooms = rooms.map((room) => ({
+    ...room,
+    available: 5, // Nombre fixe pour simplifier
+  }));
 
   return (
     <div className="min-h-screen bg-gray-50">
       <div className="container mx-auto px-4 py-8 max-w-2xl">
         {/* Header */}
         <div className="text-center mb-8">
-          {config.logo && (
-            <img
-              src={config.logo}
-              alt={config.name}
-              className="h-16 mx-auto mb-4"
-            />
-          )}
           <h1 className="text-3xl font-bold text-gray-900 mb-2">
-            {config.name}
+            {establishment.name}
           </h1>
           <p className="text-gray-600">
             Check-in tardif - Sélectionnez votre chambre
@@ -109,7 +96,16 @@ export default async function HotelPage({ params }: Props) {
         {availableRooms.length > 0 ? (
           <CheckinForm
             hotelSlug={hotel}
-            hotelConfig={config}
+            hotelConfig={{
+              name: establishment.name,
+              currency: "CHF",
+              rooms: [],
+              logo: "",
+              colors: { primary: "#000" },
+              contact: { email: "", phone: "" },
+              stripe_key: "",
+              stripe_account_id: "",
+            }}
             availableRooms={availableRooms}
           />
         ) : (
@@ -121,16 +117,6 @@ export default async function HotelPage({ params }: Props) {
             <p className="text-gray-600 mb-6">
               Désolé, toutes nos chambres sont occupées pour ce soir.
             </p>
-            <div className="bg-gray-50 rounded-lg p-4">
-              <p className="text-sm text-gray-700 mb-2">
-                <strong>Besoin d&apos;aide ?</strong>
-              </p>
-              <p className="text-sm text-gray-600">
-                Email: {config.contact.email}
-                <br />
-                Téléphone: {config.contact.phone}
-              </p>
-            </div>
           </div>
         )}
       </div>

@@ -9,7 +9,6 @@ import {
   useStripe,
   useElements,
 } from "@stripe/react-stripe-js";
-import { HotelConfig, Room } from "@/types/hotel";
 
 interface Booking {
   id: string;
@@ -21,17 +20,31 @@ interface Booking {
   currency: string;
 }
 
+interface Establishment {
+  id: string;
+  name: string;
+  slug: string;
+  stripeAccountId: string | null;
+  stripeOnboarded: boolean;
+  commissionRate: number;
+  fixedFee: number;
+  createdAt: Date;
+}
+
+interface Room {
+  id: string;
+  name: string;
+  price: number;
+}
+
 interface PaymentFormProps {
   booking: Booking;
-  hotelConfig: HotelConfig;
+  establishment: Establishment;
   room: Room;
 }
 
 // Composant interne pour le formulaire Stripe
-function CheckoutForm({
-  booking,
-  hotelConfig,
-}: Omit<PaymentFormProps, "room">) {
+function CheckoutForm({ booking }: Pick<PaymentFormProps, "booking">) {
   const stripe = useStripe();
   const elements = useElements();
   const router = useRouter();
@@ -153,8 +166,7 @@ function CheckoutForm({
         <button
           type="submit"
           disabled={!stripe || isLoading || !clientSecret}
-          style={{ backgroundColor: hotelConfig.colors.primary }}
-          className="w-full py-3 px-4 text-white font-medium rounded-md hover:opacity-90 disabled:opacity-50 disabled:cursor-not-allowed transition-opacity"
+          className="w-full py-3 px-4 bg-blue-600 text-white font-medium rounded-md hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
         >
           {isLoading
             ? "Traitement du paiement..."
@@ -168,12 +180,12 @@ function CheckoutForm({
 // Composant principal avec Elements provider
 export function PaymentForm(props: PaymentFormProps) {
   const [stripePromise] = useState(() =>
-    loadStripe(props.hotelConfig.stripe_key)
+    loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLIC_KEY || "")
   );
 
   return (
     <Elements stripe={stripePromise}>
-      <CheckoutForm {...props} />
+      <CheckoutForm booking={props.booking} />
     </Elements>
   );
 }

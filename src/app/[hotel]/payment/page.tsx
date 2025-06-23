@@ -1,28 +1,34 @@
 import { notFound, redirect } from "next/navigation";
 import { prisma } from "@/lib/prisma";
-import { getHotelConfig } from "@/lib/hotel-config";
 import { PaymentForm } from "@/components/PaymentForm";
 
 interface Props {
-  params: { hotel: string };
-  searchParams: { booking?: string };
+  params: Promise<{ hotel: string }>;
+  searchParams: Promise<{ booking?: string }>;
 }
 
 export default async function PaymentPage({ params, searchParams }: Props) {
-  const { hotel } = params;
-  const { booking: bookingId } = searchParams;
+  const { hotel } = await params;
+  const { booking: bookingId } = await searchParams;
 
   if (!bookingId) {
     redirect(`/${hotel}`);
   }
 
-  const config = await getHotelConfig(hotel);
-  if (!config) {
+  // Récupérer l'établissement depuis la base de données
+  const establishment = await prisma.establishment.findUnique({
+    where: { slug: hotel },
+  });
+
+  if (!establishment) {
     notFound();
   }
 
   const booking = await prisma.booking.findUnique({
     where: { id: bookingId },
+    include: {
+      room: true,
+    },
   });
 
   if (!booking || booking.hotelSlug !== hotel) {
@@ -34,23 +40,11 @@ export default async function PaymentPage({ params, searchParams }: Props) {
     redirect(`/${hotel}/success?booking=${bookingId}`);
   }
 
-  const room = config.rooms.find((r) => r.id === booking.roomId);
-  if (!room) {
-    notFound();
-  }
-
   return (
     <div className="min-h-screen bg-gray-50">
       <div className="container mx-auto px-4 py-8 max-w-2xl">
         {/* Header */}
         <div className="text-center mb-8">
-          {config.logo && (
-            <img
-              src={config.logo}
-              alt={config.name}
-              className="h-16 mx-auto mb-4"
-            />
-          )}
           <h1 className="text-3xl font-bold text-gray-900 mb-2">
             Finaliser votre réservation
           </h1>
@@ -65,13 +59,11 @@ export default async function PaymentPage({ params, searchParams }: Props) {
           <div className="space-y-2">
             <div className="flex justify-between">
               <span>Hôtel :</span>
-              <span className="font-medium">{config.name}</span>
+              <span className="font-medium">{establishment.name}</span>
             </div>
             <div className="flex justify-between">
               <span>Chambre :</span>
-              <span className="font-medium">
-                {room.name} (N° {room.id})
-              </span>
+              <span className="font-medium">{booking.room.name}</span>
             </div>
             <div className="flex justify-between">
               <span>Client :</span>
@@ -93,7 +85,11 @@ export default async function PaymentPage({ params, searchParams }: Props) {
         </div>
 
         {/* Formulaire de paiement */}
-        <PaymentForm booking={booking} hotelConfig={config} room={room} />
+        <PaymentForm
+          booking={booking}
+          establishment={establishment}
+          room={booking.room}
+        />
       </div>
     </div>
   );
