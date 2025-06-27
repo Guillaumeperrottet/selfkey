@@ -24,9 +24,8 @@ export interface HotelConfig {
   };
 }
 
-export interface AvailableRoom extends Room {
-  available: number;
-}
+// Plus besoin d'AvailableRoom, on utilise Room directement
+export type AvailableRoom = Room;
 
 export interface BookingData {
   roomId: string;

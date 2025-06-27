@@ -116,7 +116,7 @@ export function CheckinForm({ hotelSlug, hotelConfig, availableRooms }: Props) {
                   <div>
                     <div className="font-medium text-gray-900">{room.name}</div>
                     <div className="text-sm text-gray-500">
-                      Chambre {room.id} • {room.available} disponible(s)
+                      Disponible pour cette nuit
                     </div>
                   </div>
                 </div>

@@ -60,11 +60,37 @@ export default async function HotelPage({ params }: Props) {
     );
   }
 
-  // Récupérer les chambres disponibles directement
-  const rooms = await prisma.room.findMany({
+  // Récupérer les chambres disponibles (non réservées aujourd'hui)
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+
+  // Récupérer les IDs des chambres déjà réservées aujourd'hui
+  const bookedRoomIds = await prisma.booking
+    .findMany({
+      where: {
+        hotelSlug: hotel,
+        bookingDate: {
+          gte: today,
+          lt: new Date(today.getTime() + 24 * 60 * 60 * 1000),
+        },
+        stripePaymentIntentId: {
+          not: null, // Seulement les réservations confirmées
+        },
+      },
+      select: {
+        roomId: true,
+      },
+    })
+    .then((bookings) => bookings.map((b) => b.roomId));
+
+  // Récupérer seulement les chambres disponibles (non réservées)
+  const availableRooms = await prisma.room.findMany({
     where: {
       hotelSlug: hotel,
       isActive: true,
+      id: {
+        notIn: bookedRoomIds, // Exclure les chambres déjà réservées
+      },
     },
     select: {
       id: true,
@@ -72,12 +98,6 @@ export default async function HotelPage({ params }: Props) {
       price: true,
     },
   });
-
-  // Ajouter un nombre fixe de disponibilité pour le moment
-  const availableRooms = rooms.map((room) => ({
-    ...room,
-    available: 5, // Nombre fixe pour simplifier
-  }));
 
   return (
     <div className="min-h-screen bg-gray-50">
