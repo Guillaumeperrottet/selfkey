@@ -17,8 +17,8 @@ const eslintConfig = [
       ".next/**/*",
       "out/**/*",
       "node_modules/**/*",
-    ]
-  }
+    ],
+  },
 ];
 
 export default eslintConfig;

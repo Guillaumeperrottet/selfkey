@@ -47,18 +47,18 @@ interface Props {
 export function AdminDashboard({ establishment, rooms, bookings }: Props) {
   const [roomsState, setRoomsState] = useState(rooms);
   const [toggleLoading, setToggleLoading] = useState<string | null>(null);
-  
+
   const confirmedBookings = bookings.filter((b) => b.stripePaymentIntentId);
   const bookingsByRoom = Object.groupBy(confirmedBookings, (b) => b.roomId);
 
   const handleToggleRoom = async (roomId: string, currentStatus: boolean) => {
     setToggleLoading(roomId);
-    
+
     try {
       const response = await fetch(`/api/admin/rooms/${roomId}/toggle`, {
-        method: 'PATCH',
+        method: "PATCH",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
         body: JSON.stringify({
           isActive: !currentStatus,
@@ -67,19 +67,17 @@ export function AdminDashboard({ establishment, rooms, bookings }: Props) {
 
       if (response.ok) {
         // Mettre à jour l'état local
-        setRoomsState(prevRooms => 
-          prevRooms.map(room => 
-            room.id === roomId 
-              ? { ...room, isActive: !currentStatus }
-              : room
+        setRoomsState((prevRooms) =>
+          prevRooms.map((room) =>
+            room.id === roomId ? { ...room, isActive: !currentStatus } : room
           )
         );
       } else {
-        console.error('Erreur lors du toggle de la chambre');
+        console.error("Erreur lors du toggle de la chambre");
         // Optionnel: afficher un message d'erreur à l'utilisateur
       }
     } catch (error) {
-      console.error('Erreur lors du toggle de la chambre:', error);
+      console.error("Erreur lors du toggle de la chambre:", error);
     } finally {
       setToggleLoading(null);
     }
@@ -109,14 +107,18 @@ export function AdminDashboard({ establishment, rooms, bookings }: Props) {
               <div
                 key={room.id}
                 className={`flex items-center justify-between p-4 border rounded-lg ${
-                  room.isActive ? 'border-gray-200' : 'border-gray-300 bg-gray-50'
+                  room.isActive
+                    ? "border-gray-200"
+                    : "border-gray-300 bg-gray-50"
                 }`}
               >
                 <div className="flex-1">
                   <div className="flex items-center space-x-3">
-                    <h3 className={`text-lg font-medium ${
-                      room.isActive ? 'text-gray-900' : 'text-gray-500'
-                    }`}>
+                    <h3
+                      className={`text-lg font-medium ${
+                        room.isActive ? "text-gray-900" : "text-gray-500"
+                      }`}
+                    >
                       {room.name}
                     </h3>
                     {!room.isActive && (
@@ -125,9 +127,11 @@ export function AdminDashboard({ establishment, rooms, bookings }: Props) {
                       </span>
                     )}
                   </div>
-                  <p className={`text-sm ${
-                    room.isActive ? 'text-gray-500' : 'text-gray-400'
-                  }`}>
+                  <p
+                    className={`text-sm ${
+                      room.isActive ? "text-gray-500" : "text-gray-400"
+                    }`}
+                  >
                     {room.price} CHF par nuit
                   </p>
                   {bookingsByRoom[room.id] && room.isActive && (
@@ -168,8 +172,8 @@ export function AdminDashboard({ establishment, rooms, bookings }: Props) {
                     disabled={toggleLoading === room.id}
                     className={`px-3 py-1 text-xs font-medium rounded-full transition-colors ${
                       room.isActive
-                        ? 'bg-red-100 text-red-700 hover:bg-red-200'
-                        : 'bg-green-100 text-green-700 hover:bg-green-200'
+                        ? "bg-red-100 text-red-700 hover:bg-red-200"
+                        : "bg-green-100 text-green-700 hover:bg-green-200"
                     } disabled:opacity-50 disabled:cursor-not-allowed`}
                   >
                     {toggleLoading === room.id ? (
@@ -177,8 +181,10 @@ export function AdminDashboard({ establishment, rooms, bookings }: Props) {
                         <div className="animate-spin rounded-full h-3 w-3 border border-current border-t-transparent"></div>
                         <span>...</span>
                       </div>
+                    ) : room.isActive ? (
+                      "Désactiver"
                     ) : (
-                      room.isActive ? 'Désactiver' : 'Activer'
+                      "Activer"
                     )}
                   </button>
                 </div>
@@ -254,7 +260,11 @@ export function AdminDashboard({ establishment, rooms, bookings }: Props) {
             <div className="grid grid-cols-1 gap-4">
               <div className="bg-white rounded-lg shadow-md p-4 text-center">
                 <div className="text-2xl font-bold text-blue-600">
-                  {roomsState.filter((room) => room.isActive && room.inventory > 0).length}
+                  {
+                    roomsState.filter(
+                      (room) => room.isActive && room.inventory > 0
+                    ).length
+                  }
                 </div>
                 <div className="text-sm text-gray-600">
                   Chambres disponibles
@@ -286,7 +296,9 @@ export function AdminDashboard({ establishment, rooms, bookings }: Props) {
                 <div className="text-2xl font-bold text-gray-600">
                   {roomsState.filter((room) => !room.isActive).length}
                 </div>
-                <div className="text-sm text-gray-600">Chambres désactivées</div>
+                <div className="text-sm text-gray-600">
+                  Chambres désactivées
+                </div>
               </div>
             </div>
           </div>
