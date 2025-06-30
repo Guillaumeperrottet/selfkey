@@ -135,7 +135,7 @@ export default async function HotelPage({ params }: Props) {
               Aucune chambre disponible
             </h2>
             <p className="text-gray-600 mb-6">
-              Désolé, toutes nos chambres sont occupées pour ce soir.
+              Désolé, toutes nos chambres sont occupées.
             </p>
           </div>
         )}
