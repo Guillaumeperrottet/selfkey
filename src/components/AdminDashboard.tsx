@@ -1,5 +1,7 @@
 "use client";
 
+import { QRCodePreview } from "./QRCodePreview";
+
 interface RoomWithInventory {
   id: string;
   name: string;
@@ -167,31 +169,98 @@ export function AdminDashboard({ establishment, rooms, bookings }: Props) {
           )}
         </div>
 
-        {/* Statistiques rapides */}
-        <div className="mt-6 grid grid-cols-1 md:grid-cols-3 gap-4">
-          <div className="bg-white rounded-lg shadow-md p-4 text-center">
-            <div className="text-2xl font-bold text-blue-600">
-              {rooms.filter((room) => room.inventory > 0).length}
+        {/* Statistiques et actions */}
+        <div className="mt-6 grid grid-cols-1 md:grid-cols-3 gap-6">
+          {/* Statistiques */}
+          <div>
+            <h3 className="text-lg font-semibold text-gray-900 mb-4">
+              Statistiques rapides
+            </h3>
+            <div className="grid grid-cols-1 gap-4">
+              <div className="bg-white rounded-lg shadow-md p-4 text-center">
+                <div className="text-2xl font-bold text-blue-600">
+                  {rooms.filter((room) => room.inventory > 0).length}
+                </div>
+                <div className="text-sm text-gray-600">
+                  Chambres disponibles
+                </div>
+              </div>
+
+              <div className="bg-white rounded-lg shadow-md p-4 text-center">
+                <div className="text-2xl font-bold text-green-600">
+                  {confirmedBookings.length}
+                </div>
+                <div className="text-sm text-gray-600">
+                  Réservations confirmées
+                </div>
+              </div>
+
+              <div className="bg-white rounded-lg shadow-md p-4 text-center">
+                <div className="text-2xl font-bold text-purple-600">
+                  {confirmedBookings.reduce(
+                    (sum, booking) => sum + booking.amount,
+                    0
+                  )}{" "}
+                  CHF
+                </div>
+                <div className="text-sm text-gray-600">Revenus du jour</div>
+              </div>
             </div>
-            <div className="text-sm text-gray-600">Chambres disponibles</div>
           </div>
 
-          <div className="bg-white rounded-lg shadow-md p-4 text-center">
-            <div className="text-2xl font-bold text-green-600">
-              {confirmedBookings.length}
-            </div>
-            <div className="text-sm text-gray-600">Réservations confirmées</div>
+          {/* QR Code Preview */}
+          <div>
+            <QRCodePreview hotelSlug={establishment.slug} />
           </div>
 
-          <div className="bg-white rounded-lg shadow-md p-4 text-center">
-            <div className="text-2xl font-bold text-purple-600">
-              {confirmedBookings.reduce(
-                (sum, booking) => sum + booking.amount,
-                0
-              )}{" "}
-              CHF
+          {/* Actions supplémentaires */}
+          <div>
+            <h3 className="text-lg font-semibold text-gray-900 mb-4">
+              Actions rapides
+            </h3>
+            <div className="space-y-3">
+              <a
+                href={`/${establishment.slug}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="w-full bg-green-600 text-white px-4 py-3 rounded-lg hover:bg-green-700 flex items-center justify-center space-x-2"
+              >
+                <svg
+                  className="w-5 h-5"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"
+                  />
+                </svg>
+                <span>Voir la page de réservation</span>
+              </a>
+
+              <a
+                href={`/admin/${establishment.slug}/qr-code`}
+                className="w-full bg-blue-600 text-white px-4 py-3 rounded-lg hover:bg-blue-700 flex items-center justify-center space-x-2"
+              >
+                <svg
+                  className="w-5 h-5"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h4M4 12h4m12 0h.01M5 8h2a1 1 0 001-1V5a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1zm12 0h2a1 1 0 001-1V5a1 1 0 00-1-1h-2a1 1 0 00-1 1v2a1 1 0 001 1zM5 20h2a1 1 0 001-1v-2a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1z"
+                  />
+                </svg>
+                <span>Code QR imprimable</span>
+              </a>
             </div>
-            <div className="text-sm text-gray-600">Revenus du jour</div>
           </div>
         </div>
       </div>
