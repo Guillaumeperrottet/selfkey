@@ -73,20 +73,6 @@ export async function deleteRoom(roomId: string) {
     data: { isActive: false },
   });
 
-  // Supprimer l'inventaire futur pour cette chambre
-  const tomorrow = new Date();
-  tomorrow.setDate(tomorrow.getDate() + 1);
-  tomorrow.setHours(0, 0, 0, 0);
-
-  await prisma.dailyInventory.deleteMany({
-    where: {
-      roomId,
-      date: {
-        gte: tomorrow,
-      },
-    },
-  });
-
   return room;
 }
 

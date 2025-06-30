@@ -25,68 +25,51 @@ export async function getAvailableRooms(
     return [];
   }
 
-  // Récupérer l'inventaire du jour
-  const inventory = await prisma.dailyInventory.findMany({
-    where: {
-      hotelSlug,
-      date: today,
-      roomId: {
-        in: rooms.map((r) => r.id),
+  // Récupérer les IDs des chambres déjà réservées aujourd'hui
+  const bookedRoomIds = await prisma.booking
+    .findMany({
+      where: {
+        hotelSlug,
+        roomId: {
+          in: rooms.map((r) => r.id),
+        },
+        bookingDate: {
+          gte: today,
+          lt: new Date(today.getTime() + 24 * 60 * 60 * 1000),
+        },
+        stripePaymentIntentId: {
+          not: null, // Seulement les réservations confirmées
+        },
       },
-    },
-  });
-
-  // Compter les réservations du jour
-  const bookings = await prisma.booking.groupBy({
-    by: ["roomId"],
-    where: {
-      hotelSlug,
-      roomId: {
-        in: rooms.map((r) => r.id),
+      select: {
+        roomId: true,
       },
-      bookingDate: {
-        gte: today,
-        lt: new Date(today.getTime() + 24 * 60 * 60 * 1000),
-      },
-      stripePaymentIntentId: {
-        not: null, // Seulement les réservations payées
-      },
-    },
-    _count: {
-      id: true,
-    },
-  });
+    })
+    .then((bookings) => bookings.map((b) => b.roomId));
 
-  const bookingCounts = Object.fromEntries(
-    bookings.map((b) => [b.roomId, b._count.id])
-  );
-
-  const inventoryMap = Object.fromEntries(
-    inventory.map((i) => [i.roomId, i.quantity])
-  );
-
-  return rooms
-    .map((room) => ({
-      id: room.id,
-      name: room.name,
-      price: room.price,
-      available: Math.max(
-        0,
-        (inventoryMap[room.id] || 0) - (bookingCounts[room.id] || 0)
-      ),
-    }))
-    .filter((room) => room.available > 0);
+  // Calculer la disponibilité pour chaque chambre
+  return rooms.map((room) => ({
+    id: room.id,
+    name: room.name,
+    price: room.price,
+    available: bookedRoomIds.includes(room.id) ? 0 : 1, // 0 si réservée, 1 si disponible
+  }));
 }
 
-export async function updateInventory(
+/**
+ * Vérifier la disponibilité d'une chambre spécifique
+ */
+export async function isRoomAvailable(
   hotelSlug: string,
   roomId: string,
-  quantity: number
-): Promise<void> {
-  const today = new Date();
-  today.setHours(0, 0, 0, 0);
+  date: Date = new Date()
+): Promise<boolean> {
+  const startOfDay = new Date(date);
+  startOfDay.setHours(0, 0, 0, 0);
+  const endOfDay = new Date(date);
+  endOfDay.setHours(23, 59, 59, 999);
 
-  // Vérifier que la chambre existe et appartient à l'hôtel
+  // Vérifier que la chambre existe et est active
   const room = await prisma.room.findFirst({
     where: {
       id: roomId,
@@ -96,40 +79,23 @@ export async function updateInventory(
   });
 
   if (!room) {
-    throw new Error("Chambre non trouvée");
+    return false;
   }
 
-  await prisma.dailyInventory.upsert({
+  // Vérifier s'il y a une réservation confirmée pour cette chambre ce jour
+  const existingBooking = await prisma.booking.findFirst({
     where: {
-      hotelSlug_roomId_date: {
-        hotelSlug,
-        roomId,
-        date: today,
+      roomId,
+      hotelSlug,
+      bookingDate: {
+        gte: startOfDay,
+        lte: endOfDay,
+      },
+      stripePaymentIntentId: {
+        not: null,
       },
     },
-    update: {
-      quantity,
-    },
-    create: {
-      hotelSlug,
-      roomId,
-      date: today,
-      quantity,
-    },
   });
-}
 
-export async function resetInventoryForTomorrow(
-  hotelSlug: string
-): Promise<void> {
-  const tomorrow = new Date();
-  tomorrow.setDate(tomorrow.getDate() + 1);
-  tomorrow.setHours(0, 0, 0, 0);
-
-  await prisma.dailyInventory.deleteMany({
-    where: {
-      hotelSlug,
-      date: tomorrow,
-    },
-  });
+  return !existingBooking;
 }

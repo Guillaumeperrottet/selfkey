@@ -1,7 +1,7 @@
 // src/components/RoomManagement.tsx
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 
 interface Room {
   id: string;
@@ -32,11 +32,7 @@ export function RoomManagement({ hotelSlug, currency }: Props) {
     price: "",
   });
 
-  useEffect(() => {
-    loadRooms();
-  }, [hotelSlug]);
-
-  const loadRooms = async () => {
+  const loadRooms = useCallback(async () => {
     try {
       const response = await fetch(`/api/admin/rooms?hotel=${hotelSlug}`);
       const data = await response.json();
@@ -47,7 +43,11 @@ export function RoomManagement({ hotelSlug, currency }: Props) {
     } catch (error) {
       console.error("Erreur chargement chambres:", error);
     }
-  };
+  }, [hotelSlug]);
+
+  useEffect(() => {
+    loadRooms();
+  }, [loadRooms]);
 
   const resetForm = () => {
     setFormData({ name: "", price: "" });

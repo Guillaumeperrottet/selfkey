@@ -2,9 +2,9 @@ import { NextRequest, NextResponse } from "next/server";
 import { updateRoom, deleteRoom, getRoomById } from "@/lib/room-management";
 
 interface Params {
-  params: {
+  params: Promise<{
     id: string;
-  };
+  }>;
 }
 
 interface UpdateRoomData {
@@ -15,7 +15,7 @@ interface UpdateRoomData {
 export async function PUT(request: NextRequest, { params }: Params) {
   try {
     const { name, price } = await request.json();
-    const roomId = params.id;
+    const { id: roomId } = await params;
 
     const updateData: UpdateRoomData = {};
 
@@ -62,7 +62,7 @@ export async function PUT(request: NextRequest, { params }: Params) {
 
 export async function DELETE(request: NextRequest, { params }: Params) {
   try {
-    const roomId = params.id;
+    const { id: roomId } = await params;
 
     await deleteRoom(roomId);
 
@@ -86,7 +86,7 @@ export async function DELETE(request: NextRequest, { params }: Params) {
 
 export async function GET(request: NextRequest, { params }: Params) {
   try {
-    const roomId = params.id;
+    const { id: roomId } = await params;
     const room = await getRoomById(roomId);
 
     if (!room) {

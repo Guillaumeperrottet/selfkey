@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { StripeAccount } from "@/types/hotel";
 
 interface Props {
@@ -18,12 +18,7 @@ export function StripeOnboarding({ hotelSlug }: Props) {
   const [setupError, setSetupError] = useState<string | null>(null);
   const [connectEnabled, setConnectEnabled] = useState(true);
 
-  useEffect(() => {
-    checkStripeStatus();
-    checkConnectSetup();
-  }, [hotelSlug]);
-
-  const checkConnectSetup = async () => {
+  const checkConnectSetup = useCallback(async () => {
     try {
       const response = await fetch("/api/stripe/setup-check");
       const setup = await response.json();
@@ -35,9 +30,9 @@ export function StripeOnboarding({ hotelSlug }: Props) {
     } catch (error) {
       console.error("Erreur vérification setup:", error);
     }
-  };
+  }, []);
 
-  const checkStripeStatus = async () => {
+  const checkStripeStatus = useCallback(async () => {
     try {
       const response = await fetch(`/api/stripe/onboard?hotel=${hotelSlug}`);
       const data = await response.json();
@@ -51,7 +46,12 @@ export function StripeOnboarding({ hotelSlug }: Props) {
     } catch (error) {
       console.error("Erreur vérification Stripe:", error);
     }
-  };
+  }, [hotelSlug]);
+
+  useEffect(() => {
+    checkStripeStatus();
+    checkConnectSetup();
+  }, [checkStripeStatus, checkConnectSetup]);
 
   const startOnboarding = async () => {
     if (!email) {

@@ -65,6 +65,7 @@ export default async function AdminPage({ params }: Props) {
     name: room.name,
     price: room.price,
     inventory: bookedRoomIds.includes(room.id) ? 0 : 1, // 0 si réservée, 1 si disponible
+    isActive: room.isActive,
   }));
 
   // Si on a un stripeAccountId mais pas encore marqué comme onboarded,

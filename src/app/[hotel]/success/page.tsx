@@ -1,15 +1,16 @@
 import { notFound } from "next/navigation";
+import Image from "next/image";
 import { prisma } from "@/lib/prisma";
 import { getHotelConfig } from "@/lib/hotel-config";
 
 interface Props {
-  params: { hotel: string };
-  searchParams: { booking?: string };
+  params: Promise<{ hotel: string }>;
+  searchParams: Promise<{ booking?: string }>;
 }
 
 export default async function SuccessPage({ params, searchParams }: Props) {
-  const { hotel } = params;
-  const { booking: bookingId } = searchParams;
+  const { hotel } = await params;
+  const { booking: bookingId } = await searchParams;
 
   if (!bookingId) {
     notFound();
@@ -43,9 +44,11 @@ export default async function SuccessPage({ params, searchParams }: Props) {
         {/* Header */}
         <div className="text-center mb-8">
           {config.logo && (
-            <img
+            <Image
               src={config.logo}
               alt={config.name}
+              width={64}
+              height={64}
               className="h-16 mx-auto mb-4"
             />
           )}
