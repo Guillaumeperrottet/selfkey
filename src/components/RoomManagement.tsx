@@ -138,47 +138,62 @@ export function RoomManagement({ hotelSlug, currency }: Props) {
   };
 
   return (
-    <div className="bg-white rounded-lg shadow-md p-6">
+    <div>
       <div className="flex justify-between items-center mb-6">
-        <h2 className="text-xl font-semibold text-gray-900">
-          Gestion des chambres ({rooms.length})
-        </h2>
+        <div>
+          <h3 className="text-xl font-semibold text-gray-900">
+            Chambres disponibles
+          </h3>
+          <p className="text-gray-600 text-sm mt-1">
+            {rooms.length}{" "}
+            {rooms.length > 1 ? "chambres configurées" : "chambre configurée"}
+          </p>
+        </div>
         <button
           onClick={() => setShowAddForm(true)}
-          className="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition-colors"
+          className="bg-gradient-to-r from-blue-600 to-indigo-600 text-white px-6 py-3 rounded-xl hover:from-blue-700 hover:to-indigo-700 transition-all duration-200 shadow-lg hover:shadow-xl transform hover:scale-105 flex items-center space-x-2"
         >
-          + Ajouter une chambre
+          <span className="text-lg">+</span>
+          <span className="font-medium">Ajouter une chambre</span>
         </button>
       </div>
 
-      {/* Messages */}
+      {/* Messages avec design amélioré */}
       {message && (
         <div
-          className={`mb-4 p-3 rounded-lg ${
+          className={`mb-6 p-4 rounded-xl border-l-4 ${
             message.type === "success"
-              ? "bg-green-50 border border-green-200 text-green-700"
-              : "bg-red-50 border border-red-200 text-red-700"
+              ? "bg-green-50 border-green-400 text-green-800"
+              : "bg-red-50 border-red-400 text-red-800"
           }`}
         >
-          {message.text}
+          <div className="flex items-center">
+            <span className="mr-2">
+              {message.type === "success" ? "✅" : "❌"}
+            </span>
+            <span className="font-medium">{message.text}</span>
+          </div>
         </div>
       )}
 
-      {/* Formulaire d'ajout/édition */}
+      {/* Formulaire d'ajout/édition avec design moderne */}
       {showAddForm && (
-        <div className="bg-gray-50 p-4 rounded-lg mb-6">
-          <h3 className="text-lg font-medium text-gray-900 mb-4">
+        <div className="bg-gradient-to-r from-gray-50 to-gray-100 p-6 rounded-2xl mb-8 border border-gray-200 shadow-sm">
+          <h3 className="text-xl font-semibold text-gray-900 mb-6 flex items-center">
+            <span className="w-8 h-8 bg-blue-100 rounded-lg flex items-center justify-center mr-3">
+              {editingRoom ? "✏️" : "➕"}
+            </span>
             {editingRoom
               ? "Modifier la chambre"
               : "Ajouter une nouvelle chambre"}
           </h3>
 
-          <form onSubmit={handleSubmit} className="space-y-4">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <form onSubmit={handleSubmit} className="space-y-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div>
                 <label
                   htmlFor="name"
-                  className="block text-sm font-medium text-gray-700 mb-1"
+                  className="block text-sm font-semibold text-gray-700 mb-2"
                 >
                   Nom de la chambre *
                 </label>
@@ -190,7 +205,7 @@ export function RoomManagement({ hotelSlug, currency }: Props) {
                     setFormData((prev) => ({ ...prev, name: e.target.value }))
                   }
                   placeholder="Ex: Chambre Standard, Suite Deluxe..."
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 shadow-sm"
                   required
                 />
               </div>
@@ -198,7 +213,7 @@ export function RoomManagement({ hotelSlug, currency }: Props) {
               <div>
                 <label
                   htmlFor="price"
-                  className="block text-sm font-medium text-gray-700 mb-1"
+                  className="block text-sm font-semibold text-gray-700 mb-2"
                 >
                   Prix ({currency}) *
                 </label>
@@ -212,38 +227,38 @@ export function RoomManagement({ hotelSlug, currency }: Props) {
                   placeholder="120"
                   min="1"
                   step="0.01"
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 shadow-sm"
                   required
                 />
               </div>
             </div>
 
-            <div className="flex gap-3">
+            <div className="flex gap-3 pt-4">
               <button
                 type="submit"
                 disabled={isLoading}
-                className="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                className="bg-gradient-to-r from-blue-600 to-indigo-600 text-white px-6 py-3 rounded-xl hover:from-blue-700 hover:to-indigo-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 shadow-lg hover:shadow-xl transform hover:scale-105 font-medium"
               >
                 {isLoading
                   ? "Sauvegarde..."
                   : editingRoom
-                    ? "Modifier"
-                    : "Ajouter"}
+                    ? "💾 Modifier"
+                    : "➕ Ajouter"}
               </button>
 
               <button
                 type="button"
                 onClick={resetForm}
-                className="bg-gray-300 text-gray-700 px-4 py-2 rounded-md hover:bg-gray-400 transition-colors"
+                className="bg-gray-200 text-gray-700 px-6 py-3 rounded-xl hover:bg-gray-300 transition-all duration-200 font-medium"
               >
-                Annuler
+                ❌ Annuler
               </button>
             </div>
           </form>
         </div>
       )}
 
-      {/* Liste des chambres */}
+      {/* Liste des chambres avec design moderne */}
       {rooms.length > 0 ? (
         <div className="space-y-3">
           {rooms.map((room) => (

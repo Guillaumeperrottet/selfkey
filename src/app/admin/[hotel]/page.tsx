@@ -94,30 +94,58 @@ export default async function AdminPage({ params }: Props) {
     establishment.stripeAccountId && establishment.stripeOnboarded;
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50">
       <div className="container mx-auto px-4 py-8 max-w-6xl">
-        {/* Header */}
-        <div className="text-center mb-8">
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">
-            Dashboard Admin - {establishment.name}
-          </h1>
-          <p className="text-gray-600">
-            Gestion des chambres, inventaire et configuration des paiements
-          </p>
+        {/* Header moderne avec gradient */}
+        <div className="relative mb-8 overflow-hidden rounded-2xl bg-gradient-to-r from-blue-600 via-purple-600 to-indigo-600 p-8 text-white shadow-xl">
+          <div className="absolute inset-0 bg-black/10"></div>
+          <div className="relative z-10 text-center">
+            <div className="flex items-center justify-center mb-4">
+              <div className="rounded-full bg-white/20 p-3 backdrop-blur-sm">
+                <svg
+                  className="h-8 w-8 text-white"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"
+                  />
+                </svg>
+              </div>
+            </div>
+            <h1 className="text-4xl font-bold mb-3">Dashboard Admin</h1>
+            <h2 className="text-xl font-medium text-blue-100 mb-2">
+              {establishment.name}
+            </h2>
+            <p className="text-blue-100/80 text-lg">
+              Gestion des chambres, inventaire et configuration des paiements
+            </p>
+          </div>
+          {/* Effet de particules/vague */}
+          <div className="absolute -bottom-2 left-0 right-0 h-4 bg-gradient-to-r from-blue-400/30 via-purple-400/30 to-indigo-400/30 rounded-full blur-sm"></div>
         </div>
 
-        {/* Configuration Stripe */}
+        {/* Configuration Stripe avec design moderne */}
         <div className="mb-8">
           <StripeOnboarding hotelSlug={hotel} hotelName={establishment.name} />
         </div>
 
-        {/* Affichage commission si configurée */}
+        {/* Affichage commission avec design moderne */}
         {(establishment.commissionRate > 0 || establishment.fixedFee > 0) && (
-          <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6">
-            <h3 className="text-sm font-semibold text-blue-800 mb-1">
-              Commission plateforme
-            </h3>
-            <p className="text-blue-700 text-sm">
+          <div className="bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200 rounded-2xl p-6 mb-8 shadow-sm">
+            <div className="flex items-center mb-3">
+              <div className="w-8 h-8 bg-blue-100 rounded-lg flex items-center justify-center mr-3">
+                <span className="text-blue-600">💳</span>
+              </div>
+              <h3 className="text-lg font-semibold text-blue-900">
+                Commission plateforme
+              </h3>
+            </div>
+            <p className="text-blue-800 font-medium">
               {establishment.commissionRate > 0 &&
                 `${establishment.commissionRate}% du montant`}
               {establishment.commissionRate > 0 &&
@@ -129,29 +157,51 @@ export default async function AdminPage({ params }: Props) {
           </div>
         )}
 
-        {/* Gestion des chambres */}
+        {/* Gestion des chambres avec design moderne */}
         <div className="mb-8">
-          <RoomManagement hotelSlug={hotel} currency="CHF" />
+          <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+            <div className="bg-gradient-to-r from-purple-50 to-pink-50 px-6 py-4 border-b border-gray-100">
+              <h2 className="text-lg font-semibold text-gray-800 flex items-center">
+                <span className="w-2 h-2 bg-purple-500 rounded-full mr-3"></span>
+                Gestion des chambres
+              </h2>
+            </div>
+            <div className="p-6">
+              <RoomManagement hotelSlug={hotel} currency="CHF" />
+            </div>
+          </div>
         </div>
 
         {/* Dashboard inventaire et réservations */}
         {finalIsStripeConfigured && dbRooms.length > 0 ? (
-          <AdminDashboard
-            establishment={establishment}
-            rooms={roomsWithInventory}
-            bookings={todayBookings}
-          />
-        ) : (
-          <div className="bg-white rounded-lg shadow-md p-6 text-center">
-            <div className="text-4xl mb-4">
-              {!finalIsStripeConfigured ? "⚠️" : "🏨"}
+          <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+            <div className="bg-gradient-to-r from-orange-50 to-amber-50 px-6 py-4 border-b border-gray-100">
+              <h2 className="text-lg font-semibold text-gray-800 flex items-center">
+                <span className="w-2 h-2 bg-orange-500 rounded-full mr-3"></span>
+                Tableau de bord
+              </h2>
             </div>
-            <h2 className="text-xl font-semibold text-gray-800 mb-2">
+            <div className="p-6">
+              <AdminDashboard
+                establishment={establishment}
+                rooms={roomsWithInventory}
+                bookings={todayBookings}
+              />
+            </div>
+          </div>
+        ) : (
+          <div className="bg-white rounded-2xl shadow-lg border border-gray-100 p-8 text-center">
+            <div className="w-20 h-20 bg-gradient-to-r from-gray-100 to-gray-200 rounded-2xl flex items-center justify-center mx-auto mb-6 shadow-inner">
+              <span className="text-4xl">
+                {!finalIsStripeConfigured ? "⚠️" : "🏨"}
+              </span>
+            </div>
+            <h2 className="text-2xl font-bold text-gray-800 mb-3">
               {!finalIsStripeConfigured
                 ? "Configuration Stripe requise"
                 : "Ajoutez vos premières chambres"}
             </h2>
-            <p className="text-gray-600">
+            <p className="text-gray-600 text-lg leading-relaxed max-w-md mx-auto">
               {!finalIsStripeConfigured
                 ? "Veuillez d'abord configurer votre compte Stripe pour accepter les paiements."
                 : "Créez vos types de chambres pour commencer à accepter des réservations."}
