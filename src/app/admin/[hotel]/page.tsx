@@ -2,6 +2,9 @@ import { prisma } from "@/lib/prisma";
 import { AdminDashboard } from "@/components/AdminDashboard";
 import { StripeOnboarding } from "@/components/StripeOnboarding";
 import { RoomManagement } from "@/components/RoomManagement";
+import { auth } from "@/lib/auth";
+import { headers } from "next/headers";
+import { redirect } from "next/navigation";
 
 interface Props {
   params: Promise<{ hotel: string }>;
@@ -10,20 +13,34 @@ interface Props {
 export default async function AdminPage({ params }: Props) {
   const { hotel } = await params;
 
-  // Récupérer ou créer l'établissement
-  let establishment = await prisma.establishment.findUnique({
-    where: { slug: hotel },
+  // Vérifier l'authentification
+  const session = await auth.api.getSession({
+    headers: await headers(),
   });
 
-  if (!establishment) {
-    // Créer l'établissement avec des valeurs par défaut
-    establishment = await prisma.establishment.create({
-      data: {
-        slug: hotel,
-        name: hotel.charAt(0).toUpperCase() + hotel.slice(1).replace(/-/g, " "),
-      },
-    });
+  if (!session?.user) {
+    redirect("/login?callbackUrl=/admin/" + hotel);
   }
+
+  // Vérifier les permissions d'accès à cet établissement
+  const userEstablishment = await prisma.userEstablishment.findFirst({
+    where: {
+      userId: session.user.id,
+      establishment: {
+        slug: hotel,
+      },
+    },
+    include: {
+      establishment: true,
+    },
+  });
+
+  if (!userEstablishment) {
+    // L'utilisateur n'a pas accès à cet établissement
+    redirect("/establishments");
+  }
+
+  const establishment = userEstablishment.establishment;
 
   // Récupérer les chambres depuis la base de données
   const dbRooms = await prisma.room.findMany({

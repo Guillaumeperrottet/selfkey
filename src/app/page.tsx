@@ -28,7 +28,7 @@ export default function Home() {
               À propos
             </Link>
             <Link
-              href="/admin"
+              href="/establishments"
               className="bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700 transition-colors"
             >
               Administration
@@ -54,7 +54,7 @@ export default function Home() {
 
           <div className="flex flex-col sm:flex-row gap-4 justify-center mb-16">
             <Link
-              href="/admin"
+              href="/establishments"
               className="bg-indigo-600 text-white px-8 py-4 rounded-lg text-lg font-semibold hover:bg-indigo-700 transform hover:scale-105 transition-all duration-200 shadow-lg"
             >
               Accéder à l&apos;administration
