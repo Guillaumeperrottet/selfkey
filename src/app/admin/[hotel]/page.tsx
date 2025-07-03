@@ -82,34 +82,41 @@ export default async function AdminPage({ params }: Props) {
   const today = new Date();
   today.setHours(0, 0, 0, 0);
 
-  // Récupérer les réservations du jour
-  const todayBookings = await prisma.booking.findMany({
+  // Récupérer les réservations actuelles et futures
+  const currentBookings = await prisma.booking.findMany({
     where: {
       hotelSlug: hotel,
-      bookingDate: {
-        gte: today,
-        lt: new Date(today.getTime() + 24 * 60 * 60 * 1000),
-      },
+      OR: [
+        // Réservations en cours ou à venir
+        { checkOutDate: { gte: today } },
+        // Réservations d'aujourd'hui
+        { checkInDate: { gte: today } },
+      ],
+      // Seulement les réservations confirmées
+      stripePaymentIntentId: { not: null },
     },
     include: {
       room: true, // Inclure les détails de la chambre
     },
     orderBy: {
-      bookingDate: "desc",
+      checkInDate: "asc",
     },
   });
 
-  // Dans le système simplifié, chaque chambre a une disponibilité de 1
-  // On calcule les chambres disponibles en soustrayant les réservations (seulement pour les chambres actives)
-  const bookedRoomIds = todayBookings.map((booking) => booking.roomId);
+  // Utiliser la nouvelle logique de disponibilité avec checkout à 12h
+  const { getCurrentlyAvailableRooms } = await import("@/lib/availability");
+  const roomsAvailability = await getCurrentlyAvailableRooms(hotel);
 
-  const roomsWithInventory = activeRooms.map((room) => ({
-    id: room.id,
-    name: room.name,
-    price: room.price,
-    inventory: bookedRoomIds.includes(room.id) ? 0 : 1, // 0 si réservée, 1 si disponible
-    isActive: room.isActive,
-  }));
+  const roomsWithInventory = activeRooms.map((room) => {
+    const availability = roomsAvailability.find((r) => r.id === room.id);
+    return {
+      id: room.id,
+      name: room.name,
+      price: room.price,
+      inventory: availability?.available ? 1 : 0, // 1 si disponible, 0 si occupée
+      isActive: room.isActive,
+    };
+  });
 
   // Si on a un stripeAccountId mais pas encore marqué comme onboarded,
   // vérifier le statut réel auprès de Stripe
@@ -263,10 +270,13 @@ export default async function AdminPage({ params }: Props) {
                   </CardHeader>
                   <CardContent>
                     <div className="text-2xl font-bold">
-                      {todayBookings.length}
+                      {currentBookings.length}
                     </div>
                     <p className="text-xs text-muted-foreground">
-                      {todayBookings.reduce((sum, b) => sum + b.guests, 0)}{" "}
+                      {currentBookings.reduce(
+                        (sum: number, b) => sum + b.guests,
+                        0
+                      )}{" "}
                       clients
                     </p>
                   </CardContent>
@@ -281,16 +291,16 @@ export default async function AdminPage({ params }: Props) {
                   </CardHeader>
                   <CardContent>
                     <div className="text-2xl font-bold">
-                      {todayBookings
-                        .reduce((sum, b) => sum + b.amount, 0)
+                      {currentBookings
+                        .reduce((sum: number, b) => sum + b.amount, 0)
                         .toFixed(2)}{" "}
                       CHF
                     </div>
                     <p className="text-xs text-muted-foreground">
                       Commission:{" "}
-                      {todayBookings
+                      {currentBookings
                         .reduce(
-                          (sum, b) =>
+                          (sum: number, b) =>
                             sum +
                             (b.amount * establishment.commissionRate) / 100,
                           0
@@ -404,9 +414,9 @@ export default async function AdminPage({ params }: Props) {
                 </CardDescription>
               </CardHeader>
               <CardContent>
-                {todayBookings.length > 0 ? (
+                {currentBookings.length > 0 ? (
                   <div className="space-y-4">
-                    {todayBookings.map((booking) => (
+                    {currentBookings.map((booking) => (
                       <div
                         key={booking.id}
                         className="flex items-center justify-between p-4 border rounded-lg"
@@ -419,6 +429,21 @@ export default async function AdminPage({ params }: Props) {
                           <p className="text-sm text-muted-foreground">
                             Chambre: {booking.room.name}
                           </p>
+                          <div className="flex gap-2 text-xs">
+                            <span>
+                              Arrivée:{" "}
+                              {new Date(booking.checkInDate).toLocaleDateString(
+                                "fr-FR"
+                              )}
+                            </span>
+                            <span>
+                              Départ:{" "}
+                              {new Date(
+                                booking.checkOutDate
+                              ).toLocaleDateString("fr-FR")}{" "}
+                              (12h00)
+                            </span>
+                          </div>
                         </div>
                         <div className="text-right">
                           <p className="font-semibold">{booking.amount} CHF</p>
@@ -427,6 +452,50 @@ export default async function AdminPage({ params }: Props) {
                               "fr-FR"
                             )}
                           </p>
+                          {(() => {
+                            const now = new Date();
+                            const today = new Date();
+                            today.setHours(0, 0, 0, 0);
+                            const checkOut = new Date(booking.checkOutDate);
+                            const checkIn = new Date(booking.checkInDate);
+
+                            if (
+                              checkOut.toDateString() ===
+                                today.toDateString() &&
+                              now.getHours() < 12
+                            ) {
+                              return (
+                                <span className="text-xs bg-orange-100 text-orange-800 px-2 py-1 rounded">
+                                  Départ aujourd&apos;hui
+                                </span>
+                              );
+                            } else if (
+                              checkOut.toDateString() ===
+                                today.toDateString() &&
+                              now.getHours() >= 12
+                            ) {
+                              return (
+                                <span className="text-xs bg-green-100 text-green-800 px-2 py-1 rounded">
+                                  Chambre libérée
+                                </span>
+                              );
+                            } else if (
+                              checkIn.toDateString() === today.toDateString()
+                            ) {
+                              return (
+                                <span className="text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded">
+                                  Arrivée aujourd&apos;hui
+                                </span>
+                              );
+                            } else if (checkIn < today && checkOut > today) {
+                              return (
+                                <span className="text-xs bg-red-100 text-red-800 px-2 py-1 rounded">
+                                  En cours
+                                </span>
+                              );
+                            }
+                            return null;
+                          })()}
                         </div>
                       </div>
                     ))}

@@ -230,3 +230,130 @@ async function getAvailableRoomsToday(
     available: bookedRoomIds.includes(room.id) ? 0 : 1,
   }));
 }
+
+/**
+ * Obtient l'heure actuelle avec le fuseau horaire correct
+ */
+export function getCurrentDateTime(): Date {
+  return new Date();
+}
+
+/**
+ * Vérifie si une chambre est actuellement disponible en tenant compte
+ * de l'heure de checkout (12h00)
+ */
+export async function isRoomCurrentlyAvailable(
+  roomId: string,
+  hotelSlug: string
+): Promise<boolean> {
+  const now = getCurrentDateTime();
+  const today = new Date(now);
+  today.setHours(0, 0, 0, 0);
+
+  const tomorrow = new Date(today);
+  tomorrow.setDate(tomorrow.getDate() + 1);
+
+  // Récupérer les réservations qui pourraient affecter la disponibilité aujourd'hui
+  const conflictingBookings = await prisma.booking.findMany({
+    where: {
+      roomId,
+      hotelSlug,
+      OR: [
+        // Réservations qui arrivent aujourd'hui (check-in aujourd'hui)
+        {
+          checkInDate: {
+            gte: today,
+            lt: tomorrow,
+          },
+        },
+        // Réservations qui partent aujourd'hui (check-out aujourd'hui)
+        {
+          checkOutDate: {
+            gte: today,
+            lt: tomorrow,
+          },
+        },
+        // Réservations qui englobent aujourd'hui
+        {
+          AND: [
+            { checkInDate: { lt: today } },
+            { checkOutDate: { gt: today } },
+          ],
+        },
+      ],
+      // Seulement les réservations confirmées (avec payment intent)
+      stripePaymentIntentId: { not: null },
+    },
+  });
+
+  if (conflictingBookings.length === 0) {
+    return true; // Aucune réservation, chambre disponible
+  }
+
+  // Vérifier les règles spécifiques selon l'heure
+  const currentHour = now.getHours();
+
+  for (const booking of conflictingBookings) {
+    // Si la réservation part aujourd'hui
+    if (booking.checkOutDate.toDateString() === today.toDateString()) {
+      // Avant 12h : chambre occupée
+      // Après 12h : chambre disponible
+      if (currentHour < 12) {
+        return false;
+      }
+    }
+
+    // Si la réservation arrive aujourd'hui
+    if (booking.checkInDate.toDateString() === today.toDateString()) {
+      // La chambre devient occupée dès l'arrivée prévue
+      return false;
+    }
+
+    // Si la réservation englobe aujourd'hui (check-in avant aujourd'hui, check-out après aujourd'hui)
+    if (booking.checkInDate < today && booking.checkOutDate > tomorrow) {
+      return false;
+    }
+  }
+
+  return true;
+}
+
+/**
+ * Obtient la liste des chambres actuellement disponibles pour un hôtel
+ * en tenant compte de l'heure de checkout
+ */
+export async function getCurrentlyAvailableRooms(
+  hotelSlug: string
+): Promise<
+  Array<{
+    id: string;
+    name: string;
+    price: number;
+    isActive: boolean;
+    available: boolean;
+  }>
+> {
+  // Récupérer toutes les chambres actives
+  const rooms = await prisma.room.findMany({
+    where: {
+      hotelSlug,
+      isActive: true,
+    },
+  });
+
+  // Vérifier la disponibilité de chaque chambre
+  const roomsWithAvailability = await Promise.all(
+    rooms.map(async (room) => {
+      const available = await isRoomCurrentlyAvailable(room.id, hotelSlug);
+      return {
+        id: room.id,
+        name: room.name,
+        price: room.price,
+        isActive: room.isActive,
+        available,
+      };
+    })
+  );
+
+  return roomsWithAvailability;
+}
