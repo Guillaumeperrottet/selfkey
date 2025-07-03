@@ -1,26 +1,20 @@
 import { NextResponse, type NextRequest } from "next/server";
-import { auth } from "./lib/auth";
 
 export async function middleware(request: NextRequest) {
   // Protéger les routes admin
   if (request.nextUrl.pathname.startsWith("/admin")) {
-    const session = await auth.api.getSession({
-      headers: request.headers,
-    });
+    // Vérifier si il y a un token de session dans les cookies
+    const sessionToken = request.cookies.get("better-auth.session_token");
 
-    if (!session) {
+    if (!sessionToken) {
       const url = request.nextUrl.clone();
       url.pathname = "/login";
       url.searchParams.set("callbackUrl", request.nextUrl.pathname);
       return NextResponse.redirect(url);
     }
 
-    // Vérifier si l'utilisateur a accès à cet hôtel
-    const hotelSlug = request.nextUrl.pathname.split("/")[2];
-    if (hotelSlug) {
-      // Ici vous pourriez ajouter une vérification supplémentaire
-      // pour s'assurer que l'utilisateur a accès à cet hôtel spécifique
-    }
+    // Pour une vérification plus approfondie, nous laisserons les pages
+    // faire leur propre vérification avec l'API
   }
 
   return NextResponse.next();

@@ -1,10 +1,31 @@
 import { prisma } from "@/lib/prisma";
-import { AdminDashboard } from "@/components/AdminDashboard";
 import { StripeOnboarding } from "@/components/StripeOnboarding";
 import { RoomManagement } from "@/components/RoomManagement";
 import { auth } from "@/lib/auth";
 import { headers } from "next/headers";
 import { redirect } from "next/navigation";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import {
+  CalendarDays,
+  CreditCard,
+  Hotel,
+  Settings,
+  BarChart3,
+  QrCode,
+  Users,
+  Bed,
+} from "lucide-react";
+import Link from "next/link";
 
 interface Props {
   params: Promise<{ hotel: string }>;
@@ -111,119 +132,286 @@ export default async function AdminPage({ params }: Props) {
     establishment.stripeAccountId && establishment.stripeOnboarded;
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <div className="max-w-7xl mx-auto px-4 py-8">
-        {/* Header simplifié */}
-        <header className="mb-8">
-          <div className="flex items-center justify-between">
-            <div>
-              <h1 className="text-3xl font-bold text-gray-900 mb-1">
-                {establishment.name}
-              </h1>
-              <p className="text-gray-600">Administration</p>
-            </div>
-            <div className="flex items-center space-x-2 text-sm text-gray-500">
-              <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
-                <path
-                  fillRule="evenodd"
-                  d="M6 2a1 1 0 00-1 1v1H4a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2h-1V3a1 1 0 10-2 0v1H7V3a1 1 0 00-1-1zm0 5a1 1 0 000 2h8a1 1 0 100-2H6z"
-                  clipRule="evenodd"
-                />
-              </svg>
-              <span>{new Date().toLocaleDateString("fr-FR")}</span>
-            </div>
+    <div className="min-h-screen bg-background">
+      <div className="container mx-auto px-4 py-8 max-w-7xl">
+        {/* Header moderne */}
+        <div className="flex items-center justify-between mb-8">
+          <div className="space-y-1">
+            <h1 className="text-3xl font-bold tracking-tight">
+              {establishment.name}
+            </h1>
+            <p className="text-muted-foreground flex items-center gap-2">
+              <Hotel className="h-4 w-4" />
+              Administration de l&apos;établissement
+            </p>
           </div>
-        </header>
+          <div className="flex items-center gap-4">
+            <Badge variant="outline" className="flex items-center gap-2">
+              <CalendarDays className="h-4 w-4" />
+              {new Date().toLocaleDateString("fr-FR")}
+            </Badge>
+            <Link href={`/admin/${hotel}/qr-code`}>
+              <Button
+                variant="outline"
+                size="sm"
+                className="flex items-center gap-2"
+              >
+                <QrCode className="h-4 w-4" />
+                Code QR
+              </Button>
+            </Link>
+          </div>
+        </div>
 
-        {/* Grid layout pour organiser les sections */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          {/* Configuration Stripe */}
-          <div className="lg:col-span-3">
+        {/* Configuration Stripe */}
+        <Card className="mb-6">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <CreditCard className="h-5 w-5" />
+              Configuration des paiements
+            </CardTitle>
+            <CardDescription>
+              Connectez votre compte Stripe pour accepter les paiements en ligne
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
             <StripeOnboarding
               hotelSlug={hotel}
               hotelName={establishment.name}
             />
-          </div>
+          </CardContent>
+        </Card>
 
-          {/* Commission info - si présente */}
-          {(establishment.commissionRate > 0 || establishment.fixedFee > 0) && (
-            <div className="lg:col-span-3">
-              <div className="bg-white border border-gray-200 rounded-lg p-4">
-                <div className="flex items-center space-x-3 mb-2">
-                  <div className="w-6 h-6 bg-gray-100 rounded flex items-center justify-center">
-                    <svg
-                      className="w-4 h-4 text-gray-600"
-                      fill="currentColor"
-                      viewBox="0 0 20 20"
-                    >
-                      <path d="M4 4a2 2 0 00-2 2v4a2 2 0 002 2V6h10a2 2 0 00-2-2H4zm2 6a2 2 0 012-2h8a2 2 0 012 2v4a2 2 0 01-2 2H8a2 2 0 01-2-2v-4zm6 4a2 2 0 100-4 2 2 0 000 4z" />
-                    </svg>
-                  </div>
-                  <h3 className="font-medium text-gray-900">Commission</h3>
-                </div>
-                <p className="text-sm text-gray-600">
-                  {establishment.commissionRate > 0 &&
-                    `${establishment.commissionRate}% du montant`}
-                  {establishment.commissionRate > 0 &&
-                    establishment.fixedFee > 0 &&
-                    " + "}
-                  {establishment.fixedFee > 0 &&
-                    `${establishment.fixedFee} CHF par transaction`}
-                </p>
-              </div>
-            </div>
-          )}
+        {/* Commission info */}
+        {(establishment.commissionRate > 0 || establishment.fixedFee > 0) && (
+          <Alert className="mb-6">
+            <BarChart3 className="h-4 w-4" />
+            <AlertDescription>
+              <strong>Commission:</strong>{" "}
+              {establishment.commissionRate > 0 &&
+                `${establishment.commissionRate}% du montant`}
+              {establishment.commissionRate > 0 &&
+                establishment.fixedFee > 0 &&
+                " + "}
+              {establishment.fixedFee > 0 &&
+                `${establishment.fixedFee} CHF par transaction`}
+            </AlertDescription>
+          </Alert>
+        )}
 
-          {/* Gestion des chambres */}
-          <div className="lg:col-span-2">
-            <div className="bg-white border border-gray-200 rounded-lg">
-              <div className="px-4 py-3 border-b border-gray-200">
-                <h2 className="font-medium text-gray-900">Chambres</h2>
-              </div>
-              <div className="p-4">
-                <RoomManagement hotelSlug={hotel} currency="CHF" />
-              </div>
-            </div>
-          </div>
+        {/* Interface principale avec onglets */}
+        <Tabs defaultValue="overview" className="space-y-6">
+          <TabsList className="grid w-full grid-cols-3">
+            <TabsTrigger value="overview" className="flex items-center gap-2">
+              <BarChart3 className="h-4 w-4" />
+              Vue d&apos;ensemble
+            </TabsTrigger>
+            <TabsTrigger value="rooms" className="flex items-center gap-2">
+              <Bed className="h-4 w-4" />
+              Chambres
+            </TabsTrigger>
+            <TabsTrigger value="bookings" className="flex items-center gap-2">
+              <Users className="h-4 w-4" />
+              Réservations
+            </TabsTrigger>
+          </TabsList>
 
-          {/* Dashboard ou état */}
-          <div className="lg:col-span-1">
+          {/* Vue d'ensemble */}
+          <TabsContent value="overview" className="space-y-6">
             {finalIsStripeConfigured && dbRooms.length > 0 ? (
-              <div className="bg-white border border-gray-200 rounded-lg">
-                <div className="px-4 py-3 border-b border-gray-200">
-                  <h2 className="font-medium text-gray-900">
-                    Aujourd&apos;hui
-                  </h2>
-                </div>
-                <div className="p-4">
-                  <AdminDashboard
-                    establishment={establishment}
-                    rooms={roomsWithInventory}
-                    bookings={todayBookings}
-                  />
-                </div>
+              <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+                {/* Statistiques */}
+                <Card>
+                  <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                    <CardTitle className="text-sm font-medium">
+                      Chambres disponibles
+                    </CardTitle>
+                    <Bed className="h-4 w-4 text-muted-foreground" />
+                  </CardHeader>
+                  <CardContent>
+                    <div className="text-2xl font-bold">
+                      {roomsWithInventory.filter((r) => r.inventory > 0).length}
+                    </div>
+                    <p className="text-xs text-muted-foreground">
+                      sur {roomsWithInventory.length} chambres
+                    </p>
+                  </CardContent>
+                </Card>
+
+                <Card>
+                  <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                    <CardTitle className="text-sm font-medium">
+                      Réservations aujourd&apos;hui
+                    </CardTitle>
+                    <Users className="h-4 w-4 text-muted-foreground" />
+                  </CardHeader>
+                  <CardContent>
+                    <div className="text-2xl font-bold">
+                      {todayBookings.length}
+                    </div>
+                    <p className="text-xs text-muted-foreground">
+                      {todayBookings.reduce((sum, b) => sum + b.guests, 0)}{" "}
+                      clients
+                    </p>
+                  </CardContent>
+                </Card>
+
+                <Card>
+                  <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                    <CardTitle className="text-sm font-medium">
+                      Revenus du jour
+                    </CardTitle>
+                    <CreditCard className="h-4 w-4 text-muted-foreground" />
+                  </CardHeader>
+                  <CardContent>
+                    <div className="text-2xl font-bold">
+                      {todayBookings
+                        .reduce((sum, b) => sum + b.amount, 0)
+                        .toFixed(2)}{" "}
+                      CHF
+                    </div>
+                    <p className="text-xs text-muted-foreground">
+                      Commission:{" "}
+                      {todayBookings
+                        .reduce(
+                          (sum, b) =>
+                            sum +
+                            (b.amount * establishment.commissionRate) / 100,
+                          0
+                        )
+                        .toFixed(2)}{" "}
+                      CHF
+                    </p>
+                  </CardContent>
+                </Card>
+
+                <Card>
+                  <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                    <CardTitle className="text-sm font-medium">
+                      Taux d&apos;occupation
+                    </CardTitle>
+                    <BarChart3 className="h-4 w-4 text-muted-foreground" />
+                  </CardHeader>
+                  <CardContent>
+                    <div className="text-2xl font-bold">
+                      {roomsWithInventory.length > 0
+                        ? Math.round(
+                            (roomsWithInventory.filter((r) => r.inventory === 0)
+                              .length /
+                              roomsWithInventory.length) *
+                              100
+                          )
+                        : 0}
+                      %
+                    </div>
+                    <p className="text-xs text-muted-foreground">
+                      {
+                        roomsWithInventory.filter((r) => r.inventory === 0)
+                          .length
+                      }{" "}
+                      chambres occupées
+                    </p>
+                  </CardContent>
+                </Card>
               </div>
             ) : (
-              <div className="bg-white border border-gray-200 rounded-lg p-6 text-center">
-                <div className="w-12 h-12 bg-gray-100 rounded-lg flex items-center justify-center mx-auto mb-4">
-                  <span className="text-2xl">
-                    {!finalIsStripeConfigured ? "⚠️" : "🏨"}
-                  </span>
-                </div>
-                <h3 className="font-medium text-gray-900 mb-2">
-                  {!finalIsStripeConfigured
-                    ? "Configuration requise"
-                    : "Première chambre"}
-                </h3>
-                <p className="text-sm text-gray-500">
-                  {!finalIsStripeConfigured
-                    ? "Configurez Stripe pour accepter les paiements"
-                    : "Ajoutez votre première chambre pour commencer"}
-                </p>
-              </div>
+              <Card>
+                <CardContent className="flex flex-col items-center justify-center py-16">
+                  <div className="rounded-full bg-muted p-6 mb-6">
+                    {!finalIsStripeConfigured ? (
+                      <Settings className="h-8 w-8 text-muted-foreground" />
+                    ) : (
+                      <Hotel className="h-8 w-8 text-muted-foreground" />
+                    )}
+                  </div>
+                  <h3 className="text-lg font-semibold mb-2">
+                    {!finalIsStripeConfigured
+                      ? "Configuration requise"
+                      : "Première chambre"}
+                  </h3>
+                  <p className="text-muted-foreground text-center max-w-md">
+                    {!finalIsStripeConfigured
+                      ? "Configurez Stripe pour accepter les paiements et commencer à recevoir des réservations"
+                      : "Ajoutez votre première chambre pour commencer à recevoir des réservations"}
+                  </p>
+                </CardContent>
+              </Card>
             )}
-          </div>
-        </div>
+          </TabsContent>
+
+          {/* Gestion des chambres */}
+          <TabsContent value="rooms">
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Bed className="h-5 w-5" />
+                  Gestion des chambres
+                </CardTitle>
+                <CardDescription>
+                  Créez et gérez les chambres disponibles à la réservation
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <RoomManagement hotelSlug={hotel} currency="CHF" />
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          {/* Réservations */}
+          <TabsContent value="bookings">
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Users className="h-5 w-5" />
+                  Réservations récentes
+                </CardTitle>
+                <CardDescription>
+                  Consultez et gérez les réservations de votre établissement
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                {todayBookings.length > 0 ? (
+                  <div className="space-y-4">
+                    {todayBookings.map((booking) => (
+                      <div
+                        key={booking.id}
+                        className="flex items-center justify-between p-4 border rounded-lg"
+                      >
+                        <div className="space-y-1">
+                          <p className="font-medium">{booking.clientName}</p>
+                          <p className="text-sm text-muted-foreground">
+                            {booking.clientEmail}
+                          </p>
+                          <p className="text-sm text-muted-foreground">
+                            Chambre: {booking.room.name}
+                          </p>
+                        </div>
+                        <div className="text-right">
+                          <p className="font-semibold">{booking.amount} CHF</p>
+                          <p className="text-sm text-muted-foreground">
+                            {new Date(booking.bookingDate).toLocaleDateString(
+                              "fr-FR"
+                            )}
+                          </p>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <div className="text-center py-8">
+                    <Users className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
+                    <h3 className="text-lg font-medium mb-2">
+                      Aucune réservation aujourd&apos;hui
+                    </h3>
+                    <p className="text-muted-foreground">
+                      Les nouvelles réservations apparaîtront ici
+                    </p>
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+          </TabsContent>
+        </Tabs>
       </div>
     </div>
   );
