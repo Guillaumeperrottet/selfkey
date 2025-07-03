@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { signOut } from "@/lib/auth-client";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -65,11 +65,7 @@ export default function EstablishmentsPage() {
   });
   const router = useRouter();
 
-  useEffect(() => {
-    checkAuth();
-  }, []);
-
-  const checkAuth = async () => {
+  const checkAuth = useCallback(async () => {
     try {
       const response = await fetch("/api/auth/session");
       if (response.ok) {
@@ -87,7 +83,11 @@ export default function EstablishmentsPage() {
       console.error("Erreur d'authentification:", error);
       router.push("/login");
     }
-  };
+  }, [router]);
+
+  useEffect(() => {
+    checkAuth();
+  }, [checkAuth]);
 
   const fetchEstablishments = async () => {
     try {

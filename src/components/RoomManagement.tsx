@@ -2,6 +2,12 @@
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
+import { Card, CardContent } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { Switch } from "@/components/ui/switch";
+import { Label } from "@/components/ui/label";
+import { Edit, Trash2, Bed, DollarSign, Power, PowerOff } from "lucide-react";
 
 interface Room {
   id: string;
@@ -95,6 +101,32 @@ export function RoomManagement({ hotelSlug, currency }: Props) {
       setMessage({ type: "error", text: "Erreur lors de la sauvegarde" });
     } finally {
       setIsLoading(false);
+    }
+  };
+
+  const handleToggle = async (roomId: string, currentStatus: boolean) => {
+    try {
+      const response = await fetch(`/api/admin/rooms/${roomId}/toggle`, {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ isActive: !currentStatus }),
+      });
+
+      const data = await response.json();
+
+      if (data.success) {
+        setMessage({
+          type: "success",
+          text: `Chambre ${currentStatus ? "désactivée" : "activée"} avec succès`,
+        });
+        loadRooms();
+      } else {
+        setMessage({ type: "error", text: data.error });
+      }
+    } catch {
+      setMessage({ type: "error", text: "Erreur lors de la modification" });
     }
   };
 
@@ -260,35 +292,84 @@ export function RoomManagement({ hotelSlug, currency }: Props) {
 
       {/* Liste des chambres avec design moderne */}
       {rooms.length > 0 ? (
-        <div className="space-y-3">
+        <div className="space-y-4">
           {rooms.map((room) => (
-            <div
+            <Card
               key={room.id}
-              className="flex items-center justify-between p-4 border border-gray-200 rounded-lg"
+              className={`transition-opacity ${!room.isActive ? "opacity-60" : ""}`}
             >
-              <div>
-                <h3 className="font-medium text-gray-900">{room.name}</h3>
-                <p className="text-sm text-gray-500">
-                  {room.price} {currency} par nuit
-                </p>
-              </div>
+              <CardContent className="p-6">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-4">
+                    <div className="flex items-center gap-3">
+                      <Bed className="h-5 w-5 text-muted-foreground" />
+                      <div>
+                        <h3 className="font-semibold text-lg">{room.name}</h3>
+                        <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                          <DollarSign className="h-4 w-4" />
+                          <span>
+                            {room.price} {currency} par nuit
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+                    <Badge
+                      variant={room.isActive ? "default" : "secondary"}
+                      className="flex items-center gap-1"
+                    >
+                      {room.isActive ? (
+                        <Power className="h-3 w-3" />
+                      ) : (
+                        <PowerOff className="h-3 w-3" />
+                      )}
+                      {room.isActive ? "Active" : "Inactive"}
+                    </Badge>
+                  </div>
 
-              <div className="flex gap-2">
-                <button
-                  onClick={() => handleEdit(room)}
-                  className="text-blue-600 hover:text-blue-800 px-3 py-1 text-sm"
-                >
-                  Modifier
-                </button>
-                <button
-                  onClick={() => handleDelete(room.id, room.name)}
-                  disabled={isLoading}
-                  className="text-red-600 hover:text-red-800 px-3 py-1 text-sm disabled:opacity-50"
-                >
-                  Supprimer
-                </button>
-              </div>
-            </div>
+                  <div className="flex items-center gap-6">
+                    {/* Toggle activation */}
+                    <div className="flex items-center gap-3">
+                      <Label
+                        htmlFor={`toggle-${room.id}`}
+                        className="text-sm font-medium"
+                      >
+                        {room.isActive ? "Désactiver" : "Activer"}
+                      </Label>
+                      <Switch
+                        id={`toggle-${room.id}`}
+                        checked={room.isActive}
+                        onCheckedChange={() =>
+                          handleToggle(room.id, room.isActive)
+                        }
+                      />
+                    </div>
+
+                    {/* Actions */}
+                    <div className="flex gap-2">
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => handleEdit(room)}
+                        className="flex items-center gap-1"
+                      >
+                        <Edit className="h-4 w-4" />
+                        Modifier
+                      </Button>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => handleDelete(room.id, room.name)}
+                        disabled={isLoading}
+                        className="flex items-center gap-1 text-destructive hover:text-destructive"
+                      >
+                        <Trash2 className="h-4 w-4" />
+                        Supprimer
+                      </Button>
+                    </div>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
           ))}
         </div>
       ) : (
