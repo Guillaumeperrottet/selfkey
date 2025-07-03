@@ -94,6 +94,8 @@ model Establishment {
   accessCodeType  String              @default("room") // "room", "general", "custom"
   generalAccessCode String?           // Code général pour tout l'établissement
   accessInstructions String?          // Instructions personnalisées (JSON ou text)
+  // Configuration des réservations
+  maxBookingDays  Int                 @default(4) // Durée maximale de séjour en jours
   createdAt       DateTime            @default(now())
   users           UserEstablishment[]
   bookings        Booking[]
@@ -128,6 +130,8 @@ model Booking {
   platformCommission    Float         @default(0)
   ownerAmount           Float
   bookingDate           DateTime      @default(now())
+  checkInDate           DateTime      // Date d'arrivée
+  checkOutDate          DateTime      // Date de départ
   stripePaymentIntentId String?
   guests                Int           @default(1)
   establishment         Establishment @relation(fields: [hotelSlug], references: [slug])

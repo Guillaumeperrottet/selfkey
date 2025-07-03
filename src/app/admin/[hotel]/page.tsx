@@ -2,6 +2,7 @@ import { prisma } from "@/lib/prisma";
 import { StripeOnboarding } from "@/components/StripeOnboarding";
 import { RoomManagement } from "@/components/RoomManagement";
 import { AccessCodeManager } from "@/components/AccessCodeManager";
+import { SettingsManager } from "@/components/SettingsManager";
 import { auth } from "@/lib/auth";
 import { headers } from "next/headers";
 import { redirect } from "next/navigation";
@@ -205,7 +206,7 @@ export default async function AdminPage({ params }: Props) {
 
         {/* Interface principale avec onglets */}
         <Tabs defaultValue="overview" className="space-y-6">
-          <TabsList className="grid w-full grid-cols-4">
+          <TabsList className="grid w-full grid-cols-5">
             <TabsTrigger value="overview" className="flex items-center gap-2">
               <BarChart3 className="h-4 w-4" />
               Vue d&apos;ensemble
@@ -224,6 +225,10 @@ export default async function AdminPage({ params }: Props) {
             <TabsTrigger value="bookings" className="flex items-center gap-2">
               <Users className="h-4 w-4" />
               Réservations
+            </TabsTrigger>
+            <TabsTrigger value="settings" className="flex items-center gap-2">
+              <Settings className="h-4 w-4" />
+              Paramètres
             </TabsTrigger>
           </TabsList>
 
@@ -437,6 +442,24 @@ export default async function AdminPage({ params }: Props) {
                     </p>
                   </div>
                 )}
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          {/* Paramètres */}
+          <TabsContent value="settings">
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Settings className="h-5 w-5" />
+                  Paramètres de l&apos;établissement
+                </CardTitle>
+                <CardDescription>
+                  Configurez les paramètres de réservation et de fonctionnement
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <SettingsManager hotelSlug={hotel} />
               </CardContent>
             </Card>
           </TabsContent>
