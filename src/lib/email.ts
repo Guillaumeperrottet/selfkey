@@ -1,5 +1,9 @@
 import { Resend } from "resend";
 import { HotelConfig } from "@/types/hotel";
+import {
+  getAccessCodeForBooking,
+  generateAccessInstructions,
+} from "@/lib/access-codes";
 
 // Resend est optionnel - ne pas planter si pas configuré
 const resend = process.env.RESEND_API_KEY
@@ -14,12 +18,20 @@ interface BookingConfirmationData {
   amount: number;
   currency: string;
   bookingDate: Date;
+  hotelSlug: string; // Ajouté pour récupérer les codes d'accès
 }
 
 export async function sendBookingConfirmation(
   booking: BookingConfirmationData,
   hotelConfig: HotelConfig
 ) {
+  // Récupérer les informations d'accès pour cette réservation
+  const accessInfo = await getAccessCodeForBooking(
+    booking.hotelSlug,
+    booking.roomId
+  );
+  const accessInstructionsHtml = generateAccessInstructions(accessInfo);
+
   const htmlContent = `
     <!DOCTYPE html>
     <html>
@@ -53,6 +65,8 @@ export async function sendBookingConfirmation(
             <p><strong>Date :</strong> ${booking.bookingDate.toLocaleDateString("fr-CH")}</p>
             <p><strong>Montant payé :</strong> ${booking.amount} ${booking.currency}</p>
           </div>
+          
+          ${accessInstructionsHtml}
           
           <p>Vous pouvez vous présenter directement à votre chambre. En cas de problème, contactez-nous :</p>
           <p>

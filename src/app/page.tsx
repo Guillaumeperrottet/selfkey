@@ -1,72 +1,70 @@
 import Link from "next/link";
+import { Button } from "@/components/ui/button";
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+  CardDescription,
+} from "@/components/ui/card";
+import { Separator } from "@/components/ui/separator";
+import { KeyRound } from "lucide-react";
 
 export default function Home() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 dark:from-gray-900 dark:to-gray-800">
       {/* Header */}
-      <header className="container mx-auto px-6 py-8">
-        <div className="flex justify-between items-center">
-          <div className="flex items-center space-x-2">
-            <div className="w-10 h-10 bg-indigo-600 rounded-lg flex items-center justify-center">
-              <span className="text-white font-bold text-xl">🔑</span>
-            </div>
-            <h1 className="text-2xl font-bold text-gray-900 dark:text-white">
-              SelfKey
-            </h1>
+      <header className="container mx-auto px-6 py-8 flex justify-between items-center">
+        <div className="flex items-center gap-3">
+          <div className="w-10 h-10 bg-indigo-600 rounded-lg flex items-center justify-center">
+            <KeyRound className="text-white w-6 h-6" />
           </div>
-          <nav className="hidden md:flex space-x-8">
-            <Link
-              href="#features"
-              className="text-gray-600 hover:text-indigo-600 dark:text-gray-300 dark:hover:text-indigo-400 transition-colors"
-            >
-              Fonctionnalités
-            </Link>
-            <Link
-              href="#about"
-              className="text-gray-600 hover:text-indigo-600 dark:text-gray-300 dark:hover:text-indigo-400 transition-colors"
-            >
-              À propos
-            </Link>
-            <Link
-              href="/establishments"
-              className="bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700 transition-colors"
-            >
-              Administration
-            </Link>
-          </nav>
+          <h1 className="text-2xl font-bold text-foreground">SelfKey</h1>
         </div>
+        <nav className="hidden md:flex gap-4">
+          <Button variant="ghost" asChild>
+            <Link href="#features">Fonctionnalités</Link>
+          </Button>
+          <Button variant="ghost" asChild>
+            <Link href="#about">À propos</Link>
+          </Button>
+          <Button asChild>
+            <Link href="/establishments">Administration</Link>
+          </Button>
+        </nav>
       </header>
+      <Separator className="mb-8" />
 
       {/* Hero Section */}
       <main className="container mx-auto px-6 py-16">
-        <div className="text-center max-w-4xl mx-auto">
-          <h2 className="text-5xl md:text-6xl font-bold text-gray-900 dark:text-white mb-6">
-            Check-in autonome
-            <span className="block text-indigo-600 dark:text-indigo-400">
-              24h/24
-            </span>
-          </h2>
-          <p className="text-xl text-gray-600 dark:text-gray-300 mb-8 leading-relaxed">
-            La solution parfaite pour les arrivées tardives quand la réception
-            est fermée. Vos clients peuvent s&apos;enregistrer et accéder à leur
-            chambre à toute heure grâce à notre système de check-in automatisé.
-          </p>
-
-          <div className="flex flex-col sm:flex-row gap-4 justify-center mb-16">
-            <Link
-              href="/establishments"
-              className="bg-indigo-600 text-white px-8 py-4 rounded-lg text-lg font-semibold hover:bg-indigo-700 transform hover:scale-105 transition-all duration-200 shadow-lg"
-            >
-              Accéder à l&apos;administration
-            </Link>
-            <Link
-              href="#features"
-              className="border-2 border-indigo-600 text-indigo-600 dark:text-indigo-400 px-8 py-4 rounded-lg text-lg font-semibold hover:bg-indigo-600 hover:text-white transition-all duration-200"
-            >
-              Découvrir les fonctionnalités
-            </Link>
-          </div>
-        </div>
+        <Card className="max-w-3xl mx-auto text-center py-12">
+          <CardHeader>
+            <CardTitle className="text-5xl md:text-6xl font-bold">
+              Check-in autonome
+              <span className="block text-indigo-600 dark:text-indigo-400">
+                24h/24
+              </span>
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <CardDescription className="text-xl mb-8">
+              La solution parfaite pour les arrivées tardives quand la réception
+              est fermée. Vos clients peuvent s&apos;enregistrer et accéder à
+              leur chambre à toute heure grâce à notre système de check-in
+              automatisé.
+            </CardDescription>
+            <div className="flex flex-col sm:flex-row gap-4 justify-center mb-8">
+              <Button asChild size="lg">
+                <Link href="/establishments">
+                  Accéder à l&apos;administration
+                </Link>
+              </Button>
+              <Button asChild variant="outline" size="lg">
+                <Link href="#features">Découvrir les fonctionnalités</Link>
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
 
         {/* Features Grid */}
         <div id="features" className="grid md:grid-cols-3 gap-8 mt-20">
@@ -98,7 +96,7 @@ export default function Home() {
 
           <div className="bg-white dark:bg-gray-800 p-8 rounded-xl shadow-lg hover:shadow-xl transition-shadow">
             <div className="w-12 h-12 bg-purple-100 dark:bg-purple-900 rounded-lg flex items-center justify-center mb-4">
-              <span className="text-2xl">�</span>
+              <span className="text-2xl">🔑</span>
             </div>
             <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-3">
               Check-in automatique

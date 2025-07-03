@@ -90,6 +90,10 @@ model Establishment {
   stripeOnboarded Boolean             @default(false)
   commissionRate  Float               @default(0)
   fixedFee        Float               @default(0)
+  // Système de codes d'accès
+  accessCodeType  String              @default("room") // "room", "general", "custom"
+  generalAccessCode String?           // Code général pour tout l'établissement
+  accessInstructions String?          // Instructions personnalisées (JSON ou text)
   createdAt       DateTime            @default(now())
   users           UserEstablishment[]
   bookings        Booking[]
@@ -104,6 +108,7 @@ model Room {
   name          String
   price         Float
   isActive      Boolean       @default(true)
+  accessCode    String?       // Code d'accès spécifique à cette chambre
   createdAt     DateTime      @default(now())
   bookings      Booking[]
   establishment Establishment @relation(fields: [hotelSlug], references: [slug], onDelete: Cascade)

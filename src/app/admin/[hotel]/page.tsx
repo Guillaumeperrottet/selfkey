@@ -1,6 +1,7 @@
 import { prisma } from "@/lib/prisma";
 import { StripeOnboarding } from "@/components/StripeOnboarding";
 import { RoomManagement } from "@/components/RoomManagement";
+import { AccessCodeManager } from "@/components/AccessCodeManager";
 import { auth } from "@/lib/auth";
 import { headers } from "next/headers";
 import { redirect } from "next/navigation";
@@ -24,6 +25,7 @@ import {
   QrCode,
   Users,
   Bed,
+  KeyRound,
 } from "lucide-react";
 import Link from "next/link";
 
@@ -63,16 +65,18 @@ export default async function AdminPage({ params }: Props) {
 
   const establishment = userEstablishment.establishment;
 
-  // Récupérer les chambres depuis la base de données
+  // Récupérer les chambres depuis la base de données (toutes, actives et inactives)
   const dbRooms = await prisma.room.findMany({
     where: {
       hotelSlug: hotel,
-      isActive: true,
     },
     orderBy: {
       createdAt: "asc",
     },
   });
+
+  // Séparer les chambres actives pour les calculs de disponibilité
+  const activeRooms = dbRooms.filter((room) => room.isActive);
 
   const today = new Date();
   today.setHours(0, 0, 0, 0);
@@ -95,10 +99,10 @@ export default async function AdminPage({ params }: Props) {
   });
 
   // Dans le système simplifié, chaque chambre a une disponibilité de 1
-  // On calcule les chambres disponibles en soustrayant les réservations
+  // On calcule les chambres disponibles en soustrayant les réservations (seulement pour les chambres actives)
   const bookedRoomIds = todayBookings.map((booking) => booking.roomId);
 
-  const roomsWithInventory = dbRooms.map((room) => ({
+  const roomsWithInventory = activeRooms.map((room) => ({
     id: room.id,
     name: room.name,
     price: room.price,
@@ -201,7 +205,7 @@ export default async function AdminPage({ params }: Props) {
 
         {/* Interface principale avec onglets */}
         <Tabs defaultValue="overview" className="space-y-6">
-          <TabsList className="grid w-full grid-cols-3">
+          <TabsList className="grid w-full grid-cols-4">
             <TabsTrigger value="overview" className="flex items-center gap-2">
               <BarChart3 className="h-4 w-4" />
               Vue d&apos;ensemble
@@ -209,6 +213,13 @@ export default async function AdminPage({ params }: Props) {
             <TabsTrigger value="rooms" className="flex items-center gap-2">
               <Bed className="h-4 w-4" />
               Chambres
+            </TabsTrigger>
+            <TabsTrigger
+              value="access-codes"
+              className="flex items-center gap-2"
+            >
+              <KeyRound className="h-4 w-4" />
+              Codes d&apos;accès
             </TabsTrigger>
             <TabsTrigger value="bookings" className="flex items-center gap-2">
               <Users className="h-4 w-4" />
@@ -355,6 +366,24 @@ export default async function AdminPage({ params }: Props) {
                 <RoomManagement hotelSlug={hotel} currency="CHF" />
               </CardContent>
             </Card>
+          </TabsContent>
+
+          {/* Gestion des codes d'accès */}
+          <TabsContent value="access-codes">
+            <AccessCodeManager
+              establishmentSlug={hotel}
+              rooms={dbRooms.map((room) => ({
+                id: room.id,
+                name: room.name,
+                accessCode: room.accessCode,
+                isActive: room.isActive,
+              }))}
+              establishment={{
+                accessCodeType: establishment.accessCodeType || "room",
+                generalAccessCode: establishment.generalAccessCode,
+                accessInstructions: establishment.accessInstructions,
+              }}
+            />
           </TabsContent>
 
           {/* Réservations */}

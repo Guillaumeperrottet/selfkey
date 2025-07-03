@@ -41,6 +41,7 @@ export async function POST(request: NextRequest) {
           amount: bookingWithDetails.amount,
           currency: bookingWithDetails.currency,
           bookingDate: bookingWithDetails.bookingDate,
+          hotelSlug: bookingWithDetails.hotelSlug, // Ajouté pour les codes d'accès
         },
         {
           name: bookingWithDetails.establishment.name,

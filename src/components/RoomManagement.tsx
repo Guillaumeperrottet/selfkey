@@ -5,9 +5,7 @@ import { useState, useEffect, useCallback } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Switch } from "@/components/ui/switch";
-import { Label } from "@/components/ui/label";
-import { Edit, Trash2, Bed, DollarSign, Power, PowerOff } from "lucide-react";
+import { Edit, Trash2, Bed, DollarSign } from "lucide-react";
 
 interface Room {
   id: string;
@@ -293,6 +291,25 @@ export function RoomManagement({ hotelSlug, currency }: Props) {
       {/* Liste des chambres avec design moderne */}
       {rooms.length > 0 ? (
         <div className="space-y-4">
+          {/* Légende des pastilles */}
+          <div className="flex items-center gap-6 text-xs text-gray-500 mb-4 p-4 bg-gray-50 rounded-lg">
+            <span className="font-medium">Statut des chambres :</span>
+            <div className="flex items-center gap-2">
+              <Badge
+                variant="default"
+                className="w-3 h-3 p-0 rounded-full bg-green-500"
+              />
+              <span>Chambre active</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <Badge
+                variant="secondary"
+                className="w-3 h-3 p-0 rounded-full bg-red-500"
+              />
+              <span>Chambre désactivée</span>
+            </div>
+          </div>
+
           {rooms.map((room) => (
             <Card
               key={room.id}
@@ -302,7 +319,15 @@ export function RoomManagement({ hotelSlug, currency }: Props) {
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-4">
                     <div className="flex items-center gap-3">
-                      <Bed className="h-5 w-5 text-muted-foreground" />
+                      <div className="flex items-center gap-2">
+                        <Bed className="h-5 w-5 text-muted-foreground" />
+                        <Badge
+                          variant={room.isActive ? "default" : "secondary"}
+                          className={`w-3 h-3 p-0 rounded-full ${
+                            room.isActive ? "bg-green-500" : "bg-red-500"
+                          }`}
+                        />
+                      </div>
                       <div>
                         <h3 className="font-semibold text-lg">{room.name}</h3>
                         <div className="flex items-center gap-2 text-sm text-muted-foreground">
@@ -310,42 +335,32 @@ export function RoomManagement({ hotelSlug, currency }: Props) {
                           <span>
                             {room.price} {currency} par nuit
                           </span>
+                          <span className="text-xs">
+                            •{" "}
+                            {room.isActive
+                              ? "Chambre active"
+                              : "Chambre désactivée"}
+                          </span>
                         </div>
                       </div>
                     </div>
-                    <Badge
-                      variant={room.isActive ? "default" : "secondary"}
-                      className="flex items-center gap-1"
-                    >
-                      {room.isActive ? (
-                        <Power className="h-3 w-3" />
-                      ) : (
-                        <PowerOff className="h-3 w-3" />
-                      )}
-                      {room.isActive ? "Active" : "Inactive"}
-                    </Badge>
                   </div>
 
                   <div className="flex items-center gap-6">
-                    {/* Toggle activation */}
-                    <div className="flex items-center gap-3">
-                      <Label
-                        htmlFor={`toggle-${room.id}`}
-                        className="text-sm font-medium"
-                      >
-                        {room.isActive ? "Désactiver" : "Activer"}
-                      </Label>
-                      <Switch
-                        id={`toggle-${room.id}`}
-                        checked={room.isActive}
-                        onCheckedChange={() =>
-                          handleToggle(room.id, room.isActive)
-                        }
-                      />
-                    </div>
-
                     {/* Actions */}
                     <div className="flex gap-2">
+                      <Button
+                        variant={room.isActive ? "outline" : "default"}
+                        size="sm"
+                        onClick={() => handleToggle(room.id, room.isActive)}
+                        className={`flex items-center gap-1 ${
+                          room.isActive
+                            ? "text-red-600 hover:text-red-700 border-red-200 hover:border-red-300"
+                            : "bg-green-600 hover:bg-green-700 text-white"
+                        }`}
+                      >
+                        {room.isActive ? "Désactiver" : "Réactiver"}
+                      </Button>
                       <Button
                         variant="outline"
                         size="sm"

@@ -76,11 +76,14 @@ export async function deleteRoom(roomId: string) {
   return room;
 }
 
-export async function getRoomsForHotel(hotelSlug: string) {
+export async function getRoomsForHotel(
+  hotelSlug: string,
+  includeInactive: boolean = false
+) {
   const rooms = await prisma.room.findMany({
     where: {
       hotelSlug,
-      isActive: true,
+      ...(includeInactive ? {} : { isActive: true }),
     },
     orderBy: {
       createdAt: "asc",

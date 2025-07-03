@@ -61,7 +61,7 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: "Slug hôtel requis" }, { status: 400 });
     }
 
-    const rooms = await getRoomsForHotel(hotelSlug);
+    const rooms = await getRoomsForHotel(hotelSlug, true); // Inclure toutes les chambres pour l'admin
 
     return NextResponse.json({
       success: true,
