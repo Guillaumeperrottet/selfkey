@@ -15,13 +15,22 @@ interface RoomWithInventory {
 interface Booking {
   id: string;
   roomId: string;
-  clientName: string;
+  clientFirstName: string;
+  clientLastName: string;
   clientEmail: string;
-  phone: string;
+  clientPhone: string;
+  clientBirthDate: Date;
+  clientAddress: string;
+  clientPostalCode: string;
+  clientCity: string;
+  clientCountry: string;
+  clientIdNumber: string;
   guests: number;
   amount: number;
   currency: string;
   bookingDate: Date;
+  checkInDate: Date;
+  checkOutDate: Date;
   stripePaymentIntentId: string | null;
   room: {
     name: string;
@@ -48,6 +57,7 @@ interface Props {
 export function AdminDashboard({ establishment, rooms, bookings }: Props) {
   const [roomsState, setRoomsState] = useState(rooms);
   const [toggleLoading, setToggleLoading] = useState<string | null>(null);
+  const [selectedBooking, setSelectedBooking] = useState<Booking | null>(null);
 
   const confirmedBookings = bookings.filter((b) => b.stripePaymentIntentId);
   const bookingsByRoom = Object.groupBy(confirmedBookings, (b) => b.roomId);
@@ -134,7 +144,9 @@ export function AdminDashboard({ establishment, rooms, bookings }: Props) {
                 <p className="text-xs text-gray-600">{room.price} CHF</p>
                 {bookingsByRoom[room.id] && (
                   <p className="text-xs text-blue-600 truncate">
-                    {bookingsByRoom[room.id]?.[0]?.clientName}
+                    {bookingsByRoom[room.id]?.[0]
+                      ? `${bookingsByRoom[room.id]![0]!.clientFirstName} ${bookingsByRoom[room.id]![0]!.clientLastName}`
+                      : null}
                   </p>
                 )}
               </div>
@@ -168,15 +180,19 @@ export function AdminDashboard({ establishment, rooms, bookings }: Props) {
             {confirmedBookings.map((booking) => {
               const room = roomsState.find((r) => r.id === booking.roomId);
               return (
-                <div key={booking.id} className="p-3 bg-blue-50 rounded-lg">
+                <div
+                  key={booking.id}
+                  className="p-3 bg-blue-50 rounded-lg cursor-pointer hover:bg-blue-100 transition-colors"
+                  onClick={() => setSelectedBooking(booking)}
+                >
                   <div className="flex items-center gap-2 mb-1">
                     <div className="w-6 h-6 bg-blue-100 rounded-full flex items-center justify-center">
                       <span className="text-blue-700 font-medium text-xs">
-                        {booking.clientName.charAt(0).toUpperCase()}
+                        {booking.clientFirstName.charAt(0).toUpperCase()}
                       </span>
                     </div>
                     <p className="text-sm font-medium text-gray-900 truncate">
-                      {booking.clientName}
+                      {`${booking.clientFirstName} ${booking.clientLastName}`}
                     </p>
                   </div>
                   <p className="text-xs text-gray-600 mb-1">{room?.name}</p>
@@ -285,6 +301,114 @@ export function AdminDashboard({ establishment, rooms, bookings }: Props) {
           </a>
         )}
       </div>
+
+      {/* Modal de détails de réservation */}
+      {selectedBooking && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+          <div className="bg-white rounded-lg p-6 max-w-2xl w-full max-h-96 overflow-y-auto">
+            <div className="flex justify-between items-center mb-4">
+              <h3 className="text-lg font-semibold">
+                Détails de la réservation
+              </h3>
+              <button
+                onClick={() => setSelectedBooking(null)}
+                className="text-gray-500 hover:text-gray-700"
+              >
+                ✕
+              </button>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <h4 className="font-medium text-gray-900 mb-2">
+                  Informations client
+                </h4>
+                <div className="space-y-2 text-sm">
+                  <p>
+                    <span className="font-medium">Nom:</span>{" "}
+                    {selectedBooking.clientLastName}
+                  </p>
+                  <p>
+                    <span className="font-medium">Prénom:</span>{" "}
+                    {selectedBooking.clientFirstName}
+                  </p>
+                  <p>
+                    <span className="font-medium">Email:</span>{" "}
+                    {selectedBooking.clientEmail}
+                  </p>
+                  <p>
+                    <span className="font-medium">Téléphone:</span>{" "}
+                    {selectedBooking.clientPhone}
+                  </p>
+                  <p>
+                    <span className="font-medium">Date de naissance:</span>{" "}
+                    {new Date(
+                      selectedBooking.clientBirthDate
+                    ).toLocaleDateString()}
+                  </p>
+                  <p>
+                    <span className="font-medium">N° ID:</span>{" "}
+                    {selectedBooking.clientIdNumber}
+                  </p>
+                </div>
+              </div>
+
+              <div>
+                <h4 className="font-medium text-gray-900 mb-2">Adresse</h4>
+                <div className="space-y-2 text-sm">
+                  <p>
+                    <span className="font-medium">Adresse:</span>{" "}
+                    {selectedBooking.clientAddress}
+                  </p>
+                  <p>
+                    <span className="font-medium">Code postal:</span>{" "}
+                    {selectedBooking.clientPostalCode}
+                  </p>
+                  <p>
+                    <span className="font-medium">Localité:</span>{" "}
+                    {selectedBooking.clientCity}
+                  </p>
+                  <p>
+                    <span className="font-medium">Pays:</span>{" "}
+                    {selectedBooking.clientCountry}
+                  </p>
+                </div>
+
+                <h4 className="font-medium text-gray-900 mb-2 mt-4">
+                  Réservation
+                </h4>
+                <div className="space-y-2 text-sm">
+                  <p>
+                    <span className="font-medium">Chambre:</span>{" "}
+                    {
+                      roomsState.find((r) => r.id === selectedBooking.roomId)
+                        ?.name
+                    }
+                  </p>
+                  <p>
+                    <span className="font-medium">Check-in:</span>{" "}
+                    {new Date(selectedBooking.checkInDate).toLocaleDateString()}
+                  </p>
+                  <p>
+                    <span className="font-medium">Check-out:</span>{" "}
+                    {new Date(
+                      selectedBooking.checkOutDate
+                    ).toLocaleDateString()}
+                  </p>
+                  <p>
+                    <span className="font-medium">Invités:</span>{" "}
+                    {selectedBooking.guests}
+                  </p>
+                  <p>
+                    <span className="font-medium">Montant:</span>{" "}
+                    {selectedBooking.amount} {selectedBooking.currency}
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

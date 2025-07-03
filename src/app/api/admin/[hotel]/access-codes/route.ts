@@ -3,15 +3,15 @@ import { prisma } from "@/lib/prisma";
 
 export async function PUT(
   request: NextRequest,
-  { params }: { params: { hotel: string } }
+  { params }: { params: Promise<{ hotel: string }> }
 ) {
   try {
+    const { hotel } = await params;
     const { accessCodeType, generalAccessCode, accessInstructions } =
       await request.json();
-    const hotelSlug = params.hotel;
 
     const establishment = await prisma.establishment.update({
-      where: { slug: hotelSlug },
+      where: { slug: hotel },
       data: {
         accessCodeType,
         generalAccessCode,

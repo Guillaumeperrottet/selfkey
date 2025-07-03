@@ -3,11 +3,11 @@ import { prisma } from "@/lib/prisma";
 
 export async function PUT(
   request: NextRequest,
-  { params }: { params: { hotel: string; roomId: string } }
+  { params }: { params: Promise<{ hotel: string; roomId: string }> }
 ) {
   try {
     const { accessCode } = await request.json();
-    const { roomId } = params;
+    const { roomId } = await params;
 
     const room = await prisma.room.update({
       where: { id: roomId },

@@ -412,7 +412,7 @@ export default async function AdminPage({ params }: Props) {
                         className="flex items-center justify-between p-4 border rounded-lg"
                       >
                         <div className="space-y-1">
-                          <p className="font-medium">{booking.clientName}</p>
+                          <p className="font-medium">{`${booking.clientFirstName} ${booking.clientLastName}`}</p>
                           <p className="text-sm text-muted-foreground">
                             {booking.clientEmail}
                           </p>

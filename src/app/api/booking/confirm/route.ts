@@ -34,7 +34,7 @@ export async function POST(request: NextRequest) {
     try {
       await sendBookingConfirmation(
         {
-          clientName: bookingWithDetails.clientName,
+          clientName: `${bookingWithDetails.clientFirstName} ${bookingWithDetails.clientLastName}`,
           clientEmail: bookingWithDetails.clientEmail,
           roomName: bookingWithDetails.room.name,
           roomId: bookingWithDetails.roomId,

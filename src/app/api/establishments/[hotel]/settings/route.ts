@@ -4,11 +4,12 @@ import { getSessionUser, hasAccessToEstablishment } from "@/lib/auth-utils";
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: { hotel: string } }
+  { params }: { params: Promise<{ hotel: string }> }
 ) {
   try {
+    const { hotel } = await params;
     const establishment = await prisma.establishment.findUnique({
-      where: { slug: params.hotel },
+      where: { slug: hotel },
       select: {
         id: true,
         name: true,
@@ -35,9 +36,10 @@ export async function GET(
 
 export async function PUT(
   request: NextRequest,
-  { params }: { params: { hotel: string } }
+  { params }: { params: Promise<{ hotel: string }> }
 ) {
   try {
+    const { hotel } = await params;
     // Vérifier l'authentification
     const user = await getSessionUser(request.headers);
     if (!user) {
@@ -45,7 +47,7 @@ export async function PUT(
     }
 
     // Vérifier l'accès à l'établissement
-    const hasAccess = await hasAccessToEstablishment(user.id, params.hotel);
+    const hasAccess = await hasAccessToEstablishment(user.id, hotel);
     if (!hasAccess) {
       return NextResponse.json({ error: "Forbidden" }, { status: 403 });
     }
@@ -63,7 +65,7 @@ export async function PUT(
 
     // Vérifier que l'établissement existe
     const establishment = await prisma.establishment.findUnique({
-      where: { slug: params.hotel },
+      where: { slug: hotel },
     });
 
     if (!establishment) {
@@ -75,7 +77,7 @@ export async function PUT(
 
     // Mettre à jour l'établissement
     const updatedEstablishment = await prisma.establishment.update({
-      where: { slug: params.hotel },
+      where: { slug: hotel },
       data: {
         maxBookingDays: parseInt(maxBookingDays),
       },

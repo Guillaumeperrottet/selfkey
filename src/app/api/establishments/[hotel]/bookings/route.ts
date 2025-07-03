@@ -17,8 +17,16 @@ export async function POST(
       roomId,
       checkInDate,
       checkOutDate,
-      guestName,
-      guestEmail,
+      clientFirstName,
+      clientLastName,
+      clientEmail,
+      clientPhone,
+      clientBirthDate,
+      clientAddress,
+      clientPostalCode,
+      clientCity,
+      clientCountry,
+      clientIdNumber,
       expectedPrice,
     } = body;
 
@@ -27,8 +35,16 @@ export async function POST(
       !roomId ||
       !checkInDate ||
       !checkOutDate ||
-      !guestName ||
-      !guestEmail ||
+      !clientFirstName ||
+      !clientLastName ||
+      !clientEmail ||
+      !clientPhone ||
+      !clientBirthDate ||
+      !clientAddress ||
+      !clientPostalCode ||
+      !clientCity ||
+      !clientCountry ||
+      !clientIdNumber ||
       typeof expectedPrice !== "number"
     ) {
       return NextResponse.json(
@@ -124,9 +140,16 @@ export async function POST(
         roomId,
         checkInDate: checkIn,
         checkOutDate: checkOut,
-        clientName: guestName,
-        clientEmail: guestEmail,
-        phone: "", // TODO: ajouter le téléphone au formulaire si nécessaire
+        clientFirstName,
+        clientLastName,
+        clientEmail,
+        clientPhone,
+        clientBirthDate: new Date(clientBirthDate),
+        clientAddress,
+        clientPostalCode,
+        clientCity,
+        clientCountry,
+        clientIdNumber,
         guests: 1, // TODO: ajouter le nombre d'invités au formulaire si nécessaire
         amount: calculatedPrice,
         platformCommission,

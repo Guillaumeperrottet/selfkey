@@ -36,8 +36,17 @@ export function BookingForm({ hotelSlug, establishment }: BookingFormProps) {
   const [checkOutDate, setCheckOutDate] = useState("");
   const [availableRooms, setAvailableRooms] = useState<Room[]>([]);
   const [selectedRoom, setSelectedRoom] = useState<Room | null>(null);
-  const [guestName, setGuestName] = useState("");
-  const [guestEmail, setGuestEmail] = useState("");
+  // Informations client détaillées
+  const [clientFirstName, setClientFirstName] = useState("");
+  const [clientLastName, setClientLastName] = useState("");
+  const [clientEmail, setClientEmail] = useState("");
+  const [clientPhone, setClientPhone] = useState("");
+  const [clientBirthDate, setClientBirthDate] = useState("");
+  const [clientAddress, setClientAddress] = useState("");
+  const [clientPostalCode, setClientPostalCode] = useState("");
+  const [clientCity, setClientCity] = useState("");
+  const [clientCountry, setClientCountry] = useState("Suisse");
+  const [clientIdNumber, setClientIdNumber] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [searchPerformed, setSearchPerformed] = useState(false);
@@ -106,8 +115,32 @@ export function BookingForm({ hotelSlug, establishment }: BookingFormProps) {
   };
 
   const handleConfirmBooking = async () => {
-    if (!selectedRoom || !guestName.trim() || !guestEmail.trim()) {
+    // Validation des champs obligatoires
+    if (!selectedRoom) {
+      setError("Veuillez sélectionner une chambre");
+      return;
+    }
+
+    if (
+      !clientFirstName.trim() ||
+      !clientLastName.trim() ||
+      !clientEmail.trim() ||
+      !clientPhone.trim() ||
+      !clientBirthDate ||
+      !clientAddress.trim() ||
+      !clientPostalCode.trim() ||
+      !clientCity.trim() ||
+      !clientCountry.trim() ||
+      !clientIdNumber.trim()
+    ) {
       setError("Veuillez remplir tous les champs obligatoires");
+      return;
+    }
+
+    // Validation email
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(clientEmail)) {
+      setError("Veuillez saisir une adresse email valide");
       return;
     }
 
@@ -132,8 +165,16 @@ export function BookingForm({ hotelSlug, establishment }: BookingFormProps) {
             roomId: selectedRoom.id,
             checkInDate,
             checkOutDate,
-            guestName: guestName.trim(),
-            guestEmail: guestEmail.trim(),
+            clientFirstName: clientFirstName.trim(),
+            clientLastName: clientLastName.trim(),
+            clientEmail: clientEmail.trim(),
+            clientPhone: clientPhone.trim(),
+            clientBirthDate,
+            clientAddress: clientAddress.trim(),
+            clientPostalCode: clientPostalCode.trim(),
+            clientCity: clientCity.trim(),
+            clientCountry: clientCountry.trim(),
+            clientIdNumber: clientIdNumber.trim(),
             expectedPrice: totalPrice,
           }),
         }
@@ -310,29 +351,145 @@ export function BookingForm({ hotelSlug, establishment }: BookingFormProps) {
             <CardTitle>Informations du client</CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
+            {/* Nom et Prénom */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <Label htmlFor="clientLastName">Nom *</Label>
+                <Input
+                  id="clientLastName"
+                  type="text"
+                  value={clientLastName}
+                  onChange={(e) => setClientLastName(e.target.value)}
+                  placeholder="Nom de famille"
+                  className="mt-1"
+                  required
+                />
+              </div>
+              <div>
+                <Label htmlFor="clientFirstName">Prénom *</Label>
+                <Input
+                  id="clientFirstName"
+                  type="text"
+                  value={clientFirstName}
+                  onChange={(e) => setClientFirstName(e.target.value)}
+                  placeholder="Prénom"
+                  className="mt-1"
+                  required
+                />
+              </div>
+            </div>
+
+            {/* Date de naissance */}
             <div>
-              <Label htmlFor="guestName">Nom complet *</Label>
+              <Label htmlFor="clientBirthDate">Date de naissance *</Label>
               <Input
-                id="guestName"
-                type="text"
-                value={guestName}
-                onChange={(e) => setGuestName(e.target.value)}
-                placeholder="Votre nom et prénom"
+                id="clientBirthDate"
+                type="date"
+                value={clientBirthDate}
+                onChange={(e) => setClientBirthDate(e.target.value)}
                 className="mt-1"
                 required
               />
             </div>
+
+            {/* Adresse */}
             <div>
-              <Label htmlFor="guestEmail">Email *</Label>
+              <Label htmlFor="clientAddress">Adresse *</Label>
               <Input
-                id="guestEmail"
-                type="email"
-                value={guestEmail}
-                onChange={(e) => setGuestEmail(e.target.value)}
-                placeholder="votre@email.com"
+                id="clientAddress"
+                type="text"
+                value={clientAddress}
+                onChange={(e) => setClientAddress(e.target.value)}
+                placeholder="Rue et numéro"
                 className="mt-1"
                 required
               />
+            </div>
+
+            {/* Code postal et Localité */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <Label htmlFor="clientPostalCode">Code postal *</Label>
+                <Input
+                  id="clientPostalCode"
+                  type="text"
+                  value={clientPostalCode}
+                  onChange={(e) => setClientPostalCode(e.target.value)}
+                  placeholder="1234"
+                  className="mt-1"
+                  required
+                />
+              </div>
+              <div>
+                <Label htmlFor="clientCity">Localité *</Label>
+                <Input
+                  id="clientCity"
+                  type="text"
+                  value={clientCity}
+                  onChange={(e) => setClientCity(e.target.value)}
+                  placeholder="Ville"
+                  className="mt-1"
+                  required
+                />
+              </div>
+            </div>
+
+            {/* Pays */}
+            <div>
+              <Label htmlFor="clientCountry">Pays *</Label>
+              <Input
+                id="clientCountry"
+                type="text"
+                value={clientCountry}
+                onChange={(e) => setClientCountry(e.target.value)}
+                placeholder="Pays"
+                className="mt-1"
+                required
+              />
+            </div>
+
+            {/* N° de permis ou carte d'identité */}
+            <div>
+              <Label htmlFor="clientIdNumber">
+                N° de permis ou de carte d&apos;identité *
+              </Label>
+              <Input
+                id="clientIdNumber"
+                type="text"
+                value={clientIdNumber}
+                onChange={(e) => setClientIdNumber(e.target.value)}
+                placeholder="Numéro d'identification"
+                className="mt-1"
+                required
+              />
+            </div>
+
+            {/* Email et Téléphone */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <Label htmlFor="clientEmail">Email *</Label>
+                <Input
+                  id="clientEmail"
+                  type="email"
+                  value={clientEmail}
+                  onChange={(e) => setClientEmail(e.target.value)}
+                  placeholder="votre@email.com"
+                  className="mt-1"
+                  required
+                />
+              </div>
+              <div>
+                <Label htmlFor="clientPhone">Téléphone mobile *</Label>
+                <Input
+                  id="clientPhone"
+                  type="tel"
+                  value={clientPhone}
+                  onChange={(e) => setClientPhone(e.target.value)}
+                  placeholder="+41 79 123 45 67"
+                  className="mt-1"
+                  required
+                />
+              </div>
             </div>
 
             <div className="pt-4 border-t">

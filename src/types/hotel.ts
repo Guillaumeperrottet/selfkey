@@ -29,11 +29,20 @@ export type AvailableRoom = Room;
 
 export interface BookingData {
   roomId: string;
-  clientName: string;
+  clientFirstName: string;
+  clientLastName: string;
   clientEmail: string;
-  phone: string;
+  clientPhone: string;
+  clientBirthDate: Date;
+  clientAddress: string;
+  clientPostalCode: string;
+  clientCity: string;
+  clientCountry: string;
+  clientIdNumber: string;
   guests: number;
   amount: number;
+  checkInDate: Date;
+  checkOutDate: Date;
 }
 
 export interface StripeAccount {

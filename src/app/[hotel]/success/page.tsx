@@ -81,7 +81,7 @@ export default async function SuccessPage({ params, searchParams }: Props) {
             </div>
             <div className="flex justify-between py-2 border-b border-gray-100">
               <span className="text-gray-600">Client :</span>
-              <span className="font-medium">{booking.clientName}</span>
+              <span className="font-medium">{`${booking.clientFirstName} ${booking.clientLastName}`}</span>
             </div>
             <div className="flex justify-between py-2 border-b border-gray-100">
               <span className="text-gray-600">Date :</span>

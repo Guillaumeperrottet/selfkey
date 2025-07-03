@@ -122,9 +122,18 @@ model Booking {
   id                    String        @id @default(cuid())
   hotelSlug             String
   roomId                String
-  clientName            String
-  clientEmail           String
-  phone                 String
+  // Informations client détaillées
+  clientFirstName       String        // Prénom
+  clientLastName        String        // Nom
+  clientEmail           String        // Email
+  clientPhone           String        // Téléphone mobile
+  clientBirthDate       DateTime      // Date de naissance
+  clientAddress         String        // Adresse
+  clientPostalCode      String        // Code postal
+  clientCity            String        // Localité
+  clientCountry         String        // Pays
+  clientIdNumber        String        // N° de permis ou de carte d'identité
+  // Informations de réservation
   amount                Float
   currency              String        @default("CHF")
   platformCommission    Float         @default(0)

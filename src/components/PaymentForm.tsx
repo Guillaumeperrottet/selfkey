@@ -14,10 +14,21 @@ interface Booking {
   id: string;
   hotelSlug: string;
   roomId: string;
-  clientName: string;
+  clientFirstName: string;
+  clientLastName: string;
   clientEmail: string;
+  clientPhone: string;
+  clientBirthDate: Date;
+  clientAddress: string;
+  clientPostalCode: string;
+  clientCity: string;
+  clientCountry: string;
+  clientIdNumber: string;
   amount: number;
   currency: string;
+  checkInDate: Date;
+  checkOutDate: Date;
+  guests: number;
 }
 
 interface Establishment {
@@ -98,7 +109,7 @@ function CheckoutForm({ booking }: Pick<PaymentFormProps, "booking">) {
         payment_method: {
           card: cardElement,
           billing_details: {
-            name: booking.clientName,
+            name: `${booking.clientFirstName} ${booking.clientLastName}`,
             email: booking.clientEmail,
           },
         },

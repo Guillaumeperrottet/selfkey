@@ -18,7 +18,8 @@ export interface AvailabilityCheck {
     id: string;
     checkInDate: Date;
     checkOutDate: Date;
-    clientName: string;
+    clientFirstName: string;
+    clientLastName: string;
   }>;
 }
 
@@ -70,7 +71,8 @@ export async function checkRoomAvailability(
       id: true,
       checkInDate: true,
       checkOutDate: true,
-      clientName: true,
+      clientFirstName: true,
+      clientLastName: true,
     },
   });
 
