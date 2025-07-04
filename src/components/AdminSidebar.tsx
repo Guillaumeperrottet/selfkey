@@ -29,50 +29,45 @@ interface AdminSidebarProps {
   availableRooms: number;
   currentBookings: number;
   stripeAccountId?: string;
+  activeTab: string;
+  onTabChange: (tab: string) => void;
 }
 
 const navigation = [
   {
+    id: "overview",
     name: "Vue d'ensemble",
-    href: "#overview",
     icon: BarChart3,
-    current: true,
   },
   {
+    id: "rooms",
     name: "Chambres",
-    href: "#rooms",
     icon: Bed,
-    current: false,
   },
   {
+    id: "pricing",
     name: "Options de prix",
-    href: "#pricing",
     icon: DollarSign,
-    current: false,
   },
   {
+    id: "confirmations",
     name: "Confirmations",
-    href: "#confirmations",
     icon: MessageSquare,
-    current: false,
   },
   {
+    id: "access-codes",
     name: "Codes d'accès",
-    href: "#access-codes",
     icon: KeyRound,
-    current: false,
   },
   {
+    id: "bookings",
     name: "Réservations",
-    href: "#bookings",
     icon: Users,
-    current: false,
   },
   {
+    id: "settings",
     name: "Paramètres",
-    href: "#settings",
     icon: Settings,
-    current: false,
   },
 ];
 
@@ -83,6 +78,8 @@ export function AdminSidebar({
   availableRooms,
   currentBookings,
   stripeAccountId,
+  activeTab,
+  onTabChange,
 }: AdminSidebarProps) {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
@@ -118,18 +115,16 @@ export function AdminSidebar({
       <nav className="flex-1 space-y-1 p-2">
         {navigation.map((item) => (
           <Button
-            key={item.name}
+            key={item.id}
             variant="ghost"
             className={cn(
               "w-full justify-start",
-              item.current && "bg-muted font-medium"
+              activeTab === item.id && "bg-muted font-medium"
             )}
-            asChild
+            onClick={() => onTabChange(item.id)}
           >
-            <a href={item.href}>
-              <item.icon className="mr-2 h-4 w-4" />
-              {item.name}
-            </a>
+            <item.icon className="mr-2 h-4 w-4" />
+            {item.name}
           </Button>
         ))}
       </nav>

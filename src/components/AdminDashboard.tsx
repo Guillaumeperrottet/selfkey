@@ -1,414 +1,477 @@
 "use client";
 
 import { useState } from "react";
-import { QRCodePreview } from "./QRCodePreview";
+import { AdminSidebar } from "@/components/AdminSidebar";
+import { StripeOnboarding } from "@/components/StripeOnboarding";
+import { RoomManagement } from "@/components/RoomManagement";
+import { AccessCodeManager } from "@/components/AccessCodeManager";
+import { SettingsManager } from "@/components/SettingsManager";
+import { PricingOptionsManager } from "@/components/PricingOptionsManager";
+import { ConfirmationManager } from "@/components/ConfirmationManager";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import {
+  CreditCard,
+  Hotel,
+  Settings,
+  BarChart3,
+  Users,
+  Bed,
+  CheckCircle,
+} from "lucide-react";
 
-// Types
-interface RoomWithInventory {
-  id: string;
-  name: string;
-  price: number;
-  inventory: number;
-  isActive: boolean;
-}
-
-interface Booking {
-  id: string;
-  roomId: string;
-  clientFirstName: string;
-  clientLastName: string;
-  clientEmail: string;
-  clientPhone: string;
-  clientBirthDate: Date;
-  clientAddress: string;
-  clientPostalCode: string;
-  clientCity: string;
-  clientCountry: string;
-  clientIdNumber: string;
-  guests: number;
-  amount: number;
-  currency: string;
-  bookingDate: Date;
-  checkInDate: Date;
-  checkOutDate: Date;
-  stripePaymentIntentId: string | null;
-  room: {
+interface AdminDashboardProps {
+  hotel: string;
+  establishment: {
     name: string;
+    stripeAccountId: string | null;
+    stripeOnboarded: boolean;
+    commissionRate: number;
+    fixedFee: number;
+    accessCodeType: string | null;
+    generalAccessCode: string | null;
+    accessInstructions: string | null;
   };
+  roomsWithInventory: Array<{
+    id: string;
+    name: string;
+    price: number;
+    inventory: number;
+    isActive: boolean;
+  }>;
+  currentBookings: Array<{
+    id: string;
+    clientFirstName: string;
+    clientLastName: string;
+    clientEmail: string;
+    amount: number;
+    guests: number;
+    checkInDate: Date;
+    checkOutDate: Date;
+    bookingDate: Date;
+    room: {
+      name: string;
+    };
+  }>;
+  dbRooms: Array<{
+    id: string;
+    name: string;
+    accessCode: string | null;
+    isActive: boolean;
+  }>;
+  finalIsStripeConfigured: boolean;
 }
 
-interface Establishment {
-  id: string;
-  name: string;
-  slug: string;
-  stripeAccountId: string | null;
-  stripeOnboarded: boolean;
-  commissionRate: number;
-  fixedFee: number;
-  createdAt: Date;
-}
+export function AdminDashboard({
+  hotel,
+  establishment,
+  roomsWithInventory,
+  currentBookings,
+  dbRooms,
+  finalIsStripeConfigured,
+}: AdminDashboardProps) {
+  const [activeTab, setActiveTab] = useState("overview");
 
-interface Props {
-  establishment: Establishment;
-  rooms: RoomWithInventory[];
-  bookings: Booking[];
-}
+  const renderContent = () => {
+    switch (activeTab) {
+      case "overview":
+        return (
+          <div className="space-y-6">
+            {finalIsStripeConfigured && dbRooms.length > 0 ? (
+              <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+                {/* Statistiques */}
+                <Card>
+                  <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                    <CardTitle className="text-sm font-medium">
+                      Chambres disponibles
+                    </CardTitle>
+                    <Bed className="h-4 w-4 text-muted-foreground" />
+                  </CardHeader>
+                  <CardContent>
+                    <div className="text-2xl font-bold">
+                      {roomsWithInventory.filter((r) => r.inventory > 0).length}
+                    </div>
+                    <p className="text-xs text-muted-foreground">
+                      sur {roomsWithInventory.length} chambres
+                    </p>
+                  </CardContent>
+                </Card>
 
-export function AdminDashboard({ establishment, rooms, bookings }: Props) {
-  const [roomsState, setRoomsState] = useState(rooms);
-  const [toggleLoading, setToggleLoading] = useState<string | null>(null);
-  const [selectedBooking, setSelectedBooking] = useState<Booking | null>(null);
+                <Card>
+                  <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                    <CardTitle className="text-sm font-medium">
+                      Réservations aujourd&apos;hui
+                    </CardTitle>
+                    <Users className="h-4 w-4 text-muted-foreground" />
+                  </CardHeader>
+                  <CardContent>
+                    <div className="text-2xl font-bold">
+                      {currentBookings.length}
+                    </div>
+                    <p className="text-xs text-muted-foreground">
+                      {currentBookings.reduce(
+                        (sum: number, b) => sum + b.guests,
+                        0
+                      )}{" "}
+                      clients
+                    </p>
+                  </CardContent>
+                </Card>
 
-  const confirmedBookings = bookings.filter((b) => b.stripePaymentIntentId);
-  const bookingsByRoom = Object.groupBy(confirmedBookings, (b) => b.roomId);
+                <Card>
+                  <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                    <CardTitle className="text-sm font-medium">
+                      Revenus du jour
+                    </CardTitle>
+                    <CreditCard className="h-4 w-4 text-muted-foreground" />
+                  </CardHeader>
+                  <CardContent>
+                    <div className="text-2xl font-bold">
+                      {currentBookings
+                        .reduce((sum: number, b) => sum + b.amount, 0)
+                        .toFixed(2)}{" "}
+                      CHF
+                    </div>
+                    <p className="text-xs text-muted-foreground">
+                      Commission:{" "}
+                      {currentBookings
+                        .reduce(
+                          (sum: number, b) =>
+                            sum +
+                            (b.amount * establishment.commissionRate) / 100,
+                          0
+                        )
+                        .toFixed(2)}{" "}
+                      CHF
+                    </p>
+                  </CardContent>
+                </Card>
 
-  const handleToggleRoom = async (roomId: string, currentStatus: boolean) => {
-    setToggleLoading(roomId);
-    try {
-      const response = await fetch(`/api/admin/rooms/${roomId}/toggle`, {
-        method: "PATCH",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ isActive: !currentStatus }),
-      });
-
-      if (response.ok) {
-        setRoomsState((prevRooms) =>
-          prevRooms.map((room) =>
-            room.id === roomId ? { ...room, isActive: !currentStatus } : room
-          )
+                <Card>
+                  <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                    <CardTitle className="text-sm font-medium">
+                      Taux d&apos;occupation
+                    </CardTitle>
+                    <BarChart3 className="h-4 w-4 text-muted-foreground" />
+                  </CardHeader>
+                  <CardContent>
+                    <div className="text-2xl font-bold">
+                      {roomsWithInventory.length > 0
+                        ? Math.round(
+                            (roomsWithInventory.filter((r) => r.inventory === 0)
+                              .length /
+                              roomsWithInventory.length) *
+                              100
+                          )
+                        : 0}
+                      %
+                    </div>
+                    <p className="text-xs text-muted-foreground">
+                      {
+                        roomsWithInventory.filter((r) => r.inventory === 0)
+                          .length
+                      }{" "}
+                      chambres occupées
+                    </p>
+                  </CardContent>
+                </Card>
+              </div>
+            ) : (
+              <Card>
+                <CardContent className="flex flex-col items-center justify-center py-16">
+                  <div className="rounded-full bg-muted p-6 mb-6">
+                    {!finalIsStripeConfigured ? (
+                      <Settings className="h-8 w-8 text-muted-foreground" />
+                    ) : (
+                      <Hotel className="h-8 w-8 text-muted-foreground" />
+                    )}
+                  </div>
+                  <h3 className="text-lg font-semibold mb-2">
+                    {!finalIsStripeConfigured
+                      ? "Configuration requise"
+                      : "Première chambre"}
+                  </h3>
+                  <p className="text-muted-foreground text-center max-w-md">
+                    {!finalIsStripeConfigured
+                      ? "Configurez Stripe pour accepter les paiements et commencer à recevoir des réservations"
+                      : "Ajoutez votre première chambre pour commencer à recevoir des réservations"}
+                  </p>
+                </CardContent>
+              </Card>
+            )}
+          </div>
         );
-      }
-    } catch (error) {
-      console.error("Erreur lors du toggle de la chambre:", error);
-    } finally {
-      setToggleLoading(null);
+
+      case "rooms":
+        return (
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Bed className="h-5 w-5" />
+                Gestion des chambres
+              </CardTitle>
+              <CardDescription>
+                Créez et gérez les chambres disponibles à la réservation
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <RoomManagement hotelSlug={hotel} currency="CHF" />
+            </CardContent>
+          </Card>
+        );
+
+      case "pricing":
+        return <PricingOptionsManager hotelSlug={hotel} />;
+
+      case "confirmations":
+        return <ConfirmationManager hotelSlug={hotel} />;
+
+      case "access-codes":
+        return (
+          <AccessCodeManager
+            establishmentSlug={hotel}
+            rooms={dbRooms.map((room) => ({
+              id: room.id,
+              name: room.name,
+              accessCode: room.accessCode,
+              isActive: room.isActive,
+            }))}
+            establishment={{
+              accessCodeType: establishment.accessCodeType || "room",
+              generalAccessCode: establishment.generalAccessCode,
+              accessInstructions: establishment.accessInstructions,
+            }}
+          />
+        );
+
+      case "bookings":
+        return (
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Users className="h-5 w-5" />
+                Réservations récentes
+              </CardTitle>
+              <CardDescription>
+                Consultez et gérez les réservations de votre établissement
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              {currentBookings.length > 0 ? (
+                <div className="space-y-4">
+                  {currentBookings.map((booking) => (
+                    <div
+                      key={booking.id}
+                      className="flex items-center justify-between p-4 border rounded-lg"
+                    >
+                      <div className="space-y-1">
+                        <p className="font-medium">{`${booking.clientFirstName} ${booking.clientLastName}`}</p>
+                        <p className="text-sm text-muted-foreground">
+                          {booking.clientEmail}
+                        </p>
+                        <p className="text-sm text-muted-foreground">
+                          Chambre: {booking.room.name}
+                        </p>
+                        <div className="flex gap-2 text-xs">
+                          <span>
+                            Arrivée:{" "}
+                            {new Date(booking.checkInDate).toLocaleDateString(
+                              "fr-FR"
+                            )}
+                          </span>
+                          <span>
+                            Départ:{" "}
+                            {new Date(booking.checkOutDate).toLocaleDateString(
+                              "fr-FR"
+                            )}{" "}
+                            (12h00)
+                          </span>
+                        </div>
+                      </div>
+                      <div className="text-right">
+                        <p className="font-semibold">{booking.amount} CHF</p>
+                        <p className="text-sm text-muted-foreground">
+                          {new Date(booking.bookingDate).toLocaleDateString(
+                            "fr-FR"
+                          )}
+                        </p>
+                        {(() => {
+                          const now = new Date();
+                          const today = new Date();
+                          today.setHours(0, 0, 0, 0);
+                          const checkOut = new Date(booking.checkOutDate);
+                          const checkIn = new Date(booking.checkInDate);
+
+                          if (
+                            checkOut.toDateString() === today.toDateString() &&
+                            now.getHours() < 12
+                          ) {
+                            return (
+                              <span className="text-xs bg-orange-100 text-orange-800 px-2 py-1 rounded">
+                                Départ aujourd&apos;hui
+                              </span>
+                            );
+                          } else if (
+                            checkOut.toDateString() === today.toDateString() &&
+                            now.getHours() >= 12
+                          ) {
+                            return (
+                              <span className="text-xs bg-green-100 text-green-800 px-2 py-1 rounded">
+                                Chambre libérée
+                              </span>
+                            );
+                          } else if (
+                            checkIn.toDateString() === today.toDateString()
+                          ) {
+                            return (
+                              <span className="text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded">
+                                Arrivée aujourd&apos;hui
+                              </span>
+                            );
+                          } else if (checkIn < today && checkOut > today) {
+                            return (
+                              <span className="text-xs bg-red-100 text-red-800 px-2 py-1 rounded">
+                                En cours
+                              </span>
+                            );
+                          }
+                          return null;
+                        })()}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <div className="text-center py-8">
+                  <Users className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
+                  <h3 className="text-lg font-medium mb-2">
+                    Aucune réservation aujourd&apos;hui
+                  </h3>
+                  <p className="text-muted-foreground">
+                    Les nouvelles réservations apparaîtront ici
+                  </p>
+                </div>
+              )}
+            </CardContent>
+          </Card>
+        );
+
+      case "settings":
+        return (
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Settings className="h-5 w-5" />
+                Paramètres de l&apos;établissement
+              </CardTitle>
+              <CardDescription>
+                Configurez les paramètres de réservation et de fonctionnement
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <SettingsManager hotelSlug={hotel} />
+            </CardContent>
+          </Card>
+        );
+
+      default:
+        return null;
     }
   };
 
-  const availableRooms = roomsState.filter(
-    (room) => room.isActive && room.inventory > 0
-  ).length;
-  const totalRevenue = confirmedBookings.reduce(
-    (sum, booking) => sum + booking.amount,
-    0
-  );
-
   return (
-    <div className="space-y-6">
-      {/* Quick Stats */}
-      <div className="grid grid-cols-2 gap-3">
-        <div className="text-center">
-          <div className="text-2xl font-bold text-gray-900">
-            {availableRooms}
-          </div>
-          <div className="text-xs text-gray-600">Disponibles</div>
-        </div>
-        <div className="text-center">
-          <div className="text-2xl font-bold text-green-600">
-            {totalRevenue} CHF
-          </div>
-          <div className="text-xs text-gray-600">Revenus</div>
-        </div>
-      </div>
+    <div className="min-h-screen bg-background">
+      <AdminSidebar
+        hotel={hotel}
+        establishmentName={establishment.name}
+        isStripeConfigured={finalIsStripeConfigured}
+        availableRooms={
+          roomsWithInventory.filter((r) => r.inventory > 0).length
+        }
+        currentBookings={currentBookings.length}
+        stripeAccountId={establishment.stripeAccountId || undefined}
+        activeTab={activeTab}
+        onTabChange={setActiveTab}
+      />
 
-      {/* Room Status */}
-      <div>
-        <h4 className="text-sm font-medium text-gray-900 mb-3">Chambres</h4>
-        <div className="space-y-2">
-          {roomsState.map((room) => (
-            <div
-              key={room.id}
-              className="flex items-center justify-between p-3 bg-gray-50 rounded-lg"
-            >
-              <div className="flex-1 min-w-0">
-                <div className="flex items-center gap-2 mb-1">
-                  <p className="text-sm font-medium text-gray-900 truncate">
-                    {room.name}
-                  </p>
-                  <span
-                    className={`px-2 py-0.5 rounded-full text-xs font-medium ${
-                      room.isActive
-                        ? room.inventory > 0
-                          ? "bg-green-100 text-green-800"
-                          : "bg-red-100 text-red-800"
-                        : "bg-gray-100 text-gray-800"
-                    }`}
-                  >
-                    {!room.isActive
-                      ? "OFF"
-                      : room.inventory > 0
-                        ? "OK"
-                        : "RÉSERVÉE"}
-                  </span>
-                </div>
-                <p className="text-xs text-gray-600">{room.price} CHF</p>
-                {bookingsByRoom[room.id] && (
-                  <p className="text-xs text-blue-600 truncate">
-                    {bookingsByRoom[room.id]?.[0]
-                      ? `${bookingsByRoom[room.id]![0]!.clientFirstName} ${bookingsByRoom[room.id]![0]!.clientLastName}`
-                      : null}
-                  </p>
-                )}
-              </div>
-              <button
-                onClick={() => handleToggleRoom(room.id, room.isActive)}
-                disabled={toggleLoading === room.id}
-                className={`ml-2 px-3 py-1 rounded text-xs font-medium transition-colors ${
-                  room.isActive
-                    ? "bg-red-100 text-red-700 hover:bg-red-200"
-                    : "bg-green-100 text-green-700 hover:bg-green-200"
-                } disabled:opacity-50`}
-              >
-                {toggleLoading === room.id
-                  ? "..."
-                  : room.isActive
-                    ? "OFF"
-                    : "ON"}
-              </button>
-            </div>
-          ))}
-        </div>
-      </div>
-
-      {/* Bookings */}
-      <div>
-        <h4 className="text-sm font-medium text-gray-900 mb-3">
-          Réservations ({confirmedBookings.length})
-        </h4>
-        {confirmedBookings.length > 0 ? (
-          <div className="space-y-2">
-            {confirmedBookings.map((booking) => {
-              const room = roomsState.find((r) => r.id === booking.roomId);
-              return (
-                <div
-                  key={booking.id}
-                  className="p-3 bg-blue-50 rounded-lg cursor-pointer hover:bg-blue-100 transition-colors"
-                  onClick={() => setSelectedBooking(booking)}
-                >
-                  <div className="flex items-center gap-2 mb-1">
-                    <div className="w-6 h-6 bg-blue-100 rounded-full flex items-center justify-center">
-                      <span className="text-blue-700 font-medium text-xs">
-                        {booking.clientFirstName.charAt(0).toUpperCase()}
-                      </span>
-                    </div>
-                    <p className="text-sm font-medium text-gray-900 truncate">
-                      {`${booking.clientFirstName} ${booking.clientLastName}`}
-                    </p>
-                  </div>
-                  <p className="text-xs text-gray-600 mb-1">{room?.name}</p>
-                  <div className="flex items-center justify-between">
-                    <span className="text-xs text-gray-500">
-                      {booking.guests} pers.
-                    </span>
-                    <span className="text-sm font-semibold text-green-600">
-                      {booking.amount} CHF
-                    </span>
-                  </div>
-                </div>
-              );
-            })}
-          </div>
-        ) : (
-          <div className="text-center py-6 text-gray-500">
-            <svg
-              className="w-8 h-8 mx-auto mb-2 text-gray-400"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M8 7V3a2 2 0 012-2h4a2 2 0 012 2v4m-6 4h6m-6 2h6"
-              />
-            </svg>
-            <p className="text-xs">Aucune réservation</p>
-          </div>
-        )}
-      </div>
-
-      {/* QR Code */}
-      <div>
-        <QRCodePreview hotelSlug={establishment.slug} />
-      </div>
-
-      {/* Quick Actions */}
-      <div className="space-y-2">
-        <a
-          href={`/${establishment.slug}`}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="w-full bg-blue-600 text-white px-3 py-2 rounded-md hover:bg-blue-700 transition-colors flex items-center justify-center gap-2 text-sm"
-        >
-          <svg
-            className="w-4 h-4"
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth={2}
-              d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"
-            />
-          </svg>
-          Page de réservation
-        </a>
-
-        <a
-          href={`/admin/${establishment.slug}/qr-code`}
-          className="w-full bg-gray-600 text-white px-3 py-2 rounded-md hover:bg-gray-700 transition-colors flex items-center justify-center gap-2 text-sm"
-        >
-          <svg
-            className="w-4 h-4"
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth={2}
-              d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h4M4 12h4m12 0h.01"
-            />
-          </svg>
-          Code QR
-        </a>
-
-        {establishment.stripeAccountId && (
-          <a
-            href="/api/stripe/dashboard"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="w-full bg-purple-600 text-white px-3 py-2 rounded-md hover:bg-purple-700 transition-colors flex items-center justify-center gap-2 text-sm"
-          >
-            <svg
-              className="w-4 h-4"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v4a2 2 0 00-2 2L13 19"
-              />
-            </svg>
-            Stripe
-          </a>
-        )}
-      </div>
-
-      {/* Modal de détails de réservation */}
-      {selectedBooking && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-          <div className="bg-white rounded-lg p-6 max-w-2xl w-full max-h-96 overflow-y-auto">
-            <div className="flex justify-between items-center mb-4">
-              <h3 className="text-lg font-semibold">
-                Détails de la réservation
-              </h3>
-              <button
-                onClick={() => setSelectedBooking(null)}
-                className="text-gray-500 hover:text-gray-700"
-              >
-                ✕
-              </button>
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+      {/* Main content */}
+      <div className="lg:pl-72">
+        <div className="px-4 py-8 sm:px-6 lg:px-8">
+          {/* Header */}
+          <div className="mb-8">
+            <div className="flex items-center justify-between">
               <div>
-                <h4 className="font-medium text-gray-900 mb-2">
-                  Informations client
-                </h4>
-                <div className="space-y-2 text-sm">
-                  <p>
-                    <span className="font-medium">Nom:</span>{" "}
-                    {selectedBooking.clientLastName}
-                  </p>
-                  <p>
-                    <span className="font-medium">Prénom:</span>{" "}
-                    {selectedBooking.clientFirstName}
-                  </p>
-                  <p>
-                    <span className="font-medium">Email:</span>{" "}
-                    {selectedBooking.clientEmail}
-                  </p>
-                  <p>
-                    <span className="font-medium">Téléphone:</span>{" "}
-                    {selectedBooking.clientPhone}
-                  </p>
-                  <p>
-                    <span className="font-medium">Date de naissance:</span>{" "}
-                    {new Date(
-                      selectedBooking.clientBirthDate
-                    ).toLocaleDateString()}
-                  </p>
-                  <p>
-                    <span className="font-medium">N° ID:</span>{" "}
-                    {selectedBooking.clientIdNumber}
-                  </p>
-                </div>
+                <h1 className="text-2xl font-bold text-gray-900">
+                  Tableau de bord
+                </h1>
+                <p className="mt-1 text-sm text-gray-500">
+                  {new Date().toLocaleDateString("fr-FR", {
+                    weekday: "long",
+                    year: "numeric",
+                    month: "long",
+                    day: "numeric",
+                  })}
+                </p>
               </div>
-
-              <div>
-                <h4 className="font-medium text-gray-900 mb-2">Adresse</h4>
-                <div className="space-y-2 text-sm">
-                  <p>
-                    <span className="font-medium">Adresse:</span>{" "}
-                    {selectedBooking.clientAddress}
-                  </p>
-                  <p>
-                    <span className="font-medium">Code postal:</span>{" "}
-                    {selectedBooking.clientPostalCode}
-                  </p>
-                  <p>
-                    <span className="font-medium">Localité:</span>{" "}
-                    {selectedBooking.clientCity}
-                  </p>
-                  <p>
-                    <span className="font-medium">Pays:</span>{" "}
-                    {selectedBooking.clientCountry}
-                  </p>
-                </div>
-
-                <h4 className="font-medium text-gray-900 mb-2 mt-4">
-                  Réservation
-                </h4>
-                <div className="space-y-2 text-sm">
-                  <p>
-                    <span className="font-medium">Chambre:</span>{" "}
-                    {
-                      roomsState.find((r) => r.id === selectedBooking.roomId)
-                        ?.name
-                    }
-                  </p>
-                  <p>
-                    <span className="font-medium">Check-in:</span>{" "}
-                    {new Date(selectedBooking.checkInDate).toLocaleDateString()}
-                  </p>
-                  <p>
-                    <span className="font-medium">Check-out:</span>{" "}
-                    {new Date(
-                      selectedBooking.checkOutDate
-                    ).toLocaleDateString()}
-                  </p>
-                  <p>
-                    <span className="font-medium">Invités:</span>{" "}
-                    {selectedBooking.guests}
-                  </p>
-                  <p>
-                    <span className="font-medium">Montant:</span>{" "}
-                    {selectedBooking.amount} {selectedBooking.currency}
-                  </p>
-                </div>
-              </div>
+              {finalIsStripeConfigured && (
+                <Badge variant="outline" className="flex items-center gap-2">
+                  <CheckCircle className="h-4 w-4 text-green-600" />
+                  Paiements activés
+                </Badge>
+              )}
             </div>
           </div>
+
+          {/* Configuration Stripe - seulement si pas encore configuré */}
+          {!finalIsStripeConfigured && (
+            <Card className="mb-6">
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <CreditCard className="h-5 w-5" />
+                  Configuration des paiements
+                </CardTitle>
+                <CardDescription>
+                  Connectez votre compte Stripe pour accepter les paiements en
+                  ligne
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <StripeOnboarding
+                  hotelSlug={hotel}
+                  hotelName={establishment.name}
+                />
+              </CardContent>
+            </Card>
+          )}
+
+          {/* Commission info */}
+          {(establishment.commissionRate > 0 || establishment.fixedFee > 0) && (
+            <Alert className="mb-6">
+              <BarChart3 className="h-4 w-4" />
+              <AlertDescription>
+                <strong>Commission:</strong>{" "}
+                {establishment.commissionRate > 0 &&
+                  `${establishment.commissionRate}% du montant`}
+                {establishment.commissionRate > 0 &&
+                  establishment.fixedFee > 0 &&
+                  " + "}
+                {establishment.fixedFee > 0 &&
+                  `${establishment.fixedFee} CHF par transaction`}
+              </AlertDescription>
+            </Alert>
+          )}
+
+          {/* Contenu principal */}
+          {renderContent()}
         </div>
-      )}
+      </div>
     </div>
   );
 }
