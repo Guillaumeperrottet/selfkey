@@ -12,19 +12,55 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { Search, ArrowUpDown, Users, Calendar, Euro } from "lucide-react";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import {
+  Search,
+  ArrowUpDown,
+  Users,
+  Calendar,
+  Euro,
+  MapPin,
+  Phone,
+  Mail,
+  User,
+  FileText,
+  Clock,
+} from "lucide-react";
 
 interface Booking {
   id: string;
   clientFirstName: string;
   clientLastName: string;
   clientEmail: string;
+  clientPhone?: string;
+  clientBirthDate?: Date;
+  clientAddress?: string;
+  clientPostalCode?: string;
+  clientCity?: string;
+  clientCountry?: string;
+  clientIdNumber?: string;
   amount: number;
   guests: number;
   checkInDate: Date;
   checkOutDate: Date;
   bookingDate: Date;
+  currency?: string;
+  selectedPricingOptions?: Record<string, string | string[]>;
+  pricingOptionsTotal?: number;
+  stripePaymentIntentId?: string | null;
+  confirmationSent?: boolean;
+  confirmationSentAt?: Date | null;
+  confirmationMethod?: string | null;
   room: {
+    name: string;
+  };
+  establishment?: {
     name: string;
   };
 }
@@ -48,6 +84,8 @@ export function BookingsTable({ bookings }: BookingsTableProps) {
   const [sortField, setSortField] = useState<SortField>("checkIn");
   const [sortDirection, setSortDirection] = useState<SortDirection>("asc");
   const [statusFilter, setStatusFilter] = useState<string>("all");
+  const [selectedBooking, setSelectedBooking] = useState<Booking | null>(null);
+  const [showDetails, setShowDetails] = useState(false);
 
   const getBookingStatus = (booking: Booking) => {
     const now = new Date();
@@ -170,6 +208,31 @@ export function BookingsTable({ bookings }: BookingsTableProps) {
       setSortField(field);
       setSortDirection("asc");
     }
+  };
+
+  const handleRowClick = (booking: Booking) => {
+    setSelectedBooking(booking);
+    setShowDetails(true);
+  };
+
+  const formatDate = (date: Date) => {
+    return new Date(date).toLocaleDateString("fr-FR", {
+      weekday: "long",
+      year: "numeric",
+      month: "long",
+      day: "numeric",
+    });
+  };
+
+  const formatDateTime = (date: Date) => {
+    return new Date(date).toLocaleString("fr-FR");
+  };
+
+  const calculateStayDuration = (checkIn: Date, checkOut: Date) => {
+    return Math.ceil(
+      (new Date(checkOut).getTime() - new Date(checkIn).getTime()) /
+        (1000 * 60 * 60 * 24)
+    );
   };
 
   const SortableHeader = ({
@@ -326,7 +389,11 @@ export function BookingsTable({ bookings }: BookingsTableProps) {
               filteredAndSortedBookings.map((booking) => {
                 const bookingStatus = getBookingStatus(booking);
                 return (
-                  <TableRow key={booking.id}>
+                  <TableRow
+                    key={booking.id}
+                    className="cursor-pointer hover:bg-muted/50 transition-colors"
+                    onClick={() => handleRowClick(booking)}
+                  >
                     <TableCell className="font-medium">
                       {`${booking.clientFirstName} ${booking.clientLastName}`}
                     </TableCell>
@@ -382,6 +449,255 @@ export function BookingsTable({ bookings }: BookingsTableProps) {
           </TableBody>
         </Table>
       </div>
+
+      {/* Dialog des détails */}
+      <Dialog open={showDetails} onOpenChange={setShowDetails}>
+        <DialogContent className="max-w-6xl max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <User className="h-5 w-5" />
+              Détails de la réservation
+            </DialogTitle>
+            <DialogDescription>
+              Informations complètes sur la réservation de{" "}
+              {selectedBooking?.clientFirstName}{" "}
+              {selectedBooking?.clientLastName}
+            </DialogDescription>
+          </DialogHeader>
+
+          {selectedBooking && (
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              {/* Informations du séjour */}
+              <div className="space-y-4">
+                <div className="bg-muted/50 p-4 rounded-lg">
+                  <h3 className="font-semibold mb-3 flex items-center gap-2">
+                    <Calendar className="h-4 w-4" />
+                    Informations du séjour
+                  </h3>
+                  <div className="space-y-2 text-sm">
+                    <div className="flex justify-between">
+                      <span className="text-muted-foreground">Chambre :</span>
+                      <span className="font-medium">
+                        {selectedBooking.room.name}
+                      </span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-muted-foreground">Arrivée :</span>
+                      <span className="font-medium">
+                        {formatDate(selectedBooking.checkInDate)}
+                      </span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-muted-foreground">Départ :</span>
+                      <span className="font-medium">
+                        {formatDate(selectedBooking.checkOutDate)}
+                      </span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-muted-foreground">Durée :</span>
+                      <span className="font-medium">
+                        {calculateStayDuration(
+                          selectedBooking.checkInDate,
+                          selectedBooking.checkOutDate
+                        )}{" "}
+                        nuit
+                        {calculateStayDuration(
+                          selectedBooking.checkInDate,
+                          selectedBooking.checkOutDate
+                        ) > 1
+                          ? "s"
+                          : ""}
+                      </span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-muted-foreground">Invités :</span>
+                      <span className="font-medium">
+                        {selectedBooking.guests} personne
+                        {selectedBooking.guests > 1 ? "s" : ""}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Statut de la réservation */}
+                <div className="bg-muted/50 p-4 rounded-lg">
+                  <h3 className="font-semibold mb-3 flex items-center gap-2">
+                    <Clock className="h-4 w-4" />
+                    Statut
+                  </h3>
+                  <div className="space-y-2">
+                    <div className="flex items-center gap-2">
+                      <Badge
+                        variant="secondary"
+                        className={getBookingStatus(selectedBooking).color}
+                      >
+                        {getBookingStatus(selectedBooking).label}
+                      </Badge>
+                    </div>
+                    <div className="text-sm text-muted-foreground">
+                      Réservée le {formatDateTime(selectedBooking.bookingDate)}
+                    </div>
+                    {selectedBooking.confirmationSent && (
+                      <div className="text-sm text-green-600">
+                        ✓ Confirmation envoyée{" "}
+                        {selectedBooking.confirmationSentAt &&
+                          `le ${formatDateTime(selectedBooking.confirmationSentAt)}`}
+                        {selectedBooking.confirmationMethod &&
+                          ` par ${selectedBooking.confirmationMethod}`}
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </div>
+
+              {/* Informations du client */}
+              <div className="space-y-4">
+                <div className="bg-muted/50 p-4 rounded-lg">
+                  <h3 className="font-semibold mb-3 flex items-center gap-2">
+                    <User className="h-4 w-4" />
+                    Informations client
+                  </h3>
+                  <div className="space-y-3 text-sm">
+                    <div>
+                      <span className="text-muted-foreground block">
+                        Nom complet :
+                      </span>
+                      <span className="font-medium">
+                        {selectedBooking.clientFirstName}{" "}
+                        {selectedBooking.clientLastName}
+                      </span>
+                    </div>
+                    <div>
+                      <span className="text-muted-foreground block">
+                        Email :
+                      </span>
+                      <div className="font-medium flex items-start gap-2">
+                        <Mail className="h-3 w-3 mt-0.5 flex-shrink-0" />
+                        <span className="break-all">
+                          {selectedBooking.clientEmail}
+                        </span>
+                      </div>
+                    </div>
+                    {selectedBooking.clientPhone && (
+                      <div>
+                        <span className="text-muted-foreground block">
+                          Téléphone :
+                        </span>
+                        <div className="font-medium flex items-center gap-2">
+                          <Phone className="h-3 w-3 flex-shrink-0" />
+                          <span>{selectedBooking.clientPhone}</span>
+                        </div>
+                      </div>
+                    )}
+                    {selectedBooking.clientBirthDate && (
+                      <div>
+                        <span className="text-muted-foreground block">
+                          Date de naissance :
+                        </span>
+                        <span className="font-medium">
+                          {new Date(
+                            selectedBooking.clientBirthDate
+                          ).toLocaleDateString("fr-FR")}
+                        </span>
+                      </div>
+                    )}
+                    {selectedBooking.clientIdNumber && (
+                      <div>
+                        <span className="text-muted-foreground block">
+                          N° d&apos;identification :
+                        </span>
+                        <div className="font-medium flex items-center gap-2">
+                          <FileText className="h-3 w-3 flex-shrink-0" />
+                          <span className="break-all">
+                            {selectedBooking.clientIdNumber}
+                          </span>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                </div>
+
+                {/* Adresse */}
+                {(selectedBooking.clientAddress ||
+                  selectedBooking.clientCity ||
+                  selectedBooking.clientCountry) && (
+                  <div className="bg-muted/50 p-4 rounded-lg">
+                    <h3 className="font-semibold mb-3 flex items-center gap-2">
+                      <MapPin className="h-4 w-4" />
+                      Adresse
+                    </h3>
+                    <div className="text-sm space-y-1">
+                      {selectedBooking.clientAddress && (
+                        <div className="font-medium">
+                          {selectedBooking.clientAddress}
+                        </div>
+                      )}
+                      {(selectedBooking.clientPostalCode ||
+                        selectedBooking.clientCity) && (
+                        <div>
+                          {selectedBooking.clientPostalCode}{" "}
+                          {selectedBooking.clientCity}
+                        </div>
+                      )}
+                      {selectedBooking.clientCountry && (
+                        <div>{selectedBooking.clientCountry}</div>
+                      )}
+                    </div>
+                  </div>
+                )}
+
+                {/* Informations de paiement */}
+                <div className="bg-muted/50 p-4 rounded-lg">
+                  <h3 className="font-semibold mb-3 flex items-center gap-2">
+                    <Euro className="h-4 w-4" />
+                    Paiement
+                  </h3>
+                  <div className="space-y-2 text-sm">
+                    <div className="flex justify-between">
+                      <span className="text-muted-foreground">
+                        Montant total :
+                      </span>
+                      <span className="font-semibold text-lg">
+                        {selectedBooking.amount}{" "}
+                        {selectedBooking.currency || "CHF"}
+                      </span>
+                    </div>
+                    {selectedBooking.pricingOptionsTotal &&
+                      selectedBooking.pricingOptionsTotal > 0 && (
+                        <div className="flex justify-between">
+                          <span className="text-muted-foreground">
+                            Options supplémentaires :
+                          </span>
+                          <span className="font-medium">
+                            +{selectedBooking.pricingOptionsTotal}{" "}
+                            {selectedBooking.currency || "CHF"}
+                          </span>
+                        </div>
+                      )}
+                    <div className="flex justify-between">
+                      <span className="text-muted-foreground">
+                        Statut paiement :
+                      </span>
+                      <span
+                        className={`font-medium ${selectedBooking.stripePaymentIntentId ? "text-green-600" : "text-orange-600"}`}
+                      >
+                        {selectedBooking.stripePaymentIntentId
+                          ? "✓ Payé"
+                          : "⏳ En attente"}
+                      </span>
+                    </div>
+                    {selectedBooking.stripePaymentIntentId && (
+                      <div className="text-xs text-muted-foreground">
+                        ID: {selectedBooking.stripePaymentIntentId}
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

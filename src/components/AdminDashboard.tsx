@@ -9,6 +9,7 @@ import { SettingsManager } from "@/components/SettingsManager";
 import { PricingOptionsManager } from "@/components/PricingOptionsManager";
 import { ConfirmationManager } from "@/components/ConfirmationManager";
 import { BookingsTable } from "@/components/BookingsTable";
+import { DashboardCharts } from "@/components/DashboardCharts";
 import {
   Card,
   CardContent,
@@ -206,6 +207,22 @@ export function AdminDashboard({
                   </p>
                 </CardContent>
               </Card>
+            )}
+
+            {/* Graphiques analytiques */}
+            {finalIsStripeConfigured && dbRooms.length > 0 && currentBookings.length > 0 && (
+              <div className="mt-8">
+                <div className="mb-6">
+                  <h2 className="text-xl font-semibold mb-2">Analyses et statistiques</h2>
+                  <p className="text-muted-foreground">
+                    Visualisez les performances de votre établissement
+                  </p>
+                </div>
+                <DashboardCharts 
+                  bookings={currentBookings}
+                  rooms={roomsWithInventory}
+                />
+              </div>
             )}
           </div>
         );
