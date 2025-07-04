@@ -2,10 +2,21 @@
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
-import { Card, CardContent } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import { Edit, Trash2, Bed, DollarSign } from "lucide-react";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Separator } from "@/components/ui/separator";
+import {
+  Edit,
+  Trash2,
+  Bed,
+  DollarSign,
+  Plus,
+  Power,
+  PowerOff,
+} from "lucide-react";
 
 interface Room {
   id: string;
@@ -168,219 +179,209 @@ export function RoomManagement({ hotelSlug, currency }: Props) {
   };
 
   return (
-    <div>
-      <div className="flex justify-between items-center mb-6">
+    <div className="space-y-6">
+      {/* En-tête */}
+      <div className="flex items-center justify-between">
         <div>
-          <h3 className="text-xl font-semibold text-gray-900">
+          <h3 className="text-lg font-semibold text-foreground">
             Chambres disponibles
           </h3>
-          <p className="text-gray-600 text-sm mt-1">
-            {rooms.length}{" "}
-            {rooms.length > 1 ? "chambres configurées" : "chambre configurée"}
+          <p className="text-sm text-muted-foreground">
+            {rooms.length} chambre{rooms.length > 1 ? "s" : ""} configurée
+            {rooms.length > 1 ? "s" : ""}
           </p>
         </div>
-        <button
+        <Button
           onClick={() => setShowAddForm(true)}
-          className="bg-gradient-to-r from-blue-600 to-indigo-600 text-white px-6 py-3 rounded-xl hover:from-blue-700 hover:to-indigo-700 transition-all duration-200 shadow-lg hover:shadow-xl transform hover:scale-105 flex items-center space-x-2"
+          className="bg-primary hover:bg-primary/90"
         >
-          <span className="text-lg">+</span>
-          <span className="font-medium">Ajouter une chambre</span>
-        </button>
+          <Plus className="h-4 w-4 mr-2" />
+          Ajouter une chambre
+        </Button>
       </div>
 
-      {/* Messages avec design amélioré */}
+      {/* Messages */}
       {message && (
-        <div
-          className={`mb-6 p-4 rounded-xl border-l-4 ${
-            message.type === "success"
-              ? "bg-green-50 border-green-400 text-green-800"
-              : "bg-red-50 border-red-400 text-red-800"
-          }`}
-        >
-          <div className="flex items-center">
-            <span className="mr-2">
-              {message.type === "success" ? "✅" : "❌"}
-            </span>
-            <span className="font-medium">{message.text}</span>
-          </div>
-        </div>
+        <Alert variant={message.type === "error" ? "destructive" : "default"}>
+          <AlertDescription>{message.text}</AlertDescription>
+        </Alert>
       )}
 
-      {/* Formulaire d'ajout/édition avec design moderne */}
+      {/* Formulaire d'ajout/édition */}
       {showAddForm && (
-        <div className="bg-gradient-to-r from-gray-50 to-gray-100 p-6 rounded-2xl mb-8 border border-gray-200 shadow-sm">
-          <h3 className="text-xl font-semibold text-gray-900 mb-6 flex items-center">
-            <span className="w-8 h-8 bg-blue-100 rounded-lg flex items-center justify-center mr-3">
-              {editingRoom ? "✏️" : "➕"}
-            </span>
-            {editingRoom
-              ? "Modifier la chambre"
-              : "Ajouter une nouvelle chambre"}
-          </h3>
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              {editingRoom ? (
+                <Edit className="h-5 w-5" />
+              ) : (
+                <Plus className="h-5 w-5" />
+              )}
+              {editingRoom
+                ? "Modifier la chambre"
+                : "Ajouter une nouvelle chambre"}
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <form onSubmit={handleSubmit} className="space-y-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label htmlFor="name">Nom de la chambre *</Label>
+                  <Input
+                    id="name"
+                    value={formData.name}
+                    onChange={(e) =>
+                      setFormData((prev) => ({ ...prev, name: e.target.value }))
+                    }
+                    placeholder="Ex: Chambre Standard, Suite Deluxe..."
+                    required
+                  />
+                </div>
 
-          <form onSubmit={handleSubmit} className="space-y-6">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div>
-                <label
-                  htmlFor="name"
-                  className="block text-sm font-semibold text-gray-700 mb-2"
-                >
-                  Nom de la chambre *
-                </label>
-                <input
-                  type="text"
-                  id="name"
-                  value={formData.name}
-                  onChange={(e) =>
-                    setFormData((prev) => ({ ...prev, name: e.target.value }))
-                  }
-                  placeholder="Ex: Chambre Standard, Suite Deluxe..."
-                  className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 shadow-sm"
-                  required
-                />
+                <div className="space-y-2">
+                  <Label htmlFor="price">Prix ({currency}) *</Label>
+                  <Input
+                    id="price"
+                    type="number"
+                    value={formData.price}
+                    onChange={(e) =>
+                      setFormData((prev) => ({
+                        ...prev,
+                        price: e.target.value,
+                      }))
+                    }
+                    placeholder="120"
+                    min="1"
+                    step="0.01"
+                    required
+                  />
+                </div>
               </div>
 
-              <div>
-                <label
-                  htmlFor="price"
-                  className="block text-sm font-semibold text-gray-700 mb-2"
-                >
-                  Prix ({currency}) *
-                </label>
-                <input
-                  type="number"
-                  id="price"
-                  value={formData.price}
-                  onChange={(e) =>
-                    setFormData((prev) => ({ ...prev, price: e.target.value }))
-                  }
-                  placeholder="120"
-                  min="1"
-                  step="0.01"
-                  className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 shadow-sm"
-                  required
-                />
+              <div className="flex gap-3 pt-4">
+                <Button type="submit" disabled={isLoading}>
+                  {isLoading
+                    ? "Sauvegarde..."
+                    : editingRoom
+                      ? "Modifier"
+                      : "Ajouter"}
+                </Button>
+                <Button type="button" variant="outline" onClick={resetForm}>
+                  Annuler
+                </Button>
               </div>
-            </div>
-
-            <div className="flex gap-3 pt-4">
-              <button
-                type="submit"
-                disabled={isLoading}
-                className="bg-gradient-to-r from-blue-600 to-indigo-600 text-white px-6 py-3 rounded-xl hover:from-blue-700 hover:to-indigo-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 shadow-lg hover:shadow-xl transform hover:scale-105 font-medium"
-              >
-                {isLoading
-                  ? "Sauvegarde..."
-                  : editingRoom
-                    ? "💾 Modifier"
-                    : "➕ Ajouter"}
-              </button>
-
-              <button
-                type="button"
-                onClick={resetForm}
-                className="bg-gray-200 text-gray-700 px-6 py-3 rounded-xl hover:bg-gray-300 transition-all duration-200 font-medium"
-              >
-                ❌ Annuler
-              </button>
-            </div>
-          </form>
-        </div>
+            </form>
+          </CardContent>
+        </Card>
       )}
 
-      {/* Liste des chambres avec design moderne */}
+      {/* Liste des chambres */}
       {rooms.length > 0 ? (
         <div className="space-y-4">
-          {/* Légende des pastilles */}
-          <div className="flex items-center gap-6 text-xs text-gray-500 mb-4 p-4 bg-gray-50 rounded-lg">
-            <span className="font-medium">Statut des chambres :</span>
-            <div className="flex items-center gap-2">
-              <Badge
-                variant="default"
-                className="w-3 h-3 p-0 rounded-full bg-green-500"
-              />
-              <span>Chambre active</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <Badge
-                variant="secondary"
-                className="w-3 h-3 p-0 rounded-full bg-red-500"
-              />
-              <span>Chambre désactivée</span>
-            </div>
-          </div>
+          {/* Légende des statuts */}
+          <Card className="bg-muted/30 border-muted">
+            <CardContent className="p-4">
+              <div className="flex items-center gap-6 text-xs text-muted-foreground">
+                <span className="font-medium">Statut des chambres :</span>
+                <div className="flex items-center gap-2">
+                  <div className="w-2 h-2 rounded-full bg-emerald-500 shadow-sm ring-2 ring-emerald-500/20"></div>
+                  <span>Active</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <div className="w-2 h-2 rounded-full bg-slate-400 shadow-sm ring-2 ring-slate-400/20"></div>
+                  <span>Désactivée</span>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
 
           {rooms.map((room) => (
             <Card
               key={room.id}
-              className={`transition-opacity ${!room.isActive ? "opacity-60" : ""}`}
+              className={`transition-all hover:shadow-sm ${!room.isActive ? "opacity-70" : ""}`}
             >
               <CardContent className="p-6">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-4">
                     <div className="flex items-center gap-3">
-                      <div className="flex items-center gap-2">
-                        <Bed className="h-5 w-5 text-muted-foreground" />
-                        <Badge
-                          variant={room.isActive ? "default" : "secondary"}
-                          className={`w-3 h-3 p-0 rounded-full ${
-                            room.isActive ? "bg-green-500" : "bg-red-500"
+                      {/* Icône de lit */}
+                      <div className="p-2 bg-muted rounded-lg">
+                        <Bed className="h-4 w-4 text-muted-foreground" />
+                      </div>
+
+                      {/* Pastille de statut brillante mais discrète */}
+                      <div className="relative">
+                        <div
+                          className={`w-3 h-3 rounded-full shadow-sm transition-all ${
+                            room.isActive
+                              ? "bg-emerald-500 ring-2 ring-emerald-500/20 shadow-emerald-500/25"
+                              : "bg-slate-400 ring-2 ring-slate-400/20 shadow-slate-400/25"
                           }`}
                         />
+                        {room.isActive && (
+                          <div className="absolute inset-0 w-3 h-3 rounded-full bg-emerald-500 animate-pulse opacity-75" />
+                        )}
                       </div>
-                      <div>
-                        <h3 className="font-semibold text-lg">{room.name}</h3>
-                        <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                          <DollarSign className="h-4 w-4" />
+                    </div>
+
+                    <div>
+                      <h3 className="font-semibold text-foreground">
+                        {room.name}
+                      </h3>
+                      <div className="flex items-center gap-3 text-sm text-muted-foreground">
+                        <div className="flex items-center gap-1">
+                          <DollarSign className="h-3 w-3" />
                           <span>
-                            {room.price} {currency} par nuit
-                          </span>
-                          <span className="text-xs">
-                            •{" "}
-                            {room.isActive
-                              ? "Chambre active"
-                              : "Chambre désactivée"}
+                            {room.price} {currency}
                           </span>
                         </div>
+                        <Separator orientation="vertical" className="h-4" />
+                        <span className="text-xs">
+                          {room.isActive ? "Active" : "Désactivée"}
+                        </span>
                       </div>
                     </div>
                   </div>
 
-                  <div className="flex items-center gap-6">
-                    {/* Actions */}
-                    <div className="flex gap-2">
-                      <Button
-                        variant={room.isActive ? "outline" : "default"}
-                        size="sm"
-                        onClick={() => handleToggle(room.id, room.isActive)}
-                        className={`flex items-center gap-1 ${
-                          room.isActive
-                            ? "text-red-600 hover:text-red-700 border-red-200 hover:border-red-300"
-                            : "bg-green-600 hover:bg-green-700 text-white"
-                        }`}
-                      >
-                        {room.isActive ? "Désactiver" : "Réactiver"}
-                      </Button>
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() => handleEdit(room)}
-                        className="flex items-center gap-1"
-                      >
-                        <Edit className="h-4 w-4" />
-                        Modifier
-                      </Button>
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() => handleDelete(room.id, room.name)}
-                        disabled={isLoading}
-                        className="flex items-center gap-1 text-destructive hover:text-destructive"
-                      >
-                        <Trash2 className="h-4 w-4" />
-                        Supprimer
-                      </Button>
-                    </div>
+                  <div className="flex items-center gap-2">
+                    {/* Bouton d'activation/désactivation */}
+                    <Button
+                      variant={room.isActive ? "outline" : "default"}
+                      size="sm"
+                      onClick={() => handleToggle(room.id, room.isActive)}
+                      className={
+                        room.isActive
+                          ? "text-muted-foreground hover:text-foreground border-muted hover:border-border"
+                          : "bg-emerald-600 hover:bg-emerald-700 text-white"
+                      }
+                    >
+                      {room.isActive ? (
+                        <PowerOff className="h-4 w-4" />
+                      ) : (
+                        <Power className="h-4 w-4" />
+                      )}
+                    </Button>
+
+                    {/* Bouton de modification */}
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => handleEdit(room)}
+                      className="text-muted-foreground hover:text-foreground border-muted hover:border-border"
+                    >
+                      <Edit className="h-4 w-4" />
+                    </Button>
+
+                    {/* Bouton de suppression */}
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => handleDelete(room.id, room.name)}
+                      disabled={isLoading}
+                      className="text-destructive hover:text-destructive border-muted hover:border-destructive/50"
+                    >
+                      <Trash2 className="h-4 w-4" />
+                    </Button>
                   </div>
                 </div>
               </CardContent>
@@ -388,12 +389,23 @@ export function RoomManagement({ hotelSlug, currency }: Props) {
           ))}
         </div>
       ) : (
-        <div className="text-center py-8 text-gray-500">
-          <p className="text-lg mb-2">Aucune chambre configurée</p>
-          <p className="text-sm">
-            Commencez par ajouter vos premières chambres
-          </p>
-        </div>
+        <Card>
+          <CardContent className="flex flex-col items-center justify-center py-16">
+            <div className="rounded-full bg-muted p-6 mb-4">
+              <Bed className="h-8 w-8 text-muted-foreground" />
+            </div>
+            <h3 className="text-lg font-semibold mb-2">
+              Aucune chambre configurée
+            </h3>
+            <p className="text-sm text-muted-foreground mb-4">
+              Commencez par ajouter vos premières chambres
+            </p>
+            <Button onClick={() => setShowAddForm(true)}>
+              <Plus className="h-4 w-4 mr-2" />
+              Ajouter une chambre
+            </Button>
+          </CardContent>
+        </Card>
       )}
     </div>
   );

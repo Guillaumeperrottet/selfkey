@@ -8,15 +8,15 @@ import {
   CardDescription,
 } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { 
-  KeyRound, 
-  Clock, 
-  Shield, 
-  Zap, 
-  CreditCard, 
-  Settings, 
+import {
+  KeyRound,
+  Clock,
+  Shield,
+  Zap,
+  CreditCard,
+  Settings,
   MapPin,
-  Star
+  Star,
 } from "lucide-react";
 
 export default function Home() {
@@ -47,7 +47,7 @@ export default function Home() {
               Avantages
             </Link>
             <Button asChild variant="outline" size="sm">
-              <Link href="/establishments">Administration</Link>
+              <Link href="/establishments">Connexion</Link>
             </Button>
           </nav>
         </div>
@@ -277,7 +277,8 @@ export default function Home() {
                 Pour qui est SelfKey ?
               </h2>
               <p className="text-gray-600 dark:text-gray-400 max-w-2xl mx-auto">
-                Notre solution s&apos;adapte à tous les types d&apos;hébergements
+                Notre solution s&apos;adapte à tous les types
+                d&apos;hébergements
               </p>
             </div>
 
@@ -307,9 +308,9 @@ export default function Home() {
                 </CardHeader>
                 <CardContent>
                   <CardDescription className="text-base">
-                    Parfait pour les parkings avec barrière à code, parkings 
-                    privés ou espaces de stationnement sécurisés nécessitant 
-                    un accès payant automatisé.
+                    Parfait pour les parkings avec barrière à code, parkings
+                    privés ou espaces de stationnement sécurisés nécessitant un
+                    accès payant automatisé.
                   </CardDescription>
                 </CardContent>
               </Card>
@@ -334,13 +335,15 @@ export default function Home() {
                   <div className="w-12 h-12 bg-orange-100 dark:bg-orange-900 rounded-lg flex items-center justify-center mb-4">
                     <span className="text-2xl">🏠</span>
                   </div>
-                  <CardTitle className="text-xl">Locations saisonnières</CardTitle>
+                  <CardTitle className="text-xl">
+                    Locations saisonnières
+                  </CardTitle>
                 </CardHeader>
                 <CardContent>
                   <CardDescription className="text-base">
                     Parfait pour les propriétaires d&apos;appartements ou
-                    chalets de vacances qui veulent automatiser leurs
-                    locations courte durée.
+                    chalets de vacances qui veulent automatiser leurs locations
+                    courte durée.
                   </CardDescription>
                 </CardContent>
               </Card>
@@ -354,9 +357,8 @@ export default function Home() {
                 </CardHeader>
                 <CardContent>
                   <CardDescription className="text-base">
-                    Adapté aux auberges de jeunesse et hostels pour
-                    simplifier l&apos;enregistrement et réduire les
-                    contraintes horaires.
+                    Adapté aux auberges de jeunesse et hostels pour simplifier
+                    l&apos;enregistrement et réduire les contraintes horaires.
                   </CardDescription>
                 </CardContent>
               </Card>
@@ -366,13 +368,15 @@ export default function Home() {
                   <div className="w-12 h-12 bg-teal-100 dark:bg-teal-900 rounded-lg flex items-center justify-center mb-4">
                     <span className="text-2xl">🏘️</span>
                   </div>
-                  <CardTitle className="text-xl">Résidences de services</CardTitle>
+                  <CardTitle className="text-xl">
+                    Résidences de services
+                  </CardTitle>
                 </CardHeader>
                 <CardContent>
                   <CardDescription className="text-base">
-                    Idéal pour les résidences hôtelières, apart-hôtels et
-                    autres établissements proposant des séjours de moyenne
-                    à longue durée.
+                    Idéal pour les résidences hôtelières, apart-hôtels et autres
+                    établissements proposant des séjours de moyenne à longue
+                    durée.
                   </CardDescription>
                 </CardContent>
               </Card>
@@ -382,18 +386,18 @@ export default function Home() {
               <Card className="max-w-2xl mx-auto border-0 shadow-sm">
                 <CardHeader>
                   <CardTitle className="text-xl">
-                    Vous n&apos;êtes pas sûr si SelfKey convient à votre établissement ?
+                    Vous n&apos;êtes pas sûr si SelfKey convient à votre
+                    établissement ?
                   </CardTitle>
                 </CardHeader>
                 <CardContent>
                   <p className="text-gray-600 dark:text-gray-400 mb-4">
-                    Notre solution fonctionne avec tout hébergement utilisant des codes d&apos;accès,
-                    des clés ou des cartes pour l&apos;accès aux chambres.
+                    Notre solution fonctionne avec tout hébergement utilisant
+                    des codes d&apos;accès, des clés ou des cartes pour
+                    l&apos;accès aux chambres.
                   </p>
                   <Button asChild variant="outline">
-                    <Link href="/establishments">
-                      Tester gratuitement
-                    </Link>
+                    <Link href="/establishments">Tester gratuitement</Link>
                   </Button>
                 </CardContent>
               </Card>
