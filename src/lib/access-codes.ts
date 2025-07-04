@@ -113,6 +113,14 @@ export function generateAccessInstructions(accessInfo: AccessCodeInfo): string {
               <span style="background-color: #fff; padding: 8px 12px; border-radius: 4px; font-family: monospace; font-size: 20px; color: #2d5016; font-weight: bold;">${accessInfo.code}</span>
             </p>
             <p style="color: #2d5016; margin-bottom: 0;">Saisissez ce code sur le pavé numérique de votre chambre pour y accéder.</p>
+            
+            <hr style="margin: 15px 0; border: none; border-top: 1px solid #c6d6c6;">
+            
+            <h3 style="color: #2d5016; margin-top: 0;">🔑 Zugang zu Ihrem Zimmer</h3>
+            <p style="font-size: 18px; margin: 10px 0;"><strong>Zugangscode:</strong> 
+              <span style="background-color: #fff; padding: 8px 12px; border-radius: 4px; font-family: monospace; font-size: 20px; color: #2d5016; font-weight: bold;">${accessInfo.code}</span>
+            </p>
+            <p style="color: #2d5016; margin-bottom: 0;">Geben Sie diesen Code auf dem Nummernblock Ihres Zimmers ein, um Zugang zu erhalten.</p>
           </div>
         `;
       } else {
@@ -120,6 +128,11 @@ export function generateAccessInstructions(accessInfo: AccessCodeInfo): string {
           <div style="background-color: #fff3cd; padding: 20px; border-radius: 8px; margin: 20px 0;">
             <h3 style="color: #856404; margin-top: 0;">🔑 Accès à votre chambre</h3>
             <p style="color: #856404;">Le code d'accès sera communiqué séparément par l'établissement.</p>
+            
+            <hr style="margin: 15px 0; border: none; border-top: 1px solid #e6d4a6;">
+            
+            <h3 style="color: #856404; margin-top: 0;">🔑 Zugang zu Ihrem Zimmer</h3>
+            <p style="color: #856404;">Der Zugangscode wird separat von der Unterkunft mitgeteilt.</p>
           </div>
         `;
       }
@@ -133,6 +146,14 @@ export function generateAccessInstructions(accessInfo: AccessCodeInfo): string {
               <span style="background-color: #fff; padding: 8px 12px; border-radius: 4px; font-family: monospace; font-size: 20px; color: #2d5016; font-weight: bold;">${accessInfo.code}</span>
             </p>
             <p style="color: #2d5016; margin-bottom: 0;">Ce code vous donne accès à l'établissement et à votre chambre.</p>
+            
+            <hr style="margin: 15px 0; border: none; border-top: 1px solid #c6d6c6;">
+            
+            <h3 style="color: #2d5016; margin-top: 0;">🔑 Zugang zur Unterkunft</h3>
+            <p style="font-size: 18px; margin: 10px 0;"><strong>Allgemeiner Zugangscode:</strong> 
+              <span style="background-color: #fff; padding: 8px 12px; border-radius: 4px; font-family: monospace; font-size: 20px; color: #2d5016; font-weight: bold;">${accessInfo.code}</span>
+            </p>
+            <p style="color: #2d5016; margin-bottom: 0;">Dieser Code gewährt Ihnen Zugang zur Unterkunft und zu Ihrem Zimmer.</p>
           </div>
         `;
       } else {
@@ -140,6 +161,11 @@ export function generateAccessInstructions(accessInfo: AccessCodeInfo): string {
           <div style="background-color: #fff3cd; padding: 20px; border-radius: 8px; margin: 20px 0;">
             <h3 style="color: #856404; margin-top: 0;">🔑 Accès à l'établissement</h3>
             <p style="color: #856404;">Le code d'accès sera communiqué séparément par l'établissement.</p>
+            
+            <hr style="margin: 15px 0; border: none; border-top: 1px solid #e6d4a6;">
+            
+            <h3 style="color: #856404; margin-top: 0;">🔑 Zugang zur Unterkunft</h3>
+            <p style="color: #856404;">Der Zugangscode wird separat von der Unterkunft mitgeteilt.</p>
           </div>
         `;
       }
@@ -152,6 +178,13 @@ export function generateAccessInstructions(accessInfo: AccessCodeInfo): string {
             <div style="color: #1565c0;">
               ${accessInfo.instructions}
             </div>
+            
+            <hr style="margin: 15px 0; border: none; border-top: 1px solid #bbdefb;">
+            
+            <h3 style="color: #1565c0; margin-top: 0;">🔑 Zugangsanweisungen</h3>
+            <div style="color: #1565c0;">
+              ${accessInfo.instructions}
+            </div>
           </div>
         `;
       } else {
@@ -159,6 +192,11 @@ export function generateAccessInstructions(accessInfo: AccessCodeInfo): string {
           <div style="background-color: #fff3cd; padding: 20px; border-radius: 8px; margin: 20px 0;">
             <h3 style="color: #856404; margin-top: 0;">🔑 Accès à votre chambre</h3>
             <p style="color: #856404;">Les instructions d'accès seront communiquées séparément par l'établissement.</p>
+            
+            <hr style="margin: 15px 0; border: none; border-top: 1px solid #e6d4a6;">
+            
+            <h3 style="color: #856404; margin-top: 0;">🔑 Zugang zu Ihrem Zimmer</h3>
+            <p style="color: #856404;">Die Zugangsanweisungen werden separat von der Unterkunft mitgeteilt.</p>
           </div>
         `;
       }
@@ -168,6 +206,11 @@ export function generateAccessInstructions(accessInfo: AccessCodeInfo): string {
         <div style="background-color: #fff3cd; padding: 20px; border-radius: 8px; margin: 20px 0;">
           <h3 style="color: #856404; margin-top: 0;">🔑 Accès à votre chambre</h3>
           <p style="color: #856404;">Les informations d'accès seront communiquées par l'établissement.</p>
+          
+          <hr style="margin: 15px 0; border: none; border-top: 1px solid #e6d4a6;">
+          
+          <h3 style="color: #856404; margin-top: 0;">🔑 Zugang zu Ihrem Zimmer</h3>
+          <p style="color: #856404;">Die Zugangsinfomationen werden von der Unterkunft mitgeteilt.</p>
         </div>
       `;
   }

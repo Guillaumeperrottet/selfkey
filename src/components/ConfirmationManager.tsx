@@ -56,7 +56,30 @@ Pour toute question, vous pouvez nous contacter :
 Nous vous souhaitons un excellent séjour !
 
 Cordialement,
-L'équipe de {establishmentName}`;
+L'équipe de {establishmentName}
+
+---
+
+Guten Tag {clientFirstName} {clientLastName},
+
+Ihre Reservierung im {establishmentName} wurde erfolgreich bestätigt!
+
+Details Ihrer Reservierung:
+- Zimmer: {roomName}
+- Ankunft: {checkInDate}
+- Abreise: {checkOutDate}
+- Zugangscode: {accessCode}
+
+{accessInstructions}
+
+Bei Fragen können Sie uns gerne kontaktieren:
+📧 E-Mail: {hotelContactEmail}
+📞 Telefon: {hotelContactPhone}
+
+Wir wünschen Ihnen einen angenehmen Aufenthalt!
+
+Mit freundlichen Grüssen,
+Das Team von {establishmentName}`;
 
 const defaultWhatsappTemplate = `🏨 Réservation confirmée !
 

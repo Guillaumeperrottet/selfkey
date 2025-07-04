@@ -337,7 +337,26 @@ Détails de votre réservation :
 Nous vous souhaitons un excellent séjour !
 
 Cordialement,
-L'équipe de {establishmentName}`;
+L'équipe de {establishmentName}
+
+---
+
+Guten Tag {clientFirstName} {clientLastName},
+
+Ihre Buchung im {establishmentName} wurde erfolgreich bestätigt!
+
+Details Ihrer Buchung:
+- Zimmer: {roomName}
+- Anreise: {checkInDate}
+- Abreise: {checkOutDate}
+- Zugangscode: {accessCode}
+
+{accessInstructions}
+
+Wir wünschen Ihnen einen ausgezeichneten Aufenthalt!
+
+Mit freundlichen Grüßen,
+Das Team von {establishmentName}`;
 }
 
 function getDefaultWhatsAppTemplate(): string {
@@ -354,5 +373,22 @@ Votre réservation à {establishmentName} est confirmée ✅
 
 {accessInstructions}
 
-Bon séjour ! 😊`;
+Bon séjour ! 😊
+
+---
+
+🏨 Buchung bestätigt!
+
+Guten Tag {clientFirstName},
+
+Ihre Buchung im {establishmentName} ist bestätigt ✅
+
+📅 Anreise: {checkInDate}
+📅 Abreise: {checkOutDate}
+🏠 Zimmer: {roomName}
+🔑 Zugangscode: {accessCode}
+
+{accessInstructions}
+
+Schönen Aufenthalt! 😊`;
 }
