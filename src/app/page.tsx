@@ -8,15 +8,15 @@ import {
   CardDescription,
 } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import {
-  KeyRound,
-  Clock,
-  Shield,
-  Zap,
-  CreditCard,
-  Settings,
+import { 
+  KeyRound, 
+  Clock, 
+  Shield, 
+  Zap, 
+  CreditCard, 
+  Settings, 
   MapPin,
-  Star,
+  Star
 } from "lucide-react";
 
 export default function Home() {
@@ -72,7 +72,7 @@ export default function Home() {
             <p className="text-xl text-gray-600 dark:text-gray-400 max-w-2xl mx-auto mb-8">
               Permettez à vos clients de s&apos;enregistrer automatiquement
               24h/24, avec paiement sécurisé et accès instantané. Aucun
-              abonnement, seulement une petite commission.
+              abonnement, facturation uniquement à l&apos;usage.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <Button asChild size="lg" className="px-8">
@@ -265,6 +265,138 @@ export default function Home() {
               <p className="text-gray-600 dark:text-gray-400">
                 Réception automatique du code d&apos;accès par email
               </p>
+            </div>
+          </div>
+        </section>
+
+        {/* Target Audience Section */}
+        <section className="py-20 bg-gray-50 dark:bg-gray-900 -mx-6 px-6">
+          <div className="container mx-auto">
+            <div className="text-center mb-16">
+              <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-4">
+                Pour qui est SelfKey ?
+              </h2>
+              <p className="text-gray-600 dark:text-gray-400 max-w-2xl mx-auto">
+                Notre solution s&apos;adapte à tous les types d&apos;hébergements
+              </p>
+            </div>
+
+            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+              <Card className="border-0 shadow-sm">
+                <CardHeader>
+                  <div className="w-12 h-12 bg-blue-100 dark:bg-blue-900 rounded-lg flex items-center justify-center mb-4">
+                    <span className="text-2xl">🏨</span>
+                  </div>
+                  <CardTitle className="text-xl">Hôtels</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <CardDescription className="text-base">
+                    Parfait pour les hôtels de toutes tailles, particulièrement
+                    ceux qui reçoivent des arrivées tardives ou fonctionnent
+                    avec une réception limitée.
+                  </CardDescription>
+                </CardContent>
+              </Card>
+
+              <Card className="border-0 shadow-sm">
+                <CardHeader>
+                  <div className="w-12 h-12 bg-green-100 dark:bg-green-900 rounded-lg flex items-center justify-center mb-4">
+                    <span className="text-2xl">�️</span>
+                  </div>
+                  <CardTitle className="text-xl">Parkings</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <CardDescription className="text-base">
+                    Parfait pour les parkings avec barrière à code, parkings 
+                    privés ou espaces de stationnement sécurisés nécessitant 
+                    un accès payant automatisé.
+                  </CardDescription>
+                </CardContent>
+              </Card>
+
+              <Card className="border-0 shadow-sm">
+                <CardHeader>
+                  <div className="w-12 h-12 bg-purple-100 dark:bg-purple-900 rounded-lg flex items-center justify-center mb-4">
+                    <span className="text-2xl">🏕️</span>
+                  </div>
+                  <CardTitle className="text-xl">Campings</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <CardDescription className="text-base">
+                    Excellent pour les campings qui proposent des hébergements
+                    insolites, mobil-homes ou chalets avec accès autonome.
+                  </CardDescription>
+                </CardContent>
+              </Card>
+
+              <Card className="border-0 shadow-sm">
+                <CardHeader>
+                  <div className="w-12 h-12 bg-orange-100 dark:bg-orange-900 rounded-lg flex items-center justify-center mb-4">
+                    <span className="text-2xl">🏠</span>
+                  </div>
+                  <CardTitle className="text-xl">Locations saisonnières</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <CardDescription className="text-base">
+                    Parfait pour les propriétaires d&apos;appartements ou
+                    chalets de vacances qui veulent automatiser leurs
+                    locations courte durée.
+                  </CardDescription>
+                </CardContent>
+              </Card>
+
+              <Card className="border-0 shadow-sm">
+                <CardHeader>
+                  <div className="w-12 h-12 bg-red-100 dark:bg-red-900 rounded-lg flex items-center justify-center mb-4">
+                    <span className="text-2xl">🏨</span>
+                  </div>
+                  <CardTitle className="text-xl">Auberges</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <CardDescription className="text-base">
+                    Adapté aux auberges de jeunesse et hostels pour
+                    simplifier l&apos;enregistrement et réduire les
+                    contraintes horaires.
+                  </CardDescription>
+                </CardContent>
+              </Card>
+
+              <Card className="border-0 shadow-sm">
+                <CardHeader>
+                  <div className="w-12 h-12 bg-teal-100 dark:bg-teal-900 rounded-lg flex items-center justify-center mb-4">
+                    <span className="text-2xl">🏘️</span>
+                  </div>
+                  <CardTitle className="text-xl">Résidences de services</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <CardDescription className="text-base">
+                    Idéal pour les résidences hôtelières, apart-hôtels et
+                    autres établissements proposant des séjours de moyenne
+                    à longue durée.
+                  </CardDescription>
+                </CardContent>
+              </Card>
+            </div>
+
+            <div className="mt-12 text-center">
+              <Card className="max-w-2xl mx-auto border-0 shadow-sm">
+                <CardHeader>
+                  <CardTitle className="text-xl">
+                    Vous n&apos;êtes pas sûr si SelfKey convient à votre établissement ?
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <p className="text-gray-600 dark:text-gray-400 mb-4">
+                    Notre solution fonctionne avec tout hébergement utilisant des codes d&apos;accès,
+                    des clés ou des cartes pour l&apos;accès aux chambres.
+                  </p>
+                  <Button asChild variant="outline">
+                    <Link href="/establishments">
+                      Tester gratuitement
+                    </Link>
+                  </Button>
+                </CardContent>
+              </Card>
             </div>
           </div>
         </section>
