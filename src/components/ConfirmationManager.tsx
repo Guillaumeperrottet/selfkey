@@ -29,6 +29,8 @@ interface ConfirmationSettings {
   confirmationWhatsappFrom: string;
   confirmationEmailTemplate: string;
   confirmationWhatsappTemplate: string;
+  hotelContactEmail: string;
+  hotelContactPhone: string;
 }
 
 interface ConfirmationManagerProps {
@@ -46,6 +48,10 @@ Détails de votre réservation :
 - Code d'accès : {accessCode}
 
 {accessInstructions}
+
+Pour toute question, vous pouvez nous contacter :
+📧 Email : {hotelContactEmail}
+📞 Téléphone : {hotelContactPhone}
 
 Nous vous souhaitons un excellent séjour !
 
@@ -71,10 +77,12 @@ export function ConfirmationManager({ hotelSlug }: ConfirmationManagerProps) {
   const [settings, setSettings] = useState<ConfirmationSettings>({
     confirmationEmailEnabled: true,
     confirmationWhatsappEnabled: false,
-    confirmationEmailFrom: "",
+    confirmationEmailFrom: "noreply@selfkey.ch",
     confirmationWhatsappFrom: "",
     confirmationEmailTemplate: defaultEmailTemplate,
     confirmationWhatsappTemplate: defaultWhatsappTemplate,
+    hotelContactEmail: "",
+    hotelContactPhone: "",
   });
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -94,12 +102,15 @@ export function ConfirmationManager({ hotelSlug }: ConfirmationManagerProps) {
             confirmationEmailEnabled: data.confirmationEmailEnabled ?? true,
             confirmationWhatsappEnabled:
               data.confirmationWhatsappEnabled ?? false,
-            confirmationEmailFrom: data.confirmationEmailFrom ?? "",
+            confirmationEmailFrom:
+              data.confirmationEmailFrom ?? "noreply@selfkey.ch",
             confirmationWhatsappFrom: data.confirmationWhatsappFrom ?? "",
             confirmationEmailTemplate:
               data.confirmationEmailTemplate ?? defaultEmailTemplate,
             confirmationWhatsappTemplate:
               data.confirmationWhatsappTemplate ?? defaultWhatsappTemplate,
+            hotelContactEmail: data.hotelContactEmail ?? "",
+            hotelContactPhone: data.hotelContactPhone ?? "",
           });
         }
       } catch {
@@ -161,6 +172,8 @@ export function ConfirmationManager({ hotelSlug }: ConfirmationManagerProps) {
     { key: "checkOutDate", label: "Date de départ" },
     { key: "accessCode", label: "Code d'accès (selon config établissement)" },
     { key: "accessInstructions", label: "Instructions d'accès" },
+    { key: "hotelContactEmail", label: "Email de contact de l'hôtel" },
+    { key: "hotelContactPhone", label: "Téléphone de contact de l'hôtel" },
   ];
 
   const copyToClipboard = (text: string) => {
@@ -340,6 +353,61 @@ export function ConfirmationManager({ hotelSlug }: ConfirmationManagerProps) {
           </CardContent>
         </Card>
 
+        {/* Informations de contact de l'hôtel */}
+        <Card className="mb-6">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <HelpCircle className="h-5 w-5" />
+              Informations de contact
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <Label htmlFor="hotel-contact-email">
+                  Email de contact de l&apos;hôtel
+                </Label>
+                <Input
+                  id="hotel-contact-email"
+                  type="email"
+                  placeholder="contact@votre-hotel.com"
+                  value={settings.hotelContactEmail}
+                  onChange={(e) =>
+                    setSettings((prev) => ({
+                      ...prev,
+                      hotelContactEmail: e.target.value,
+                    }))
+                  }
+                />
+                <p className="text-xs text-gray-500 mt-1">
+                  Cette adresse sera affichée dans les emails de confirmation
+                </p>
+              </div>
+
+              <div>
+                <Label htmlFor="hotel-contact-phone">
+                  Téléphone de contact de l&apos;hôtel
+                </Label>
+                <Input
+                  id="hotel-contact-phone"
+                  type="tel"
+                  placeholder="+41 XX XXX XX XX"
+                  value={settings.hotelContactPhone}
+                  onChange={(e) =>
+                    setSettings((prev) => ({
+                      ...prev,
+                      hotelContactPhone: e.target.value,
+                    }))
+                  }
+                />
+                <p className="text-xs text-gray-500 mt-1">
+                  Ce numéro sera affiché dans les confirmations
+                </p>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           {/* Configuration Email */}
           <Card>
@@ -373,15 +441,24 @@ export function ConfirmationManager({ hotelSlug }: ConfirmationManagerProps) {
                     <Input
                       id="email-from"
                       type="email"
-                      placeholder="noreply@votre-domaine.com"
                       value={settings.confirmationEmailFrom}
-                      onChange={(e) =>
+                      onChange={(e) => {
                         setSettings((prev) => ({
                           ...prev,
                           confirmationEmailFrom: e.target.value,
-                        }))
-                      }
+                        }));
+                      }}
+                      className="bg-gray-50"
+                      readOnly
                     />
+
+                    <div className="mt-2 flex items-start space-x-2 text-sm text-gray-600">
+                      <HelpCircle className="h-4 w-4 text-blue-600 mt-0.5 flex-shrink-0" />
+                      <span>
+                        💡 L&apos;adresse de contact de votre hôtel peut être
+                        mentionnée dans le template du message.
+                      </span>
+                    </div>
                   </div>
 
                   <div>

@@ -69,10 +69,19 @@ export async function POST(
       return NextResponse.json({ error: "Hôtel non trouvé" }, { status: 404 });
     }
 
+    // Convertir les strings de dates en objets Date
+    const checkInDateObj = new Date(checkInDate);
+    const checkOutDateObj = new Date(checkOutDate);
+
+    // Vérifier que les dates sont valides
+    if (isNaN(checkInDateObj.getTime()) || isNaN(checkOutDateObj.getTime())) {
+      return NextResponse.json({ error: "Dates invalides" }, { status: 400 });
+    }
+
     // Valider les dates
     const validation = validateBookingDates(
-      checkInDate,
-      checkOutDate,
+      checkInDateObj,
+      checkOutDateObj,
       establishment.maxBookingDays
     );
 
@@ -97,10 +106,9 @@ export async function POST(
     }
 
     // Calculer le prix attendu
-    const checkIn = new Date(checkInDate);
-    const checkOut = new Date(checkOutDate);
     const nights = Math.ceil(
-      (checkOut.getTime() - checkIn.getTime()) / (1000 * 60 * 60 * 24)
+      (checkOutDateObj.getTime() - checkInDateObj.getTime()) /
+        (1000 * 60 * 60 * 24)
     );
     const basePrice = room.price * nights;
 
@@ -167,7 +175,11 @@ export async function POST(
     }
 
     // Vérifier la disponibilité de la chambre
-    const availability = await checkRoomAvailability(roomId, checkIn, checkOut);
+    const availability = await checkRoomAvailability(
+      roomId,
+      checkInDateObj,
+      checkOutDateObj
+    );
 
     if (!availability.isAvailable) {
       return NextResponse.json(
@@ -196,8 +208,8 @@ export async function POST(
       data: {
         hotelSlug: hotel,
         roomId,
-        checkInDate: checkIn,
-        checkOutDate: checkOut,
+        checkInDate: checkInDateObj,
+        checkOutDate: checkOutDateObj,
         clientFirstName,
         clientLastName,
         clientEmail,

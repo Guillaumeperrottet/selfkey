@@ -21,6 +21,7 @@ import {
   calculateStayDuration,
   validateBookingDates,
 } from "@/lib/availability";
+import { BookingSteps } from "./BookingSteps";
 
 interface Room {
   id: string;
@@ -234,8 +235,8 @@ export function BookingForm({ hotelSlug, establishment }: BookingFormProps) {
 
       const data = await response.json();
 
-      // Rediriger vers la page de paiement
-      router.push(`/${hotelSlug}/payment?booking=${data.bookingId}`);
+      // Rediriger vers la page de résumé
+      router.push(`/${hotelSlug}/summary?booking=${data.bookingId}`);
     } catch (err) {
       setError(
         err instanceof Error
@@ -317,6 +318,9 @@ export function BookingForm({ hotelSlug, establishment }: BookingFormProps) {
 
   return (
     <div className="space-y-6">
+      {/* Étapes de réservation */}
+      <BookingSteps currentStep={1} />
+
       {/* Sélection des dates */}
       <Card>
         <CardHeader>
@@ -792,7 +796,7 @@ export function BookingForm({ hotelSlug, establishment }: BookingFormProps) {
               >
                 {bookingInProgress
                   ? "Création de la réservation..."
-                  : "Confirmer la réservation"}
+                  : "Continuer vers le résumé"}
               </Button>
             </div>
           </CardContent>

@@ -1,5 +1,6 @@
 import { prisma } from "@/lib/prisma";
 import { NextResponse } from "next/server";
+import { sendEmail } from "@/lib/resend";
 
 interface Props {
   params: Promise<{ bookingId: string }>;
@@ -178,18 +179,107 @@ async function sendEmailConfirmation(
   // Remplacer les variables dans le template
   const emailContent = replaceTemplateVariables(template, templateData);
 
-  // Ici, vous pouvez intégrer votre service d'email (SendGrid, Nodemailer, etc.)
-  // Pour l'instant, on simule l'envoi
-  console.log("Envoi email à:", booking.clientEmail);
-  console.log("Contenu:", emailContent);
+  // Créer le contenu HTML pour l'email
+  const htmlContent = `
+    <!DOCTYPE html>
+    <html>
+    <head>
+      <meta charset="utf-8">
+      <title>Confirmation de réservation</title>
+      <style>
+        body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; }
+        .container { max-width: 600px; margin: 0 auto; padding: 20px; }
+        .header { background-color: #2563eb; color: white; padding: 20px; text-align: center; border-radius: 8px 8px 0 0; }
+        .content { padding: 20px; background-color: #f9fafb; border-radius: 0 0 8px 8px; }
+        .booking-details { background-color: white; padding: 15px; border-radius: 5px; margin: 15px 0; border: 1px solid #e5e7eb; }
+        .footer { text-align: center; padding: 20px; font-size: 12px; color: #666; }
+        .access-code { background-color: #dbeafe; padding: 10px; border-radius: 5px; margin: 10px 0; font-weight: bold; color: #1e40af; }
+      </style>
+    </head>
+    <body>
+      <div class="container">
+        <div class="header">
+          <h1>${booking.establishment.name}</h1>
+          <h2>Confirmation de réservation</h2>
+        </div>
+        
+        <div class="content">
+          <pre style="white-space: pre-wrap; font-family: Arial, sans-serif;">${emailContent}</pre>
+        </div>
+        
+        <div class="footer">
+          <p>Cette confirmation a été générée automatiquement.</p>
+          <p>En cas de question, contactez-nous.</p>
+        </div>
+      </div>
+    </body>
+    </html>
+  `;
 
-  // TODO: Intégrer un vrai service d'email
-  // await sendEmail({
-  //   to: booking.clientEmail,
-  //   from: booking.establishment.confirmationEmailFrom,
-  //   subject: `Confirmation de réservation - ${booking.establishment.name}`,
-  //   text: emailContent,
-  // });
+  try {
+    // Logique intelligente pour l'adresse email de destination
+    let destinationEmail = booking.clientEmail;
+    let useTestEmail = false;
+
+    // En développement, utiliser l'adresse de test Resend SAUF si l'admin a configuré un domaine vérifié
+    if (process.env.NODE_ENV === "development") {
+      const fromEmail = booking.establishment.confirmationEmailFrom;
+
+      // Si l'admin a configuré un domaine vérifié (pas resend.dev), tenter d'utiliser l'adresse du client
+      if (fromEmail && !fromEmail.includes("resend.dev")) {
+        destinationEmail = booking.clientEmail;
+        console.log(
+          `📧 Tentative d'envoi à l'adresse client (domaine personnalisé): ${destinationEmail}`
+        );
+      } else {
+        destinationEmail = "delivered@resend.dev";
+        useTestEmail = true;
+        console.log(
+          `📧 Utilisation de l'adresse de test Resend: ${destinationEmail} (original: ${booking.clientEmail})`
+        );
+      }
+    }
+
+    const result = await sendEmail({
+      to: destinationEmail,
+      from: booking.establishment.confirmationEmailFrom || `noreply@resend.dev`,
+      subject: `Confirmation de réservation - ${booking.establishment.name}`,
+      html: htmlContent,
+    });
+
+    if (!result.success) {
+      // Si l'envoi échoue avec un domaine personnalisé, essayer avec l'adresse de test
+      if (!useTestEmail && process.env.NODE_ENV === "development") {
+        console.log(
+          `❌ Échec avec le domaine personnalisé. Tentative avec l'adresse de test...`
+        );
+
+        const fallbackResult = await sendEmail({
+          to: "delivered@resend.dev",
+          from: "noreply@resend.dev",
+          subject: `Confirmation de réservation - ${booking.establishment.name}`,
+          html: htmlContent,
+        });
+
+        if (fallbackResult.success) {
+          console.log(
+            `✅ Email envoyé avec succès à l'adresse de test (fallback)`
+          );
+        } else {
+          throw new Error(
+            fallbackResult.error || "Erreur lors de l'envoi de l'email"
+          );
+        }
+      } else {
+        throw new Error(result.error || "Erreur lors de l'envoi de l'email");
+      }
+    } else {
+      console.log("✅ Email envoyé avec succès à:", destinationEmail);
+    }
+  } catch (error) {
+    console.error("❌ Erreur lors de l'envoi de l'email:", error);
+    throw error;
+  }
 }
 
 async function sendWhatsAppConfirmation(
