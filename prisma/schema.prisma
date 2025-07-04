@@ -96,10 +96,18 @@ model Establishment {
   accessInstructions String?          // Instructions personnalisées (JSON ou text)
   // Configuration des réservations
   maxBookingDays  Int                 @default(4) // Durée maximale de séjour en jours
+  // Configuration des confirmations post-paiement
+  confirmationEmailEnabled Boolean   @default(true)
+  confirmationWhatsappEnabled Boolean @default(false)
+  confirmationEmailFrom    String?   // Adresse email d'envoi
+  confirmationWhatsappFrom String?   // Numéro WhatsApp d'envoi
+  confirmationEmailTemplate String? // Template email personnalisé
+  confirmationWhatsappTemplate String? // Template WhatsApp personnalisé
   createdAt       DateTime            @default(now())
   users           UserEstablishment[]
   bookings        Booking[]
   rooms           Room[]
+  pricingOptions  PricingOption[]     // Options de prix personnalisables
 
   @@map("establishments")
 }
@@ -138,13 +146,47 @@ model Booking {
   currency              String        @default("CHF")
   platformCommission    Float         @default(0)
   ownerAmount           Float
+  selectedPricingOptions Json?        // Options de prix sélectionnées (JSON)
+  pricingOptionsTotal   Float         @default(0) // Total des suppléments
   bookingDate           DateTime      @default(now())
   checkInDate           DateTime      // Date d'arrivée
   checkOutDate          DateTime      // Date de départ
   stripePaymentIntentId String?
   guests                Int           @default(1)
+  // Configuration de confirmation
+  confirmationMethod    String?       // "email" ou "whatsapp"
+  confirmationSent      Boolean       @default(false)
+  confirmationSentAt    DateTime?
   establishment         Establishment @relation(fields: [hotelSlug], references: [slug])
   room                  Room          @relation(fields: [roomId], references: [id])
 
   @@map("bookings")
+}
+
+model PricingOption {
+  id              String        @id @default(cuid())
+  establishmentId String
+  name            String        // ex: "Hauteur du véhicule"
+  type            String        // "select", "checkbox", "radio"
+  isRequired      Boolean       @default(false)
+  isActive        Boolean       @default(true)
+  displayOrder    Int           @default(0)
+  createdAt       DateTime      @default(now())
+  establishment   Establishment @relation(fields: [establishmentId], references: [id], onDelete: Cascade)
+  values          PricingOptionValue[]
+  
+  @@map("pricing_options")
+}
+
+model PricingOptionValue {
+  id              String        @id @default(cuid())
+  pricingOptionId String
+  label           String        // ex: "Moins de 2m", "Plus de 2m"
+  priceModifier   Float         // Prix à ajouter/soustraire (peut être négatif)
+  isDefault       Boolean       @default(false)
+  displayOrder    Int           @default(0)
+  createdAt       DateTime      @default(now())
+  pricingOption   PricingOption @relation(fields: [pricingOptionId], references: [id], onDelete: Cascade)
+  
+  @@map("pricing_option_values")
 }

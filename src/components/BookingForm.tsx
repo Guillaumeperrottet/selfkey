@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -8,6 +8,14 @@ import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Alert, AlertDescription } from "@/components/ui/alert";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { Checkbox } from "@/components/ui/checkbox";
 import { Calendar, CalendarDays, Clock, Info } from "lucide-react";
 import {
   calculateStayDuration,
@@ -23,6 +31,24 @@ interface Room {
 interface Establishment {
   name: string;
   maxBookingDays: number;
+}
+
+interface PricingOptionValue {
+  id: string;
+  label: string;
+  priceModifier: number;
+  isDefault: boolean;
+  displayOrder: number;
+}
+
+interface PricingOption {
+  id: string;
+  name: string;
+  type: "select" | "checkbox" | "radio";
+  isRequired: boolean;
+  isActive: boolean;
+  displayOrder: number;
+  values: PricingOptionValue[];
 }
 
 interface BookingFormProps {
@@ -51,6 +77,13 @@ export function BookingForm({ hotelSlug, establishment }: BookingFormProps) {
   const [error, setError] = useState("");
   const [searchPerformed, setSearchPerformed] = useState(false);
   const [bookingInProgress, setBookingInProgress] = useState(false);
+
+  // États pour les options de prix
+  const [pricingOptions, setPricingOptions] = useState<PricingOption[]>([]);
+  const [selectedPricingOptions, setSelectedPricingOptions] = useState<
+    Record<string, string | string[]>
+  >({});
+  const [pricingOptionsTotal, setPricingOptionsTotal] = useState(0);
 
   // Date minimale : aujourd'hui
   const today = new Date().toISOString().split("T")[0];
@@ -114,6 +147,16 @@ export function BookingForm({ hotelSlug, establishment }: BookingFormProps) {
     setSelectedRoom(room);
   };
 
+  const handlePricingOptionChange = (
+    optionId: string,
+    value: string | string[]
+  ) => {
+    setSelectedPricingOptions((prev) => ({
+      ...prev,
+      [optionId]: value,
+    }));
+  };
+
   const handleConfirmBooking = async () => {
     // Validation des champs obligatoires
     if (!selectedRoom) {
@@ -152,7 +195,7 @@ export function BookingForm({ hotelSlug, establishment }: BookingFormProps) {
         new Date(checkInDate),
         new Date(checkOutDate)
       );
-      const totalPrice = selectedRoom.price * duration;
+      const totalPrice = selectedRoom.price * duration + pricingOptionsTotal;
 
       const response = await fetch(
         `/api/establishments/${hotelSlug}/bookings`,
@@ -176,6 +219,8 @@ export function BookingForm({ hotelSlug, establishment }: BookingFormProps) {
             clientCountry: clientCountry.trim(),
             clientIdNumber: clientIdNumber.trim(),
             expectedPrice: totalPrice,
+            selectedPricingOptions,
+            pricingOptionsTotal,
           }),
         }
       );
@@ -206,6 +251,69 @@ export function BookingForm({ hotelSlug, establishment }: BookingFormProps) {
     checkInDate && checkOutDate
       ? calculateStayDuration(new Date(checkInDate), new Date(checkOutDate))
       : 0;
+
+  // Charger les options de prix depuis l'API
+  useEffect(() => {
+    const loadPricingOptions = async () => {
+      try {
+        console.log("DEBUG: Loading pricing options for hotel:", hotelSlug);
+        const response = await fetch(
+          `/api/establishments/${hotelSlug}/pricing-options`
+        );
+        console.log("DEBUG: Response status:", response.ok);
+        if (response.ok) {
+          const data = await response.json();
+          console.log("DEBUG: Pricing options received:", data.pricingOptions);
+          setPricingOptions(data.pricingOptions || []);
+
+          // Initialiser les valeurs par défaut
+          const defaultSelections: Record<string, string | string[]> = {};
+          data.pricingOptions?.forEach((option: PricingOption) => {
+            const defaultValue = option.values.find((v) => v.isDefault);
+            if (defaultValue) {
+              if (option.type === "checkbox") {
+                defaultSelections[option.id] = [defaultValue.id];
+              } else {
+                defaultSelections[option.id] = defaultValue.id;
+              }
+            }
+          });
+          console.log("DEBUG: Default selections:", defaultSelections);
+          setSelectedPricingOptions(defaultSelections);
+        }
+      } catch (error) {
+        console.error("Erreur lors du chargement des options de prix:", error);
+      }
+    };
+
+    loadPricingOptions();
+  }, [hotelSlug]);
+
+  // Calculer le total des options de prix
+  useEffect(() => {
+    let total = 0;
+    pricingOptions.forEach((option) => {
+      const selectedValue = selectedPricingOptions[option.id];
+      if (selectedValue) {
+        if (Array.isArray(selectedValue)) {
+          // Pour les checkboxes
+          selectedValue.forEach((valueId) => {
+            const value = option.values.find((v) => v.id === valueId);
+            if (value) {
+              total += value.priceModifier;
+            }
+          });
+        } else {
+          // Pour select et radio
+          const value = option.values.find((v) => v.id === selectedValue);
+          if (value) {
+            total += value.priceModifier;
+          }
+        }
+      }
+    });
+    setPricingOptionsTotal(total);
+  }, [selectedPricingOptions, pricingOptions]);
 
   return (
     <div className="space-y-6">
@@ -492,6 +600,163 @@ export function BookingForm({ hotelSlug, establishment }: BookingFormProps) {
               </div>
             </div>
 
+            {/* Options de prix personnalisées */}
+            {(() => {
+              console.log("DEBUG: All pricing options:", pricingOptions);
+              console.log(
+                "DEBUG: Active pricing options:",
+                pricingOptions.filter((option) => option.isActive)
+              );
+              return null;
+            })()}
+            {pricingOptions.filter((option) => option.isActive).length > 0 && (
+              <div className="space-y-4">
+                <h4 className="font-medium text-lg mb-3">
+                  Options supplémentaires
+                </h4>
+                {pricingOptions
+                  .filter((option) => option.isActive)
+                  .sort((a, b) => a.displayOrder - b.displayOrder)
+                  .map((option) => (
+                    <div key={option.id} className="space-y-2">
+                      <Label className="text-sm font-medium">
+                        {option.name}
+                        {option.isRequired && (
+                          <span className="text-red-500 ml-1">*</span>
+                        )}
+                      </Label>
+
+                      {option.type === "select" && (
+                        <Select
+                          value={
+                            (selectedPricingOptions[option.id] as string) || ""
+                          }
+                          onValueChange={(value) =>
+                            handlePricingOptionChange(option.id, value)
+                          }
+                        >
+                          <SelectTrigger className="w-full">
+                            <SelectValue placeholder="Choisir une option" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {option.values
+                              .sort((a, b) => a.displayOrder - b.displayOrder)
+                              .map((value) => (
+                                <SelectItem key={value.id} value={value.id}>
+                                  <span className="flex justify-between w-full">
+                                    <span>{value.label}</span>
+                                    <span className="ml-2">
+                                      {value.priceModifier !== 0 &&
+                                        `${value.priceModifier > 0 ? "+" : ""}${value.priceModifier} CHF`}
+                                    </span>
+                                  </span>
+                                </SelectItem>
+                              ))}
+                          </SelectContent>
+                        </Select>
+                      )}
+
+                      {option.type === "checkbox" && (
+                        <div className="space-y-2">
+                          {option.values
+                            .sort((a, b) => a.displayOrder - b.displayOrder)
+                            .map((value) => (
+                              <div
+                                key={value.id}
+                                className="flex items-center space-x-2"
+                              >
+                                <Checkbox
+                                  id={`${option.id}-${value.id}`}
+                                  checked={
+                                    Array.isArray(
+                                      selectedPricingOptions[option.id]
+                                    ) &&
+                                    (
+                                      selectedPricingOptions[
+                                        option.id
+                                      ] as string[]
+                                    ).includes(value.id)
+                                  }
+                                  onCheckedChange={(checked) => {
+                                    const currentValues =
+                                      (selectedPricingOptions[
+                                        option.id
+                                      ] as string[]) || [];
+                                    const newValues = checked
+                                      ? [...currentValues, value.id]
+                                      : currentValues.filter(
+                                          (v) => v !== value.id
+                                        );
+                                    handlePricingOptionChange(
+                                      option.id,
+                                      newValues
+                                    );
+                                  }}
+                                />
+                                <Label
+                                  htmlFor={`${option.id}-${value.id}`}
+                                  className="text-sm font-normal flex-1 cursor-pointer"
+                                >
+                                  <span className="flex justify-between">
+                                    <span>{value.label}</span>
+                                    <span className="ml-2">
+                                      {value.priceModifier !== 0 &&
+                                        `${value.priceModifier > 0 ? "+" : ""}${value.priceModifier} CHF`}
+                                    </span>
+                                  </span>
+                                </Label>
+                              </div>
+                            ))}
+                        </div>
+                      )}
+
+                      {option.type === "radio" && (
+                        <div className="space-y-2">
+                          {option.values
+                            .sort((a, b) => a.displayOrder - b.displayOrder)
+                            .map((value) => (
+                              <div
+                                key={value.id}
+                                className="flex items-center space-x-2"
+                              >
+                                <input
+                                  type="radio"
+                                  id={`${option.id}-${value.id}`}
+                                  name={option.id}
+                                  value={value.id}
+                                  checked={
+                                    selectedPricingOptions[option.id] ===
+                                    value.id
+                                  }
+                                  onChange={(e) =>
+                                    handlePricingOptionChange(
+                                      option.id,
+                                      e.target.value
+                                    )
+                                  }
+                                  className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 focus:ring-blue-500"
+                                />
+                                <Label
+                                  htmlFor={`${option.id}-${value.id}`}
+                                  className="text-sm font-normal flex-1 cursor-pointer"
+                                >
+                                  <span className="flex justify-between">
+                                    <span>{value.label}</span>
+                                    <span className="ml-2">
+                                      {value.priceModifier !== 0 &&
+                                        `${value.priceModifier > 0 ? "+" : ""}${value.priceModifier} CHF`}
+                                    </span>
+                                  </span>
+                                </Label>
+                              </div>
+                            ))}
+                        </div>
+                      )}
+                    </div>
+                  ))}
+              </div>
+            )}
+
             <div className="pt-4 border-t">
               <div className="flex justify-between items-center mb-4">
                 <div>
@@ -502,12 +767,19 @@ export function BookingForm({ hotelSlug, establishment }: BookingFormProps) {
                   </p>
                 </div>
                 <div className="text-right">
-                  <div className="font-semibold text-xl">
-                    {selectedRoom.price * duration} CHF
-                  </div>
-                  <div className="text-sm text-gray-600">
-                    {duration} nuit{duration > 1 ? "s" : ""} ×{" "}
-                    {selectedRoom.price} CHF
+                  <div className="space-y-1">
+                    <div className="text-sm text-gray-600">
+                      {duration} nuit{duration > 1 ? "s" : ""} ×{" "}
+                      {selectedRoom.price} CHF
+                    </div>
+                    {pricingOptionsTotal > 0 && (
+                      <div className="text-sm text-gray-600">
+                        Options: +{pricingOptionsTotal} CHF
+                      </div>
+                    )}
+                    <div className="font-semibold text-xl">
+                      {selectedRoom.price * duration + pricingOptionsTotal} CHF
+                    </div>
                   </div>
                 </div>
               </div>

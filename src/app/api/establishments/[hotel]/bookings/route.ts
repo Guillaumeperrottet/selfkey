@@ -28,6 +28,7 @@ export async function POST(
       clientCountry,
       clientIdNumber,
       expectedPrice,
+      selectedPricingOptions,
     } = body;
 
     // Validation des données
@@ -101,11 +102,68 @@ export async function POST(
     const nights = Math.ceil(
       (checkOut.getTime() - checkIn.getTime()) / (1000 * 60 * 60 * 24)
     );
-    const calculatedPrice = room.price * nights;
+    const basePrice = room.price * nights;
+
+    // Valider les options de prix si présentes
+    let validatedPricingOptionsTotal = 0;
+    if (
+      selectedPricingOptions &&
+      Object.keys(selectedPricingOptions).length > 0
+    ) {
+      // Récupérer les options de prix actives
+      const pricingOptions = await prisma.pricingOption.findMany({
+        where: {
+          establishment: {
+            slug: hotel,
+          },
+          isActive: true,
+        },
+        include: {
+          values: true,
+        },
+      });
+
+      // Valider et calculer le total des options
+      for (const option of pricingOptions) {
+        const selectedValue = selectedPricingOptions[option.id];
+
+        if (selectedValue) {
+          if (Array.isArray(selectedValue)) {
+            // Pour les checkboxes
+            for (const valueId of selectedValue) {
+              const value = option.values.find((v) => v.id === valueId);
+              if (value) {
+                validatedPricingOptionsTotal += value.priceModifier;
+              }
+            }
+          } else {
+            // Pour select et radio
+            const value = option.values.find((v) => v.id === selectedValue);
+            if (value) {
+              validatedPricingOptionsTotal += value.priceModifier;
+            }
+          }
+        } else if (option.isRequired) {
+          return NextResponse.json(
+            { error: `L'option "${option.name}" est obligatoire` },
+            { status: 400 }
+          );
+        }
+      }
+    }
+
+    const calculatedPrice = basePrice + validatedPricingOptionsTotal;
 
     // Vérifier que le prix correspond
     if (expectedPrice !== calculatedPrice) {
-      return NextResponse.json({ error: "Prix incorrect" }, { status: 400 });
+      return NextResponse.json(
+        {
+          error: "Prix incorrect",
+          expected: calculatedPrice,
+          received: expectedPrice,
+        },
+        { status: 400 }
+      );
     }
 
     // Vérifier la disponibilité de la chambre
@@ -154,6 +212,8 @@ export async function POST(
         amount: calculatedPrice,
         platformCommission,
         ownerAmount,
+        selectedPricingOptions: selectedPricingOptions || {},
+        pricingOptionsTotal: validatedPricingOptionsTotal,
       },
     });
 

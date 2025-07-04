@@ -3,6 +3,8 @@ import { StripeOnboarding } from "@/components/StripeOnboarding";
 import { RoomManagement } from "@/components/RoomManagement";
 import { AccessCodeManager } from "@/components/AccessCodeManager";
 import { SettingsManager } from "@/components/SettingsManager";
+import { PricingOptionsManager } from "@/components/PricingOptionsManager";
+import { ConfirmationManager } from "@/components/ConfirmationManager";
 import { auth } from "@/lib/auth";
 import { headers } from "next/headers";
 import { redirect } from "next/navigation";
@@ -27,6 +29,10 @@ import {
   Users,
   Bed,
   KeyRound,
+  DollarSign,
+  CheckCircle,
+  ExternalLink,
+  MessageSquare,
 } from "lucide-react";
 import Link from "next/link";
 
@@ -162,6 +168,18 @@ export default async function AdminPage({ params }: Props) {
               <CalendarDays className="h-4 w-4" />
               {new Date().toLocaleDateString("fr-FR")}
             </Badge>
+            {finalIsStripeConfigured && (
+              <a
+                href={`https://dashboard.stripe.com/connect/accounts/${establishment.stripeAccountId}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center gap-2 text-green-600 hover:text-green-700 transition-colors"
+              >
+                <CheckCircle className="h-4 w-4" />
+                <span className="text-sm font-medium">Paiements activés</span>
+                <ExternalLink className="h-3 w-3" />
+              </a>
+            )}
             <Link href={`/admin/${hotel}/qr-code`}>
               <Button
                 variant="outline"
@@ -175,24 +193,27 @@ export default async function AdminPage({ params }: Props) {
           </div>
         </div>
 
-        {/* Configuration Stripe */}
-        <Card className="mb-6">
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <CreditCard className="h-5 w-5" />
-              Configuration des paiements
-            </CardTitle>
-            <CardDescription>
-              Connectez votre compte Stripe pour accepter les paiements en ligne
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <StripeOnboarding
-              hotelSlug={hotel}
-              hotelName={establishment.name}
-            />
-          </CardContent>
-        </Card>
+        {/* Configuration Stripe - seulement si pas encore configuré */}
+        {!finalIsStripeConfigured && (
+          <Card className="mb-6">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <CreditCard className="h-5 w-5" />
+                Configuration des paiements
+              </CardTitle>
+              <CardDescription>
+                Connectez votre compte Stripe pour accepter les paiements en
+                ligne
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <StripeOnboarding
+                hotelSlug={hotel}
+                hotelName={establishment.name}
+              />
+            </CardContent>
+          </Card>
+        )}
 
         {/* Commission info */}
         {(establishment.commissionRate > 0 || establishment.fixedFee > 0) && (
@@ -213,7 +234,7 @@ export default async function AdminPage({ params }: Props) {
 
         {/* Interface principale avec onglets */}
         <Tabs defaultValue="overview" className="space-y-6">
-          <TabsList className="grid w-full grid-cols-5">
+          <TabsList className="grid w-full grid-cols-7">
             <TabsTrigger value="overview" className="flex items-center gap-2">
               <BarChart3 className="h-4 w-4" />
               Vue d&apos;ensemble
@@ -221,6 +242,17 @@ export default async function AdminPage({ params }: Props) {
             <TabsTrigger value="rooms" className="flex items-center gap-2">
               <Bed className="h-4 w-4" />
               Chambres
+            </TabsTrigger>
+            <TabsTrigger value="pricing" className="flex items-center gap-2">
+              <DollarSign className="h-4 w-4" />
+              Options de prix
+            </TabsTrigger>
+            <TabsTrigger
+              value="confirmations"
+              className="flex items-center gap-2"
+            >
+              <MessageSquare className="h-4 w-4" />
+              Confirmations
             </TabsTrigger>
             <TabsTrigger
               value="access-codes"
@@ -381,6 +413,16 @@ export default async function AdminPage({ params }: Props) {
                 <RoomManagement hotelSlug={hotel} currency="CHF" />
               </CardContent>
             </Card>
+          </TabsContent>
+
+          {/* Options de prix */}
+          <TabsContent value="pricing">
+            <PricingOptionsManager hotelSlug={hotel} />
+          </TabsContent>
+
+          {/* Confirmations */}
+          <TabsContent value="confirmations">
+            <ConfirmationManager hotelSlug={hotel} />
           </TabsContent>
 
           {/* Gestion des codes d'accès */}
