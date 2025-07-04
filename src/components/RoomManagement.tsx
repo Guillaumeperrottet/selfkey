@@ -9,6 +9,14 @@ import { Label } from "@/components/ui/label";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Separator } from "@/components/ui/separator";
 import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import {
   Edit,
   Trash2,
   Bed,
@@ -16,6 +24,7 @@ import {
   Plus,
   Power,
   PowerOff,
+  AlertTriangle,
 } from "lucide-react";
 
 interface Room {
@@ -24,6 +33,14 @@ interface Room {
   price: number;
   isActive: boolean;
   createdAt: string;
+}
+
+interface RoomBookingInfo {
+  id: string;
+  hasActiveBookings: boolean;
+  hasFutureBookings: boolean;
+  nextBookingDate?: string;
+  currentBookingEndDate?: string;
 }
 
 interface Props {
@@ -39,6 +56,13 @@ export function RoomManagement({ hotelSlug, currency }: Props) {
   const [message, setMessage] = useState<{
     type: "success" | "error";
     text: string;
+  } | null>(null);
+
+  // États pour la confirmation de désactivation
+  const [showToggleDialog, setShowToggleDialog] = useState(false);
+  const [roomToToggle, setRoomToToggle] = useState<{
+    room: Room;
+    bookingInfo: RoomBookingInfo | null;
   } | null>(null);
 
   // Formulaire d'ajout/édition
@@ -113,7 +137,41 @@ export function RoomManagement({ hotelSlug, currency }: Props) {
     }
   };
 
-  const handleToggle = async (roomId: string, currentStatus: boolean) => {
+  const checkRoomBookings = async (
+    roomId: string
+  ): Promise<RoomBookingInfo> => {
+    try {
+      const response = await fetch(
+        `/api/admin/rooms/${roomId}/bookings-status`
+      );
+      if (response.ok) {
+        const data = await response.json();
+        return data;
+      }
+    } catch (error) {
+      console.error("Erreur vérification réservations:", error);
+    }
+
+    return {
+      id: roomId,
+      hasActiveBookings: false,
+      hasFutureBookings: false,
+    };
+  };
+
+  const handleToggleRequest = async (room: Room) => {
+    if (room.isActive) {
+      // Vérifier les réservations avant de désactiver
+      const bookingInfo = await checkRoomBookings(room.id);
+      setRoomToToggle({ room, bookingInfo });
+      setShowToggleDialog(true);
+    } else {
+      // Réactiver directement
+      await executeToggle(room.id, room.isActive);
+    }
+  };
+
+  const executeToggle = async (roomId: string, currentStatus: boolean) => {
     try {
       const response = await fetch(`/api/admin/rooms/${roomId}/toggle`, {
         method: "PATCH",
@@ -136,6 +194,15 @@ export function RoomManagement({ hotelSlug, currency }: Props) {
       }
     } catch {
       setMessage({ type: "error", text: "Erreur lors de la modification" });
+    } finally {
+      setShowToggleDialog(false);
+      setRoomToToggle(null);
+    }
+  };
+
+  const handleConfirmToggle = () => {
+    if (roomToToggle) {
+      executeToggle(roomToToggle.room.id, roomToToggle.room.isActive);
     }
   };
 
@@ -206,6 +273,82 @@ export function RoomManagement({ hotelSlug, currency }: Props) {
           <AlertDescription>{message.text}</AlertDescription>
         </Alert>
       )}
+
+      {/* Dialog de confirmation pour désactivation */}
+      <Dialog open={showToggleDialog} onOpenChange={setShowToggleDialog}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <AlertTriangle className="h-5 w-5 text-amber-500" />
+              Désactiver la chambre
+            </DialogTitle>
+            <DialogDescription className="space-y-3 pt-2">
+              <p>
+                Vous êtes sur le point de désactiver la chambre{" "}
+                <strong>{roomToToggle?.room.name}</strong>.
+              </p>
+
+              {roomToToggle?.bookingInfo?.hasActiveBookings && (
+                <Alert>
+                  <AlertTriangle className="h-4 w-4" />
+                  <AlertDescription>
+                    <strong>Réservation en cours :</strong> Cette chambre a une
+                    réservation active qui se termine le{" "}
+                    {roomToToggle.bookingInfo.currentBookingEndDate &&
+                      new Date(
+                        roomToToggle.bookingInfo.currentBookingEndDate
+                      ).toLocaleDateString("fr-FR")}
+                    .
+                  </AlertDescription>
+                </Alert>
+              )}
+
+              {roomToToggle?.bookingInfo?.hasFutureBookings && (
+                <Alert>
+                  <AlertTriangle className="h-4 w-4" />
+                  <AlertDescription>
+                    <strong>Réservations futures :</strong> Cette chambre a des
+                    réservations à venir. La prochaine commence le{" "}
+                    {roomToToggle.bookingInfo.nextBookingDate &&
+                      new Date(
+                        roomToToggle.bookingInfo.nextBookingDate
+                      ).toLocaleDateString("fr-FR")}
+                    .
+                  </AlertDescription>
+                </Alert>
+              )}
+
+              <div className="bg-muted p-3 rounded-lg">
+                <p className="text-sm">
+                  <strong>Conséquences de la désactivation :</strong>
+                </p>
+                <ul className="text-sm mt-1 space-y-1 list-disc list-inside">
+                  <li>
+                    La chambre n&apos;apparaîtra plus dans les nouvelles
+                    réservations
+                  </li>
+                  <li>Les réservations existantes ne seront pas affectées</li>
+                  <li>
+                    La chambre restera désactivée jusqu&apos;à ce que vous la
+                    réactiviez manuellement
+                  </li>
+                </ul>
+              </div>
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <Button
+              variant="outline"
+              onClick={() => setShowToggleDialog(false)}
+            >
+              Annuler
+            </Button>
+            <Button variant="destructive" onClick={handleConfirmToggle}>
+              Désactiver malgré tout
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
 
       {/* Formulaire d'ajout/édition */}
       {showAddForm && (
@@ -348,7 +491,7 @@ export function RoomManagement({ hotelSlug, currency }: Props) {
                     <Button
                       variant={room.isActive ? "outline" : "default"}
                       size="sm"
-                      onClick={() => handleToggle(room.id, room.isActive)}
+                      onClick={() => handleToggleRequest(room)}
                       className={
                         room.isActive
                           ? "text-muted-foreground hover:text-foreground border-muted hover:border-border"

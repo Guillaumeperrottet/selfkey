@@ -11,7 +11,6 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
 import { AccessCodeType } from "@/lib/access-codes";
 
 interface AccessCodeManagerProps {
@@ -138,19 +137,13 @@ export function AccessCodeManager({
               </div>
 
               {/* Légende des pastilles */}
-              <div className="flex items-center gap-6 text-xs text-gray-500 mb-4">
+              <div className="flex items-center gap-6 text-xs text-muted-foreground mb-4">
                 <div className="flex items-center gap-2">
-                  <Badge
-                    variant="default"
-                    className="w-2 h-2 p-0 rounded-full bg-green-500"
-                  />
+                  <div className="w-2 h-2 rounded-full bg-emerald-500 shadow-sm ring-2 ring-emerald-500/20"></div>
                   <span>Chambre active</span>
                 </div>
                 <div className="flex items-center gap-2">
-                  <Badge
-                    variant="secondary"
-                    className="w-2 h-2 p-0 rounded-full bg-red-500"
-                  />
+                  <div className="w-2 h-2 rounded-full bg-slate-400 shadow-sm ring-2 ring-slate-400/20"></div>
                   <span>Chambre désactivée</span>
                 </div>
               </div>
@@ -159,12 +152,18 @@ export function AccessCodeManager({
                 {rooms.map((room) => (
                   <div key={room.id} className="flex items-center gap-4">
                     <div className="flex items-center gap-2 min-w-[140px]">
-                      <Badge
-                        variant={room.isActive ? "default" : "secondary"}
-                        className={`w-2 h-2 p-0 rounded-full ${
-                          room.isActive ? "bg-green-500" : "bg-red-500"
-                        }`}
-                      />
+                      <div className="relative">
+                        <div
+                          className={`w-3 h-3 rounded-full shadow-sm transition-all ${
+                            room.isActive
+                              ? "bg-emerald-500 ring-2 ring-emerald-500/20 shadow-emerald-500/25"
+                              : "bg-slate-400 ring-2 ring-slate-400/20 shadow-slate-400/25"
+                          }`}
+                        />
+                        {room.isActive && (
+                          <div className="absolute inset-0 w-3 h-3 rounded-full bg-emerald-500 animate-pulse opacity-75" />
+                        )}
+                      </div>
                       <Label className="text-sm">{room.name}</Label>
                     </div>
                     <Input

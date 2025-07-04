@@ -8,6 +8,7 @@ import { AccessCodeManager } from "@/components/AccessCodeManager";
 import { SettingsManager } from "@/components/SettingsManager";
 import { PricingOptionsManager } from "@/components/PricingOptionsManager";
 import { ConfirmationManager } from "@/components/ConfirmationManager";
+import { BookingsTable } from "@/components/BookingsTable";
 import {
   Card,
   CardContent,
@@ -264,101 +265,7 @@ export function AdminDashboard({
               </CardDescription>
             </CardHeader>
             <CardContent>
-              {currentBookings.length > 0 ? (
-                <div className="space-y-4">
-                  {currentBookings.map((booking) => (
-                    <div
-                      key={booking.id}
-                      className="flex items-center justify-between p-4 border rounded-lg"
-                    >
-                      <div className="space-y-1">
-                        <p className="font-medium">{`${booking.clientFirstName} ${booking.clientLastName}`}</p>
-                        <p className="text-sm text-muted-foreground">
-                          {booking.clientEmail}
-                        </p>
-                        <p className="text-sm text-muted-foreground">
-                          Chambre: {booking.room.name}
-                        </p>
-                        <div className="flex gap-2 text-xs">
-                          <span>
-                            Arrivée:{" "}
-                            {new Date(booking.checkInDate).toLocaleDateString(
-                              "fr-FR"
-                            )}
-                          </span>
-                          <span>
-                            Départ:{" "}
-                            {new Date(booking.checkOutDate).toLocaleDateString(
-                              "fr-FR"
-                            )}{" "}
-                            (12h00)
-                          </span>
-                        </div>
-                      </div>
-                      <div className="text-right">
-                        <p className="font-semibold">{booking.amount} CHF</p>
-                        <p className="text-sm text-muted-foreground">
-                          {new Date(booking.bookingDate).toLocaleDateString(
-                            "fr-FR"
-                          )}
-                        </p>
-                        {(() => {
-                          const now = new Date();
-                          const today = new Date();
-                          today.setHours(0, 0, 0, 0);
-                          const checkOut = new Date(booking.checkOutDate);
-                          const checkIn = new Date(booking.checkInDate);
-
-                          if (
-                            checkOut.toDateString() === today.toDateString() &&
-                            now.getHours() < 12
-                          ) {
-                            return (
-                              <span className="text-xs bg-orange-100 text-orange-800 px-2 py-1 rounded">
-                                Départ aujourd&apos;hui
-                              </span>
-                            );
-                          } else if (
-                            checkOut.toDateString() === today.toDateString() &&
-                            now.getHours() >= 12
-                          ) {
-                            return (
-                              <span className="text-xs bg-green-100 text-green-800 px-2 py-1 rounded">
-                                Chambre libérée
-                              </span>
-                            );
-                          } else if (
-                            checkIn.toDateString() === today.toDateString()
-                          ) {
-                            return (
-                              <span className="text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded">
-                                Arrivée aujourd&apos;hui
-                              </span>
-                            );
-                          } else if (checkIn < today && checkOut > today) {
-                            return (
-                              <span className="text-xs bg-red-100 text-red-800 px-2 py-1 rounded">
-                                En cours
-                              </span>
-                            );
-                          }
-                          return null;
-                        })()}
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              ) : (
-                <div className="text-center py-8">
-                  <Users className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-                  <h3 className="text-lg font-medium mb-2">
-                    Aucune réservation aujourd&apos;hui
-                  </h3>
-                  <p className="text-muted-foreground">
-                    Les nouvelles réservations apparaîtront ici
-                  </p>
-                </div>
-              )}
+              <BookingsTable bookings={currentBookings} />
             </CardContent>
           </Card>
         );
