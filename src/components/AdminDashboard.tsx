@@ -210,20 +210,24 @@ export function AdminDashboard({
             )}
 
             {/* Graphiques analytiques */}
-            {finalIsStripeConfigured && dbRooms.length > 0 && currentBookings.length > 0 && (
-              <div className="mt-8">
-                <div className="mb-6">
-                  <h2 className="text-xl font-semibold mb-2">Analyses et statistiques</h2>
-                  <p className="text-muted-foreground">
-                    Visualisez les performances de votre établissement
-                  </p>
+            {finalIsStripeConfigured &&
+              dbRooms.length > 0 &&
+              currentBookings.length > 0 && (
+                <div className="mt-8">
+                  <div className="mb-6">
+                    <h2 className="text-xl font-semibold mb-2">
+                      Analyses et statistiques
+                    </h2>
+                    <p className="text-muted-foreground">
+                      Visualisez les performances de votre établissement
+                    </p>
+                  </div>
+                  <DashboardCharts
+                    bookings={currentBookings}
+                    rooms={roomsWithInventory}
+                  />
                 </div>
-                <DashboardCharts 
-                  bookings={currentBookings}
-                  rooms={roomsWithInventory}
-                />
-              </div>
-            )}
+              )}
           </div>
         );
 

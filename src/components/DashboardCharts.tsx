@@ -102,17 +102,19 @@ export function DashboardCharts({ bookings, rooms }: DashboardChartsProps) {
   const monthlyBookingsData = useMemo(() => {
     const last6Months = [];
     const now = new Date();
-    
+
     for (let i = 5; i >= 0; i--) {
       const month = new Date(now.getFullYear(), now.getMonth() - i, 1);
       const monthName = month.toLocaleDateString("fr-FR", { month: "short" });
-      
-      const monthBookings = bookings.filter(booking => {
+
+      const monthBookings = bookings.filter((booking) => {
         const bookingDate = new Date(booking.bookingDate);
-        return bookingDate.getMonth() === month.getMonth() && 
-               bookingDate.getFullYear() === month.getFullYear();
+        return (
+          bookingDate.getMonth() === month.getMonth() &&
+          bookingDate.getFullYear() === month.getFullYear()
+        );
       });
-      
+
       last6Months.push({
         month: monthName,
         reservations: monthBookings.length,
@@ -120,22 +122,22 @@ export function DashboardCharts({ bookings, rooms }: DashboardChartsProps) {
         clients: monthBookings.reduce((sum, b) => sum + b.guests, 0),
       });
     }
-    
+
     return last6Months;
   }, [bookings]);
 
   // Données pour le graphique des chambres
   const roomsData = useMemo(() => {
-    return rooms.map(room => {
-      const roomBookings = bookings.filter(b => b.room.name === room.name);
+    return rooms.map((room) => {
+      const roomBookings = bookings.filter((b) => b.room.name === room.name);
       const totalRevenue = roomBookings.reduce((sum, b) => sum + b.amount, 0);
-      
+
       return {
         name: room.name,
         reservations: roomBookings.length,
         revenus: totalRevenue,
         prix: room.price,
-        statut: room.isActive ? 'active' : 'inactive',
+        statut: room.isActive ? "active" : "inactive",
       };
     });
   }, [rooms, bookings]);
@@ -144,40 +146,55 @@ export function DashboardCharts({ bookings, rooms }: DashboardChartsProps) {
   const revenueData = useMemo(() => {
     const last30Days = [];
     const now = new Date();
-    
+
     for (let i = 29; i >= 0; i--) {
-      const date = new Date(now.getFullYear(), now.getMonth(), now.getDate() - i);
-      const dayBookings = bookings.filter(booking => {
+      const date = new Date(
+        now.getFullYear(),
+        now.getMonth(),
+        now.getDate() - i
+      );
+      const dayBookings = bookings.filter((booking) => {
         const bookingDate = new Date(booking.bookingDate);
         return bookingDate.toDateString() === date.toDateString();
       });
-      
+
       last30Days.push({
-        date: date.toLocaleDateString("fr-FR", { day: "numeric", month: "short" }),
+        date: date.toLocaleDateString("fr-FR", {
+          day: "numeric",
+          month: "short",
+        }),
         revenus: dayBookings.reduce((sum, b) => sum + b.amount, 0),
         reservations: dayBookings.length,
       });
     }
-    
+
     return last30Days;
   }, [bookings]);
 
   // Données pour le graphique de répartition des clients
   const guestDistributionData = useMemo(() => {
-    const distribution = bookings.reduce((acc, booking) => {
-      const guestCount = booking.guests;
-      const key = guestCount === 1 ? '1 personne' : 
-                  guestCount === 2 ? '2 personnes' : 
-                  guestCount <= 4 ? '3-4 personnes' : '5+ personnes';
-      
-      acc[key] = (acc[key] || 0) + 1;
-      return acc;
-    }, {} as Record<string, number>);
+    const distribution = bookings.reduce(
+      (acc, booking) => {
+        const guestCount = booking.guests;
+        const key =
+          guestCount === 1
+            ? "1 personne"
+            : guestCount === 2
+              ? "2 personnes"
+              : guestCount <= 4
+                ? "3-4 personnes"
+                : "5+ personnes";
+
+        acc[key] = (acc[key] || 0) + 1;
+        return acc;
+      },
+      {} as Record<string, number>
+    );
 
     return Object.entries(distribution).map(([key, value]) => ({
       name: key,
       value,
-      fill: `var(--color-${key.replace(/\s+/g, '-').replace(/\+/g, 'plus')})`,
+      fill: `var(--color-${key.replace(/\s+/g, "-").replace(/\+/g, "plus")})`,
     }));
   }, [bookings]);
 
@@ -198,21 +215,17 @@ export function DashboardCharts({ bookings, rooms }: DashboardChartsProps) {
           <ChartContainer config={monthlyChartConfig} className="min-h-[300px]">
             <BarChart accessibilityLayer data={monthlyBookingsData}>
               <CartesianGrid vertical={false} />
-              <XAxis 
-                dataKey="month" 
+              <XAxis
+                dataKey="month"
                 tickLine={false}
                 tickMargin={10}
                 axisLine={false}
               />
-              <YAxis 
-                tickLine={false}
-                tickMargin={10}
-                axisLine={false}
-              />
+              <YAxis tickLine={false} tickMargin={10} axisLine={false} />
               <ChartTooltip content={<ChartTooltipContent />} />
-              <Bar 
-                dataKey="reservations" 
-                fill="var(--color-reservations)" 
+              <Bar
+                dataKey="reservations"
+                fill="var(--color-reservations)"
                 radius={4}
               />
             </BarChart>
@@ -263,9 +276,7 @@ export function DashboardCharts({ bookings, rooms }: DashboardChartsProps) {
             <Euro className="h-5 w-5" />
             Performance des chambres
           </CardTitle>
-          <CardDescription>
-            Nombre de réservations par chambre
-          </CardDescription>
+          <CardDescription>Nombre de réservations par chambre</CardDescription>
         </CardHeader>
         <CardContent>
           <ChartContainer config={roomsChartConfig} className="min-h-[300px]">
@@ -279,7 +290,11 @@ export function DashboardCharts({ bookings, rooms }: DashboardChartsProps) {
               />
               <YAxis tickLine={false} axisLine={false} />
               <ChartTooltip content={<ChartTooltipContent />} />
-              <Bar dataKey="reservations" fill="var(--color-reservations)" radius={4} />
+              <Bar
+                dataKey="reservations"
+                fill="var(--color-reservations)"
+                radius={4}
+              />
             </BarChart>
           </ChartContainer>
         </CardContent>
@@ -292,9 +307,7 @@ export function DashboardCharts({ bookings, rooms }: DashboardChartsProps) {
             <Users className="h-5 w-5" />
             Répartition des clients
           </CardTitle>
-          <CardDescription>
-            Nombre de personnes par réservation
-          </CardDescription>
+          <CardDescription>Nombre de personnes par réservation</CardDescription>
         </CardHeader>
         <CardContent>
           <ChartContainer config={guestChartConfig} className="min-h-[300px]">
@@ -311,10 +324,7 @@ export function DashboardCharts({ bookings, rooms }: DashboardChartsProps) {
                 strokeWidth={5}
               >
                 {guestDistributionData.map((entry, index) => (
-                  <Cell 
-                    key={`cell-${index}`} 
-                    fill={entry.fill}
-                  />
+                  <Cell key={`cell-${index}`} fill={entry.fill} />
                 ))}
               </Pie>
             </PieChart>
