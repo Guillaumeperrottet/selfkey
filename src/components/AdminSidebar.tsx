@@ -26,8 +26,6 @@ interface AdminSidebarProps {
   hotel: string;
   establishmentName: string;
   isStripeConfigured: boolean;
-  availableRooms: number;
-  currentBookings: number;
   stripeAccountId?: string;
   activeTab: string;
   onTabChange: (tab: string) => void;
@@ -75,8 +73,6 @@ export function AdminSidebar({
   hotel,
   establishmentName,
   isStripeConfigured,
-  availableRooms,
-  currentBookings,
   stripeAccountId,
   activeTab,
   onTabChange,
@@ -93,26 +89,8 @@ export function AdminSidebar({
         </span>
       </div>
 
-      {/* Stats rapides */}
-      <div className="p-4 border-b">
-        <div className="grid grid-cols-2 gap-4">
-          <div className="text-center">
-            <div className="text-2xl font-bold text-primary">
-              {availableRooms}
-            </div>
-            <div className="text-xs text-muted-foreground">Disponibles</div>
-          </div>
-          <div className="text-center">
-            <div className="text-2xl font-bold text-primary">
-              {currentBookings}
-            </div>
-            <div className="text-xs text-muted-foreground">Réservations</div>
-          </div>
-        </div>
-      </div>
-
       {/* Navigation */}
-      <nav className="flex-1 space-y-1 p-2">
+      <nav className="flex-1 space-y-1 p-2 pt-4">
         {navigation.map((item) => (
           <Button
             key={item.id}

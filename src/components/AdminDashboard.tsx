@@ -19,7 +19,6 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Alert, AlertDescription } from "@/components/ui/alert";
 import {
   CreditCard,
   Hotel,
@@ -161,18 +160,6 @@ export function AdminDashboard({
                         .toFixed(2)}{" "}
                       CHF
                     </div>
-                    <p className="text-xs text-muted-foreground">
-                      Commission:{" "}
-                      {currentBookings
-                        .reduce(
-                          (sum: number, b) =>
-                            sum +
-                            (b.amount * establishment.commissionRate) / 100,
-                          0
-                        )
-                        .toFixed(2)}{" "}
-                      CHF
-                    </p>
                   </CardContent>
                 </Card>
 
@@ -347,10 +334,6 @@ export function AdminDashboard({
         hotel={hotel}
         establishmentName={establishment.name}
         isStripeConfigured={finalIsStripeConfigured}
-        availableRooms={
-          roomsWithInventory.filter((r) => r.inventory > 0).length
-        }
-        currentBookings={currentBookings.length}
         stripeAccountId={establishment.stripeAccountId || undefined}
         activeTab={activeTab}
         onTabChange={setActiveTab}
@@ -404,23 +387,6 @@ export function AdminDashboard({
                 />
               </CardContent>
             </Card>
-          )}
-
-          {/* Commission info */}
-          {(establishment.commissionRate > 0 || establishment.fixedFee > 0) && (
-            <Alert className="mb-6">
-              <BarChart3 className="h-4 w-4" />
-              <AlertDescription>
-                <strong>Commission:</strong>{" "}
-                {establishment.commissionRate > 0 &&
-                  `${establishment.commissionRate}% du montant`}
-                {establishment.commissionRate > 0 &&
-                  establishment.fixedFee > 0 &&
-                  " + "}
-                {establishment.fixedFee > 0 &&
-                  `${establishment.fixedFee} CHF par transaction`}
-              </AlertDescription>
-            </Alert>
           )}
 
           {/* Contenu principal */}
