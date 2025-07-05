@@ -51,50 +51,76 @@ interface Room {
   isActive: boolean;
 }
 
+interface ChartColors {
+  chart1: string;
+  chart2: string;
+  chart3: string;
+  chart4: string;
+  chart5: string;
+}
+
 interface DashboardChartsProps {
   bookings: Booking[];
   rooms: Room[];
+  colors?: ChartColors;
 }
 
-export function DashboardCharts({ bookings, rooms }: DashboardChartsProps) {
+export function DashboardCharts({
+  bookings,
+  rooms,
+  colors,
+}: DashboardChartsProps) {
+  // Couleurs par défaut ou couleurs personnalisées
+  const chartColors = useMemo(
+    () =>
+      colors || {
+        chart1: "hsl(var(--chart-1))",
+        chart2: "hsl(var(--chart-2))",
+        chart3: "hsl(var(--chart-3))",
+        chart4: "hsl(var(--chart-4))",
+        chart5: "hsl(var(--chart-5))",
+      },
+    [colors]
+  );
+
   // Chart configs
   const monthlyChartConfig = {
     reservations: {
       label: "Réservations",
-      color: "hsl(var(--chart-1))",
+      color: chartColors.chart1,
     },
   } satisfies ChartConfig;
 
   const revenueChartConfig = {
     revenus: {
       label: "Revenus",
-      color: "hsl(var(--chart-2))",
+      color: chartColors.chart2,
     },
   } satisfies ChartConfig;
 
   const roomsChartConfig = {
     reservations: {
       label: "Réservations",
-      color: "hsl(var(--chart-3))",
+      color: chartColors.chart3,
     },
   } satisfies ChartConfig;
 
   const guestChartConfig = {
     "1-personne": {
       label: "1 personne",
-      color: "hsl(var(--chart-1))",
+      color: chartColors.chart1,
     },
     "2-personnes": {
       label: "2 personnes",
-      color: "hsl(var(--chart-2))",
+      color: chartColors.chart2,
     },
     "3-4-personnes": {
       label: "3-4 personnes",
-      color: "hsl(var(--chart-3))",
+      color: chartColors.chart3,
     },
     "5plus-personnes": {
       label: "5+ personnes",
-      color: "hsl(var(--chart-4))",
+      color: chartColors.chart4,
     },
   } satisfies ChartConfig;
 
@@ -191,12 +217,19 @@ export function DashboardCharts({ bookings, rooms }: DashboardChartsProps) {
       {} as Record<string, number>
     );
 
+    const colorMap = {
+      "1 personne": chartColors.chart1,
+      "2 personnes": chartColors.chart2,
+      "3-4 personnes": chartColors.chart3,
+      "5+ personnes": chartColors.chart4,
+    };
+
     return Object.entries(distribution).map(([key, value]) => ({
       name: key,
       value,
-      fill: `var(--color-${key.replace(/\s+/g, "-").replace(/\+/g, "plus")})`,
+      fill: colorMap[key as keyof typeof colorMap] || chartColors.chart1,
     }));
-  }, [bookings]);
+  }, [bookings, chartColors]);
 
   return (
     <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-2">

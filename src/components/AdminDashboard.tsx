@@ -10,6 +10,7 @@ import { PricingOptionsManager } from "@/components/PricingOptionsManager";
 import { ConfirmationManager } from "@/components/ConfirmationManager";
 import { BookingsTable } from "@/components/BookingsTable";
 import { DashboardCharts } from "@/components/DashboardCharts";
+import { ChartColorSelector } from "@/components/ChartColorSelector";
 import {
   Card,
   CardContent,
@@ -28,6 +29,14 @@ import {
   Bed,
   CheckCircle,
 } from "lucide-react";
+
+interface ChartColors {
+  chart1: string;
+  chart2: string;
+  chart3: string;
+  chart4: string;
+  chart5: string;
+}
 
 interface AdminDashboardProps {
   hotel: string;
@@ -80,6 +89,17 @@ export function AdminDashboard({
   finalIsStripeConfigured,
 }: AdminDashboardProps) {
   const [activeTab, setActiveTab] = useState("overview");
+  const [chartColors, setChartColors] = useState<ChartColors>({
+    chart1: "#3b82f6",
+    chart2: "#10b981",
+    chart3: "#f59e0b",
+    chart4: "#ef4444",
+    chart5: "#8b5cf6",
+  });
+
+  const handleColorsChange = (newColors: ChartColors) => {
+    setChartColors(newColors);
+  };
 
   const renderContent = () => {
     switch (activeTab) {
@@ -214,17 +234,24 @@ export function AdminDashboard({
               dbRooms.length > 0 &&
               currentBookings.length > 0 && (
                 <div className="mt-8">
-                  <div className="mb-6">
-                    <h2 className="text-xl font-semibold mb-2">
-                      Analyses et statistiques
-                    </h2>
-                    <p className="text-muted-foreground">
-                      Visualisez les performances de votre établissement
-                    </p>
+                  <div className="mb-6 flex items-center justify-between">
+                    <div>
+                      <h2 className="text-xl font-semibold mb-2">
+                        Analyses et statistiques
+                      </h2>
+                      <p className="text-muted-foreground">
+                        Visualisez les performances de votre établissement
+                      </p>
+                    </div>
+                    <ChartColorSelector
+                      onColorsChange={handleColorsChange}
+                      currentColors={chartColors}
+                    />
                   </div>
                   <DashboardCharts
                     bookings={currentBookings}
                     rooms={roomsWithInventory}
+                    colors={chartColors}
                   />
                 </div>
               )}
