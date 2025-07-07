@@ -185,7 +185,7 @@ export async function POST(
       return NextResponse.json(
         {
           error:
-            "Cette chambre n'est pas disponible pour la période sélectionnée",
+            "Cette chambre n'est plus disponible pour la période sélectionnée",
         },
         { status: 409 }
       );

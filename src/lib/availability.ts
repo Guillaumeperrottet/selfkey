@@ -168,12 +168,15 @@ export async function getAvailableRooms(
       checkOutDate
     );
 
-    availableRooms.push({
-      id: room.id,
-      name: room.name,
-      price: room.price,
-      available: availability.isAvailable ? 1 : 0,
-    });
+    // Ne retourner que les chambres disponibles
+    if (availability.isAvailable) {
+      availableRooms.push({
+        id: room.id,
+        name: room.name,
+        price: room.price,
+        available: 1,
+      });
+    }
   }
 
   return availableRooms;
@@ -322,9 +325,7 @@ export async function isRoomCurrentlyAvailable(
  * Obtient la liste des chambres actuellement disponibles pour un hôtel
  * en tenant compte de l'heure de checkout
  */
-export async function getCurrentlyAvailableRooms(
-  hotelSlug: string
-): Promise<
+export async function getCurrentlyAvailableRooms(hotelSlug: string): Promise<
   Array<{
     id: string;
     name: string;

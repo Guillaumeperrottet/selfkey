@@ -11,6 +11,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Checkbox } from "@/components/ui/checkbox";
 import { Loader2, Save } from "lucide-react";
 
 interface SettingsManagerProps {
@@ -19,6 +20,8 @@ interface SettingsManagerProps {
 
 export function SettingsManager({ hotelSlug }: SettingsManagerProps) {
   const [maxBookingDays, setMaxBookingDays] = useState<number>(4);
+  const [allowFutureBookings, setAllowFutureBookings] =
+    useState<boolean>(false);
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
 
@@ -32,6 +35,7 @@ export function SettingsManager({ hotelSlug }: SettingsManagerProps) {
         if (response.ok) {
           const data = await response.json();
           setMaxBookingDays(data.maxBookingDays || 4);
+          setAllowFutureBookings(data.allowFutureBookings || false);
         } else {
           alert("Erreur lors du chargement des paramètres");
         }
@@ -61,7 +65,7 @@ export function SettingsManager({ hotelSlug }: SettingsManagerProps) {
           headers: {
             "Content-Type": "application/json",
           },
-          body: JSON.stringify({ maxBookingDays }),
+          body: JSON.stringify({ maxBookingDays, allowFutureBookings }),
         }
       );
 
@@ -100,7 +104,7 @@ export function SettingsManager({ hotelSlug }: SettingsManagerProps) {
         <CardContent className="space-y-4">
           <div className="space-y-2">
             <Label htmlFor="maxBookingDays">
-              Durée maximale de séjour (en jours)
+              Durée maximale de séjour (en nuits)
             </Label>
             <Input
               id="maxBookingDays"
@@ -113,7 +117,30 @@ export function SettingsManager({ hotelSlug }: SettingsManagerProps) {
             />
             <p className="text-sm text-muted-foreground">
               Les clients pourront réserver pour un maximum de {maxBookingDays}{" "}
-              jour{maxBookingDays > 1 ? "s" : ""}
+              nuit{maxBookingDays > 1 ? "s" : ""}
+            </p>
+          </div>
+
+          <div className="space-y-2">
+            <div className="flex items-center space-x-2">
+              <Checkbox
+                id="allowFutureBookings"
+                checked={allowFutureBookings}
+                onCheckedChange={(checked) =>
+                  setAllowFutureBookings(checked as boolean)
+                }
+              />
+              <Label
+                htmlFor="allowFutureBookings"
+                className="text-sm font-medium"
+              >
+                Autoriser les réservations dans le futur
+              </Label>
+            </div>
+            <p className="text-sm text-muted-foreground">
+              {allowFutureBookings
+                ? "Les clients peuvent réserver pour des dates futures"
+                : "Les clients ne peuvent réserver que pour aujourd'hui"}
             </p>
           </div>
 
@@ -153,6 +180,14 @@ export function SettingsManager({ hotelSlug }: SettingsManagerProps) {
           <p>
             • Cette limite s&apos;applique à toutes les chambres de
             l&apos;établissement
+          </p>
+          <p>
+            • Les réservations futures peuvent être activées ou désactivées
+            selon vos besoins
+          </p>
+          <p>
+            • Si les réservations futures sont désactivées, les clients ne
+            pourront réserver que pour aujourd&apos;hui
           </p>
         </CardContent>
       </Card>

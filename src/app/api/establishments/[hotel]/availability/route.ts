@@ -50,9 +50,16 @@ export async function GET(request: NextRequest, context: Context) {
     // Obtenir les chambres disponibles
     const availableRooms = await getAvailableRooms(hotel, checkIn, checkOut);
 
+    console.log("DEBUG: Available rooms count:", availableRooms.length);
+    console.log("DEBUG: Available rooms:", availableRooms);
+
     return NextResponse.json({
       availableRooms,
       maxBookingDays: establishment.maxBookingDays,
+      message:
+        availableRooms.length === 0
+          ? "Aucune chambre disponible pour cette période"
+          : null,
     });
   } catch (error) {
     console.error("Error fetching room availability:", error);

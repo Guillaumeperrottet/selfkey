@@ -96,6 +96,7 @@ model Establishment {
   accessInstructions String?          // Instructions personnalisées (JSON ou text)
   // Configuration des réservations
   maxBookingDays  Int                 @default(4) // Durée maximale de séjour en jours
+  allowFutureBookings Boolean         @default(false) // Permettre les réservations dans le futur
   // Configuration des confirmations post-paiement
   confirmationEmailEnabled Boolean   @default(true)
   confirmationWhatsappEnabled Boolean @default(false)

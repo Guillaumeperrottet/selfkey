@@ -14,6 +14,7 @@ export async function GET(
         id: true,
         name: true,
         maxBookingDays: true,
+        allowFutureBookings: true,
       },
     });
 
@@ -53,7 +54,7 @@ export async function PUT(
     }
 
     const body = await request.json();
-    const { maxBookingDays } = body;
+    const { maxBookingDays, allowFutureBookings } = body;
 
     // Validation
     if (!maxBookingDays || maxBookingDays < 1 || maxBookingDays > 365) {
@@ -80,11 +81,13 @@ export async function PUT(
       where: { slug: hotel },
       data: {
         maxBookingDays: parseInt(maxBookingDays),
+        allowFutureBookings: allowFutureBookings,
       },
       select: {
         id: true,
         name: true,
         maxBookingDays: true,
+        allowFutureBookings: true,
       },
     });
 

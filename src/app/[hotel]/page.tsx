@@ -23,6 +23,7 @@ export default async function HotelPage({ params }: Props) {
       id: true,
       name: true,
       maxBookingDays: true,
+      allowFutureBookings: true,
     },
   });
 
@@ -82,6 +83,7 @@ export default async function HotelPage({ params }: Props) {
           establishment={{
             name: establishment.name,
             maxBookingDays: establishment.maxBookingDays,
+            allowFutureBookings: establishment.allowFutureBookings,
           }}
         />
       </div>

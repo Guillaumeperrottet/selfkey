@@ -100,7 +100,7 @@ export function PricingOptionsManager({
         {
           label: "",
           priceModifier: 0,
-          isDefault: true,
+          isDefault: false, // Ne pas marquer comme défaut automatiquement
           displayOrder: 0,
         },
       ],
@@ -127,7 +127,7 @@ export function PricingOptionsManager({
     const newValue: PricingOptionValue = {
       label: "",
       priceModifier: 0,
-      isDefault: false,
+      isDefault: false, // Ne pas marquer comme défaut automatiquement
       displayOrder: updated[optionIndex].values.length,
     };
     updated[optionIndex].values.push(newValue);
@@ -140,6 +140,23 @@ export function PricingOptionsManager({
     updates: Partial<PricingOptionValue>
   ) => {
     const updated = [...pricingOptions];
+
+    // Si on coche "isDefault", il faut gérer la logique selon le type d'option
+    if (updates.isDefault === true) {
+      const option = updated[optionIndex];
+
+      if (option.type === "select" || option.type === "radio") {
+        // Pour select et radio, une seule valeur peut être par défaut
+        // Décocher toutes les autres valeurs par défaut
+        updated[optionIndex].values.forEach((value, idx) => {
+          if (idx !== valueIndex) {
+            value.isDefault = false;
+          }
+        });
+      }
+      // Pour checkbox, plusieurs valeurs peuvent être par défaut
+    }
+
     updated[optionIndex].values[valueIndex] = {
       ...updated[optionIndex].values[valueIndex],
       ...updates,
@@ -293,6 +310,14 @@ export function PricingOptionsManager({
                     <li>
                       • Marquez une valeur comme &quot;Défaut&quot; pour
                       qu&apos;elle soit pré-sélectionnée
+                    </li>
+                    <li>
+                      • Pour les options non-obligatoires, les clients peuvent
+                      décocher toutes les valeurs
+                    </li>
+                    <li>
+                      • Pour les menus déroulants et boutons radio, une seule
+                      valeur peut être par défaut
                     </li>
                     <li>
                       • Cochez &quot;Obligatoire&quot; si le client doit

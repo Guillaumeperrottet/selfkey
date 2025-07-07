@@ -32,6 +32,7 @@ interface Room {
 interface Establishment {
   name: string;
   maxBookingDays: number;
+  allowFutureBookings: boolean;
 }
 
 interface PricingOptionValue {
@@ -59,7 +60,11 @@ interface BookingFormProps {
 
 export function BookingForm({ hotelSlug, establishment }: BookingFormProps) {
   const router = useRouter();
-  const [checkInDate, setCheckInDate] = useState("");
+
+  // Date minimale : aujourd'hui
+  const today = new Date().toISOString().split("T")[0];
+
+  const [checkInDate, setCheckInDate] = useState(today); // Date d'arrivée
   const [checkOutDate, setCheckOutDate] = useState("");
   const [availableRooms, setAvailableRooms] = useState<Room[]>([]);
   const [selectedRoom, setSelectedRoom] = useState<Room | null>(null);
@@ -86,22 +91,50 @@ export function BookingForm({ hotelSlug, establishment }: BookingFormProps) {
   >({});
   const [pricingOptionsTotal, setPricingOptionsTotal] = useState(0);
 
-  // Date minimale : aujourd'hui
-  const today = new Date().toISOString().split("T")[0];
-
-  // Date maximale : aujourd'hui + 1 an
+  // Date maximale : dépend de la configuration de l'établissement
   const maxDate = new Date();
-  maxDate.setFullYear(maxDate.getFullYear() + 1);
+  if (establishment.allowFutureBookings) {
+    // Pour les réservations futures : limiter à 1 an ou selon maxBookingDays depuis la date d'arrivée
+    const maxFromCheckIn = new Date(checkInDate);
+    maxFromCheckIn.setDate(
+      maxFromCheckIn.getDate() + establishment.maxBookingDays
+    );
+
+    const maxOneYear = new Date();
+    maxOneYear.setFullYear(maxOneYear.getFullYear() + 1);
+
+    // Prendre la plus petite des deux dates
+    maxDate.setTime(Math.min(maxFromCheckIn.getTime(), maxOneYear.getTime()));
+  } else {
+    // Si les réservations futures ne sont pas autorisées, limiter selon maxBookingDays (en nuits)
+    // La date de départ maximale = aujourd'hui + maxBookingDays nuits
+    maxDate.setDate(maxDate.getDate() + establishment.maxBookingDays);
+  }
   const maxDateStr = maxDate.toISOString().split("T")[0];
 
   const handleSearchRooms = async () => {
-    if (!checkInDate || !checkOutDate) {
-      setError("Veuillez sélectionner les dates d'arrivée et de départ");
+    if (!checkOutDate) {
+      setError("Veuillez sélectionner la date de départ");
       return;
     }
 
     if (checkInDate >= checkOutDate) {
       setError("La date de départ doit être après la date d'arrivée");
+      return;
+    }
+
+    // Vérifier que la date d'arrivée n'est pas dans le passé
+    if (new Date(checkInDate) < new Date(today)) {
+      setError("La date d'arrivée ne peut pas être dans le passé");
+      return;
+    }
+
+    // Pour les établissements qui n'autorisent pas les réservations futures,
+    // vérifier que la date d'arrivée est bien aujourd'hui
+    if (!establishment.allowFutureBookings && checkInDate !== today) {
+      setError(
+        "La date d'arrivée doit être aujourd'hui pour cet établissement"
+      );
       return;
     }
 
@@ -129,10 +162,16 @@ export function BookingForm({ hotelSlug, establishment }: BookingFormProps) {
       if (!response.ok) {
         throw new Error("Erreur lors de la recherche des chambres disponibles");
       }
-
       const data = await response.json();
+      console.log("DEBUG: API response:", data);
       setAvailableRooms(data.availableRooms || []);
       setSearchPerformed(true);
+
+      // Afficher le message informatif si aucune chambre n'est disponible
+      if (data.message) {
+        console.log("DEBUG: Setting error message:", data.message);
+        setError(data.message);
+      }
     } catch (err) {
       setError(
         err instanceof Error
@@ -273,7 +312,15 @@ export function BookingForm({ hotelSlug, establishment }: BookingFormProps) {
             const defaultValue = option.values.find((v) => v.isDefault);
             if (defaultValue) {
               if (option.type === "checkbox") {
-                defaultSelections[option.id] = [defaultValue.id];
+                // Pour les checkboxes, seulement pré-sélectionner si l'option est obligatoire
+                // ou si explicitement demandé par l'utilisateur
+                if (option.isRequired) {
+                  defaultSelections[option.id] = [defaultValue.id];
+                } else {
+                  // Pour les options non-obligatoires, on peut laisser vide par défaut
+                  // mais on peut quand même pré-sélectionner si c'est marqué comme défaut
+                  defaultSelections[option.id] = [defaultValue.id];
+                }
               } else {
                 defaultSelections[option.id] = defaultValue.id;
               }
@@ -316,6 +363,13 @@ export function BookingForm({ hotelSlug, establishment }: BookingFormProps) {
     setPricingOptionsTotal(total);
   }, [selectedPricingOptions, pricingOptions]);
 
+  // Réinitialiser la date de départ si elle devient invalide après changement de date d'arrivée
+  useEffect(() => {
+    if (checkOutDate && checkInDate >= checkOutDate) {
+      setCheckOutDate("");
+    }
+  }, [checkInDate, checkOutDate]);
+
   return (
     <div className="space-y-6">
       {/* Étapes de réservation */}
@@ -338,10 +392,29 @@ export function BookingForm({ hotelSlug, establishment }: BookingFormProps) {
                 type="date"
                 value={checkInDate}
                 onChange={(e) => setCheckInDate(e.target.value)}
+                readOnly={!establishment.allowFutureBookings}
+                className={`mt-1 ${!establishment.allowFutureBookings ? "bg-gray-50" : ""}`}
+                title={
+                  establishment.allowFutureBookings
+                    ? "Sélectionnez votre date d'arrivée"
+                    : "La date d'arrivée est fixée à aujourd'hui"
+                }
                 min={today}
-                max={maxDateStr}
-                className="mt-1"
+                max={
+                  establishment.allowFutureBookings
+                    ? new Date(
+                        new Date().setFullYear(new Date().getFullYear() + 1)
+                      )
+                        .toISOString()
+                        .split("T")[0]
+                    : undefined
+                }
               />
+              <p className="text-xs text-gray-500 mt-1">
+                {establishment.allowFutureBookings
+                  ? "Choisissez votre date d'arrivée"
+                  : "Arrivée fixée à aujourd'hui"}
+              </p>
             </div>
             <div>
               <Label htmlFor="checkOut">Date de départ</Label>
@@ -350,7 +423,11 @@ export function BookingForm({ hotelSlug, establishment }: BookingFormProps) {
                 type="date"
                 value={checkOutDate}
                 onChange={(e) => setCheckOutDate(e.target.value)}
-                min={checkInDate || today}
+                min={(() => {
+                  const minDate = new Date(checkInDate);
+                  minDate.setDate(minDate.getDate() + 1);
+                  return minDate.toISOString().split("T")[0];
+                })()}
                 max={maxDateStr}
                 className="mt-1"
               />
@@ -366,19 +443,29 @@ export function BookingForm({ hotelSlug, establishment }: BookingFormProps) {
             </div>
           )}
 
-          {establishment.maxBookingDays && (
-            <Alert>
-              <Info className="h-4 w-4" />
-              <AlertDescription>
-                Durée maximale de séjour : {establishment.maxBookingDays} jour
-                {establishment.maxBookingDays > 1 ? "s" : ""}
-              </AlertDescription>
-            </Alert>
-          )}
+          <Alert>
+            <Info className="h-4 w-4" />
+            <AlertDescription>
+              {establishment.allowFutureBookings ? (
+                <>
+                  Vous pouvez réserver jusqu&apos;à 1 an à l&apos;avance. Durée
+                  maximale de séjour : {establishment.maxBookingDays} nuit
+                  {establishment.maxBookingDays > 1 ? "s" : ""}.
+                </>
+              ) : (
+                <>
+                  Les réservations dans le futur ne sont pas autorisées.
+                  L&apos;arrivée est fixée à aujourd&apos;hui, durée maximale :{" "}
+                  {establishment.maxBookingDays} nuit
+                  {establishment.maxBookingDays > 1 ? "s" : ""}.
+                </>
+              )}
+            </AlertDescription>
+          </Alert>
 
           <Button
             onClick={handleSearchRooms}
-            disabled={loading || !checkInDate || !checkOutDate}
+            disabled={loading || !checkOutDate}
             className="w-full"
           >
             {loading
@@ -691,6 +778,17 @@ export function BookingForm({ hotelSlug, establishment }: BookingFormProps) {
                                       : currentValues.filter(
                                           (v) => v !== value.id
                                         );
+
+                                    // Pour les options non obligatoires, permettre un tableau vide
+                                    // Pour les options obligatoires, garder au moins une valeur
+                                    if (
+                                      newValues.length === 0 &&
+                                      option.isRequired
+                                    ) {
+                                      // Ne pas permettre de tout décocher si l'option est obligatoire
+                                      return;
+                                    }
+
                                     handlePricingOptionChange(
                                       option.id,
                                       newValues
