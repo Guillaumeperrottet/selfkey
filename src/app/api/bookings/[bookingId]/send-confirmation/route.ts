@@ -266,11 +266,15 @@ async function sendEmailConfirmation(
             `✅ Email envoyé avec succès à l'adresse de test (fallback)`
           );
         } else {
+          // Ajouter un délai pour éviter le rate limit
+          await new Promise((resolve) => setTimeout(resolve, 1000));
           throw new Error(
             fallbackResult.error || "Erreur lors de l'envoi de l'email"
           );
         }
       } else {
+        // Ajouter un délai pour éviter le rate limit
+        await new Promise((resolve) => setTimeout(resolve, 1000));
         throw new Error(result.error || "Erreur lors de l'envoi de l'email");
       }
     } else {

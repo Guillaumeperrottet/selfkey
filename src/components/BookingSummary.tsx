@@ -490,7 +490,7 @@ export function BookingSummary({ bookingId }: BookingSummaryProps) {
                 </div>
                 <div className="flex items-center gap-2 text-sm text-gray-600">
                   <CreditCard className="h-4 w-4" />
-                  <span>Cartes acceptées: Visa, Mastercard</span>
+                  <span>Cartes acceptées: Visa, Mastercard, TWINT</span>
                 </div>
               </div>
 

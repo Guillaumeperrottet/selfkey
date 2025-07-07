@@ -30,6 +30,7 @@ export async function createConnectedAccount(
       capabilities: {
         card_payments: { requested: true },
         transfers: { requested: true },
+        twint_payments: { requested: true }, // Support TWINT pour la Suisse
       },
       metadata: {
         hotel_name: params.hotelName,
@@ -93,7 +94,9 @@ export async function createPaymentIntentWithCommission(
       },
       automatic_payment_methods: {
         enabled: true,
+        allow_redirects: "always", // Nécessaire pour TWINT
       },
+      // Supprimé payment_method_types car incompatible avec automatic_payment_methods
       metadata: {
         integration_type: "direct_charge",
         platform: "selfkey_hotels",

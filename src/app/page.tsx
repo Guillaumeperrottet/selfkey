@@ -249,7 +249,7 @@ export default function Home() {
                 Paiement sécurisé
               </h3>
               <p className="text-gray-600 dark:text-gray-400">
-                Paiement en ligne via Stripe avec toutes les protections
+                Paiement en ligne via Stripe avec TWINT, cartes et Apple Pay
               </p>
             </div>
 

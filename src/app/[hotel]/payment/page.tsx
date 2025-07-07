@@ -1,6 +1,6 @@
 import { notFound, redirect } from "next/navigation";
 import { prisma } from "@/lib/prisma";
-import { PaymentForm } from "@/components/PaymentForm";
+import { PaymentFormMultiple } from "@/components/PaymentFormMultiple";
 import { BookingSteps } from "@/components/BookingSteps";
 
 interface Props {
@@ -52,7 +52,9 @@ export default async function PaymentPage({ params, searchParams }: Props) {
           <h1 className="text-3xl font-bold text-gray-900 mb-2">
             Finaliser votre réservation
           </h1>
-          <p className="text-gray-600">Paiement sécurisé par Stripe</p>
+          <p className="text-gray-600">
+            Paiement sécurisé par Stripe • Cartes • TWINT • Apple Pay
+          </p>
         </div>
 
         {/* Résumé de la réservation */}
@@ -89,7 +91,7 @@ export default async function PaymentPage({ params, searchParams }: Props) {
         </div>
 
         {/* Formulaire de paiement */}
-        <PaymentForm
+        <PaymentFormMultiple
           booking={booking}
           establishment={establishment}
           room={booking.room}

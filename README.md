@@ -77,6 +77,7 @@ EMAIL_FROM="..."
 
 - **Réservation simple** : Sélection chambre + nombre de personnes
 - **Paiement sécurisé** : Stripe Connect avec SCA compliance
+- **Moyens de paiement** : Cartes, TWINT, Apple Pay, Google Pay
 - **Confirmation immédiate** : Email + page de succès
 - **Expérience mobile** : Interface responsive
 
@@ -132,7 +133,7 @@ Booking {
 1. **Client visite** `/[hotel]` (ex: `/hotel-paradise`)
 2. **Sélection chambre** parmi les disponibles
 3. **Saisie infos** : nom, email, téléphone, nombre de personnes
-4. **Redirection paiement** : `/[hotel]/payment` avec Stripe
+4. **Redirection paiement** : `/[hotel]/payment` avec Stripe (cartes, TWINT, Apple Pay)
 5. **Confirmation** : webhook Stripe → email → `/[hotel]/success`
 
 ## 👨‍💼 Interface admin
