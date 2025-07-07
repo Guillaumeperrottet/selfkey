@@ -1,4 +1,4 @@
 User-agent: *
 Allow: /
 
-Sitemap: https://www.selfkey.ch/sitemap.xml
+Sitemap: https://selfkey.ch/sitemap.xml
