@@ -4,6 +4,7 @@ import { useState, useMemo } from "react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { usePrint } from "@/hooks/use-print";
 import {
   Table,
   TableBody,
@@ -31,6 +32,7 @@ import {
   User,
   FileText,
   Clock,
+  Printer,
 } from "lucide-react";
 
 interface Booking {
@@ -86,6 +88,7 @@ export function BookingsTable({ bookings }: BookingsTableProps) {
   const [statusFilter, setStatusFilter] = useState<string>("all");
   const [selectedBooking, setSelectedBooking] = useState<Booking | null>(null);
   const [showDetails, setShowDetails] = useState(false);
+  const { printTable, print } = usePrint();
 
   const getBookingStatus = (booking: Booking) => {
     const now = new Date();
@@ -235,6 +238,247 @@ export function BookingsTable({ bookings }: BookingsTableProps) {
     );
   };
 
+  const handlePrintBooking = (booking: Booking) => {
+    const duration = calculateStayDuration(
+      booking.checkInDate,
+      booking.checkOutDate
+    );
+    const status = getBookingStatus(booking);
+
+    const bookingHTML = `
+      <div class="booking-details">
+        <div class="print-header">
+          <h1>Détails de la réservation</h1>
+          <p>Généré le ${new Date().toLocaleDateString("fr-FR", {
+            year: "numeric",
+            month: "long",
+            day: "numeric",
+            hour: "2-digit",
+            minute: "2-digit",
+          })}</p>
+        </div>
+        
+        <div class="booking-info">
+          <div class="card">
+            <div class="card-header">
+              <h2>Informations du séjour</h2>
+            </div>
+            <div class="grid">
+              <div class="flex">
+                <span>Chambre :</span>
+                <span class="font-medium">${booking.room.name}</span>
+              </div>
+              <div class="flex">
+                <span>Arrivée :</span>
+                <span class="font-medium">${formatDate(booking.checkInDate)}</span>
+              </div>
+              <div class="flex">
+                <span>Départ :</span>
+                <span class="font-medium">${formatDate(booking.checkOutDate)}</span>
+              </div>
+              <div class="flex">
+                <span>Durée :</span>
+                <span class="font-medium">${duration} nuit${duration > 1 ? "s" : ""}</span>
+              </div>
+              <div class="flex">
+                <span>Invités :</span>
+                <span class="font-medium">${booking.guests} personne${booking.guests > 1 ? "s" : ""}</span>
+              </div>
+              <div class="flex">
+                <span>Statut :</span>
+                <span class="badge">${status.label}</span>
+              </div>
+            </div>
+          </div>
+          
+          <div class="card">
+            <div class="card-header">
+              <h2>Informations client</h2>
+            </div>
+            <div class="grid">
+              <div class="flex">
+                <span>Nom :</span>
+                <span class="font-medium">${booking.clientFirstName} ${booking.clientLastName}</span>
+              </div>
+              <div class="flex">
+                <span>Email :</span>
+                <span class="font-medium">${booking.clientEmail}</span>
+              </div>
+              ${
+                booking.clientPhone
+                  ? `
+                <div class="flex">
+                  <span>Téléphone :</span>
+                  <span class="font-medium">${booking.clientPhone}</span>
+                </div>
+              `
+                  : ""
+              }
+              ${
+                booking.clientBirthDate
+                  ? `
+                <div class="flex">
+                  <span>Naissance :</span>
+                  <span class="font-medium">${new Date(booking.clientBirthDate).toLocaleDateString("fr-FR")}</span>
+                </div>
+              `
+                  : ""
+              }
+              ${
+                booking.clientAddress
+                  ? `
+                <div class="flex">
+                  <span>Adresse :</span>
+                  <span class="font-medium">${booking.clientAddress}</span>
+                </div>
+              `
+                  : ""
+              }
+              ${
+                booking.clientPostalCode || booking.clientCity
+                  ? `
+                <div class="flex">
+                  <span>Ville :</span>
+                  <span class="font-medium">${booking.clientPostalCode || ""} ${booking.clientCity || ""}</span>
+                </div>
+              `
+                  : ""
+              }
+              ${
+                booking.clientCountry
+                  ? `
+                <div class="flex">
+                  <span>Pays :</span>
+                  <span class="font-medium">${booking.clientCountry}</span>
+                </div>
+              `
+                  : ""
+              }
+              ${
+                booking.clientIdNumber
+                  ? `
+                <div class="flex">
+                  <span>ID :</span>
+                  <span class="font-medium">${booking.clientIdNumber}</span>
+                </div>
+              `
+                  : ""
+              }
+              ${
+                booking.clientAddress
+                  ? `
+                <div class="flex">
+                  <span>Adresse :</span>
+                  <span class="font-medium">${booking.clientAddress}</span>
+                </div>
+              `
+                  : ""
+              }
+              ${
+                booking.clientPostalCode || booking.clientCity
+                  ? `
+                <div class="flex">
+                  <span>Ville :</span>
+                  <span class="font-medium">${booking.clientPostalCode || ""} ${booking.clientCity || ""}</span>
+                </div>
+              `
+                  : ""
+              }
+              ${
+                booking.clientCountry
+                  ? `
+                <div class="flex">
+                  <span>Pays :</span>
+                  <span class="font-medium">${booking.clientCountry}</span>
+                </div>
+              `
+                  : ""
+              }
+            </div>
+          </div>
+          
+          <div class="card">
+            <div class="card-header">
+              <h2>Paiement</h2>
+            </div>
+            <div class="grid">
+              <div class="flex">
+                <span>Total :</span>
+                <span class="font-semibold text-lg">${booking.amount} ${booking.currency || "CHF"}</span>
+              </div>
+              ${
+                booking.pricingOptionsTotal && booking.pricingOptionsTotal > 0
+                  ? `
+                <div class="flex">
+                  <span>Options :</span>
+                  <span class="font-medium">+${booking.pricingOptionsTotal} ${booking.currency || "CHF"}</span>
+                </div>
+              `
+                  : ""
+              }
+              <div class="flex">
+                <span>Statut :</span>
+                <span class="font-medium">${booking.stripePaymentIntentId ? "✓ Payé" : "⏳ En attente"}</span>
+              </div>
+              <div class="flex">
+                <span>Réservé le :</span>
+                <span class="font-medium">${formatDateTime(booking.bookingDate)}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    `;
+
+    print(bookingHTML, {
+      title: `Réservation - ${booking.clientFirstName} ${booking.clientLastName}`,
+    });
+  };
+
+  const handlePrintTable = () => {
+    const tableData = filteredAndSortedBookings.map((booking) => {
+      const status = getBookingStatus(booking);
+      return {
+        Nom: `${booking.clientFirstName} ${booking.clientLastName}`,
+        Email: booking.clientEmail,
+        Téléphone: booking.clientPhone || "-",
+        Chambre: booking.room.name,
+        Arrivée: formatDate(booking.checkInDate),
+        Départ: formatDate(booking.checkOutDate),
+        Invités: booking.guests.toString(),
+        Montant: `${booking.amount} ${booking.currency || "CHF"}`,
+        Statut: status.label,
+        "Réservé le": formatDateTime(booking.bookingDate),
+      };
+    });
+
+    const columns = [
+      { key: "Nom" as const, label: "Nom" },
+      { key: "Email" as const, label: "Email" },
+      { key: "Téléphone" as const, label: "Téléphone" },
+      { key: "Chambre" as const, label: "Chambre" },
+      { key: "Arrivée" as const, label: "Arrivée" },
+      { key: "Départ" as const, label: "Départ" },
+      { key: "Invités" as const, label: "Invités" },
+      { key: "Montant" as const, label: "Montant" },
+      { key: "Statut" as const, label: "Statut" },
+      { key: "Réservé le" as const, label: "Réservé le" },
+    ];
+
+    const title = `Liste des réservations - ${filteredAndSortedBookings.length} réservation${filteredAndSortedBookings.length > 1 ? "s" : ""} • Généré le ${new Date().toLocaleDateString(
+      "fr-FR",
+      {
+        year: "numeric",
+        month: "long",
+        day: "numeric",
+        hour: "2-digit",
+        minute: "2-digit",
+      }
+    )}`;
+
+    printTable(tableData, columns, title);
+  };
+
   const SortableHeader = ({
     field,
     children,
@@ -280,6 +524,15 @@ export function BookingsTable({ bookings }: BookingsTableProps) {
           </div>
 
           <div className="flex items-center gap-2">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={handlePrintTable}
+              className="flex items-center gap-2 no-print"
+            >
+              <Printer className="h-4 w-4" />
+              Imprimer
+            </Button>
             <span className="text-sm text-muted-foreground">
               {filteredAndSortedBookings.length} résultat
               {filteredAndSortedBookings.length !== 1 ? "s" : ""}
@@ -454,15 +707,30 @@ export function BookingsTable({ bookings }: BookingsTableProps) {
       <Dialog open={showDetails} onOpenChange={setShowDetails}>
         <DialogContent className="max-w-6xl max-h-[90vh] overflow-y-auto">
           <DialogHeader>
-            <DialogTitle className="flex items-center gap-2">
-              <User className="h-5 w-5" />
-              Détails de la réservation
-            </DialogTitle>
-            <DialogDescription>
-              Informations complètes sur la réservation de{" "}
-              {selectedBooking?.clientFirstName}{" "}
-              {selectedBooking?.clientLastName}
-            </DialogDescription>
+            <div className="flex items-center justify-between">
+              <div>
+                <DialogTitle className="flex items-center gap-2">
+                  <User className="h-5 w-5" />
+                  Détails de la réservation
+                </DialogTitle>
+                <DialogDescription>
+                  Informations complètes sur la réservation de{" "}
+                  {selectedBooking?.clientFirstName}{" "}
+                  {selectedBooking?.clientLastName}
+                </DialogDescription>
+              </div>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() =>
+                  selectedBooking && handlePrintBooking(selectedBooking)
+                }
+                className="no-print"
+              >
+                <Printer className="h-4 w-4 mr-2" />
+                Imprimer
+              </Button>
+            </div>
           </DialogHeader>
 
           {selectedBooking && (
