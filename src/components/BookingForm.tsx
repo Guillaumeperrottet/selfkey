@@ -372,6 +372,16 @@ export function BookingForm({ hotelSlug, establishment }: BookingFormProps) {
 
   return (
     <div className="space-y-6">
+      {/* Header */}
+      <div className="flex items-center justify-between mb-6">
+        <div>
+          <h2 className="text-2xl font-bold">Réservation</h2>
+          <p className="text-muted-foreground">
+            Sélectionnez vos dates et votre chambre
+          </p>
+        </div>
+      </div>
+
       {/* Étapes de réservation */}
       <BookingSteps currentStep={1} />
 
@@ -467,9 +477,7 @@ export function BookingForm({ hotelSlug, establishment }: BookingFormProps) {
             disabled={loading || !checkOutDate}
             className="w-full"
           >
-            {loading
-              ? "Recherche en cours..."
-              : "Rechercher les chambres disponibles"}
+            {loading ? "Recherche en cours..." : "Rechercher les chambres"}
           </Button>
         </CardContent>
       </Card>
@@ -546,7 +554,7 @@ export function BookingForm({ hotelSlug, establishment }: BookingFormProps) {
       {selectedRoom && (
         <Card>
           <CardHeader>
-            <CardTitle>Informations du client</CardTitle>
+            <CardTitle>Informations personnelles</CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
             {/* Nom et Prénom */}

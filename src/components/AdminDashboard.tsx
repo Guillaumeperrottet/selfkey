@@ -2,6 +2,8 @@
 
 import { useState, useEffect } from "react";
 import { AdminSidebar } from "@/components/AdminSidebar";
+import { useTutorial } from "@/components/TutorialManager";
+import { TutorialMenu } from "@/components/TutorialMenu";
 import { StripeOnboarding } from "@/components/StripeOnboarding";
 import { RoomManagement } from "@/components/RoomManagement";
 import { AccessCodeManager } from "@/components/AccessCodeManager";
@@ -95,6 +97,113 @@ export function AdminDashboard({
     chart3: "#f59e0b",
     chart4: "#ef4444",
     chart5: "#8b5cf6",
+  });
+
+  // Configuration du tutorial pour l'admin - focus sur la sidebar
+  const adminTutorialSteps = [
+    {
+      target: '[data-tutorial="admin-sidebar"]',
+      title: "Bienvenue dans votre tableau de bord !",
+      content:
+        "Ce menu de navigation vous donne accès à toutes les fonctionnalités de gestion de votre établissement.",
+      position: "right" as const,
+      offset: { x: 20, y: 0 },
+    },
+    {
+      target: '[data-tutorial="nav-overview"]',
+      title: "Vue d'ensemble",
+      content:
+        "Consultez vos statistiques principales : chambres disponibles, réservations du jour, revenus et graphiques de performance.",
+      position: "right" as const,
+      offset: { x: 20, y: 0 },
+    },
+    {
+      target: '[data-tutorial="nav-bookings"]',
+      title: "Réservations",
+      content:
+        "Visualisez toutes vos réservations : passées, actuelles et futures. Gérez les arrivées, départs et suivez l'historique complet.",
+      position: "right" as const,
+      offset: { x: 20, y: 0 },
+    },
+    {
+      target: '[data-tutorial="nav-rooms"]',
+      title: "Gestion des chambres",
+      content:
+        "Créez, modifiez et gérez vos chambres. Définissez les prix, activez/désactivez les chambres et configurez leurs caractéristiques.",
+      position: "right" as const,
+      offset: { x: 20, y: 0 },
+    },
+    {
+      target: '[data-tutorial="nav-pricing"]',
+      title: "Options de prix",
+      content:
+        "Configurez des options tarifaires supplémentaires : petit-déjeuner, parking, services additionnels avec leurs prix.",
+      position: "right" as const,
+      offset: { x: 20, y: 0 },
+    },
+    {
+      target: '[data-tutorial="nav-confirmations"]',
+      title: "Confirmations",
+      content:
+        "Personnalisez les emails de confirmation envoyés automatiquement à vos clients après leur réservation.",
+      position: "right" as const,
+      offset: { x: 20, y: 0 },
+    },
+    {
+      target: '[data-tutorial="nav-access-codes"]',
+      title: "Codes d'accès",
+      content:
+        "Configurez les codes d'accès pour vos chambres. Automatiques (générés par le système) ou manuels selon vos besoins.",
+      position: "right" as const,
+      offset: { x: 20, y: 0 },
+    },
+    {
+      target: '[data-tutorial="nav-integrations"]',
+      title: "Intégrations",
+      content:
+        "Connectez des services externes : systèmes de serrures intelligentes, plateformes de réservation tierces, etc.",
+      position: "right" as const,
+      offset: { x: 20, y: 0 },
+    },
+    {
+      target: '[data-tutorial="nav-settings"]',
+      title: "Paramètres",
+      content:
+        "Configurez votre établissement : informations générales, durée max de séjour, commissions, et paramètres avancés.",
+      position: "right" as const,
+      offset: { x: 20, y: 0 },
+    },
+    {
+      target: '[data-tutorial="qr-code-link"]',
+      title: "Code QR",
+      content:
+        "Générez un code QR pour permettre à vos clients de réserver directement en scannant le code avec leur téléphone.",
+      position: "right" as const,
+      offset: { x: 20, y: 0 },
+    },
+    {
+      target: '[data-tutorial="stripe-dashboard"]',
+      title: "Stripe Dashboard",
+      content:
+        "Accédez directement à votre tableau de bord Stripe pour consulter les paiements, remboursements et statistiques financières.",
+      position: "right" as const,
+      offset: { x: 20, y: 0 },
+    },
+    {
+      target: '[data-tutorial="back-to-establishments"]',
+      title: "Retour aux établissements",
+      content:
+        "Retournez à la liste de tous vos établissements pour en gérer plusieurs ou créer de nouveaux.",
+      position: "right" as const,
+      offset: { x: 20, y: 0 },
+    },
+  ];
+
+  const tutorial = useTutorial({
+    tutorialKey: `admin-dashboard-${hotel}`,
+    steps: adminTutorialSteps,
+    autoStart: true,
+    delay: 2000,
   });
 
   // Charger les couleurs sauvegardées au démarrage
@@ -233,31 +342,31 @@ export function AdminDashboard({
             )}
 
             {/* Graphiques analytiques */}
-            {finalIsStripeConfigured &&
-              dbRooms.length > 0 &&
-              currentBookings.length > 0 && (
-                <div className="mt-8">
-                  <div className="mb-6 flex items-center justify-between">
-                    <div>
-                      <h2 className="text-xl font-semibold mb-2">
-                        Analyses et statistiques
-                      </h2>
-                      <p className="text-muted-foreground">
-                        Visualisez les performances de votre établissement
-                      </p>
-                    </div>
+            {finalIsStripeConfigured && dbRooms.length > 0 && (
+              <div className="mt-8">
+                <div className="mb-6 flex items-center justify-between">
+                  <div>
+                    <h2 className="text-xl font-semibold mb-2">
+                      Analyses et statistiques
+                    </h2>
+                    <p className="text-muted-foreground">
+                      Visualisez les performances de votre établissement
+                    </p>
+                  </div>
+                  {currentBookings.length > 0 && (
                     <ChartColorSelector
                       onColorsChange={handleColorsChange}
                       currentColors={chartColors}
                     />
-                  </div>
-                  <DashboardCharts
-                    bookings={currentBookings}
-                    rooms={roomsWithInventory}
-                    colors={chartColors}
-                  />
+                  )}
                 </div>
-              )}
+                <DashboardCharts
+                  bookings={currentBookings}
+                  rooms={roomsWithInventory}
+                  colors={chartColors}
+                />
+              </div>
+            )}
           </div>
         );
 
@@ -377,12 +486,15 @@ export function AdminDashboard({
                   })}
                 </p>
               </div>
-              {finalIsStripeConfigured && (
-                <Badge variant="outline" className="flex items-center gap-2">
-                  <CheckCircle className="h-4 w-4 text-green-600" />
-                  Paiements activés
-                </Badge>
-              )}
+              <div className="flex items-center gap-4">
+                <TutorialMenu onStartTutorial={tutorial.startTutorial} />
+                {finalIsStripeConfigured && (
+                  <Badge variant="outline" className="flex items-center gap-2">
+                    <CheckCircle className="h-4 w-4 text-green-600" />
+                    Paiements activés
+                  </Badge>
+                )}
+              </div>
             </div>
           </div>
 
@@ -412,6 +524,9 @@ export function AdminDashboard({
           {renderContent()}
         </div>
       </div>
+
+      {/* Tutorial Guide */}
+      {tutorial.tutorialComponent}
     </div>
   );
 }

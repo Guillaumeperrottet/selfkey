@@ -4,6 +4,8 @@ import { useEffect, useState, useCallback } from "react";
 import { signOut } from "@/lib/auth-client";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { useTutorial } from "@/components/TutorialManager";
+import { TutorialMenu } from "@/components/TutorialMenu";
 import {
   Card,
   CardContent,
@@ -64,6 +66,59 @@ export default function EstablishmentsPage() {
     slug: "",
   });
   const router = useRouter();
+
+  // Configuration du tutorial
+  const tutorialSteps = [
+    {
+      target: '[data-tutorial="header"]',
+      title: "Bienvenue sur SelfKey !",
+      content:
+        "Ceci est votre tableau de bord principal. Vous pouvez voir tous vos établissements et gérer votre compte depuis cette page.",
+      position: "bottom" as const,
+    },
+    {
+      target: '[data-tutorial="add-establishment"]',
+      title: "Créer un établissement",
+      content:
+        "Cliquez ici pour ajouter un nouvel hôtel, chambre d'hôtes ou location. C'est votre premier pas vers la gestion de vos réservations !",
+      position: "left" as const,
+    },
+    {
+      target: '[data-tutorial="establishment-card"]',
+      title: "Gérer vos établissements",
+      content:
+        "Chaque carte représente un de vos établissements. Vous pouvez voir le statut, les chambres disponibles et accéder à la gestion complète.",
+      position: "top" as const,
+    },
+    {
+      target: '[data-tutorial="manage-button"]',
+      title: "Administration",
+      content:
+        "Cliquez sur 'Gérer' pour accéder au tableau de bord complet de votre établissement : chambres, réservations, paramètres...",
+      position: "top" as const,
+    },
+    {
+      target: '[data-tutorial="view-button"]',
+      title: "Vue client",
+      content:
+        "Le bouton 'Voir' vous permet de prévisualiser votre page de réservation telle que vos clients la verront.",
+      position: "top" as const,
+    },
+    {
+      target: '[data-tutorial="user-menu"]',
+      title: "Gestion du compte",
+      content:
+        "Votre nom d'utilisateur et le bouton de déconnexion se trouvent ici. Vous pouvez vous déconnecter à tout moment.",
+      position: "bottom" as const,
+    },
+  ];
+
+  const tutorial = useTutorial({
+    tutorialKey: "establishments-intro",
+    steps: tutorialSteps,
+    autoStart: true,
+    delay: 1500,
+  });
 
   const checkAuth = useCallback(async () => {
     try {
@@ -154,7 +209,7 @@ export default function EstablishmentsPage() {
   return (
     <div className="min-h-screen bg-background">
       {/* Header moderne */}
-      <header className="border-b bg-card">
+      <header className="border-b bg-card" data-tutorial="header">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center py-6">
             <div className="flex items-center space-x-3">
@@ -169,7 +224,11 @@ export default function EstablishmentsPage() {
               </div>
             </div>
 
-            <div className="flex items-center space-x-4">
+            <div
+              className="flex items-center space-x-4"
+              data-tutorial="user-menu"
+            >
+              <TutorialMenu onStartTutorial={tutorial.startTutorial} />
               <span className="text-sm text-muted-foreground">
                 Bonjour, {user?.name || user?.email}
               </span>
@@ -201,7 +260,10 @@ export default function EstablishmentsPage() {
 
           <Dialog open={showCreateForm} onOpenChange={setShowCreateForm}>
             <DialogTrigger asChild>
-              <Button className="flex items-center gap-2">
+              <Button
+                className="flex items-center gap-2"
+                data-tutorial="add-establishment"
+              >
                 <Plus className="h-4 w-4" />
                 Nouvel établissement
               </Button>
@@ -293,10 +355,11 @@ export default function EstablishmentsPage() {
           </Card>
         ) : (
           <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-            {establishments.map((establishment) => (
+            {establishments.map((establishment, index) => (
               <Card
                 key={establishment.id}
                 className="hover:shadow-lg transition-shadow"
+                data-tutorial={index === 0 ? "establishment-card" : undefined}
               >
                 <CardHeader>
                   <div className="flex items-start justify-between">
@@ -335,7 +398,12 @@ export default function EstablishmentsPage() {
                   </div>
 
                   <div className="flex space-x-3">
-                    <Button asChild className="flex-1" size="sm">
+                    <Button
+                      asChild
+                      className="flex-1"
+                      size="sm"
+                      data-tutorial={index === 0 ? "manage-button" : undefined}
+                    >
                       <Link
                         href={`/admin/${establishment.slug}`}
                         className="flex items-center gap-2"
@@ -349,6 +417,7 @@ export default function EstablishmentsPage() {
                       variant="outline"
                       className="flex-1"
                       size="sm"
+                      data-tutorial={index === 0 ? "view-button" : undefined}
                     >
                       <Link
                         href={`/${establishment.slug}`}
@@ -366,6 +435,9 @@ export default function EstablishmentsPage() {
           </div>
         )}
       </main>
+
+      {/* Tutorial Guide */}
+      {tutorial.tutorialComponent}
     </div>
   );
 }

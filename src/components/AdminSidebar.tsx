@@ -39,6 +39,11 @@ const navigation = [
     icon: BarChart3,
   },
   {
+    id: "bookings",
+    name: "Réservations",
+    icon: Users,
+  },
+  {
     id: "rooms",
     name: "Chambres",
     icon: Bed,
@@ -57,11 +62,6 @@ const navigation = [
     id: "access-codes",
     name: "Codes d'accès",
     icon: KeyRound,
-  },
-  {
-    id: "bookings",
-    name: "Réservations",
-    icon: Users,
   },
   {
     id: "integrations",
@@ -86,7 +86,7 @@ export function AdminSidebar({
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   const SidebarContent = () => (
-    <div className="flex h-full flex-col">
+    <div className="flex h-full flex-col" data-tutorial="admin-sidebar">
       {/* Logo et nom */}
       <div className="flex h-16 items-center border-b px-4">
         <Hotel className="h-6 w-6 text-primary" />
@@ -106,6 +106,7 @@ export function AdminSidebar({
               activeTab === item.id && "bg-muted font-medium"
             )}
             onClick={() => onTabChange(item.id)}
+            data-tutorial={`nav-${item.id}`}
           >
             <item.icon className="mr-2 h-4 w-4" />
             {item.name}
@@ -122,6 +123,7 @@ export function AdminSidebar({
           size="sm"
           className="w-full justify-start"
           asChild
+          data-tutorial="qr-code-link"
         >
           <Link href={`/admin/${hotel}/qr-code`}>
             <QrCode className="mr-2 h-4 w-4" />
@@ -135,6 +137,7 @@ export function AdminSidebar({
             size="sm"
             className="w-full justify-start"
             asChild
+            data-tutorial="stripe-dashboard"
           >
             <a
               href={`https://dashboard.stripe.com/connect/accounts/${stripeAccountId}`}
@@ -152,6 +155,7 @@ export function AdminSidebar({
           size="sm"
           className="w-full justify-start"
           asChild
+          data-tutorial="back-to-establishments"
         >
           <Link href="/establishments">
             <LogOut className="mr-2 h-4 w-4" />
