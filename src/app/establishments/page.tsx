@@ -241,7 +241,48 @@ export default function EstablishmentsPage() {
               <Button
                 variant="ghost"
                 size="sm"
-                onClick={() => signOut()}
+                onClick={async () => {
+                  try {
+                    // Essayer d'abord avec signOut()
+                    const result = await signOut();
+                    console.log("Déconnexion réussie:", result);
+                    window.location.href = "/";
+                  } catch (error) {
+                    console.error(
+                      "Erreur avec signOut(), tentative manuelle:",
+                      error
+                    );
+
+                    // Fallback : requête directe à l'API
+                    try {
+                      const response = await fetch("/api/auth/sign-out", {
+                        method: "POST",
+                        headers: {
+                          "Content-Type": "application/json",
+                        },
+                        credentials: "include",
+                      });
+
+                      if (response.ok) {
+                        console.log("Déconnexion manuelle réussie");
+                        window.location.href = "/";
+                      } else {
+                        throw new Error(`HTTP ${response.status}`);
+                      }
+                    } catch (manualError) {
+                      console.error(
+                        "Erreur déconnexion manuelle:",
+                        manualError
+                      );
+                      // Fallback final : effacer les cookies et rediriger
+                      document.cookie =
+                        "better-auth.session_token=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
+                      document.cookie =
+                        "__Secure-better-auth.session_token=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
+                      window.location.href = "/";
+                    }
+                  }
+                }}
                 className="flex items-center gap-2"
               >
                 <LogOut className="h-4 w-4" />
