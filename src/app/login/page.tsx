@@ -47,23 +47,40 @@ function LoginContent() {
         window.location.href = callbackUrl;
       } else {
         // Inscription puis connexion automatique
-        await signUp.email({
+        console.log("🔄 Début de l'inscription...");
+
+        const signUpResult = await signUp.email({
           email,
           password,
           name,
         });
 
-        console.log("Inscription réussie, connexion automatique...");
+        console.log("✅ Inscription réussie:", signUpResult);
 
-        // Se connecter automatiquement après l'inscription
-        await signIn.email({
+        // Attendre un peu avant la connexion
+        await new Promise((resolve) => setTimeout(resolve, 500));
+
+        console.log("🔄 Connexion automatique...");
+
+        const signInResult = await signIn.email({
           email,
           password,
           callbackURL: callbackUrl,
         });
 
-        // Redirection après connexion réussie
-        window.location.href = callbackUrl;
+        console.log("✅ Connexion réussie:", signInResult);
+
+        // Vérifier la session côté serveur
+        console.log("🔍 Vérification de la session...");
+        const sessionCheck = await fetch("/api/debug-session");
+        const sessionData = await sessionCheck.json();
+        console.log("📊 Session data:", sessionData);
+
+        // Attendre un peu puis rediriger
+        setTimeout(() => {
+          console.log("🔄 Redirection vers:", callbackUrl);
+          window.location.href = callbackUrl;
+        }, 1000);
       }
     } catch (err: unknown) {
       console.error("Erreur d'authentification:", err);
