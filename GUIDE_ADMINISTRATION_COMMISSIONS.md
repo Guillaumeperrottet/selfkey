@@ -38,6 +38,32 @@
 - Statut Stripe (configuré ou non)
 - Date de la dernière réservation
 
+#### 4. Monitoring Stripe Connect
+
+- **URL** : `http://localhost:3000/admin/stripe-monitoring`
+- **Accès** : Depuis le bouton "Monitoring Stripe" dans la page commissions
+- **Fonctionnalités** :
+  - Vue d'ensemble des paiements Stripe
+  - Statistiques de commission en temps réel
+  - Taux de succès des paiements
+  - Détails des transferts et remboursements
+  - Surveillance des comptes connectés
+
+##### Données affichées :
+
+- **Paiements totaux** : Nombre de transactions
+- **Commissions totales** : Montant total des commissions
+- **Taux de succès** : Pourcentage de paiements réussis
+- **Comptes connectés** : Nombre d'établissements avec Stripe
+- **Paiements du jour** : Activité quotidienne
+- **Détails des paiements** : Liste des 50 dernières transactions
+
+#### 5. Vérification des Commissions
+
+- **URL** : `http://localhost:3000/admin/verify-commissions`
+- **Accès** : Depuis le bouton "Vérifier les commissions" dans la page commissions
+- **Objectif** : Contrôler la cohérence entre les commissions calculées et appliquées
+
 ## Structure des Commissions
 
 ### Configuration actuelle

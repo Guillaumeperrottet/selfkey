@@ -62,6 +62,8 @@ export async function POST(
         name: true,
         maxBookingDays: true,
         stripeAccountId: true,
+        commissionRate: true,
+        fixedFee: true,
       },
     });
 
@@ -200,7 +202,10 @@ export async function POST(
     }
 
     // Calculer les commissions
-    const platformCommission = 0; // À implémenter selon les règles de commission
+    const platformCommission = Math.round(
+      (calculatedPrice * establishment.commissionRate) / 100 +
+        establishment.fixedFee
+    );
     const ownerAmount = calculatedPrice - platformCommission;
 
     // Créer la réservation
@@ -234,7 +239,8 @@ export async function POST(
       calculatedPrice,
       "chf", // Devise par défaut
       establishment.stripeAccountId,
-      platformCommission
+      establishment.commissionRate,
+      establishment.fixedFee
     );
 
     // Mettre à jour la réservation avec l'ID du PaymentIntent

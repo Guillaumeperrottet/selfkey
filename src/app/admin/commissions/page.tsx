@@ -7,7 +7,7 @@ import { CommissionsDashboard } from "@/components/CommissionsDashboard";
 import { CommissionsTable } from "@/components/CommissionsTable";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Building, LogOut } from "lucide-react";
+import { Building, LogOut, CreditCard, BarChart3 } from "lucide-react";
 
 export default function SuperAdminCommissionsPage() {
   const router = useRouter();
@@ -65,6 +65,20 @@ export default function SuperAdminCommissionsPage() {
           </p>
         </div>
         <div className="flex items-center gap-4">
+          <Button
+            variant="outline"
+            onClick={() => router.push("/admin/stripe-monitoring")}
+          >
+            <CreditCard className="w-4 h-4 mr-2" />
+            Monitoring Stripe
+          </Button>
+          <Button
+            variant="outline"
+            onClick={() => router.push("/admin/verify-commissions")}
+          >
+            <BarChart3 className="w-4 h-4 mr-2" />
+            Vérifier Commissions
+          </Button>
           <Badge variant="secondary" className="bg-green-100 text-green-800">
             Super Admin
           </Badge>

@@ -107,7 +107,8 @@ export async function createPaymentIntentForBooking(bookingId: string) {
     booking.amount,
     booking.currency,
     booking.establishment.stripeAccountId,
-    booking.platformCommission
+    booking.establishment.commissionRate,
+    booking.establishment.fixedFee
   );
 
   return paymentIntent;

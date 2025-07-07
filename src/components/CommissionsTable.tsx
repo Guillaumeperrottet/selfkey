@@ -29,6 +29,7 @@ import {
   TrendingUp,
   DollarSign,
 } from "lucide-react";
+import { EditCommissionModal } from "@/components/EditCommissionModal";
 
 interface EstablishmentCommission {
   id: string;
@@ -56,6 +57,9 @@ export function CommissionsTable() {
     useState<keyof EstablishmentCommission>("totalCommissions");
   const [sortOrder, setSortOrder] = useState<"asc" | "desc">("desc");
   const [loading, setLoading] = useState(true);
+  const [editModalOpen, setEditModalOpen] = useState(false);
+  const [selectedEstablishment, setSelectedEstablishment] =
+    useState<EstablishmentCommission | null>(null);
 
   useEffect(() => {
     fetchEstablishments();
@@ -113,6 +117,30 @@ export function CommissionsTable() {
       setSortField(field);
       setSortOrder("desc");
     }
+  };
+
+  const handleEditCommission = (establishment: EstablishmentCommission) => {
+    setSelectedEstablishment(establishment);
+    setEditModalOpen(true);
+  };
+
+  const handleUpdateCommission = (updatedData: {
+    id: string;
+    commissionRate: number;
+    fixedFee: number;
+  }) => {
+    // Mettre à jour les données locales
+    setEstablishments((prev) =>
+      prev.map((est) =>
+        est.id === updatedData.id
+          ? {
+              ...est,
+              commissionRate: updatedData.commissionRate,
+              fixedFee: updatedData.fixedFee,
+            }
+          : est
+      )
+    );
   };
 
   const formatCurrency = (amount: number) => {
@@ -447,13 +475,7 @@ export function CommissionsTable() {
                         <Button
                           variant="ghost"
                           size="sm"
-                          onClick={() => {
-                            // TODO: Ouvrir modal d'édition des taux
-                            console.log(
-                              "Edit commission rates for:",
-                              establishment.id
-                            );
-                          }}
+                          onClick={() => handleEditCommission(establishment)}
                         >
                           <Edit className="w-4 h-4" />
                         </Button>
@@ -472,6 +494,19 @@ export function CommissionsTable() {
           )}
         </CardContent>
       </Card>
+
+      {/* Modal d'édition des commissions */}
+      {selectedEstablishment && (
+        <EditCommissionModal
+          isOpen={editModalOpen}
+          onClose={() => {
+            setEditModalOpen(false);
+            setSelectedEstablishment(null);
+          }}
+          establishment={selectedEstablishment}
+          onUpdate={handleUpdateCommission}
+        />
+      )}
     </div>
   );
 }
