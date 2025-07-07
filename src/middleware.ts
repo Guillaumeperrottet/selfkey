@@ -7,7 +7,10 @@ export async function middleware(request: NextRequest) {
     request.nextUrl.pathname.startsWith("/establishments")
   ) {
     // Vérifier si il y a un token de session dans les cookies
-    const sessionToken = request.cookies.get("better-auth.session_token");
+    // En production, le cookie peut avoir le préfixe __Secure-
+    const sessionToken =
+      request.cookies.get("better-auth.session_token") ||
+      request.cookies.get("__Secure-better-auth.session_token");
 
     console.log("🔍 Middleware protection:", {
       path: request.nextUrl.pathname,
