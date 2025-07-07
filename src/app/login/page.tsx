@@ -54,8 +54,47 @@ function LoginContent() {
       }
       router.push(callbackUrl);
     } catch (err: unknown) {
-      const errorMessage =
-        err instanceof Error ? err.message : "Une erreur est survenue";
+      console.error("Erreur d'authentification:", err);
+
+      // Gestion des erreurs spécifiques
+      let errorMessage = "Une erreur est survenue";
+
+      if (err instanceof Error) {
+        // Gestion des erreurs spécifiques de better-auth
+        if (
+          err.message.includes("User already exists") ||
+          err.message.includes("already exists") ||
+          err.message.includes("422")
+        ) {
+          errorMessage = isLogin
+            ? "Email ou mot de passe incorrect"
+            : "Cette adresse email est déjà utilisée. Essayez de vous connecter ou utilisez une autre adresse.";
+        } else if (
+          err.message.includes("Invalid credentials") ||
+          err.message.includes("invalid") ||
+          err.message.includes("401")
+        ) {
+          errorMessage = "Email ou mot de passe incorrect";
+        } else if (
+          err.message.includes("Network") ||
+          err.message.includes("fetch")
+        ) {
+          errorMessage = "Problème de connexion. Veuillez réessayer.";
+        } else {
+          errorMessage = err.message;
+        }
+      }
+
+      // Si c'est une erreur 422 et qu'on est en mode inscription
+      if (
+        !isLogin &&
+        (errorMessage.includes("422") ||
+          errorMessage.includes("Une erreur est survenue"))
+      ) {
+        errorMessage =
+          "Cette adresse email est déjà utilisée. Essayez de vous connecter ou utilisez une autre adresse.";
+      }
+
       setError(errorMessage);
     } finally {
       setLoading(false);
@@ -107,7 +146,22 @@ function LoginContent() {
           <CardContent className="space-y-6">
             {error && (
               <Alert variant="destructive">
-                <AlertDescription>{error}</AlertDescription>
+                <AlertDescription className="space-y-2">
+                  <div>{error}</div>
+                  {error.includes("déjà utilisée") && (
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => {
+                        setIsLogin(true);
+                        setError("");
+                      }}
+                      className="mt-2"
+                    >
+                      Se connecter avec cet email
+                    </Button>
+                  )}
+                </AlertDescription>
               </Alert>
             )}
 

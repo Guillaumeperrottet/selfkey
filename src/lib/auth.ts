@@ -25,14 +25,14 @@ export const auth = betterAuth({
     process.env.BETTER_AUTH_URL!,
     process.env.NEXT_PUBLIC_APP_URL!,
     "https://selfkey.ch",
-    "https://www.selfkey.ch"
+    "https://www.selfkey.ch",
   ],
   advanced: {
     crossSubDomainCookies: {
       enabled: true,
-      domain: ".selfkey.ch"
-    }
-  }
+      domain: ".selfkey.ch",
+    },
+  },
 });
 
 export type Session = typeof auth.$Infer.Session;
