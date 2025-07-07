@@ -46,20 +46,24 @@ function LoginContent() {
         // Utiliser window.location.href pour forcer un rechargement complet
         window.location.href = callbackUrl;
       } else {
-        // Inscription avec connexion automatique
+        // Inscription puis connexion automatique
         await signUp.email({
           email,
           password,
           name,
+        });
+
+        console.log("Inscription réussie, connexion automatique...");
+
+        // Se connecter automatiquement après l'inscription
+        await signIn.email({
+          email,
+          password,
           callbackURL: callbackUrl,
         });
 
-        console.log("Inscription réussie");
-
-        // Attendre que la session soit établie puis forcer un rechargement complet
-        setTimeout(() => {
-          window.location.href = callbackUrl;
-        }, 1000);
+        // Redirection après connexion réussie
+        window.location.href = callbackUrl;
       }
     } catch (err: unknown) {
       console.error("Erreur d'authentification:", err);

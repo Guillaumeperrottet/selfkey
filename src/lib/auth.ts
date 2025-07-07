@@ -9,7 +9,6 @@ export const auth = betterAuth({
   emailAndPassword: {
     enabled: true,
     requireEmailVerification: false, // Désactiver temporairement la vérification email
-    autoSignIn: true, // Connexion automatique après inscription
   },
   socialProviders: {
     google: {
