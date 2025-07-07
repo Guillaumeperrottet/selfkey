@@ -21,6 +21,18 @@ export const auth = betterAuth({
     updateAge: 60 * 60 * 24, // Mise à jour toutes les 24h
   },
   baseURL: process.env.BETTER_AUTH_URL!,
+  trustedOrigins: [
+    process.env.BETTER_AUTH_URL!,
+    process.env.NEXT_PUBLIC_APP_URL!,
+    "https://selfkey.ch",
+    "https://www.selfkey.ch"
+  ],
+  advanced: {
+    crossSubDomainCookies: {
+      enabled: true,
+      domain: ".selfkey.ch"
+    }
+  }
 });
 
 export type Session = typeof auth.$Infer.Session;
