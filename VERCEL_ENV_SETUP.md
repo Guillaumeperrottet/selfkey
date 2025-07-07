@@ -5,30 +5,37 @@
 Configurez ces variables dans votre dashboard Vercel (Settings > Environment Variables) :
 
 ### 🗄️ Base de données
+
 - `DATABASE_URL` - URL de connexion PostgreSQL (Neon, Supabase, etc.)
 
 ### 🔐 Authentification
+
 - `BETTER_AUTH_SECRET` - Clé secrète pour Better Auth (générez avec `openssl rand -base64 32`)
 - `BETTER_AUTH_URL` - `https://www.selfkey.ch`
 - `NEXT_PUBLIC_APP_URL` - `https://www.selfkey.ch`
 - `NEXT_PUBLIC_BASE_URL` - `https://www.selfkey.ch`
 
 ### 🌐 Google OAuth
+
 - `GOOGLE_CLIENT_ID` - ID client depuis Google Cloud Console
 - `GOOGLE_CLIENT_SECRET` - Secret client depuis Google Cloud Console
 
 ### 💳 Stripe
-- `STRIPE_SECRET_KEY` - Clé secrète Stripe (sk_live_... ou sk_test_...)
-- `NEXT_PUBLIC_STRIPE_PUBLIC_KEY` - Clé publique Stripe (pk_live_... ou pk_test_...)
+
+- `STRIPE_SECRET_KEY` - Clé secrète Stripe (sk*live*... ou sk*test*...)
+- `NEXT_PUBLIC_STRIPE_PUBLIC_KEY` - Clé publique Stripe (pk*live*... ou pk*test*...)
 
 ### 💰 Configuration commission
+
 - `PLATFORM_COMMISSION_RATE` - `1` (1% de commission)
 - `PLATFORM_FIXED_FEE` - `0.10` (0.10 CHF par transaction)
 
 ### 📧 Email
+
 - `RESEND_API_KEY` - Clé API Resend pour l'envoi d'emails
 
 ### 📊 Monitoring
+
 - `MONITORING_API_KEY` - Clé pour le monitoring (générez une valeur aléatoire)
 
 ## ⚠️ Notes importantes
