@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { AdminSidebar } from "@/components/AdminSidebar";
 import { StripeOnboarding } from "@/components/StripeOnboarding";
 import { RoomManagement } from "@/components/RoomManagement";
@@ -96,8 +96,23 @@ export function AdminDashboard({
     chart5: "#8b5cf6",
   });
 
+  // Charger les couleurs sauvegardées au démarrage
+  useEffect(() => {
+    const savedColors = localStorage.getItem(`chartColors_${hotel}`);
+    if (savedColors) {
+      try {
+        const parsedColors = JSON.parse(savedColors);
+        setChartColors(parsedColors);
+      } catch (error) {
+        console.error("Erreur lors du chargement des couleurs:", error);
+      }
+    }
+  }, [hotel]);
+
   const handleColorsChange = (newColors: ChartColors) => {
     setChartColors(newColors);
+    // Sauvegarder les couleurs dans localStorage
+    localStorage.setItem(`chartColors_${hotel}`, JSON.stringify(newColors));
   };
 
   const renderContent = () => {

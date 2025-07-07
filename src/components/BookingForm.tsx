@@ -454,9 +454,8 @@ export function BookingForm({ hotelSlug, establishment }: BookingFormProps) {
                 </>
               ) : (
                 <>
-                  Les réservations dans le futur ne sont pas autorisées.
-                  L&apos;arrivée est fixée à aujourd&apos;hui, durée maximale :{" "}
-                  {establishment.maxBookingDays} nuit
+                  Les réservations dans le futur ne sont pas autorisées. Durée
+                  maximale : {establishment.maxBookingDays} nuit
                   {establishment.maxBookingDays > 1 ? "s" : ""}.
                 </>
               )}

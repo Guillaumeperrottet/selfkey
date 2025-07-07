@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
   Card,
   CardContent,
@@ -14,7 +14,7 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
-import { Palette, RotateCcw } from "lucide-react";
+import { Palette, RotateCcw, Check } from "lucide-react";
 
 interface ChartColors {
   chart1: string;
@@ -89,19 +89,31 @@ export function ChartColorSelector({
   currentColors,
 }: ChartColorSelectorProps) {
   const [isOpen, setIsOpen] = useState(false);
+  const [showSaved, setShowSaved] = useState(false);
+
+  // Afficher le message "Sauvegardé" temporairement
+  useEffect(() => {
+    if (showSaved) {
+      const timer = setTimeout(() => setShowSaved(false), 2000);
+      return () => clearTimeout(timer);
+    }
+  }, [showSaved]);
 
   const handleColorChange = (chartKey: keyof ChartColors, color: string) => {
     const newColors = { ...currentColors, [chartKey]: color };
     onColorsChange(newColors);
+    setShowSaved(true);
   };
 
   const handlePresetChange = (preset: ChartColors) => {
     onColorsChange(preset);
+    setShowSaved(true);
     setIsOpen(false);
   };
 
   const resetToDefault = () => {
     onColorsChange(DEFAULT_COLORS);
+    setShowSaved(true);
     setIsOpen(false);
   };
 
@@ -109,8 +121,17 @@ export function ChartColorSelector({
     <Popover open={isOpen} onOpenChange={setIsOpen}>
       <PopoverTrigger asChild>
         <Button variant="outline" size="sm" className="gap-2">
-          <Palette className="h-4 w-4" />
-          Couleurs des graphiques
+          {showSaved ? (
+            <>
+              <Check className="h-4 w-4 text-green-600" />
+              Couleurs sauvegardées
+            </>
+          ) : (
+            <>
+              <Palette className="h-4 w-4" />
+              Couleurs des graphiques
+            </>
+          )}
         </Button>
       </PopoverTrigger>
       <PopoverContent className="w-80" align="end">
