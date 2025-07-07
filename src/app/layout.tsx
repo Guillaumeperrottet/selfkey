@@ -119,6 +119,10 @@ export default function RootLayout({
         <meta name="mobile-web-app-capable" content="yes" />
         <meta name="apple-mobile-web-app-status-bar-style" content="default" />
         <meta name="apple-mobile-web-app-title" content="SelfKey" />
+        <meta
+          name="google-site-verification"
+          content="mXZdvQwL0fl-BE6bB0kbSGBvyd7Tu7KW69tQi-pfbU0"
+        />
       </head>
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
