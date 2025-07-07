@@ -44,15 +44,24 @@ function LoginContent() {
           password,
           callbackURL: callbackUrl,
         });
+        router.push(callbackUrl);
       } else {
-        await signUp.email({
+        // Inscription avec connexion automatique
+        const result = await signUp.email({
           email,
           password,
           name,
           callbackURL: callbackUrl,
         });
+
+        console.log("Inscription réussie:", result);
+
+        // Better-auth devrait automatiquement connecter l'utilisateur après inscription
+        // Forcer une redirection après un court délai
+        setTimeout(() => {
+          router.push(callbackUrl);
+        }, 500);
       }
-      router.push(callbackUrl);
     } catch (err: unknown) {
       console.error("Erreur d'authentification:", err);
 
