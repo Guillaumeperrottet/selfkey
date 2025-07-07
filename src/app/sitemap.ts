@@ -1,7 +1,7 @@
 import { MetadataRoute } from "next";
 
 export default function sitemap(): MetadataRoute.Sitemap {
-  const baseUrl = "https://selfkey.ch"; // Votre domaine officiel
+  const baseUrl = "https://www.selfkey.ch"; // Votre domaine officiel
 
   return [
     {

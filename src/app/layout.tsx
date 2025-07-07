@@ -40,14 +40,14 @@ export const metadata: Metadata = {
     address: false,
     telephone: false,
   },
-  metadataBase: new URL("https://selfkey.ch"), // Votre domaine officiel
+  metadataBase: new URL("https://www.selfkey.ch"), // Votre domaine officiel
   alternates: {
     canonical: "/",
   },
   openGraph: {
     type: "website",
     locale: "fr_CH",
-    url: "https://selfkey.ch",
+    url: "https://www.selfkey.ch",
     siteName: "SelfKey",
     title: "SelfKey - Check-in automatique pour votre établissement",
     description:
