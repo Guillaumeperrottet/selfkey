@@ -18,26 +18,26 @@ model User {
   accounts       Account[]
   sessions       Session[]
   establishments UserEstablishment[]
-  
+
   @@map("user")
 }
 
 model Account {
-  id                     String   @id @default(cuid())
-  userId                 String
-  type                   String   @default("oauth")
-  providerId             String   // Better Auth utilise providerId
-  accountId              String
-  accessToken            String?
-  refreshToken           String?
-  idToken                String?
-  accessTokenExpiresAt   DateTime?
-  refreshTokenExpiresAt  DateTime?
-  scope                  String?
-  password               String?
-  createdAt              DateTime @default(now())
-  updatedAt              DateTime @updatedAt
-  user                   User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  id                    String    @id @default(cuid())
+  userId                String
+  type                  String    @default("oauth")
+  providerId            String // Better Auth utilise providerId
+  accountId             String
+  accessToken           String?
+  refreshToken          String?
+  idToken               String?
+  accessTokenExpiresAt  DateTime?
+  refreshTokenExpiresAt DateTime?
+  scope                 String?
+  password              String?
+  createdAt             DateTime  @default(now())
+  updatedAt             DateTime  @updatedAt
+  user                  User      @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@unique([providerId, accountId])
   @@map("account")
@@ -54,7 +54,7 @@ model Session {
   updatedAt DateTime @updatedAt
 
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
-  
+
   @@map("session")
 }
 
@@ -83,33 +83,33 @@ model UserEstablishment {
 }
 
 model Establishment {
-  id              String              @id @default(cuid())
-  slug            String              @unique
-  name            String
-  stripeAccountId String?
-  stripeOnboarded Boolean             @default(false)
-  commissionRate  Float               @default(0)
-  fixedFee        Float               @default(0)
+  id                           String              @id @default(cuid())
+  slug                         String              @unique
+  name                         String
+  stripeAccountId              String?
+  stripeOnboarded              Boolean             @default(false)
+  commissionRate               Float               @default(0)
+  fixedFee                     Float               @default(0)
   // Système de codes d'accès
-  accessCodeType  String              @default("room") // "room", "general", "custom"
-  generalAccessCode String?           // Code général pour tout l'établissement
-  accessInstructions String?          // Instructions personnalisées (JSON ou text)
+  accessCodeType               String              @default("room") // "room", "general", "custom"
+  generalAccessCode            String? // Code général pour tout l'établissement
+  accessInstructions           String? // Instructions personnalisées (JSON ou text)
   // Configuration des réservations
-  maxBookingDays  Int                 @default(4) // Durée maximale de séjour en jours
-  allowFutureBookings Boolean         @default(false) // Permettre les réservations dans le futur
+  maxBookingDays               Int                 @default(4) // Durée maximale de séjour en jours
+  allowFutureBookings          Boolean             @default(false) // Permettre les réservations dans le futur
   // Configuration des confirmations post-paiement
-  confirmationEmailEnabled Boolean   @default(true)
-  confirmationWhatsappEnabled Boolean @default(false)
-  confirmationEmailFrom    String?   // Adresse email d'envoi
-  confirmationWhatsappFrom String?   // Numéro WhatsApp d'envoi
-  confirmationEmailTemplate String? // Template email personnalisé
+  confirmationEmailEnabled     Boolean             @default(true)
+  confirmationWhatsappEnabled  Boolean             @default(false)
+  confirmationEmailFrom        String? // Adresse email d'envoi
+  confirmationWhatsappFrom     String? // Numéro WhatsApp d'envoi
+  confirmationEmailTemplate    String? // Template email personnalisé
   confirmationWhatsappTemplate String? // Template WhatsApp personnalisé
-  createdAt       DateTime            @default(now())
-  users           UserEstablishment[]
-  bookings        Booking[]
-  rooms           Room[]
-  pricingOptions  PricingOption[]     // Options de prix personnalisables
-  integrations    Integration[]       // Intégrations externes
+  createdAt                    DateTime            @default(now())
+  users                        UserEstablishment[]
+  bookings                     Booking[]
+  rooms                        Room[]
+  pricingOptions               PricingOption[] // Options de prix personnalisables
+  integrations                 Integration[] // Intégrations externes
 
   @@map("establishments")
 }
@@ -120,7 +120,7 @@ model Room {
   name          String
   price         Float
   isActive      Boolean       @default(true)
-  accessCode    String?       // Code d'accès spécifique à cette chambre
+  accessCode    String? // Code d'accès spécifique à cette chambre
   createdAt     DateTime      @default(now())
   bookings      Booking[]
   establishment Establishment @relation(fields: [hotelSlug], references: [slug], onDelete: Cascade)
@@ -129,97 +129,97 @@ model Room {
 }
 
 model Booking {
-  id                    String        @id @default(cuid())
-  hotelSlug             String
-  roomId                String
+  id                     String        @id @default(cuid())
+  hotelSlug              String
+  roomId                 String
   // Informations client détaillées
-  clientFirstName       String        // Prénom
-  clientLastName        String        // Nom
-  clientEmail           String        // Email
-  clientPhone           String        // Téléphone mobile
-  clientBirthDate       DateTime      // Date de naissance
-  clientAddress         String        // Adresse
-  clientPostalCode      String        // Code postal
-  clientCity            String        // Localité
-  clientCountry         String        // Pays
-  clientIdNumber        String        // N° de permis ou de carte d'identité
+  clientFirstName        String // Prénom
+  clientLastName         String // Nom
+  clientEmail            String // Email
+  clientPhone            String // Téléphone mobile
+  clientBirthDate        DateTime // Date de naissance
+  clientAddress          String // Adresse
+  clientPostalCode       String // Code postal
+  clientCity             String // Localité
+  clientCountry          String // Pays
+  clientIdNumber         String // N° de permis ou de carte d'identité
   // Informations de réservation
-  amount                Float
-  currency              String        @default("CHF")
-  platformCommission    Float         @default(0)
-  ownerAmount           Float
-  selectedPricingOptions Json?        // Options de prix sélectionnées (JSON)
-  pricingOptionsTotal   Float         @default(0) // Total des suppléments
-  bookingDate           DateTime      @default(now())
-  checkInDate           DateTime      // Date d'arrivée
-  checkOutDate          DateTime      // Date de départ
-  stripePaymentIntentId String?
-  guests                Int           @default(1)
+  amount                 Float
+  currency               String        @default("CHF")
+  platformCommission     Float         @default(0)
+  ownerAmount            Float
+  selectedPricingOptions Json? // Options de prix sélectionnées (JSON)
+  pricingOptionsTotal    Float         @default(0) // Total des suppléments
+  bookingDate            DateTime      @default(now())
+  checkInDate            DateTime // Date d'arrivée
+  checkOutDate           DateTime // Date de départ
+  stripePaymentIntentId  String?
+  guests                 Int           @default(1)
   // Configuration de confirmation
-  confirmationMethod    String?       // "email" ou "whatsapp"
-  confirmationSent      Boolean       @default(false)
-  confirmationSentAt    DateTime?
-  establishment         Establishment @relation(fields: [hotelSlug], references: [slug])
-  room                  Room          @relation(fields: [roomId], references: [id])
+  confirmationMethod     String? // "email" ou "whatsapp"
+  confirmationSent       Boolean       @default(false)
+  confirmationSentAt     DateTime?
+  establishment          Establishment @relation(fields: [hotelSlug], references: [slug])
+  room                   Room          @relation(fields: [roomId], references: [id])
 
   @@map("bookings")
 }
 
 model PricingOption {
-  id              String        @id @default(cuid())
+  id              String               @id @default(cuid())
   establishmentId String
-  name            String        // ex: "Hauteur du véhicule"
-  type            String        // "select", "checkbox", "radio"
-  isRequired      Boolean       @default(false)
-  isActive        Boolean       @default(true)
-  displayOrder    Int           @default(0)
-  createdAt       DateTime      @default(now())
-  establishment   Establishment @relation(fields: [establishmentId], references: [id], onDelete: Cascade)
+  name            String // ex: "Hauteur du véhicule"
+  type            String // "select", "checkbox", "radio"
+  isRequired      Boolean              @default(false)
+  isActive        Boolean              @default(true)
+  displayOrder    Int                  @default(0)
+  createdAt       DateTime             @default(now())
+  establishment   Establishment        @relation(fields: [establishmentId], references: [id], onDelete: Cascade)
   values          PricingOptionValue[]
-  
+
   @@map("pricing_options")
 }
 
 model PricingOptionValue {
   id              String        @id @default(cuid())
   pricingOptionId String
-  label           String        // ex: "Moins de 2m", "Plus de 2m"
-  priceModifier   Float         // Prix à ajouter/soustraire (peut être négatif)
+  label           String // ex: "Moins de 2m", "Plus de 2m"
+  priceModifier   Float // Prix à ajouter/soustraire (peut être négatif)
   isDefault       Boolean       @default(false)
   displayOrder    Int           @default(0)
   createdAt       DateTime      @default(now())
   pricingOption   PricingOption @relation(fields: [pricingOptionId], references: [id], onDelete: Cascade)
-  
+
   @@map("pricing_option_values")
 }
 
 model Integration {
-  id                String        @id @default(cuid())
+  id                String           @id @default(cuid())
   establishmentSlug String
-  type              String        // "booking-com", "airbnb", "pms", "webhook", etc.
-  name              String        // Nom personnalisé de l'intégration
-  status            String        @default("disconnected") // "connected", "disconnected", "error"
-  configuration     Json          // Configuration spécifique (API keys, URLs, etc.)
-  lastSync          DateTime?     // Dernière synchronisation
-  lastError         String?       // Dernière erreur rencontrée
-  isActive          Boolean       @default(true)
-  createdAt         DateTime      @default(now())
-  updatedAt         DateTime      @updatedAt
-  establishment     Establishment @relation(fields: [establishmentSlug], references: [slug], onDelete: Cascade)
+  type              String // "booking-com", "airbnb", "pms", "webhook", etc.
+  name              String // Nom personnalisé de l'intégration
+  status            String           @default("disconnected") // "connected", "disconnected", "error"
+  configuration     Json // Configuration spécifique (API keys, URLs, etc.)
+  lastSync          DateTime? // Dernière synchronisation
+  lastError         String? // Dernière erreur rencontrée
+  isActive          Boolean          @default(true)
+  createdAt         DateTime         @default(now())
+  updatedAt         DateTime         @updatedAt
+  establishment     Establishment    @relation(fields: [establishmentSlug], references: [slug], onDelete: Cascade)
   logs              IntegrationLog[]
-  
+
   @@map("integrations")
 }
 
 model IntegrationLog {
   id            String      @id @default(cuid())
   integrationId String
-  action        String      // "sync", "test", "error", "booking_received", etc.
-  status        String      // "success", "error", "warning"
+  action        String // "sync", "test", "error", "booking_received", etc.
+  status        String // "success", "error", "warning"
   message       String
-  data          Json?       // Données additionnelles
+  data          Json? // Données additionnelles
   createdAt     DateTime    @default(now())
   integration   Integration @relation(fields: [integrationId], references: [id], onDelete: Cascade)
-  
+
   @@map("integration_logs")
 }
