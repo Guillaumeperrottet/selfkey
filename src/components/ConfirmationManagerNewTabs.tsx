@@ -149,14 +149,14 @@ export function ConfirmationManager({ hotelSlug }: ConfirmationManagerProps) {
   const availableVariables = [
     { key: "clientFirstName", label: "Prénom du client" },
     { key: "clientLastName", label: "Nom du client" },
-    { key: "establishmentName", label: "Nom de l&apos;établissement" },
+    { key: "establishmentName", label: "Nom de l'établissement" },
     { key: "roomName", label: "Nom de la chambre" },
-    { key: "checkInDate", label: "Date d&apos;arrivée" },
+    { key: "checkInDate", label: "Date d'arrivée" },
     { key: "checkOutDate", label: "Date de départ" },
-    { key: "accessCode", label: "Code d&apos;accès" },
-    { key: "accessInstructions", label: "Instructions d&apos;accès" },
-    { key: "hotelContactEmail", label: "Email de contact de l&apos;hôtel" },
-    { key: "hotelContactPhone", label: "Téléphone de contact de l&apos;hôtel" },
+    { key: "accessCode", label: "Code d'accès" },
+    { key: "accessInstructions", label: "Instructions d'accès" },
+    { key: "hotelContactEmail", label: "Email de contact de l'hôtel" },
+    { key: "hotelContactPhone", label: "Téléphone de contact de l'hôtel" },
   ];
 
   const copyToClipboard = (text: string) => {
