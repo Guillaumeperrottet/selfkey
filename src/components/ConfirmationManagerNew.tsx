@@ -225,7 +225,7 @@ export function ConfirmationManager({ hotelSlug }: ConfirmationManagerProps) {
               Confirmations de réservation
             </h1>
             <p className="text-gray-600 mt-1">
-              Configurez l'envoi automatique de confirmations par email et
+              Configurez l&apos;envoi automatique de confirmations par email et
               WhatsApp
             </p>
           </div>
@@ -424,7 +424,7 @@ export function ConfirmationManager({ hotelSlug }: ConfirmationManagerProps) {
             </CardTitle>
             <div className="ml-10 flex items-center justify-between">
               <p className="text-sm text-gray-600">
-                Envoi automatique d'emails de confirmation aux clients
+                Envoi automatique d&apos;emails de confirmation aux clients
               </p>
               <Switch
                 checked={settings.confirmationEmailEnabled}
@@ -442,7 +442,9 @@ export function ConfirmationManager({ hotelSlug }: ConfirmationManagerProps) {
               <div className="bg-gray-50 p-4 rounded-lg">
                 <div className="flex items-center gap-2 mb-2">
                   <Mail className="h-4 w-4 text-gray-600" />
-                  <span className="text-sm font-medium">Adresse d'envoi</span>
+                  <span className="text-sm font-medium">
+                    Adresse d&apos;envoi
+                  </span>
                 </div>
                 <Input
                   type="email"
@@ -451,7 +453,7 @@ export function ConfirmationManager({ hotelSlug }: ConfirmationManagerProps) {
                   className="bg-white"
                 />
                 <p className="text-xs text-gray-500 mt-1">
-                  Adresse technique utilisée pour l'envoi
+                  Adresse technique utilisée pour l&apos;envoi
                 </p>
               </div>
 
@@ -515,7 +517,7 @@ export function ConfirmationManager({ hotelSlug }: ConfirmationManagerProps) {
             <CardContent className="ml-10 space-y-4">
               <div>
                 <Label className="text-sm font-medium">
-                  📱 Numéro WhatsApp d'envoi
+                  📱 Numéro WhatsApp d&apos;envoi
                 </Label>
                 <Input
                   type="tel"

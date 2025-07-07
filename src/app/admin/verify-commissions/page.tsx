@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -58,27 +58,7 @@ export default function VerifyCommissionsPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
-  useEffect(() => {
-    checkAuthentication();
-  }, []);
-
-  const checkAuthentication = async () => {
-    try {
-      const response = await fetch("/api/admin/check-super-admin");
-      const data = await response.json();
-
-      if (data.isAuthenticated) {
-        setIsAuthenticated(true);
-        fetchVerificationData();
-      } else {
-        router.push("/admin/login");
-      }
-    } catch {
-      router.push("/admin/login");
-    }
-  };
-
-  const fetchVerificationData = async () => {
+  const fetchVerificationData = useCallback(async () => {
     try {
       setLoading(true);
       setError("");
@@ -96,7 +76,27 @@ export default function VerifyCommissionsPage() {
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
+
+  const checkAuthentication = useCallback(async () => {
+    try {
+      const response = await fetch("/api/admin/check-super-admin");
+      const data = await response.json();
+
+      if (data.isAuthenticated) {
+        setIsAuthenticated(true);
+        fetchVerificationData();
+      } else {
+        router.push("/admin/login");
+      }
+    } catch {
+      router.push("/admin/login");
+    }
+  }, [router, fetchVerificationData]);
+
+  useEffect(() => {
+    checkAuthentication();
+  }, [checkAuthentication]);
 
   const formatCurrency = (amount: number) => {
     return new Intl.NumberFormat("fr-CH", {

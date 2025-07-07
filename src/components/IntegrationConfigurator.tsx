@@ -101,7 +101,7 @@ export function IntegrationConfigurator({
     setWebhookUrl(
       `${baseUrl}/api/webhooks/integrations/${hotelSlug}/${integrationId}`
     );
-  }, [hotelSlug, integrationId]);
+  }, [hotelSlug, integrationId, loadIntegration]);
 
   const handleSave = async () => {
     if (!integration) return;
