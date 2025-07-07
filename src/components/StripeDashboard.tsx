@@ -279,7 +279,7 @@ export function StripeDashboard() {
                   <TableHead>Date</TableHead>
                   <TableHead>Montant</TableHead>
                   <TableHead>Commission</TableHead>
-                  <TableHead>Hôtel</TableHead>
+                  <TableHead>Établissement</TableHead>
                   <TableHead>Client</TableHead>
                   <TableHead>Mode Paiement</TableHead>
                   <TableHead>Statut</TableHead>

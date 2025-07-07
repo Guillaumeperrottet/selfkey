@@ -35,8 +35,8 @@ import {
   CheckCircle,
   AlertCircle,
   LogOut,
-  KeyRound,
 } from "lucide-react";
+import Image from "next/image";
 
 interface User {
   id: string;
@@ -87,14 +87,14 @@ export default function EstablishmentsPage() {
       target: '[data-tutorial="establishment-card"]',
       title: "Gérer vos établissements",
       content:
-        "Chaque carte représente un de vos établissements. Vous pouvez voir le statut, les chambres disponibles et accéder à la gestion complète.",
+        "Chaque carte représente un de vos établissements. Vous pouvez voir le statut, les places disponibles et accéder à la gestion complète.",
       position: "top" as const,
     },
     {
       target: '[data-tutorial="manage-button"]',
       title: "Administration",
       content:
-        "Cliquez sur 'Gérer' pour accéder au tableau de bord complet de votre établissement : chambres, réservations, paramètres...",
+        "Cliquez sur 'Gérer' pour accéder au tableau de bord complet de votre établissement : places, réservations, paramètres...",
       position: "top" as const,
     },
     {
@@ -213,8 +213,14 @@ export default function EstablishmentsPage() {
         <div className="container mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center py-6">
             <div className="flex items-center space-x-3">
-              <div className="w-10 h-10 bg-primary rounded-lg flex items-center justify-center">
-                <KeyRound className="h-6 w-6 text-primary-foreground" />
+              <div className="w-10 h-10 rounded-lg flex items-center justify-center">
+                <Image
+                  src="/logo.png"
+                  alt="SelfKey Logo"
+                  width={40}
+                  height={40}
+                  className="rounded-lg"
+                />
               </div>
               <div>
                 <h1 className="text-2xl font-bold">SelfKey</h1>
@@ -389,7 +395,7 @@ export default function EstablishmentsPage() {
                   <div className="grid grid-cols-2 gap-4 text-sm">
                     <div className="flex items-center gap-2">
                       <Bed className="h-4 w-4 text-muted-foreground" />
-                      <span>{establishment._count.rooms} chambres</span>
+                      <span>{establishment._count.rooms} places</span>
                     </div>
                     <div className="flex items-center gap-2">
                       <Calendar className="h-4 w-4 text-muted-foreground" />

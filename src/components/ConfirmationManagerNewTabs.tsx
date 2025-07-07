@@ -155,8 +155,11 @@ export function ConfirmationManager({ hotelSlug }: ConfirmationManagerProps) {
     { key: "checkOutDate", label: "Date de départ" },
     { key: "accessCode", label: "Code d'accès" },
     { key: "accessInstructions", label: "Instructions d'accès" },
-    { key: "hotelContactEmail", label: "Email de contact de l'hôtel" },
-    { key: "hotelContactPhone", label: "Téléphone de contact de l'hôtel" },
+    { key: "hotelContactEmail", label: "Email de contact de l'établissement" },
+    {
+      key: "hotelContactPhone",
+      label: "Téléphone de contact de l'établissement",
+    },
   ];
 
   const copyToClipboard = (text: string) => {

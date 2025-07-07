@@ -80,7 +80,7 @@ export function RoomManagement({ hotelSlug, currency }: Props) {
         setRooms(data.rooms);
       }
     } catch (error) {
-      console.error("Erreur chargement chambres:", error);
+      console.error("Erreur chargement places:", error);
     }
   }, [hotelSlug]);
 
@@ -122,8 +122,8 @@ export function RoomManagement({ hotelSlug, currency }: Props) {
         setMessage({
           type: "success",
           text: editingRoom
-            ? "Chambre modifiée avec succès"
-            : "Chambre créée avec succès",
+            ? "Place modifiée avec succès"
+            : "Place créée avec succès",
         });
         resetForm();
         loadRooms();
@@ -186,7 +186,7 @@ export function RoomManagement({ hotelSlug, currency }: Props) {
       if (data.success) {
         setMessage({
           type: "success",
-          text: `Chambre ${currentStatus ? "désactivée" : "activée"} avec succès`,
+          text: `Place ${currentStatus ? "désactivée" : "activée"} avec succès`,
         });
         loadRooms();
       } else {
@@ -217,7 +217,7 @@ export function RoomManagement({ hotelSlug, currency }: Props) {
 
   const handleDelete = async (roomId: string, roomName: string) => {
     if (
-      !confirm(`Êtes-vous sûr de vouloir supprimer la chambre "${roomName}" ?`)
+      !confirm(`Êtes-vous sûr de vouloir supprimer la place "${roomName}" ?`)
     ) {
       return;
     }
@@ -233,7 +233,7 @@ export function RoomManagement({ hotelSlug, currency }: Props) {
       const data = await response.json();
 
       if (data.success) {
-        setMessage({ type: "success", text: "Chambre supprimée avec succès" });
+        setMessage({ type: "success", text: "Place supprimée avec succès" });
         loadRooms();
       } else {
         setMessage({ type: "error", text: data.error });
@@ -251,10 +251,10 @@ export function RoomManagement({ hotelSlug, currency }: Props) {
       <div className="flex items-center justify-between">
         <div>
           <h3 className="text-lg font-semibold text-foreground">
-            Chambres disponibles
+            Places disponibles
           </h3>
           <p className="text-sm text-muted-foreground">
-            {rooms.length} chambre{rooms.length > 1 ? "s" : ""} configurée
+            {rooms.length} place{rooms.length > 1 ? "s" : ""} configurée
             {rooms.length > 1 ? "s" : ""}
           </p>
         </div>
@@ -263,7 +263,7 @@ export function RoomManagement({ hotelSlug, currency }: Props) {
           className="bg-primary hover:bg-primary/90"
         >
           <Plus className="h-4 w-4 mr-2" />
-          Ajouter une chambre
+          Ajouter une place
         </Button>
       </div>
 
@@ -280,11 +280,11 @@ export function RoomManagement({ hotelSlug, currency }: Props) {
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
               <AlertTriangle className="h-5 w-5 text-amber-500" />
-              Désactiver la chambre
+              Désactiver la place
             </DialogTitle>
             <DialogDescription className="space-y-3 pt-2">
               <p>
-                Vous êtes sur le point de désactiver la chambre{" "}
+                Vous êtes sur le point de désactiver la place{" "}
                 <strong>{roomToToggle?.room.name}</strong>.
               </p>
 
@@ -292,7 +292,7 @@ export function RoomManagement({ hotelSlug, currency }: Props) {
                 <Alert>
                   <AlertTriangle className="h-4 w-4" />
                   <AlertDescription>
-                    <strong>Réservation en cours :</strong> Cette chambre a une
+                    <strong>Réservation en cours :</strong> Cette place a une
                     réservation active qui se termine le{" "}
                     {roomToToggle.bookingInfo.currentBookingEndDate &&
                       new Date(
@@ -307,7 +307,7 @@ export function RoomManagement({ hotelSlug, currency }: Props) {
                 <Alert>
                   <AlertTriangle className="h-4 w-4" />
                   <AlertDescription>
-                    <strong>Réservations futures :</strong> Cette chambre a des
+                    <strong>Réservations futures :</strong> Cette place a des
                     réservations à venir. La prochaine commence le{" "}
                     {roomToToggle.bookingInfo.nextBookingDate &&
                       new Date(
@@ -324,12 +324,12 @@ export function RoomManagement({ hotelSlug, currency }: Props) {
                 </p>
                 <ul className="text-sm mt-1 space-y-1 list-disc list-inside">
                   <li>
-                    La chambre n&apos;apparaîtra plus dans les nouvelles
+                    La place n&apos;apparaîtra plus dans les nouvelles
                     réservations
                   </li>
                   <li>Les réservations existantes ne seront pas affectées</li>
                   <li>
-                    La chambre restera désactivée jusqu&apos;à ce que vous la
+                    La place restera désactivée jusqu&apos;à ce que vous la
                     réactiviez manuellement
                   </li>
                 </ul>
@@ -360,23 +360,21 @@ export function RoomManagement({ hotelSlug, currency }: Props) {
               ) : (
                 <Plus className="h-5 w-5" />
               )}
-              {editingRoom
-                ? "Modifier la chambre"
-                : "Ajouter une nouvelle chambre"}
+              {editingRoom ? "Modifier la place" : "Ajouter une nouvelle place"}
             </CardTitle>
           </CardHeader>
           <CardContent>
             <form onSubmit={handleSubmit} className="space-y-4">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <Label htmlFor="name">Nom de la chambre *</Label>
+                  <Label htmlFor="name">Nom de la place *</Label>
                   <Input
                     id="name"
                     value={formData.name}
                     onChange={(e) =>
                       setFormData((prev) => ({ ...prev, name: e.target.value }))
                     }
-                    placeholder="Ex: Chambre Standard, Suite Deluxe..."
+                    placeholder="Ex: Place Standard, Suite Deluxe..."
                     required
                   />
                 </div>
@@ -418,7 +416,7 @@ export function RoomManagement({ hotelSlug, currency }: Props) {
         </Card>
       )}
 
-      {/* Liste des chambres */}
+      {/* Liste des places */}
       {rooms.length > 0 ? (
         <div className="space-y-4">
           {/* Légende des statuts */}

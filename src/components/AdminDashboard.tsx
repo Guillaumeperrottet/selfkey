@@ -113,7 +113,7 @@ export function AdminDashboard({
       target: '[data-tutorial="nav-overview"]',
       title: "Vue d'ensemble",
       content:
-        "Consultez vos statistiques principales : chambres disponibles, réservations du jour, revenus et graphiques de performance.",
+        "Consultez vos statistiques principales : places disponibles, réservations du jour, revenus et graphiques de performance.",
       position: "right" as const,
       offset: { x: 20, y: 0 },
     },
@@ -127,9 +127,9 @@ export function AdminDashboard({
     },
     {
       target: '[data-tutorial="nav-rooms"]',
-      title: "Gestion des chambres",
+      title: "Gestion des places",
       content:
-        "Créez, modifiez et gérez vos chambres. Définissez les prix, activez/désactivez les chambres et configurez leurs caractéristiques.",
+        "Créez, modifiez et gérez vos places. Définissez les prix, activez/désactivez les places et configurez leurs caractéristiques.",
       position: "right" as const,
       offset: { x: 20, y: 0 },
     },
@@ -153,7 +153,7 @@ export function AdminDashboard({
       target: '[data-tutorial="nav-access-codes"]',
       title: "Codes d'accès",
       content:
-        "Configurez les codes d'accès pour vos chambres. Automatiques (générés par le système) ou manuels selon vos besoins.",
+        "Configurez les codes d'accès pour vos places. Automatiques (générés par le système) ou manuels selon vos besoins.",
       position: "right" as const,
       offset: { x: 20, y: 0 },
     },
@@ -236,7 +236,7 @@ export function AdminDashboard({
                 <Card>
                   <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                     <CardTitle className="text-sm font-medium">
-                      Chambres disponibles
+                      Places disponibles
                     </CardTitle>
                     <Bed className="h-4 w-4 text-muted-foreground" />
                   </CardHeader>
@@ -245,7 +245,7 @@ export function AdminDashboard({
                       {roomsWithInventory.filter((r) => r.inventory > 0).length}
                     </div>
                     <p className="text-xs text-muted-foreground">
-                      sur {roomsWithInventory.length} chambres
+                      sur {roomsWithInventory.length} places
                     </p>
                   </CardContent>
                 </Card>
@@ -312,7 +312,7 @@ export function AdminDashboard({
                         roomsWithInventory.filter((r) => r.inventory === 0)
                           .length
                       }{" "}
-                      chambres occupées
+                      places occupées
                     </p>
                   </CardContent>
                 </Card>
@@ -330,12 +330,12 @@ export function AdminDashboard({
                   <h3 className="text-lg font-semibold mb-2">
                     {!finalIsStripeConfigured
                       ? "Configuration requise"
-                      : "Première chambre"}
+                      : "Première place"}
                   </h3>
                   <p className="text-muted-foreground text-center max-w-md">
                     {!finalIsStripeConfigured
                       ? "Configurez Stripe pour accepter les paiements et commencer à recevoir des réservations"
-                      : "Ajoutez votre première chambre pour commencer à recevoir des réservations"}
+                      : "Ajoutez votre première place pour commencer à recevoir des réservations"}
                   </p>
                 </CardContent>
               </Card>
@@ -376,10 +376,10 @@ export function AdminDashboard({
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <Bed className="h-5 w-5" />
-                Gestion des chambres
+                Gestion des places
               </CardTitle>
               <CardDescription>
-                Créez et gérez les chambres disponibles à la réservation
+                Créez et gérez les places disponibles à la réservation
               </CardDescription>
             </CardHeader>
             <CardContent>

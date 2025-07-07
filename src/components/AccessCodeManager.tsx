@@ -95,7 +95,7 @@ export function AccessCodeManager({
       if (!response.ok) throw new Error("Erreur lors de la mise à jour");
 
       setRoomCodes((prev) => ({ ...prev, [roomId]: code }));
-      console.log("Code de la chambre mis à jour");
+      console.log("Code de la place mis à jour");
     } catch (error) {
       console.error("Erreur lors de la mise à jour du code", error);
     }
@@ -122,7 +122,7 @@ export function AccessCodeManager({
               }
               className="w-full p-2 border border-gray-300 rounded-md"
             >
-              <option value="room">Code par chambre (Recommandé)</option>
+              <option value="room">Code par place (Recommandé)</option>
               <option value="general">Code général</option>
               <option value="custom">Instructions personnalisées</option>
             </select>
@@ -132,7 +132,7 @@ export function AccessCodeManager({
           {accessCodeType === "room" && (
             <div className="space-y-4">
               <div className="text-sm text-gray-600 mb-4">
-                Chaque chambre a son propre code d&apos;accès. Idéal pour la
+                Chaque place a son propre code d&apos;accès. Idéal pour la
                 sécurité.
               </div>
 
@@ -140,11 +140,11 @@ export function AccessCodeManager({
               <div className="flex items-center gap-6 text-xs text-muted-foreground mb-4">
                 <div className="flex items-center gap-2">
                   <div className="w-2 h-2 rounded-full bg-emerald-500 shadow-sm ring-2 ring-emerald-500/20"></div>
-                  <span>Chambre active</span>
+                  <span>Place active</span>
                 </div>
                 <div className="flex items-center gap-2">
                   <div className="w-2 h-2 rounded-full bg-slate-400 shadow-sm ring-2 ring-slate-400/20"></div>
-                  <span>Chambre désactivée</span>
+                  <span>Place désactivée</span>
                 </div>
               </div>
 
@@ -183,7 +183,7 @@ export function AccessCodeManager({
                     />
                     {!room.isActive && (
                       <span className="text-xs text-gray-500">
-                        Chambre désactivée
+                        Place désactivée
                       </span>
                     )}
                   </div>

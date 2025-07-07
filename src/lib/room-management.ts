@@ -15,7 +15,7 @@ export async function createRoom(hotelSlug: string, roomData: CreateRoomData) {
     throw new Error("Établissement non trouvé");
   }
 
-  // Créer la chambre
+  // Créer la place
   const room = await prisma.room.create({
     data: {
       hotelSlug,
@@ -51,7 +51,7 @@ export async function updateRoom(
 }
 
 export async function deleteRoom(roomId: string) {
-  // Vérifier s'il y a des réservations futures pour cette chambre
+  // Vérifier s'il y a des réservations futures pour cette place
   const futureBookings = await prisma.booking.findFirst({
     where: {
       roomId,
@@ -63,7 +63,7 @@ export async function deleteRoom(roomId: string) {
 
   if (futureBookings) {
     throw new Error(
-      "Impossible de supprimer une chambre avec des réservations existantes"
+      "Impossible de supprimer une place avec des réservations existantes"
     );
   }
 

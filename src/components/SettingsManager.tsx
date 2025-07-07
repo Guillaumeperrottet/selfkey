@@ -178,7 +178,7 @@ export function SettingsManager({ hotelSlug }: SettingsManagerProps) {
             changement
           </p>
           <p>
-            • Cette limite s&apos;applique à toutes les chambres de
+            • Cette limite s&apos;applique à toutes les places de
             l&apos;établissement
           </p>
           <p>

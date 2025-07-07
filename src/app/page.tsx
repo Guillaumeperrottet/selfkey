@@ -8,8 +8,8 @@ import {
   CardDescription,
 } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import Image from "next/image";
 import {
-  KeyRound,
   Clock,
   Shield,
   Zap,
@@ -18,16 +18,100 @@ import {
   MapPin,
   Star,
 } from "lucide-react";
+import { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "SelfKey - Check-in automatique 24h/24 pour votre établissement",
+  description:
+    "Automatisez vos check-ins avec SelfKey ! Solution suisse pour hôtels, campings, locations. QR code, paiement Stripe sécurisé, accès instantané. Aucun abonnement.",
+  keywords: [
+    "check-in automatique",
+    "QR code hotel",
+    "paiement automatique camping",
+    "location saisonnière automation",
+    "Stripe Connect Suisse",
+    "accès automatique chambre",
+    "selfkey",
+  ],
+  openGraph: {
+    title: "SelfKey - Check-in automatique 24h/24",
+    description:
+      "Automatisez vos check-ins avec QR code et paiement sécurisé. Solution suisse sans abonnement pour hôtels, campings et locations.",
+    images: [
+      {
+        url: "/logo.png",
+        width: 1200,
+        height: 630,
+        alt: "SelfKey - Check-in automatique",
+      },
+    ],
+  },
+  twitter: {
+    title: "SelfKey - Check-in automatique 24h/24",
+    description:
+      "Automatisez vos check-ins avec QR code et paiement sécurisé. Solution suisse sans abonnement.",
+  },
+};
 
 export default function Home() {
+  const jsonLd = {
+    "@context": "https://schema.org",
+    "@type": "SoftwareApplication",
+    name: "SelfKey",
+    description:
+      "Solution suisse de check-in automatique 24h/24 pour hôtels, campings, et locations",
+    url: "https://www.selfkey.ch",
+    applicationCategory: "BusinessApplication",
+    operatingSystem: "Web",
+    offers: {
+      "@type": "Offer",
+      price: "0",
+      priceCurrency: "CHF",
+      priceSpecification: {
+        "@type": "UnitPriceSpecification",
+        referenceQuantity: {
+          "@type": "QuantitativeValue",
+          value: "1",
+          unitText: "réservation",
+        },
+      },
+    },
+    publisher: {
+      "@type": "Organization",
+      name: "SelfKey",
+      logo: {
+        "@type": "ImageObject",
+        url: "https://www.selfkey.ch/logo.png",
+      },
+    },
+    featureList: [
+      "Check-in automatique 24h/24",
+      "Paiement sécurisé Stripe",
+      "QR Code integration",
+      "Gestion multi-établissements",
+      "Codes d'accès automatiques",
+    ],
+  };
+
   return (
     <div className="min-h-screen bg-white dark:bg-gray-950">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
+
       {/* Header */}
       <header className="border-b border-gray-200 dark:border-gray-800">
         <div className="container mx-auto px-6 py-4 flex justify-between items-center">
           <div className="flex items-center gap-3">
-            <div className="w-8 h-8 bg-gray-900 dark:bg-white rounded-lg flex items-center justify-center">
-              <KeyRound className="text-white dark:text-gray-900 w-5 h-5" />
+            <div className="w-8 h-8 rounded-lg flex items-center justify-center">
+              <Image
+                src="/logo.png"
+                alt="SelfKey Logo"
+                width={32}
+                height={32}
+                className="rounded-lg"
+              />
             </div>
             <h1 className="text-xl font-semibold text-gray-900 dark:text-white">
               SelfKey
@@ -71,8 +155,7 @@ export default function Home() {
             </h1>
             <p className="text-xl text-gray-600 dark:text-gray-400 max-w-2xl mx-auto mb-8">
               Permettez à vos clients de s&apos;enregistrer automatiquement
-              24h/24, avec paiement sécurisé et accès instantané. Aucun
-              abonnement, facturation uniquement à l&apos;usage.
+              24h/24, avec paiement sécurisé et accès instantané.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <Button asChild size="lg" className="px-8">
@@ -170,7 +253,9 @@ export default function Home() {
                   Aucun abonnement
                 </h3>
                 <p className="text-gray-600 dark:text-gray-400 text-sm">
-                  Seulement une petite commission sur les réservations réussies
+                  Afin d&apos;éviter tout frais inutiles en cas de périodes
+                  creuses, aucun abonnement n&apos;est nécessaire. Uniquement
+                  une commission sur les réservations.
                 </p>
               </div>
 
@@ -394,7 +479,7 @@ export default function Home() {
                   <p className="text-gray-600 dark:text-gray-400 mb-4">
                     Notre solution fonctionne avec tout hébergement utilisant
                     des codes d&apos;accès, des clés ou des cartes pour
-                    l&apos;accès aux chambres.
+                    l&apos;accès aux places.
                   </p>
                   <Button asChild variant="outline">
                     <Link href="/establishments">Tester gratuitement</Link>
@@ -432,8 +517,14 @@ export default function Home() {
       <footer className="border-t border-gray-200 dark:border-gray-800 py-12">
         <div className="container mx-auto px-6 text-center">
           <div className="flex items-center justify-center space-x-2 mb-4">
-            <div className="w-8 h-8 bg-gray-900 dark:bg-white rounded-lg flex items-center justify-center">
-              <KeyRound className="text-white dark:text-gray-900 w-5 h-5" />
+            <div className="w-8 h-8 rounded-lg flex items-center justify-center">
+              <Image
+                src="/logo.png"
+                alt="SelfKey Logo"
+                width={32}
+                height={32}
+                className="rounded-lg"
+              />
             </div>
             <span className="text-xl font-semibold text-gray-900 dark:text-white">
               SelfKey

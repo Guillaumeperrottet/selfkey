@@ -68,7 +68,7 @@ export default async function PaymentPage({ params, searchParams }: Props) {
               <span className="font-medium">{establishment.name}</span>
             </div>
             <div className="flex justify-between">
-              <span>Chambre :</span>
+              <span>Place :</span>
               <span className="font-medium">{booking.room.name}</span>
             </div>
             <div className="flex justify-between">

@@ -103,7 +103,7 @@ export default async function SuccessPage({ params, searchParams }: Props) {
                   {booking.establishment.name}
                 </div>
                 <div className="text-sm text-blue-700">
-                  Chambre: {booking.room.name}
+                  Place: {booking.room.name}
                 </div>
               </div>
               <Badge variant="secondary">

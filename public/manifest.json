@@ -1,0 +1,42 @@
+{
+  "name": "SelfKey - Check-in automatique",
+  "short_name": "SelfKey",
+  "description": "Solution suisse de check-in automatique 24h/24 pour hôtels, campings, et locations",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#000000",
+  "orientation": "portrait",
+  "scope": "/",
+  "lang": "fr",
+  "icons": [
+    {
+      "src": "/icons/icon-96.png",
+      "sizes": "96x96",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/icons/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/icons/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ],
+  "categories": ["business", "productivity", "travel"],
+  "shortcuts": [
+    {
+      "name": "Mes établissements",
+      "short_name": "Établissements",
+      "description": "Gérer mes établissements",
+      "url": "/establishments",
+      "icons": [{ "src": "/icons/icon-96.png", "sizes": "96x96" }]
+    }
+  ]
+}

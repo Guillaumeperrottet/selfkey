@@ -2,13 +2,12 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import {
-  Hotel,
   BarChart3,
   Bed,
   DollarSign,
   MessageSquare,
-  KeyRound,
   Users,
   Zap,
   Settings,
@@ -45,7 +44,7 @@ const navigation = [
   },
   {
     id: "rooms",
-    name: "Chambres",
+    name: "Places",
     icon: Bed,
   },
   {
@@ -61,7 +60,7 @@ const navigation = [
   {
     id: "access-codes",
     name: "Codes d'accès",
-    icon: KeyRound,
+    icon: QrCode,
   },
   {
     id: "integrations",
@@ -89,7 +88,13 @@ export function AdminSidebar({
     <div className="flex h-full flex-col" data-tutorial="admin-sidebar">
       {/* Logo et nom */}
       <div className="flex h-16 items-center border-b px-4">
-        <Hotel className="h-6 w-6 text-primary" />
+        <Image
+          src="/logo.png"
+          alt="SelfKey Logo"
+          width={24}
+          height={24}
+          className="rounded"
+        />
         <span className="ml-2 text-lg font-semibold truncate">
           {establishmentName}
         </span>

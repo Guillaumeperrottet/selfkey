@@ -11,6 +11,18 @@ import {
   BarChart3,
   Star,
 } from "lucide-react";
+import { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "Aide SelfKey - Guide d'utilisation et support",
+  description:
+    "Guide complet d'utilisation de SelfKey : configuration, gestion des places, réservations, analyses. Support technique et questions fréquentes.",
+  openGraph: {
+    title: "Aide SelfKey - Guide d'utilisation",
+    description:
+      "Guide complet pour utiliser SelfKey : configuration, gestion des places, réservations et analyses.",
+  },
+};
 
 export default function HelpPage() {
   return (
@@ -89,7 +101,7 @@ export default function HelpPage() {
                 <ul className="space-y-2 text-sm">
                   <li>• Créer un établissement</li>
                   <li>• Configurer Stripe</li>
-                  <li>• Ajouter des chambres</li>
+                  <li>• Ajouter des places</li>
                   <li>• Définir les prix</li>
                 </ul>
               </CardContent>
@@ -99,7 +111,7 @@ export default function HelpPage() {
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
                   <Bed className="h-5 w-5" />
-                  Gestion des chambres
+                  Gestion des places
                 </CardTitle>
               </CardHeader>
               <CardContent>

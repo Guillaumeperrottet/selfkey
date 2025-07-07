@@ -192,8 +192,11 @@ export function ConfirmationManager({ hotelSlug }: ConfirmationManagerProps) {
     { key: "checkOutDate", label: "Date de départ" },
     { key: "accessCode", label: "Code d'accès" },
     { key: "accessInstructions", label: "Instructions d'accès" },
-    { key: "hotelContactEmail", label: "Email de contact de l'hôtel" },
-    { key: "hotelContactPhone", label: "Téléphone de contact de l'hôtel" },
+    { key: "hotelContactEmail", label: "Email de contact de l'établissement" },
+    {
+      key: "hotelContactPhone",
+      label: "Téléphone de contact de l'établissement",
+    },
   ];
 
   const copyToClipboard = (text: string) => {
@@ -326,7 +329,7 @@ export function ConfirmationManager({ hotelSlug }: ConfirmationManagerProps) {
                         {"{establishmentName}"}
                       </code>
                       <br />
-                      <span className="text-gray-600">Nom hôtel</span>
+                      <span className="text-gray-600">Nom établissement</span>
                     </div>
                     <div className="bg-white p-2 rounded border">
                       <code className="text-blue-600">{"{checkInDate}"}</code>

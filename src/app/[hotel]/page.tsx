@@ -57,7 +57,7 @@ export default async function HotelPage({ params }: Props) {
               Configuration en cours
             </h2>
             <p className="text-gray-600 mb-6">
-              L&apos;établissement configure actuellement ses chambres. Veuillez
+              L&apos;établissement configure actuellement ses places. Veuillez
               réessayer dans quelques instants.
             </p>
           </div>

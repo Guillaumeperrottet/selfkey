@@ -215,12 +215,12 @@ export function IntegrationConfigurator({
               </div>
             </div>
             <div>
-              <Label htmlFor="hotelId">ID de l&apos;hôtel</Label>
+              <Label htmlFor="hotelId">ID de l&apos;établissement</Label>
               <Input
                 id="hotelId"
                 value={(formData.hotelId as string) || ""}
                 onChange={(e) => updateFormData("hotelId", e.target.value)}
-                placeholder="ID de votre hôtel sur Booking.com"
+                placeholder="ID de votre établissement sur Booking.com"
               />
             </div>
             <div>
