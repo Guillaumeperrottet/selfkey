@@ -2,7 +2,7 @@
 
 import { Suspense } from "react";
 import { useState } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useSearchParams } from "next/navigation";
 import { signIn, signUp } from "@/lib/auth-client";
 import Link from "next/link";
 import Image from "next/image";
@@ -28,7 +28,6 @@ function LoginContent() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
-  const router = useRouter();
   const searchParams = useSearchParams();
   const callbackUrl = searchParams.get("callbackUrl") || "/admin";
 
@@ -44,23 +43,23 @@ function LoginContent() {
           password,
           callbackURL: callbackUrl,
         });
-        router.push(callbackUrl);
+        // Utiliser window.location.href pour forcer un rechargement complet
+        window.location.href = callbackUrl;
       } else {
         // Inscription avec connexion automatique
-        const result = await signUp.email({
+        await signUp.email({
           email,
           password,
           name,
           callbackURL: callbackUrl,
         });
 
-        console.log("Inscription réussie:", result);
+        console.log("Inscription réussie");
 
-        // Better-auth devrait automatiquement connecter l'utilisateur après inscription
-        // Forcer une redirection après un court délai
+        // Attendre que la session soit établie puis forcer un rechargement complet
         setTimeout(() => {
-          router.push(callbackUrl);
-        }, 500);
+          window.location.href = callbackUrl;
+        }, 1000);
       }
     } catch (err: unknown) {
       console.error("Erreur d'authentification:", err);
