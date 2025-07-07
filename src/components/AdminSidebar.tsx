@@ -10,6 +10,7 @@ import {
   MessageSquare,
   KeyRound,
   Users,
+  Zap,
   Settings,
   QrCode,
   ExternalLink,
@@ -61,6 +62,11 @@ const navigation = [
     id: "bookings",
     name: "Réservations",
     icon: Users,
+  },
+  {
+    id: "integrations",
+    name: "Intégrations",
+    icon: Zap,
   },
   {
     id: "settings",

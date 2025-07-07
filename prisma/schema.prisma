@@ -109,6 +109,7 @@ model Establishment {
   bookings        Booking[]
   rooms           Room[]
   pricingOptions  PricingOption[]     // Options de prix personnalisables
+  integrations    Integration[]       // Intégrations externes
 
   @@map("establishments")
 }
@@ -190,4 +191,35 @@ model PricingOptionValue {
   pricingOption   PricingOption @relation(fields: [pricingOptionId], references: [id], onDelete: Cascade)
   
   @@map("pricing_option_values")
+}
+
+model Integration {
+  id                String        @id @default(cuid())
+  establishmentSlug String
+  type              String        // "booking-com", "airbnb", "pms", "webhook", etc.
+  name              String        // Nom personnalisé de l'intégration
+  status            String        @default("disconnected") // "connected", "disconnected", "error"
+  configuration     Json          // Configuration spécifique (API keys, URLs, etc.)
+  lastSync          DateTime?     // Dernière synchronisation
+  lastError         String?       // Dernière erreur rencontrée
+  isActive          Boolean       @default(true)
+  createdAt         DateTime      @default(now())
+  updatedAt         DateTime      @updatedAt
+  establishment     Establishment @relation(fields: [establishmentSlug], references: [slug], onDelete: Cascade)
+  logs              IntegrationLog[]
+  
+  @@map("integrations")
+}
+
+model IntegrationLog {
+  id            String      @id @default(cuid())
+  integrationId String
+  action        String      // "sync", "test", "error", "booking_received", etc.
+  status        String      // "success", "error", "warning"
+  message       String
+  data          Json?       // Données additionnelles
+  createdAt     DateTime    @default(now())
+  integration   Integration @relation(fields: [integrationId], references: [id], onDelete: Cascade)
+  
+  @@map("integration_logs")
 }

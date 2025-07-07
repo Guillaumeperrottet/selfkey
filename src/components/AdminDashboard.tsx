@@ -5,6 +5,7 @@ import { AdminSidebar } from "@/components/AdminSidebar";
 import { StripeOnboarding } from "@/components/StripeOnboarding";
 import { RoomManagement } from "@/components/RoomManagement";
 import { AccessCodeManager } from "@/components/AccessCodeManager";
+import { IntegrationManager } from "@/components/IntegrationManager";
 import { SettingsManager } from "@/components/SettingsManager";
 import { PricingOptionsManager } from "@/components/PricingOptionsManager";
 import { ConfirmationManager } from "@/components/ConfirmationManager";
@@ -319,6 +320,9 @@ export function AdminDashboard({
             </CardContent>
           </Card>
         );
+
+      case "integrations":
+        return <IntegrationManager hotelSlug={hotel} />;
 
       case "settings":
         return (
