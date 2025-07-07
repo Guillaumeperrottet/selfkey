@@ -46,41 +46,65 @@ function LoginContent() {
         // Utiliser window.location.href pour forcer un rechargement complet
         window.location.href = callbackUrl;
       } else {
-        // Inscription puis connexion automatique
-        console.log("🔄 Début de l'inscription...");
+        try {
+          // Inscription
+          console.log("🔄 Début de l'inscription...");
 
-        const signUpResult = await signUp.email({
-          email,
-          password,
-          name,
-        });
+          const signUpResult = await signUp.email({
+            email,
+            password,
+            name,
+          });
 
-        console.log("✅ Inscription réussie:", signUpResult);
+          console.log("✅ Inscription réussie:", signUpResult);
 
-        // Attendre un peu avant la connexion
-        await new Promise((resolve) => setTimeout(resolve, 500));
+          // Attendre plus longtemps avant la connexion
+          console.log("⏳ Attente avant connexion...");
+          await new Promise((resolve) => setTimeout(resolve, 2000));
 
-        console.log("🔄 Connexion automatique...");
+          console.log("🔄 Tentative de connexion automatique...");
 
-        const signInResult = await signIn.email({
-          email,
-          password,
-          callbackURL: callbackUrl,
-        });
+          try {
+            const signInResult = await signIn.email({
+              email,
+              password,
+              callbackURL: callbackUrl,
+            });
 
-        console.log("✅ Connexion réussie:", signInResult);
+            console.log("✅ Connexion automatique réussie:", signInResult);
 
-        // Vérifier la session côté serveur
-        console.log("🔍 Vérification de la session...");
-        const sessionCheck = await fetch("/api/debug-session");
-        const sessionData = await sessionCheck.json();
-        console.log("📊 Session data:", sessionData);
+            // Vérifier la session
+            try {
+              const sessionCheck = await fetch("/api/debug-session");
+              const sessionData = await sessionCheck.json();
+              console.log("📊 Session data:", sessionData);
 
-        // Attendre un peu puis rediriger
-        setTimeout(() => {
-          console.log("🔄 Redirection vers:", callbackUrl);
-          window.location.href = callbackUrl;
-        }, 1000);
+              if (sessionData.hasSession) {
+                console.log("🎉 Session validée, redirection...");
+                setTimeout(() => {
+                  window.location.href = callbackUrl;
+                }, 500);
+              } else {
+                console.log(
+                  "❌ Pas de session, redirection manuelle vers login..."
+                );
+                setError("Inscription réussie ! Veuillez vous connecter.");
+                setIsLogin(true);
+              }
+            } catch (sessionError) {
+              console.error("❌ Erreur vérification session:", sessionError);
+              setError("Inscription réussie ! Veuillez vous connecter.");
+              setIsLogin(true);
+            }
+          } catch (signInError) {
+            console.error("❌ Erreur connexion automatique:", signInError);
+            setError("Inscription réussie ! Veuillez vous connecter.");
+            setIsLogin(true);
+          }
+        } catch (signUpError) {
+          console.error("❌ Erreur inscription:", signUpError);
+          throw signUpError; // Relancer l'erreur pour la gestion normale
+        }
       }
     } catch (err: unknown) {
       console.error("Erreur d'authentification:", err);
