@@ -5,7 +5,7 @@
 ### Connexion
 
 - **URL** : `http://localhost:3000/admin/login`
-- **Email** : `perrottet.guillaume.97@gmail.com`
+- **Email** : `admin@selfkey.local`
 - **Mot de passe** : `admin123`
 
 > ⚠️ **Sécurité** : Changez le mot de passe dans le fichier `/src/app/api/admin/check-super-admin/route.ts` avant la mise en production !

@@ -26,11 +26,12 @@ export const auth = betterAuth({
     process.env.NEXT_PUBLIC_APP_URL!,
     "https://selfkey.ch",
     "https://www.selfkey.ch",
+    "http://localhost:3000", // pour le développement
   ],
   advanced: {
     crossSubDomainCookies: {
-      enabled: true,
-      domain: ".selfkey.ch",
+      enabled: process.env.NODE_ENV === "production",
+      domain: process.env.NODE_ENV === "production" ? ".selfkey.ch" : undefined,
     },
   },
 });

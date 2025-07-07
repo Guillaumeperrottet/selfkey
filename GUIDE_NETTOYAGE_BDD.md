@@ -16,7 +16,7 @@ node reset-database.js --help
 ```
 
 **Fonction** : Supprime toutes les données sauf le compte super-admin
-**Préserve** : `perrottet.guillaume.97@gmail.com`
+**Préserve** : `admin@selfkey.local`
 **Supprime** : Tous les établissements, chambres, réservations, codes d'accès, intégrations
 
 ### 2. Création de données de test

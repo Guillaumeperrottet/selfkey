@@ -73,7 +73,7 @@ async function showStats() {
 
     // Vérifier le super-admin
     const superAdmin = await prisma.user.findFirst({
-      where: { email: "perrottet.guillaume.97@gmail.com" },
+      where: { email: "admin@selfkey.local" },
     });
     console.log(`🔐 Super-admin: ${superAdmin ? "✅ Présent" : "❌ Absent"}`);
 

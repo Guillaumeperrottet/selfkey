@@ -11,7 +11,7 @@ import { PrismaClient } from "@prisma/client";
 import readline from "readline";
 
 const prisma = new PrismaClient();
-const SUPER_ADMIN_EMAIL = "perrottet.guillaume.97@gmail.com";
+const SUPER_ADMIN_EMAIL = "admin@selfkey.local";
 
 async function confirmAction() {
   const rl = readline.createInterface({
@@ -254,7 +254,7 @@ async function main() {
       console.log(`   - ${code.code} (${code.room})`);
     });
     console.log("");
-    console.log("📧 Super-admin: perrottet.guillaume.97@gmail.com");
+    console.log("📧 Super-admin: admin@selfkey.local");
     console.log("");
     console.log("🎉 Prêt pour les tests !");
   } catch (error) {

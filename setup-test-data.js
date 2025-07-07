@@ -104,7 +104,7 @@ async function createTestData() {
     console.log(`   🏨 Établissement: ${establishment.name}`);
     console.log(`   🔗 URL: http://localhost:3000/${establishment.slug}`);
     console.log(`   🔐 Codes d'accès: TEST2025, DEMO123`);
-    console.log(`   📧 Super-admin: perrottet.guillaume.97@gmail.com`);
+    console.log(`   📧 Super-admin: admin@selfkey.local`);
   } catch (error) {
     console.error("❌ Erreur lors de la création des données:", error);
     throw error;

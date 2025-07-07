@@ -16,7 +16,7 @@ import readline from "readline";
 const prisma = new PrismaClient();
 
 // Configuration du super-admin à préserver
-const SUPER_ADMIN_EMAIL = "perrottet.guillaume.97@gmail.com";
+const SUPER_ADMIN_EMAIL = "admin@selfkey.local";
 
 async function confirmAction() {
   const rl = readline.createInterface({

@@ -1,8 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 
 // Configuration du super admin
-const SUPER_ADMIN_EMAIL = "perrottet.guillaume.97@gmail.com";
-const SUPER_ADMIN_PASSWORD = "GhtuneNXTpour0.-"; // Changez ce mot de passe !
+const SUPER_ADMIN_EMAIL = "admin@selfkey.local";
+const SUPER_ADMIN_PASSWORD = "SuperAdmin2025!"; // Changez ce mot de passe !
 
 export async function POST(request: NextRequest) {
   try {
