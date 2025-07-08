@@ -35,17 +35,19 @@ export const stripeConfig = {
   modeDescription: useTestKeys ? "TEST MODE" : "LIVE MODE",
 };
 
-// Validation des clés
-if (!stripeConfig.secretKey) {
-  throw new Error(
-    `❌ Clé secrète Stripe manquante pour le mode ${stripeConfig.modeDescription}`
-  );
-}
+// Validation des clés (seulement à l'exécution, pas au build)
+export function validateStripeKeys() {
+  if (!stripeConfig.secretKey) {
+    throw new Error(
+      `❌ Clé secrète Stripe manquante pour le mode ${stripeConfig.modeDescription}`
+    );
+  }
 
-if (!stripeConfig.publishableKey) {
-  throw new Error(
-    `❌ Clé publique Stripe manquante pour le mode ${stripeConfig.modeDescription}`
-  );
+  if (!stripeConfig.publishableKey) {
+    throw new Error(
+      `❌ Clé publique Stripe manquante pour le mode ${stripeConfig.modeDescription}`
+    );
+  }
 }
 
 // Log informatif (seulement en développement)

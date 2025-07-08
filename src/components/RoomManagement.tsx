@@ -23,7 +23,6 @@ import {
 } from "@/components/ui/tooltip";
 import {
   Edit,
-  Trash2,
   Bed,
   DollarSign,
   Plus,
@@ -31,6 +30,7 @@ import {
   PowerOff,
   AlertTriangle,
   TrendingDown,
+  Archive,
 } from "lucide-react";
 import { useEstablishmentFees } from "@/hooks/useEstablishmentFees";
 import { calculateFees } from "@/lib/fee-calculator";
@@ -232,7 +232,7 @@ export function RoomManagement({ hotelSlug, currency }: Props) {
 
   const handleDelete = async (roomId: string, roomName: string) => {
     if (
-      !confirm(`Êtes-vous sûr de vouloir supprimer la place "${roomName}" ?`)
+      !confirm(`Êtes-vous sûr de vouloir désactiver définitivement la place "${roomName}" ?\n\nNote: La place sera masquée des réservations mais conservée pour l'historique.`)
     ) {
       return;
     }
@@ -248,13 +248,13 @@ export function RoomManagement({ hotelSlug, currency }: Props) {
       const data = await response.json();
 
       if (data.success) {
-        setMessage({ type: "success", text: "Place supprimée avec succès" });
+        setMessage({ type: "success", text: "Place désactivée avec succès" });
         loadRooms();
       } else {
         setMessage({ type: "error", text: data.error });
       }
     } catch {
-      setMessage({ type: "error", text: "Erreur lors de la suppression" });
+      setMessage({ type: "error", text: "Erreur lors de la désactivation" });
     } finally {
       setIsLoading(false);
     }
@@ -581,15 +581,16 @@ export function RoomManagement({ hotelSlug, currency }: Props) {
                       <Edit className="h-4 w-4" />
                     </Button>
 
-                    {/* Bouton de suppression */}
+                    {/* Bouton d'archivage/désactivation */}
                     <Button
                       variant="outline"
                       size="sm"
                       onClick={() => handleDelete(room.id, room.name)}
                       disabled={isLoading}
-                      className="text-destructive hover:text-destructive border-muted hover:border-destructive/50"
+                      className="text-orange-600 hover:text-orange-700 border-muted hover:border-orange-500/50"
+                      title="Désactiver définitivement cette place"
                     >
-                      <Trash2 className="h-4 w-4" />
+                      <Archive className="h-4 w-4" />
                     </Button>
                   </div>
                 </div>

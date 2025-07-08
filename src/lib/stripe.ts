@@ -6,15 +6,25 @@
  */
 
 import Stripe from "stripe";
-import { stripeConfig } from "./stripe-config";
+import { stripeConfig, validateStripeKeys } from "./stripe-config";
 
-// Instance Stripe centralisée avec la bonne configuration
-export const stripe = new Stripe(stripeConfig.secretKey!, {
-  apiVersion: "2025-05-28.basil",
-  appInfo: {
-    name: "SelfKey",
-    version: "1.0.0",
-  },
+// Instance Stripe créée de manière lazy
+let stripeInstance: Stripe | null = null;
+
+export const stripe = new Proxy({} as Stripe, {
+  get(target, prop: keyof Stripe) {
+    if (!stripeInstance) {
+      validateStripeKeys(); // Valider seulement quand on utilise Stripe
+      stripeInstance = new Stripe(stripeConfig.secretKey!, {
+        apiVersion: "2025-05-28.basil",
+        appInfo: {
+          name: "SelfKey",
+          version: "1.0.0",
+        },
+      });
+    }
+    return stripeInstance[prop];
+  }
 });
 
 // Export des clés publiques pour le frontend
