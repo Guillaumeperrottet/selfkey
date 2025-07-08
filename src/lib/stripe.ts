@@ -24,7 +24,7 @@ export const stripe = new Proxy({} as Stripe, {
       });
     }
     return stripeInstance[prop];
-  }
+  },
 });
 
 // Export des clés publiques pour le frontend

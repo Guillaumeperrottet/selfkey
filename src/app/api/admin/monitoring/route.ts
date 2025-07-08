@@ -8,8 +8,11 @@ import { monitorAllConnectedAccounts } from "@/lib/risk-management";
 export async function GET(request: NextRequest) {
   try {
     // Éviter l'exécution pendant le build
-    if (process.env.NODE_ENV === 'production' && !process.env.VERCEL_ENV) {
-      return NextResponse.json({ error: "Service non disponible pendant le build" }, { status: 503 });
+    if (process.env.NODE_ENV === "production" && !process.env.VERCEL_ENV) {
+      return NextResponse.json(
+        { error: "Service non disponible pendant le build" },
+        { status: 503 }
+      );
     }
 
     // Vérifier que c'est un appel autorisé (token, IP, etc.)
@@ -49,8 +52,11 @@ export async function GET(request: NextRequest) {
 export async function POST(request: NextRequest) {
   try {
     // Éviter l'exécution pendant le build
-    if (process.env.NODE_ENV === 'production' && !process.env.VERCEL_ENV) {
-      return NextResponse.json({ error: "Service non disponible pendant le build" }, { status: 503 });
+    if (process.env.NODE_ENV === "production" && !process.env.VERCEL_ENV) {
+      return NextResponse.json(
+        { error: "Service non disponible pendant le build" },
+        { status: 503 }
+      );
     }
 
     const authHeader = request.headers.get("authorization");

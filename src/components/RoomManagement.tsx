@@ -232,7 +232,9 @@ export function RoomManagement({ hotelSlug, currency }: Props) {
 
   const handleDelete = async (roomId: string, roomName: string) => {
     if (
-      !confirm(`Êtes-vous sûr de vouloir désactiver définitivement la place "${roomName}" ?\n\nNote: La place sera masquée des réservations mais conservée pour l'historique.`)
+      !confirm(
+        `Êtes-vous sûr de vouloir désactiver définitivement la place "${roomName}" ?\n\nNote: La place sera masquée des réservations mais conservée pour l'historique.`
+      )
     ) {
       return;
     }
