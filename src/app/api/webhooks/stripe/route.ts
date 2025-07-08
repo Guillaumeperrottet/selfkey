@@ -1,12 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
 import Stripe from "stripe";
 import { prisma } from "@/lib/prisma";
+import { stripe, stripeWebhookSecret } from "@/lib/stripe";
 
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
-  apiVersion: "2025-05-28.basil",
-});
-
-const endpointSecret = process.env.STRIPE_WEBHOOK_SECRET!;
+const endpointSecret = stripeWebhookSecret!;
 
 export async function POST(request: NextRequest) {
   const body = await request.text();
