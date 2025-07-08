@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
+import { generateSlugSuggestions } from "@/lib/slug-utils";
 
 export async function GET(request: NextRequest) {
   try {
@@ -59,14 +60,18 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Vérifier si le slug existe déjà
-    const existingEstablishment = await prisma.establishment.findUnique({
-      where: { slug },
-    });
+    // Vérifier si le slug existe déjà et proposer des alternatives
+    const slugValidation = await generateSlugSuggestions(name, slug);
 
-    if (existingEstablishment) {
+    if (!slugValidation.isAvailable) {
       return NextResponse.json(
-        { error: "Ce slug existe déjà" },
+        {
+          error: "Ce slug est déjà utilisé par un autre établissement",
+          suggestion:
+            "Vous pouvez garder le même nom d'établissement, mais le slug (adresse web) doit être unique.",
+          suggestions: slugValidation.suggestions,
+          baseSlug: slugValidation.baseSlug,
+        },
         { status: 400 }
       );
     }

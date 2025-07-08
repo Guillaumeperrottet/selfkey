@@ -65,6 +65,17 @@ export default function EstablishmentsPage() {
     name: "",
     slug: "",
   });
+  const [slugValidation, setSlugValidation] = useState<{
+    isChecking: boolean;
+    isAvailable: boolean;
+    suggestions: string[];
+    message: string;
+  }>({
+    isChecking: false,
+    isAvailable: true,
+    suggestions: [],
+    message: "",
+  });
   const router = useRouter();
 
   // Configuration du tutorial
@@ -158,6 +169,46 @@ export default function EstablishmentsPage() {
     }
   };
 
+  const validateSlug = async (name: string, slug: string) => {
+    if (!slug.trim()) {
+      setSlugValidation({
+        isChecking: false,
+        isAvailable: false,
+        suggestions: [],
+        message: "Le slug est requis",
+      });
+      return;
+    }
+
+    setSlugValidation((prev) => ({ ...prev, isChecking: true }));
+
+    try {
+      const response = await fetch("/api/establishments/validate-slug", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ name, slug }),
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        setSlugValidation({
+          isChecking: false,
+          isAvailable: data.isAvailable,
+          suggestions: data.suggestions || [],
+          message: data.message,
+        });
+      }
+    } catch (error) {
+      console.error("Erreur validation slug:", error);
+      setSlugValidation({
+        isChecking: false,
+        isAvailable: false,
+        suggestions: [],
+        message: "Erreur lors de la validation",
+      });
+    }
+  };
+
   const handleCreateEstablishment = async (e: React.FormEvent) => {
     e.preventDefault();
 
@@ -172,11 +223,30 @@ export default function EstablishmentsPage() {
 
       if (response.ok) {
         setNewEstablishment({ name: "", slug: "" });
+        setSlugValidation({
+          isChecking: false,
+          isAvailable: true,
+          suggestions: [],
+          message: "",
+        });
         setShowCreateForm(false);
         fetchEstablishments();
       } else {
         const error = await response.json();
-        alert(error.message || "Erreur lors de la création");
+
+        // Si l'erreur contient des suggestions, les afficher
+        if (error.suggestions && error.suggestions.length > 0) {
+          setSlugValidation({
+            isChecking: false,
+            isAvailable: false,
+            suggestions: error.suggestions,
+            message:
+              error.suggestion ||
+              "Ce slug est déjà pris. Voici quelques suggestions :",
+          });
+        } else {
+          alert(error.error || "Erreur lors de la création");
+        }
       }
     } catch (error) {
       console.error("Erreur:", error);
@@ -332,10 +402,16 @@ export default function EstablishmentsPage() {
                     value={newEstablishment.name}
                     onChange={(e) => {
                       const name = e.target.value;
+                      const newSlug = generateSlug(name);
                       setNewEstablishment({
                         name,
-                        slug: generateSlug(name),
+                        slug: newSlug,
                       });
+
+                      // Valider le slug en temps réel si il y a du contenu
+                      if (newSlug) {
+                        validateSlug(name, newSlug);
+                      }
                     }}
                     required
                     placeholder="Mon Hôtel"
@@ -348,18 +424,96 @@ export default function EstablishmentsPage() {
                     id="slug"
                     type="text"
                     value={newEstablishment.slug}
-                    onChange={(e) =>
+                    onChange={(e) => {
+                      const newSlug = e.target.value;
                       setNewEstablishment({
                         ...newEstablishment,
-                        slug: e.target.value,
-                      })
-                    }
+                        slug: newSlug,
+                      });
+
+                      // Valider le slug modifié manuellement
+                      if (newSlug) {
+                        validateSlug(newEstablishment.name, newSlug);
+                      }
+                    }}
                     required
                     placeholder="mon-hotel"
+                    className={
+                      !slugValidation.isAvailable && newEstablishment.slug
+                        ? "border-red-500"
+                        : slugValidation.isAvailable && newEstablishment.slug
+                          ? "border-green-500"
+                          : ""
+                    }
                   />
+
+                  {/* Indicateur de validation */}
+                  {slugValidation.isChecking && (
+                    <p className="text-xs text-blue-600">
+                      ⏳ Vérification du slug...
+                    </p>
+                  )}
+
+                  {!slugValidation.isChecking && newEstablishment.slug && (
+                    <>
+                      {slugValidation.isAvailable ? (
+                        <p className="text-xs text-green-600">
+                          ✅ Ce slug est disponible !
+                        </p>
+                      ) : (
+                        <div className="space-y-2">
+                          <p className="text-xs text-red-600">
+                            ❌ {slugValidation.message}
+                          </p>
+                          {slugValidation.suggestions.length > 0 && (
+                            <div className="space-y-1">
+                              <p className="text-xs font-medium text-gray-700">
+                                Suggestions disponibles :
+                              </p>
+                              <div className="flex flex-wrap gap-1">
+                                {slugValidation.suggestions.map(
+                                  (suggestion, index) => (
+                                    <Button
+                                      key={index}
+                                      type="button"
+                                      variant="outline"
+                                      size="sm"
+                                      className="text-xs h-6 px-2"
+                                      onClick={() => {
+                                        setNewEstablishment({
+                                          ...newEstablishment,
+                                          slug: suggestion,
+                                        });
+                                        validateSlug(
+                                          newEstablishment.name,
+                                          suggestion
+                                        );
+                                      }}
+                                    >
+                                      {suggestion}
+                                    </Button>
+                                  )
+                                )}
+                              </div>
+                            </div>
+                          )}
+                        </div>
+                      )}
+                    </>
+                  )}
+
                   <p className="text-xs text-muted-foreground">
                     URL: /{newEstablishment.slug}
                   </p>
+                  
+                  {/* Message d'information rassurant */}
+                  <div className="bg-blue-50 border border-blue-200 rounded-md p-3 mt-2">
+                    <p className="text-xs text-blue-700">
+                      💡 <strong>Info :</strong> Le slug peut être différent du nom de votre établissement sans aucun problème. 
+                      Vos clients verront toujours le vrai nom ("{newEstablishment.name || 'Mon Hôtel'}") sur la page de réservation, 
+                      seule l'adresse web utilise le slug.
+                    </p>
+                  </div>
                 </div>
 
                 <div className="flex space-x-3 pt-4">
@@ -367,12 +521,30 @@ export default function EstablishmentsPage() {
                     type="button"
                     variant="outline"
                     className="flex-1"
-                    onClick={() => setShowCreateForm(false)}
+                    onClick={() => {
+                      setShowCreateForm(false);
+                      setNewEstablishment({ name: "", slug: "" });
+                      setSlugValidation({
+                        isChecking: false,
+                        isAvailable: true,
+                        suggestions: [],
+                        message: "",
+                      });
+                    }}
                   >
                     Annuler
                   </Button>
-                  <Button type="submit" className="flex-1">
-                    Créer
+                  <Button
+                    type="submit"
+                    className="flex-1"
+                    disabled={
+                      slugValidation.isChecking ||
+                      !slugValidation.isAvailable ||
+                      !newEstablishment.name ||
+                      !newEstablishment.slug
+                    }
+                  >
+                    {slugValidation.isChecking ? "Vérification..." : "Créer"}
                   </Button>
                 </div>
               </form>
