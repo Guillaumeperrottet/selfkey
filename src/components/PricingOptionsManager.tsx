@@ -27,6 +27,8 @@ import {
   CollapsibleContent,
   CollapsibleTrigger,
 } from "@/components/ui/collapsible";
+import { FeeBreakdown } from "@/components/FeeBreakdown";
+import { useEstablishmentFees } from "@/hooks/useEstablishmentFees";
 
 interface PricingOptionValue {
   id?: string;
@@ -59,6 +61,10 @@ export function PricingOptionsManager({
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
   const [isGuideOpen, setIsGuideOpen] = useState(false);
+  const [selectedPrice, setSelectedPrice] = useState<number>(0); // Pour prévisualiser les frais
+
+  // Récupérer les frais de l'établissement
+  const fees = useEstablishmentFees(hotelSlug);
 
   useEffect(() => {
     const loadData = async () => {
@@ -213,6 +219,43 @@ export function PricingOptionsManager({
         </CardTitle>
       </CardHeader>
       <CardContent className="space-y-6">
+        {/* Calculateur de frais */}
+        <div className="space-y-4">
+          <Label htmlFor="fee-calculator">Simulateur de frais et revenus</Label>
+          <div className="flex gap-4">
+            <div className="flex-1">
+              <Input
+                id="fee-calculator"
+                type="number"
+                step="0.01"
+                min="0"
+                value={selectedPrice}
+                onChange={(e) =>
+                  setSelectedPrice(parseFloat(e.target.value) || 0)
+                }
+                placeholder="Entrez un prix pour voir les frais..."
+              />
+              <p className="text-xs text-gray-500 mt-1">
+                Entrez un prix pour voir combien vous recevrez après déduction
+                des frais
+              </p>
+            </div>
+          </div>
+
+          {selectedPrice > 0 && !fees.loading && (
+            <FeeBreakdown
+              amount={selectedPrice}
+              commissionRate={fees.commissionRate}
+              fixedFee={fees.fixedFee}
+              className="mt-4"
+            />
+          )}
+
+          {fees.loading && selectedPrice > 0 && (
+            <div className="text-sm text-gray-500">Chargement des frais...</div>
+          )}
+        </div>
+
         {/* Guide d'utilisation discret */}
         <Collapsible open={isGuideOpen} onOpenChange={setIsGuideOpen}>
           <CollapsibleTrigger asChild>
@@ -463,6 +506,23 @@ export function PricingOptionsManager({
                           }
                           placeholder="Prix (CHF)"
                         />
+                        {value.priceModifier > 0 && !fees.loading && (
+                          <div className="text-xs text-green-600 mt-1">
+                            Net:{" "}
+                            {new Intl.NumberFormat("fr-CH", {
+                              style: "currency",
+                              currency: "CHF",
+                            }).format(
+                              Math.max(
+                                0,
+                                value.priceModifier -
+                                  (value.priceModifier * fees.commissionRate) /
+                                    100 -
+                                  fees.fixedFee
+                              )
+                            )}
+                          </div>
+                        )}
                       </div>
                       <label className="flex items-center gap-1">
                         <input

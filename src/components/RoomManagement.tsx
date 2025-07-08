@@ -17,6 +17,11 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
+import {
   Edit,
   Trash2,
   Bed,
@@ -25,7 +30,10 @@ import {
   Power,
   PowerOff,
   AlertTriangle,
+  TrendingDown,
 } from "lucide-react";
+import { useEstablishmentFees } from "@/hooks/useEstablishmentFees";
+import { calculateFees } from "@/lib/fee-calculator";
 
 interface Room {
   id: string;
@@ -57,6 +65,13 @@ export function RoomManagement({ hotelSlug, currency }: Props) {
     type: "success" | "error";
     text: string;
   } | null>(null);
+
+  // Hook pour récupérer les frais de l'établissement
+  const {
+    commissionRate,
+    fixedFee,
+    loading: feesLoading,
+  } = useEstablishmentFees(hotelSlug);
 
   // États pour la confirmation de désactivation
   const [showToggleDialog, setShowToggleDialog] = useState(false);
@@ -476,6 +491,59 @@ export function RoomManagement({ hotelSlug, currency }: Props) {
                             {room.price} {currency}
                           </span>
                         </div>
+                        {!feesLoading && (
+                          <>
+                            <Separator orientation="vertical" className="h-4" />
+                            <Tooltip>
+                              <TooltipTrigger asChild>
+                                <div className="flex items-center gap-1 text-emerald-600 cursor-help">
+                                  <TrendingDown className="h-3 w-3" />
+                                  <span className="font-medium">
+                                    Net:{" "}
+                                    {calculateFees(
+                                      room.price,
+                                      commissionRate / 100,
+                                      fixedFee
+                                    ).netAmount.toFixed(2)}{" "}
+                                    {currency}
+                                  </span>
+                                </div>
+                              </TooltipTrigger>
+                              <TooltipContent>
+                                <div className="text-xs">
+                                  <div className="font-medium mb-1">
+                                    Calcul des frais :
+                                  </div>
+                                  <div>
+                                    Prix affiché: {room.price.toFixed(2)}{" "}
+                                    {currency}
+                                  </div>
+                                  <div>
+                                    Commission ({commissionRate}%): -
+                                    {(
+                                      (room.price * commissionRate) /
+                                      100
+                                    ).toFixed(2)}{" "}
+                                    {currency}
+                                  </div>
+                                  <div>
+                                    Frais fixes: -{fixedFee.toFixed(2)}{" "}
+                                    {currency}
+                                  </div>
+                                  <div className="border-t pt-1 mt-1 font-medium text-emerald-600">
+                                    Montant net:{" "}
+                                    {calculateFees(
+                                      room.price,
+                                      commissionRate / 100,
+                                      fixedFee
+                                    ).netAmount.toFixed(2)}{" "}
+                                    {currency}
+                                  </div>
+                                </div>
+                              </TooltipContent>
+                            </Tooltip>
+                          </>
+                        )}
                         <Separator orientation="vertical" className="h-4" />
                         <span className="text-xs">
                           {room.isActive ? "Active" : "Désactivée"}
