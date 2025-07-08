@@ -97,6 +97,9 @@ model Establishment {
   // Configuration des réservations
   maxBookingDays               Int                 @default(4) // Durée maximale de séjour en jours
   allowFutureBookings          Boolean             @default(false) // Permettre les réservations dans le futur
+  enableCutoffTime             Boolean             @default(false) // Activer l'heure limite pour les réservations
+  cutoffTime                   String?             @default("22:00") // Heure limite (format HH:mm)
+  reopenTime                   String?             @default("00:00") // Heure de réouverture (format HH:mm)
   // Configuration des confirmations post-paiement
   confirmationEmailEnabled     Boolean             @default(true)
   confirmationWhatsappEnabled  Boolean             @default(false)

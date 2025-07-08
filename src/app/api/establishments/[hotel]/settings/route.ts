@@ -15,6 +15,9 @@ export async function GET(
         name: true,
         maxBookingDays: true,
         allowFutureBookings: true,
+        enableCutoffTime: true,
+        cutoffTime: true,
+        reopenTime: true,
       },
     });
 
@@ -54,7 +57,13 @@ export async function PUT(
     }
 
     const body = await request.json();
-    const { maxBookingDays, allowFutureBookings } = body;
+    const {
+      maxBookingDays,
+      allowFutureBookings,
+      enableCutoffTime,
+      cutoffTime,
+      reopenTime,
+    } = body;
 
     // Validation
     if (!maxBookingDays || maxBookingDays < 1 || maxBookingDays > 365) {
@@ -62,6 +71,34 @@ export async function PUT(
         { error: "La durée maximale doit être entre 1 et 365 jours" },
         { status: 400 }
       );
+    }
+
+    // Validation pour l'heure limite
+    if (enableCutoffTime && cutoffTime) {
+      const timeRegex = /^([01]?[0-9]|2[0-3]):[0-5][0-9]$/;
+      if (!timeRegex.test(cutoffTime)) {
+        return NextResponse.json(
+          {
+            error:
+              "Format d'heure invalide pour l'heure limite. Utilisez le format HH:mm (ex: 22:00)",
+          },
+          { status: 400 }
+        );
+      }
+    }
+
+    // Validation pour l'heure de réouverture
+    if (enableCutoffTime && reopenTime) {
+      const timeRegex = /^([01]?[0-9]|2[0-3]):[0-5][0-9]$/;
+      if (!timeRegex.test(reopenTime)) {
+        return NextResponse.json(
+          {
+            error:
+              "Format d'heure invalide pour l'heure de réouverture. Utilisez le format HH:mm (ex: 00:00)",
+          },
+          { status: 400 }
+        );
+      }
     }
 
     // Vérifier que l'établissement existe
@@ -82,12 +119,18 @@ export async function PUT(
       data: {
         maxBookingDays: parseInt(maxBookingDays),
         allowFutureBookings: allowFutureBookings,
+        enableCutoffTime: enableCutoffTime,
+        cutoffTime: enableCutoffTime && cutoffTime ? cutoffTime : null,
+        reopenTime: enableCutoffTime && reopenTime ? reopenTime : null,
       },
       select: {
         id: true,
         name: true,
         maxBookingDays: true,
         allowFutureBookings: true,
+        enableCutoffTime: true,
+        cutoffTime: true,
+        reopenTime: true,
       },
     });
 

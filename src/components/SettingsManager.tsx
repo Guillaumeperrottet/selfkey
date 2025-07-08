@@ -22,6 +22,9 @@ export function SettingsManager({ hotelSlug }: SettingsManagerProps) {
   const [maxBookingDays, setMaxBookingDays] = useState<number>(4);
   const [allowFutureBookings, setAllowFutureBookings] =
     useState<boolean>(false);
+  const [enableCutoffTime, setEnableCutoffTime] = useState<boolean>(false);
+  const [cutoffTime, setCutoffTime] = useState<string>("22:00");
+  const [reopenTime, setReopenTime] = useState<string>("00:00");
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
 
@@ -36,6 +39,9 @@ export function SettingsManager({ hotelSlug }: SettingsManagerProps) {
           const data = await response.json();
           setMaxBookingDays(data.maxBookingDays || 4);
           setAllowFutureBookings(data.allowFutureBookings || false);
+          setEnableCutoffTime(data.enableCutoffTime || false);
+          setCutoffTime(data.cutoffTime || "22:00");
+          setReopenTime(data.reopenTime || "00:00");
         } else {
           alert("Erreur lors du chargement des paramètres");
         }
@@ -65,7 +71,13 @@ export function SettingsManager({ hotelSlug }: SettingsManagerProps) {
           headers: {
             "Content-Type": "application/json",
           },
-          body: JSON.stringify({ maxBookingDays, allowFutureBookings }),
+          body: JSON.stringify({
+            maxBookingDays,
+            allowFutureBookings,
+            enableCutoffTime,
+            cutoffTime,
+            reopenTime,
+          }),
         }
       );
 
@@ -144,6 +156,55 @@ export function SettingsManager({ hotelSlug }: SettingsManagerProps) {
             </p>
           </div>
 
+          <div className="space-y-2">
+            <div className="flex items-center space-x-2">
+              <Checkbox
+                id="enableCutoffTime"
+                checked={enableCutoffTime}
+                onCheckedChange={(checked) =>
+                  setEnableCutoffTime(checked as boolean)
+                }
+              />
+              <Label htmlFor="enableCutoffTime" className="text-sm font-medium">
+                Activer une heure limite pour les réservations
+              </Label>
+            </div>
+
+            {enableCutoffTime && (
+              <div className="ml-6 space-y-2">
+                <Label htmlFor="cutoffTime">Heure limite (format 24h)</Label>
+                <Input
+                  id="cutoffTime"
+                  type="time"
+                  value={cutoffTime}
+                  onChange={(e) => setCutoffTime(e.target.value)}
+                  className="w-32"
+                />
+
+                <Label htmlFor="reopenTime">
+                  Heure de réouverture (format 24h)
+                </Label>
+                <Input
+                  id="reopenTime"
+                  type="time"
+                  value={reopenTime}
+                  onChange={(e) => setReopenTime(e.target.value)}
+                  className="w-32"
+                />
+                <p className="text-xs text-muted-foreground">
+                  Les réservations redeviendront disponibles à partir de cette
+                  heure le lendemain
+                </p>
+              </div>
+            )}
+
+            <p className="text-sm text-muted-foreground">
+              {enableCutoffTime
+                ? `Après ${cutoffTime}, les clients verront un message indiquant qu'il est trop tard pour réserver. Les réservations redeviendront disponibles à ${reopenTime} le lendemain.`
+                : "Les réservations sont acceptées 24h/24"}
+            </p>
+          </div>
+
           <Button
             onClick={handleSave}
             disabled={isSaving}
@@ -188,6 +249,18 @@ export function SettingsManager({ hotelSlug }: SettingsManagerProps) {
           <p>
             • Si les réservations futures sont désactivées, les clients ne
             pourront réserver que pour aujourd&apos;hui
+          </p>
+          <p>
+            • L&apos;heure limite empêche les nouvelles réservations après
+            l&apos;heure définie (utile pour éviter les arrivées tardives)
+          </p>
+          <p>
+            • Le message &quot;trop tard&quot; s&apos;affiche automatiquement
+            quand l&apos;heure limite est dépassée
+          </p>
+          <p>
+            • Les réservations redeviennent disponibles à l&apos;heure de
+            réouverture définie (par défaut minuit)
           </p>
         </CardContent>
       </Card>

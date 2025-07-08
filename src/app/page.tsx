@@ -229,11 +229,105 @@ export default function Home() {
           </div>
         </section>
 
+        {/* How it Works Section */}
+        <section className="py-20 bg-gray-50 dark:bg-gray-900 -mx-6 px-6">
+          <div className="container mx-auto">
+            <div className="text-center mb-16">
+              <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-4">
+                Comment ça fonctionne ?
+              </h2>
+              <p className="text-gray-600 dark:text-gray-400 max-w-2xl mx-auto">
+                Un processus simple en 3 étapes pour automatiser vos check-ins
+              </p>
+            </div>
+
+            <div className="grid lg:grid-cols-2 gap-12 items-center">
+              {/* Image du totem */}
+              <div className="flex justify-center">
+                <div className="relative max-w-md">
+                  <Image
+                    src="/totem.png"
+                    alt="Totem SelfKey - Système de check-in automatique"
+                    width={400}
+                    height={600}
+                    className="rounded-2xl shadow-2xl"
+                    priority
+                  />
+                  <div className="absolute -top-4 -right-4 bg-gray-900 dark:bg-gray-100 text-white dark:text-gray-900 rounded-full w-12 h-12 flex items-center justify-center font-bold text-lg shadow-lg">
+                    QR
+                  </div>
+                </div>
+              </div>
+
+              {/* Étapes d'utilisation */}
+              <div className="space-y-8">
+                <div className="flex gap-4">
+                  <div className="w-12 h-12 bg-gray-900 dark:bg-gray-100 text-white dark:text-gray-900 rounded-full flex items-center justify-center font-bold text-lg flex-shrink-0">
+                    1
+                  </div>
+                  <div>
+                    <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-2">
+                      Le client scanne le QR code
+                    </h3>
+                    <p className="text-gray-600 dark:text-gray-400">
+                      Affiché sur votre totem, votre réception ou envoyé par
+                      email. Le client accède instantanément au formulaire de
+                      réservation depuis son smartphone.
+                    </p>
+                  </div>
+                </div>
+
+                <div className="flex gap-4">
+                  <div className="w-12 h-12 bg-gray-800 dark:bg-gray-200 text-white dark:text-gray-900 rounded-full flex items-center justify-center font-bold text-lg flex-shrink-0">
+                    2
+                  </div>
+                  <div>
+                    <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-2">
+                      Saisie des informations et paiement
+                    </h3>
+                    <p className="text-gray-600 dark:text-gray-400">
+                      Le client renseigne ses données personnelles et effectue
+                      le paiement sécurisé via Stripe (cartes, TWINT, Apple Pay,
+                      Google Pay).
+                    </p>
+                  </div>
+                </div>
+
+                <div className="flex gap-4">
+                  <div className="w-12 h-12 bg-gray-700 dark:bg-gray-300 text-white dark:text-gray-900 rounded-full flex items-center justify-center font-bold text-lg flex-shrink-0">
+                    3
+                  </div>
+                  <div>
+                    <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-2">
+                      Accès automatique accordé
+                    </h3>
+                    <p className="text-gray-600 dark:text-gray-400">
+                      Une fois le paiement validé, le client reçoit
+                      immédiatement son code d&apos;accès ou ses instructions
+                      pour accéder à sa chambre/emplacement.
+                    </p>
+                  </div>
+                </div>
+
+                <div className="bg-white dark:bg-gray-800 rounded-lg p-6 shadow-sm">
+                  <div className="flex items-center gap-3 mb-3">
+                    <Shield className="text-gray-700 dark:text-gray-300 w-5 h-5" />
+                    <span className="font-semibold text-gray-900 dark:text-white">
+                      Sécurisé et automatique
+                    </span>
+                  </div>
+                  <p className="text-gray-600 dark:text-gray-400 text-sm">
+                    Aucune intervention de votre part nécessaire. Le système
+                    fonctionne 24h/24, même pendant vos absences.
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
         {/* Benefits Section */}
-        <section
-          id="benefits"
-          className="py-20 bg-gray-50 dark:bg-gray-900 -mx-6 px-6"
-        >
+        <section id="benefits" className="py-20">
           <div className="container mx-auto">
             <div className="text-center mb-16">
               <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-4">
@@ -298,64 +392,8 @@ export default function Home() {
           </div>
         </section>
 
-        {/* How it works */}
-        <section className="py-20">
-          <div className="text-center mb-16">
-            <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-4">
-              Comment ça marche ?
-            </h2>
-            <p className="text-gray-600 dark:text-gray-400 max-w-2xl mx-auto">
-              Un processus simple en 3 étapes
-            </p>
-          </div>
-
-          <div className="grid md:grid-cols-3 gap-8">
-            <div className="text-center">
-              <div className="w-16 h-16 bg-gray-900 dark:bg-white rounded-full flex items-center justify-center mx-auto mb-6">
-                <span className="text-white dark:text-gray-900 text-xl font-bold">
-                  1
-                </span>
-              </div>
-              <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-3">
-                Scan du QR code
-              </h3>
-              <p className="text-gray-600 dark:text-gray-400">
-                Le client scanne le QR code affiché dans votre établissement
-              </p>
-            </div>
-
-            <div className="text-center">
-              <div className="w-16 h-16 bg-gray-900 dark:bg-white rounded-full flex items-center justify-center mx-auto mb-6">
-                <span className="text-white dark:text-gray-900 text-xl font-bold">
-                  2
-                </span>
-              </div>
-              <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-3">
-                Paiement sécurisé
-              </h3>
-              <p className="text-gray-600 dark:text-gray-400">
-                Paiement en ligne via Stripe avec TWINT, cartes et Apple Pay
-              </p>
-            </div>
-
-            <div className="text-center">
-              <div className="w-16 h-16 bg-gray-900 dark:bg-white rounded-full flex items-center justify-center mx-auto mb-6">
-                <span className="text-white dark:text-gray-900 text-xl font-bold">
-                  3
-                </span>
-              </div>
-              <h3 className="text-xl font-semibold text-gray-900 dark:text-white mb-3">
-                Accès instantané
-              </h3>
-              <p className="text-gray-600 dark:text-gray-400">
-                Réception automatique du code d&apos;accès par email
-              </p>
-            </div>
-          </div>
-        </section>
-
         {/* Target Audience Section */}
-        <section className="py-20 bg-gray-50 dark:bg-gray-900 -mx-6 px-6">
+        <section className="py-20">
           <div className="container mx-auto">
             <div className="text-center mb-16">
               <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-4">
