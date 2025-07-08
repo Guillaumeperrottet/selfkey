@@ -76,11 +76,13 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Créer l'établissement
+    // Créer l'établissement avec les frais par défaut
     const establishment = await prisma.establishment.create({
       data: {
         name,
         slug,
+        commissionRate: parseFloat(process.env.PLATFORM_COMMISSION_RATE || "0"),
+        fixedFee: parseFloat(process.env.PLATFORM_FIXED_FEE || "3.00"),
       },
     });
 

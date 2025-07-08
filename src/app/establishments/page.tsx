@@ -505,13 +505,15 @@ export default function EstablishmentsPage() {
                   <p className="text-xs text-muted-foreground">
                     URL: /{newEstablishment.slug}
                   </p>
-                  
+
                   {/* Message d'information rassurant */}
                   <div className="bg-blue-50 border border-blue-200 rounded-md p-3 mt-2">
                     <p className="text-xs text-blue-700">
-                      💡 <strong>Info :</strong> Le slug peut être différent du nom de votre établissement sans aucun problème. 
-                      Vos clients verront toujours le vrai nom ("{newEstablishment.name || 'Mon Hôtel'}") sur la page de réservation, 
-                      seule l'adresse web utilise le slug.
+                      💡 <strong>Info :</strong> Le slug peut être différent du
+                      nom de votre établissement sans aucun problème. Vos
+                      clients verront toujours le vrai nom (&quot;
+                      {newEstablishment.name || "Mon Hôtel"}&quot;) sur la page
+                      de réservation, seule l&apos;adresse web utilise le slug.
                     </p>
                   </div>
                 </div>
@@ -644,7 +646,7 @@ export default function EstablishmentsPage() {
                         className="flex items-center gap-2"
                       >
                         <ExternalLink className="h-4 w-4" />
-                        Voir
+                        Voir la page de réservation
                       </Link>
                     </Button>
                   </div>

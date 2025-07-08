@@ -6,8 +6,8 @@ import { prisma } from "./prisma";
 
 // Frais par défaut depuis les variables d'environnement (fallback)
 export const defaultPlatformConfig = {
-  commissionRate: parseFloat(process.env.PLATFORM_COMMISSION_RATE || "1") / 100, // 1% = 0.01
-  fixedFee: parseFloat(process.env.PLATFORM_FIXED_FEE || "0.10"), // 0.10 CHF
+  commissionRate: parseFloat(process.env.PLATFORM_COMMISSION_RATE || "0") / 100, // 0% = 0.00
+  fixedFee: parseFloat(process.env.PLATFORM_FIXED_FEE || "3.00"), // 3.00 CHF
 };
 
 export interface FeeCalculation {

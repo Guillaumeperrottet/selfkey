@@ -88,8 +88,8 @@ model Establishment {
   name                         String
   stripeAccountId              String?
   stripeOnboarded              Boolean             @default(false)
-  commissionRate               Float               @default(0)
-  fixedFee                     Float               @default(0)
+  commissionRate               Float               @default(0) // 0% par défaut
+  fixedFee                     Float               @default(3.00) // 3.00 CHF par défaut
   // Système de codes d'accès
   accessCodeType               String              @default("room") // "room", "general", "custom"
   generalAccessCode            String? // Code général pour tout l'établissement

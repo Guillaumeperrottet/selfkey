@@ -24,12 +24,10 @@ import {
 import {
   Edit,
   Bed,
-  DollarSign,
   Plus,
   Power,
   PowerOff,
   AlertTriangle,
-  TrendingDown,
   Archive,
 } from "lucide-react";
 import { useEstablishmentFees } from "@/hooks/useEstablishmentFees";
@@ -488,7 +486,6 @@ export function RoomManagement({ hotelSlug, currency }: Props) {
                       </h3>
                       <div className="flex items-center gap-3 text-sm text-muted-foreground">
                         <div className="flex items-center gap-1">
-                          <DollarSign className="h-3 w-3" />
                           <span>
                             {room.price} {currency}
                           </span>
@@ -499,7 +496,6 @@ export function RoomManagement({ hotelSlug, currency }: Props) {
                             <Tooltip>
                               <TooltipTrigger asChild>
                                 <div className="flex items-center gap-1 text-emerald-600 cursor-help">
-                                  <TrendingDown className="h-3 w-3" />
                                   <span className="font-medium">
                                     Net:{" "}
                                     {calculateFees(
