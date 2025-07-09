@@ -16,8 +16,8 @@ export function useEstablishmentFees(
   establishmentSlug: string | null
 ): EstablishmentFees {
   const [fees, setFees] = useState<EstablishmentFees>({
-    commissionRate: 1, // Valeur par défaut
-    fixedFee: 0.1, // Valeur par défaut
+    commissionRate: 0, // Valeur par défaut corrigée
+    fixedFee: 3.0, // Valeur par défaut corrigée
     loading: true,
     error: null,
   });
@@ -43,8 +43,8 @@ export function useEstablishmentFees(
         const data = await response.json();
 
         setFees({
-          commissionRate: data.commissionRate || 1,
-          fixedFee: data.fixedFee || 0.1,
+          commissionRate: data.commissionRate ?? 0, // Utiliser ?? au lieu de || pour bien gérer le 0
+          fixedFee: data.fixedFee ?? 3.0, // Utiliser ?? au lieu de || pour bien gérer le 0
           loading: false,
           error: null,
         });

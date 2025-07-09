@@ -414,6 +414,118 @@ export function RoomManagement({ hotelSlug, currency }: Props) {
                 </div>
               </div>
 
+              {/* Aperçu en temps réel des frais */}
+              {formData.price &&
+                parseFloat(formData.price) > 0 &&
+                !feesLoading && (
+                  <div className="bg-muted/30 border border-muted rounded-lg p-4 space-y-3">
+                    <h4 className="font-medium text-sm text-foreground flex items-center gap-2">
+                      <span className="text-muted-foreground">💰</span>
+                      Aperçu des frais et revenus
+                    </h4>
+
+                    {(() => {
+                      const price = parseFloat(formData.price);
+                      const calculation = calculateFees(
+                        price,
+                        commissionRate / 100,
+                        fixedFee
+                      );
+
+                      return (
+                        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 text-xs">
+                          {/* Prix affiché au client */}
+                          <div className="bg-background border border-border rounded-md p-3">
+                            <div className="font-medium text-foreground mb-1 flex items-center gap-1">
+                              <span className="text-muted-foreground">💳</span>
+                              Prix client
+                            </div>
+                            <div className="text-lg font-bold text-foreground">
+                              {price.toFixed(2)} {currency}
+                            </div>
+                            <div className="text-muted-foreground text-xs mt-1">
+                              Montant facturé
+                            </div>
+                          </div>
+
+                          {/* Frais SelfKey - Seulement si il y a des frais */}
+                          {calculation.totalFees > 0 && (
+                            <div className="bg-background border border-border rounded-md p-3">
+                              <div className="font-medium text-foreground mb-1 flex items-center gap-1">
+                                <span className="text-muted-foreground">
+                                  🏢
+                                </span>
+                                Frais plateforme
+                              </div>
+                              <div className="space-y-1 text-muted-foreground">
+                                {/* Commission - seulement si > 0 */}
+                                {calculation.commission > 0 && (
+                                  <div className="flex justify-between">
+                                    <span>Commission ({commissionRate}%):</span>
+                                    <span>
+                                      {calculation.commission.toFixed(2)}{" "}
+                                      {currency}
+                                    </span>
+                                  </div>
+                                )}
+                                {/* Frais fixes - seulement si > 0 */}
+                                {calculation.fixedFee > 0 && (
+                                  <div className="flex justify-between">
+                                    <span>Frais fixes:</span>
+                                    <span>
+                                      {calculation.fixedFee.toFixed(2)}{" "}
+                                      {currency}
+                                    </span>
+                                  </div>
+                                )}
+                                <div className="flex justify-between font-medium text-foreground border-t border-border pt-1">
+                                  <span>Total frais:</span>
+                                  <span>
+                                    {calculation.totalFees.toFixed(2)}{" "}
+                                    {currency}
+                                  </span>
+                                </div>
+                              </div>
+                            </div>
+                          )}
+
+                          {/* Montant reçu */}
+                          <div className="bg-background border border-emerald-500/20 rounded-md p-3">
+                            <div className="font-medium text-foreground mb-1 flex items-center gap-1">
+                              <span className="text-emerald-600">✓</span>
+                              Vous recevez
+                            </div>
+                            <div className="text-xl font-bold text-emerald-600">
+                              {calculation.netAmount.toFixed(2)} {currency}
+                            </div>
+                            <div className="text-muted-foreground text-xs mt-1">
+                              Montant net
+                            </div>
+                          </div>
+                        </div>
+                      );
+                    })()}
+
+                    {(() => {
+                      const price = parseFloat(formData.price);
+                      const calculation = calculateFees(
+                        price,
+                        commissionRate / 100,
+                        fixedFee
+                      );
+
+                      return (
+                        <div className="text-xs text-muted-foreground bg-muted/20 rounded p-2 border border-muted">
+                          💡 <strong>Info :</strong>{" "}
+                          {calculation.totalFees > 0
+                            ? "Les frais sont automatiquement déduits lors de chaque réservation."
+                            : "Aucun frais appliqué - vous recevez l'intégralité du montant."}
+                        </div>
+                      );
+                    })()}
+                  </div>
+                )}
+
               <div className="flex gap-3 pt-4">
                 <Button type="submit" disabled={isLoading}>
                   {isLoading
@@ -516,18 +628,30 @@ export function RoomManagement({ hotelSlug, currency }: Props) {
                                     Prix affiché: {room.price.toFixed(2)}{" "}
                                     {currency}
                                   </div>
-                                  <div>
-                                    Commission ({commissionRate}%): -
-                                    {(
-                                      (room.price * commissionRate) /
-                                      100
-                                    ).toFixed(2)}{" "}
-                                    {currency}
-                                  </div>
-                                  <div>
-                                    Frais fixes: -{fixedFee.toFixed(2)}{" "}
-                                    {currency}
-                                  </div>
+                                  {/* Commission - seulement si > 0 */}
+                                  {commissionRate > 0 && (
+                                    <div>
+                                      Commission ({commissionRate}%): -
+                                      {(
+                                        (room.price * commissionRate) /
+                                        100
+                                      ).toFixed(2)}{" "}
+                                      {currency}
+                                    </div>
+                                  )}
+                                  {/* Frais fixes - seulement si > 0 */}
+                                  {fixedFee > 0 && (
+                                    <div>
+                                      Frais fixes: -{fixedFee.toFixed(2)}{" "}
+                                      {currency}
+                                    </div>
+                                  )}
+                                  {/* Si aucun frais, afficher un message contextuel */}
+                                  {commissionRate === 0 && fixedFee === 0 && (
+                                    <div className="text-muted-foreground">
+                                      Aucun frais appliqué
+                                    </div>
+                                  )}
                                   <div className="border-t pt-1 mt-1 font-medium text-emerald-600">
                                     Montant net:{" "}
                                     {calculateFees(
