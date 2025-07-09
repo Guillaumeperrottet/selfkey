@@ -5,7 +5,6 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Alert, AlertDescription } from "@/components/ui/alert";
 import {
   Plus,
   X,
@@ -29,6 +28,7 @@ import {
 } from "@/components/ui/collapsible";
 import { FeeBreakdown } from "@/components/FeeBreakdown";
 import { useEstablishmentFees } from "@/hooks/useEstablishmentFees";
+import { toastUtils } from "@/lib/toast-utils";
 
 interface PricingOptionValue {
   id?: string;
@@ -58,8 +58,6 @@ export function PricingOptionsManager({
   const [pricingOptions, setPricingOptions] = useState<PricingOption[]>([]);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
-  const [error, setError] = useState("");
-  const [success, setSuccess] = useState("");
   const [isGuideOpen, setIsGuideOpen] = useState(false);
   const [selectedPrice, setSelectedPrice] = useState<number>(0); // Pour prévisualiser les frais
 
@@ -74,8 +72,9 @@ export function PricingOptionsManager({
           const data = await response.json();
           setPricingOptions(data.pricingOptions || []);
         }
-      } catch {
-        setError("Erreur lors du chargement des options de prix");
+      } catch (error) {
+        toastUtils.error("Erreur lors du chargement des options de prix");
+        console.error("Erreur chargement pricing options:", error);
       } finally {
         setLoading(false);
       }
@@ -90,8 +89,9 @@ export function PricingOptionsManager({
         const data = await response.json();
         setPricingOptions(data.pricingOptions || []);
       }
-    } catch {
-      setError("Erreur lors du chargement des options de prix");
+    } catch (error) {
+      toastUtils.error("Erreur lors du chargement des options de prix");
+      console.error("Erreur chargement pricing options:", error);
     }
   };
 
@@ -180,8 +180,8 @@ export function PricingOptionsManager({
 
   const savePricingOptions = async () => {
     setSaving(true);
-    setError("");
-    setSuccess("");
+
+    const loadingToast = toastUtils.loading("Sauvegarde en cours...");
 
     try {
       const response = await fetch(`/api/admin/${hotelSlug}/pricing-options`, {
@@ -192,15 +192,19 @@ export function PricingOptionsManager({
         body: JSON.stringify({ pricingOptions }),
       });
 
+      toastUtils.dismiss(loadingToast);
+
       if (response.ok) {
-        setSuccess("Options de prix sauvegardées avec succès");
+        toastUtils.success("Options de prix sauvegardées avec succès");
         await loadPricingOptions();
       } else {
         const data = await response.json();
-        setError(data.error || "Erreur lors de la sauvegarde");
+        toastUtils.error(data.error || "Erreur lors de la sauvegarde");
       }
-    } catch {
-      setError("Erreur lors de la sauvegarde");
+    } catch (error) {
+      toastUtils.dismiss(loadingToast);
+      toastUtils.error("Erreur lors de la sauvegarde");
+      console.error("Erreur sauvegarde pricing options:", error);
     } finally {
       setSaving(false);
     }
@@ -375,17 +379,6 @@ export function PricingOptionsManager({
             </Card>
           </CollapsibleContent>
         </Collapsible>
-        {error && (
-          <Alert variant="destructive">
-            <AlertDescription>{error}</AlertDescription>
-          </Alert>
-        )}
-
-        {success && (
-          <Alert>
-            <AlertDescription>{success}</AlertDescription>
-          </Alert>
-        )}
 
         <div className="space-y-4">
           {pricingOptions.map((option, optionIndex) => (

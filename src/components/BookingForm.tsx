@@ -7,7 +7,6 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Alert, AlertDescription } from "@/components/ui/alert";
 import {
   Select,
   SelectContent,
@@ -22,6 +21,7 @@ import {
   validateBookingDates,
 } from "@/lib/availability";
 import { BookingSteps } from "./BookingSteps";
+import { toastUtils } from "@/lib/toast-utils";
 
 interface Room {
   id: string;
@@ -80,7 +80,6 @@ export function BookingForm({ hotelSlug, establishment }: BookingFormProps) {
   const [clientCountry, setClientCountry] = useState("Suisse");
   const [clientIdNumber, setClientIdNumber] = useState("");
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState("");
   const [searchPerformed, setSearchPerformed] = useState(false);
   const [bookingInProgress, setBookingInProgress] = useState(false);
 
@@ -114,25 +113,25 @@ export function BookingForm({ hotelSlug, establishment }: BookingFormProps) {
 
   const handleSearchRooms = async () => {
     if (!checkOutDate) {
-      setError("Veuillez sélectionner la date de départ");
+      toastUtils.error("Veuillez sélectionner la date de départ");
       return;
     }
 
     if (checkInDate >= checkOutDate) {
-      setError("La date de départ doit être après la date d'arrivée");
+      toastUtils.error("La date de départ doit être après la date d'arrivée");
       return;
     }
 
     // Vérifier que la date d'arrivée n'est pas dans le passé
     if (new Date(checkInDate) < new Date(today)) {
-      setError("La date d'arrivée ne peut pas être dans le passé");
+      toastUtils.error("La date d'arrivée ne peut pas être dans le passé");
       return;
     }
 
     // Pour les établissements qui n'autorisent pas les réservations futures,
     // vérifier que la date d'arrivée est bien aujourd'hui
     if (!establishment.allowFutureBookings && checkInDate !== today) {
-      setError(
+      toastUtils.error(
         "La date d'arrivée doit être aujourd'hui pour cet établissement"
       );
       return;
@@ -146,18 +145,21 @@ export function BookingForm({ hotelSlug, establishment }: BookingFormProps) {
     );
 
     if (!validation.isValid) {
-      setError(validation.error || "Dates invalides");
+      toastUtils.error(validation.error || "Dates invalides");
       return;
     }
 
     setLoading(true);
-    setError("");
     setSelectedRoom(null);
+
+    const loadingToast = toastUtils.loading("Recherche de disponibilités...");
 
     try {
       const response = await fetch(
         `/api/establishments/${hotelSlug}/availability?checkInDate=${checkInDate}&checkOutDate=${checkOutDate}`
       );
+
+      toastUtils.dismiss(loadingToast);
 
       if (!response.ok) {
         throw new Error("Erreur lors de la recherche des chambres disponibles");
@@ -169,11 +171,12 @@ export function BookingForm({ hotelSlug, establishment }: BookingFormProps) {
 
       // Afficher le message informatif si aucune chambre n'est disponible
       if (data.message) {
-        console.log("DEBUG: Setting error message:", data.message);
-        setError(data.message);
+        console.log("DEBUG: Setting info message:", data.message);
+        toastUtils.info(data.message);
       }
     } catch (err) {
-      setError(
+      toastUtils.dismiss(loadingToast);
+      toastUtils.error(
         err instanceof Error
           ? err.message
           : "Erreur lors de la recherche des chambres"
@@ -200,7 +203,7 @@ export function BookingForm({ hotelSlug, establishment }: BookingFormProps) {
   const handleConfirmBooking = async () => {
     // Validation des champs obligatoires
     if (!selectedRoom) {
-      setError("Veuillez sélectionner une chambre");
+      toastUtils.error("Veuillez sélectionner une chambre");
       return;
     }
 
@@ -216,19 +219,20 @@ export function BookingForm({ hotelSlug, establishment }: BookingFormProps) {
       !clientCountry.trim() ||
       !clientIdNumber.trim()
     ) {
-      setError("Veuillez remplir tous les champs obligatoires");
+      toastUtils.error("Veuillez remplir tous les champs obligatoires");
       return;
     }
 
     // Validation email
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(clientEmail)) {
-      setError("Veuillez saisir une adresse email valide");
+      toastUtils.error("Veuillez saisir une adresse email valide");
       return;
     }
 
     setBookingInProgress(true);
-    setError("");
+
+    const loadingToast = toastUtils.loading("Création de la réservation...");
 
     try {
       const duration = calculateStayDuration(
@@ -275,9 +279,12 @@ export function BookingForm({ hotelSlug, establishment }: BookingFormProps) {
       const data = await response.json();
 
       // Rediriger vers la page de résumé
+      toastUtils.dismiss(loadingToast);
+      toastUtils.success("Réservation créée avec succès !");
       router.push(`/${hotelSlug}/summary?booking=${data.bookingId}`);
     } catch (err) {
-      setError(
+      toastUtils.dismiss(loadingToast);
+      toastUtils.error(
         err instanceof Error
           ? err.message
           : "Erreur lors de la création de la réservation"
@@ -453,9 +460,9 @@ export function BookingForm({ hotelSlug, establishment }: BookingFormProps) {
             </div>
           )}
 
-          <Alert>
-            <Info className="h-4 w-4" />
-            <AlertDescription>
+          <div className="flex gap-3 p-3 bg-blue-50 border border-blue-200 rounded-lg">
+            <Info className="h-4 w-4 text-blue-600 mt-0.5 flex-shrink-0" />
+            <div className="text-sm">
               {establishment.allowFutureBookings ? (
                 <>
                   Vous pouvez réserver jusqu&apos;à 1 an à l&apos;avance. Durée
@@ -469,8 +476,8 @@ export function BookingForm({ hotelSlug, establishment }: BookingFormProps) {
                   {establishment.maxBookingDays > 1 ? "s" : ""}.
                 </>
               )}
-            </AlertDescription>
-          </Alert>
+            </div>
+          </div>
 
           <Button
             onClick={handleSearchRooms}
@@ -481,13 +488,6 @@ export function BookingForm({ hotelSlug, establishment }: BookingFormProps) {
           </Button>
         </CardContent>
       </Card>
-
-      {/* Affichage des erreurs */}
-      {error && (
-        <Alert variant="destructive">
-          <AlertDescription>{error}</AlertDescription>
-        </Alert>
-      )}
 
       {/* Liste des chambres disponibles */}
       {searchPerformed && (

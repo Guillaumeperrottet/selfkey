@@ -67,10 +67,9 @@ export async function deleteRoom(roomId: string) {
     );
   }
 
-  // Soft delete - marquer comme inactive
-  const room = await prisma.room.update({
+  // Suppression définitive de la place
+  const room = await prisma.room.delete({
     where: { id: roomId },
-    data: { isActive: false },
   });
 
   return room;

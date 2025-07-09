@@ -13,6 +13,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Loader2, Save } from "lucide-react";
+import { toastUtils } from "@/lib/toast-utils";
 
 interface SettingsManagerProps {
   hotelSlug: string;
@@ -43,11 +44,11 @@ export function SettingsManager({ hotelSlug }: SettingsManagerProps) {
           setCutoffTime(data.cutoffTime || "22:00");
           setReopenTime(data.reopenTime || "00:00");
         } else {
-          alert("Erreur lors du chargement des paramètres");
+          toastUtils.error("Erreur lors du chargement des paramètres");
         }
       } catch (error) {
         console.error("Error loading settings:", error);
-        alert("Erreur lors du chargement des paramètres");
+        toastUtils.error("Erreur lors du chargement des paramètres");
       } finally {
         setIsLoading(false);
       }
@@ -58,11 +59,13 @@ export function SettingsManager({ hotelSlug }: SettingsManagerProps) {
 
   const handleSave = async () => {
     if (maxBookingDays < 1 || maxBookingDays > 365) {
-      alert("La durée doit être entre 1 et 365 jours");
+      toastUtils.warning("La durée doit être entre 1 et 365 jours");
       return;
     }
 
+    const loadingToast = toastUtils.loading("Sauvegarde des paramètres...");
     setIsSaving(true);
+
     try {
       const response = await fetch(
         `/api/establishments/${hotelSlug}/settings`,
@@ -81,15 +84,18 @@ export function SettingsManager({ hotelSlug }: SettingsManagerProps) {
         }
       );
 
+      toastUtils.dismiss(loadingToast);
+
       if (response.ok) {
-        alert("Paramètres sauvegardés avec succès");
+        toastUtils.success("Paramètres sauvegardés avec succès");
       } else {
         const errorData = await response.json();
-        alert(errorData.error || "Erreur lors de la sauvegarde");
+        toastUtils.error(errorData.error || "Erreur lors de la sauvegarde");
       }
     } catch (error) {
+      toastUtils.dismiss(loadingToast);
+      toastUtils.error("Erreur lors de la sauvegarde");
       console.error("Error saving settings:", error);
-      alert("Erreur lors de la sauvegarde");
     } finally {
       setIsSaving(false);
     }

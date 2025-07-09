@@ -6,7 +6,6 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Separator } from "@/components/ui/separator";
 import {
   Dialog,
@@ -28,10 +27,11 @@ import {
   Power,
   PowerOff,
   AlertTriangle,
-  Archive,
+  X,
 } from "lucide-react";
 import { useEstablishmentFees } from "@/hooks/useEstablishmentFees";
 import { calculateFees } from "@/lib/fee-calculator";
+import { toastUtils } from "@/lib/toast-utils";
 
 interface Room {
   id: string;
@@ -59,10 +59,6 @@ export function RoomManagement({ hotelSlug, currency }: Props) {
   const [isLoading, setIsLoading] = useState(false);
   const [showAddForm, setShowAddForm] = useState(false);
   const [editingRoom, setEditingRoom] = useState<Room | null>(null);
-  const [message, setMessage] = useState<{
-    type: "success" | "error";
-    text: string;
-  } | null>(null);
 
   // Hook pour récupérer les frais de l'établissement
   const {
@@ -110,7 +106,10 @@ export function RoomManagement({ hotelSlug, currency }: Props) {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
-    setMessage(null);
+
+    const loadingToast = toastUtils.loading(
+      editingRoom ? "Modification en cours..." : "Création en cours..."
+    );
 
     try {
       const url = editingRoom
@@ -131,20 +130,20 @@ export function RoomManagement({ hotelSlug, currency }: Props) {
 
       const data = await response.json();
 
+      toastUtils.dismiss(loadingToast);
+
       if (data.success) {
-        setMessage({
-          type: "success",
-          text: editingRoom
-            ? "Place modifiée avec succès"
-            : "Place créée avec succès",
-        });
+        const entity = editingRoom ? "Place modifiée" : "Place créée";
+        toastUtils.crud.created(entity);
         resetForm();
         loadRooms();
       } else {
-        setMessage({ type: "error", text: data.error });
+        toastUtils.error(data.error || "Erreur lors de la sauvegarde");
       }
-    } catch {
-      setMessage({ type: "error", text: "Erreur lors de la sauvegarde" });
+    } catch (error) {
+      toastUtils.dismiss(loadingToast);
+      toastUtils.error("Erreur lors de la sauvegarde");
+      console.error("Erreur sauvegarde:", error);
     } finally {
       setIsLoading(false);
     }
@@ -185,6 +184,10 @@ export function RoomManagement({ hotelSlug, currency }: Props) {
   };
 
   const executeToggle = async (roomId: string, currentStatus: boolean) => {
+    const loadingToast = toastUtils.loading(
+      currentStatus ? "Désactivation en cours..." : "Activation en cours..."
+    );
+
     try {
       const response = await fetch(`/api/admin/rooms/${roomId}/toggle`, {
         method: "PATCH",
@@ -196,17 +199,37 @@ export function RoomManagement({ hotelSlug, currency }: Props) {
 
       const data = await response.json();
 
+      toastUtils.dismiss(loadingToast);
+
       if (data.success) {
-        setMessage({
-          type: "success",
-          text: `Place ${currentStatus ? "désactivée" : "activée"} avec succès`,
-        });
+        const entity = `Place ${currentStatus ? "désactivée" : "activée"}`;
+
+        // Fonction d'annulation pour revenir en arrière
+        const undoAction = async () => {
+          await fetch(`/api/admin/rooms/${roomId}/toggle`, {
+            method: "PATCH",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({ isActive: currentStatus }),
+          });
+          loadRooms();
+        };
+
+        if (currentStatus) {
+          toastUtils.crud.deactivated(entity, undoAction);
+        } else {
+          toastUtils.crud.activated(entity, undoAction);
+        }
+
         loadRooms();
       } else {
-        setMessage({ type: "error", text: data.error });
+        toastUtils.error(data.error || "Erreur lors de la modification");
       }
-    } catch {
-      setMessage({ type: "error", text: "Erreur lors de la modification" });
+    } catch (error) {
+      toastUtils.dismiss(loadingToast);
+      toastUtils.error("Erreur lors de la modification");
+      console.error("Erreur toggle:", error);
     } finally {
       setShowToggleDialog(false);
       setRoomToToggle(null);
@@ -229,35 +252,39 @@ export function RoomManagement({ hotelSlug, currency }: Props) {
   };
 
   const handleDelete = async (roomId: string, roomName: string) => {
-    if (
-      !confirm(
-        `Êtes-vous sûr de vouloir désactiver définitivement la place "${roomName}" ?\n\nNote: La place sera masquée des réservations mais conservée pour l'historique.`
-      )
-    ) {
-      return;
-    }
+    // Utilisation du toast de confirmation de Sonner
+    toastUtils.confirm(
+      `Supprimer "${roomName}" définitivement ?`,
+      async () => {
+        const loadingToast = toastUtils.loading("Suppression en cours...");
 
-    setIsLoading(true);
-    setMessage(null);
+        try {
+          const response = await fetch(`/api/admin/rooms/${roomId}`, {
+            method: "DELETE",
+          });
 
-    try {
-      const response = await fetch(`/api/admin/rooms/${roomId}`, {
-        method: "DELETE",
-      });
+          const data = await response.json();
 
-      const data = await response.json();
+          toastUtils.dismiss(loadingToast);
 
-      if (data.success) {
-        setMessage({ type: "success", text: "Place désactivée avec succès" });
-        loadRooms();
-      } else {
-        setMessage({ type: "error", text: data.error });
+          if (data.success) {
+            // Pas de fonction d'annulation pour une suppression définitive
+            toastUtils.success(`Place "${roomName}" supprimée définitivement`);
+            loadRooms();
+          } else {
+            toastUtils.error(data.error || "Erreur lors de la suppression");
+          }
+        } catch (error) {
+          toastUtils.dismiss(loadingToast);
+          toastUtils.error("Erreur lors de la suppression");
+          console.error("Erreur suppression:", error);
+        }
+      },
+      {
+        confirmLabel: "Oui",
+        cancelLabel: "Annuler",
       }
-    } catch {
-      setMessage({ type: "error", text: "Erreur lors de la désactivation" });
-    } finally {
-      setIsLoading(false);
-    }
+    );
   };
 
   return (
@@ -282,13 +309,6 @@ export function RoomManagement({ hotelSlug, currency }: Props) {
         </Button>
       </div>
 
-      {/* Messages */}
-      {message && (
-        <Alert variant={message.type === "error" ? "destructive" : "default"}>
-          <AlertDescription>{message.text}</AlertDescription>
-        </Alert>
-      )}
-
       {/* Dialog de confirmation pour désactivation */}
       <Dialog open={showToggleDialog} onOpenChange={setShowToggleDialog}>
         <DialogContent>
@@ -304,9 +324,9 @@ export function RoomManagement({ hotelSlug, currency }: Props) {
               </p>
 
               {roomToToggle?.bookingInfo?.hasActiveBookings && (
-                <Alert>
-                  <AlertTriangle className="h-4 w-4" />
-                  <AlertDescription>
+                <div className="flex gap-3 p-3 bg-amber-50 border border-amber-200 rounded-lg">
+                  <AlertTriangle className="h-4 w-4 text-amber-600 mt-0.5 flex-shrink-0" />
+                  <div className="text-sm">
                     <strong>Réservation en cours :</strong> Cette place a une
                     réservation active qui se termine le{" "}
                     {roomToToggle.bookingInfo.currentBookingEndDate &&
@@ -314,14 +334,14 @@ export function RoomManagement({ hotelSlug, currency }: Props) {
                         roomToToggle.bookingInfo.currentBookingEndDate
                       ).toLocaleDateString("fr-FR")}
                     .
-                  </AlertDescription>
-                </Alert>
+                  </div>
+                </div>
               )}
 
               {roomToToggle?.bookingInfo?.hasFutureBookings && (
-                <Alert>
-                  <AlertTriangle className="h-4 w-4" />
-                  <AlertDescription>
+                <div className="flex gap-3 p-3 bg-amber-50 border border-amber-200 rounded-lg">
+                  <AlertTriangle className="h-4 w-4 text-amber-600 mt-0.5 flex-shrink-0" />
+                  <div className="text-sm">
                     <strong>Réservations futures :</strong> Cette place a des
                     réservations à venir. La prochaine commence le{" "}
                     {roomToToggle.bookingInfo.nextBookingDate &&
@@ -329,8 +349,8 @@ export function RoomManagement({ hotelSlug, currency }: Props) {
                         roomToToggle.bookingInfo.nextBookingDate
                       ).toLocaleDateString("fr-FR")}
                     .
-                  </AlertDescription>
-                </Alert>
+                  </div>
+                </div>
               )}
 
               <div className="bg-muted p-3 rounded-lg">
@@ -703,16 +723,16 @@ export function RoomManagement({ hotelSlug, currency }: Props) {
                       <Edit className="h-4 w-4" />
                     </Button>
 
-                    {/* Bouton d'archivage/désactivation */}
+                    {/* Bouton de suppression définitive */}
                     <Button
                       variant="outline"
                       size="sm"
                       onClick={() => handleDelete(room.id, room.name)}
                       disabled={isLoading}
-                      className="text-orange-600 hover:text-orange-700 border-muted hover:border-orange-500/50"
-                      title="Désactiver définitivement cette place"
+                      className="text-red-600 hover:text-red-700 border-muted hover:border-red-500/50"
+                      title="Supprimer définitivement cette place"
                     >
-                      <Archive className="h-4 w-4" />
+                      <X className="h-4 w-4" />
                     </Button>
                   </div>
                 </div>

@@ -37,6 +37,7 @@ import {
   LogOut,
 } from "lucide-react";
 import Image from "next/image";
+import { toastUtils } from "@/lib/toast-utils";
 
 interface User {
   id: string;
@@ -212,6 +213,8 @@ export default function EstablishmentsPage() {
   const handleCreateEstablishment = async (e: React.FormEvent) => {
     e.preventDefault();
 
+    const loadingToast = toastUtils.loading("Création de l'établissement...");
+
     try {
       const response = await fetch("/api/establishments", {
         method: "POST",
@@ -221,7 +224,10 @@ export default function EstablishmentsPage() {
         body: JSON.stringify(newEstablishment),
       });
 
+      toastUtils.dismiss(loadingToast);
+
       if (response.ok) {
+        toastUtils.crud.created(`Établissement "${newEstablishment.name}"`);
         setNewEstablishment({ name: "", slug: "" });
         setSlugValidation({
           isChecking: false,
@@ -244,13 +250,17 @@ export default function EstablishmentsPage() {
               error.suggestion ||
               "Ce slug est déjà pris. Voici quelques suggestions :",
           });
+          toastUtils.warning(
+            "Le slug choisi n'est pas disponible. Consultez les suggestions ci-dessous."
+          );
         } else {
-          alert(error.error || "Erreur lors de la création");
+          toastUtils.error(error.error || "Erreur lors de la création");
         }
       }
     } catch (error) {
+      toastUtils.dismiss(loadingToast);
+      toastUtils.error("Erreur lors de la création");
       console.error("Erreur:", error);
-      alert("Erreur lors de la création");
     }
   };
 

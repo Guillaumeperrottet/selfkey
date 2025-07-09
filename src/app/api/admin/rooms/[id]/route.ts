@@ -64,17 +64,26 @@ export async function DELETE(request: NextRequest, { params }: Params) {
   try {
     const { id: roomId } = await params;
 
-    await deleteRoom(roomId);
+    const room = await deleteRoom(roomId);
 
     return NextResponse.json({
       success: true,
-      message: "Chambre supprimée avec succès",
+      message: "Place supprimée définitivement",
+      room,
     });
   } catch (error) {
     console.error("Erreur suppression chambre:", error);
 
     if (error instanceof Error) {
-      return NextResponse.json({ error: error.message }, { status: 400 });
+      if (error.message.includes("réservations existantes")) {
+        return NextResponse.json({ error: error.message }, { status: 400 });
+      }
+      if (error.message.includes("Record to delete does not exist")) {
+        return NextResponse.json(
+          { error: "Place non trouvée" },
+          { status: 404 }
+        );
+      }
     }
 
     return NextResponse.json(
