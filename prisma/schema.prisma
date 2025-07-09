@@ -148,7 +148,9 @@ model Booking {
   clientPostalCode       String // Code postal
   clientCity             String // Localité
   clientCountry          String // Pays
+  clientBirthPlace       String? // Lieu de naissance
   clientIdNumber         String // N° de permis ou de carte d'identité
+  clientVehicleNumber    String? // N° d'immatriculation du véhicule
   // Informations de réservation
   amount                 Float
   currency               String        @default("CHF")
@@ -160,7 +162,9 @@ model Booking {
   checkInDate            DateTime // Date d'arrivée
   checkOutDate           DateTime // Date de départ
   stripePaymentIntentId  String?
-  guests                 Int           @default(1)
+  guests                 Int           @default(1) // Total des invités (pour compatibilité)
+  adults                 Int           @default(1) // Nombre d'adultes (16 ans et +)
+  children               Int           @default(0) // Nombre d'enfants (moins de 16 ans)
   // Configuration de confirmation
   confirmationMethod     String? // "email" ou "whatsapp"
   confirmationSent       Boolean       @default(false)

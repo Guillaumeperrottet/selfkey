@@ -260,9 +260,6 @@ export default async function SuccessPage({ params, searchParams }: Props) {
             Conservez ce numéro pour toute correspondance future.
           </p>
         </div>
-
-        {/* Envoi automatique de l'email de confirmation */}
-        <AutoEmailConfirmation bookingId={booking.id} />
       </div>
     </div>
   );

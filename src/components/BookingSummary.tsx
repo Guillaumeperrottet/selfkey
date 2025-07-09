@@ -30,8 +30,9 @@ import {
   ChevronRight,
   Clock,
   Euro,
+  Car,
+  ArrowLeft,
 } from "lucide-react";
-import { BookingSteps } from "./BookingSteps";
 
 interface BookingData {
   id: string;
@@ -51,11 +52,13 @@ interface BookingData {
   clientEmail: string;
   clientPhone: string;
   clientBirthDate: string;
+  clientBirthPlace: string;
   clientAddress: string;
   clientPostalCode: string;
   clientCity: string;
   clientCountry: string;
   clientIdNumber: string;
+  clientVehicleNumber: string;
   checkInDate: string;
   checkOutDate: string;
   amount: number;
@@ -63,6 +66,24 @@ interface BookingData {
   selectedPricingOptions: Record<string, string | string[]>;
   pricingOptionsTotal: number;
   guests: number;
+  adults: number;
+  children: number;
+}
+
+interface PricingOptionValue {
+  id: string;
+  label: string;
+  priceModifier: number;
+  isDefault: boolean;
+  displayOrder: number;
+}
+
+interface PricingOption {
+  id: string;
+  name: string;
+  type: "select" | "checkbox" | "radio";
+  isRequired: boolean;
+  values: PricingOptionValue[];
 }
 
 interface BookingSummaryProps {
@@ -75,6 +96,7 @@ export function BookingSummary({ bookingId }: BookingSummaryProps) {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [processingPayment, setProcessingPayment] = useState(false);
+  const [pricingOptions, setPricingOptions] = useState<PricingOption[]>([]);
 
   // États pour les conditions générales
   const [acceptedTerms, setAcceptedTerms] = useState(false);
@@ -86,25 +108,75 @@ export function BookingSummary({ bookingId }: BookingSummaryProps) {
   useEffect(() => {
     const loadBooking = async () => {
       try {
-        const response = await fetch(`/api/bookings/${bookingId}`);
-        if (!response.ok) {
-          throw new Error("Réservation non trouvée");
-        }
-        const data = await response.json();
-        setBooking(data);
+        // Vérifier si c'est une réservation temporaire (commence par "temp_")
+        if (bookingId.startsWith("temp_")) {
+          // Charger depuis sessionStorage
+          const bookingData = sessionStorage.getItem(`booking_${bookingId}`);
+          if (!bookingData) {
+            throw new Error("Données de réservation non trouvées");
+          }
 
-        // Initialiser les valeurs d'édition
-        setEditValues({
-          clientFirstName: data.clientFirstName,
-          clientLastName: data.clientLastName,
-          clientEmail: data.clientEmail,
-          clientPhone: data.clientPhone,
-          clientAddress: data.clientAddress,
-          clientPostalCode: data.clientPostalCode,
-          clientCity: data.clientCity,
-          clientCountry: data.clientCountry,
-          clientIdNumber: data.clientIdNumber,
-        });
+          const data = JSON.parse(bookingData);
+          // Ajouter l'ID temporaire
+          data.id = bookingId;
+          setBooking(data);
+
+          // Charger les pricing options
+          const pricingResponse = await fetch(
+            `/api/establishments/${data.hotelSlug}/pricing-options`
+          );
+          if (pricingResponse.ok) {
+            const pricingData = await pricingResponse.json();
+            setPricingOptions(pricingData.pricingOptions || []);
+          }
+
+          // Initialiser les valeurs d'édition
+          setEditValues({
+            clientFirstName: data.clientFirstName,
+            clientLastName: data.clientLastName,
+            clientEmail: data.clientEmail,
+            clientPhone: data.clientPhone,
+            clientBirthPlace: data.clientBirthPlace,
+            clientAddress: data.clientAddress,
+            clientPostalCode: data.clientPostalCode,
+            clientCity: data.clientCity,
+            clientCountry: data.clientCountry,
+            clientIdNumber: data.clientIdNumber,
+            clientVehicleNumber: data.clientVehicleNumber,
+          });
+        } else {
+          // Charger depuis la base de données (réservation existante)
+          const response = await fetch(`/api/bookings/${bookingId}`);
+          if (!response.ok) {
+            throw new Error("Réservation non trouvée");
+          }
+          const data = await response.json();
+          setBooking(data);
+
+          // Charger les pricing options
+          const pricingResponse = await fetch(
+            `/api/establishments/${data.hotelSlug}/pricing-options`
+          );
+          if (pricingResponse.ok) {
+            const pricingData = await pricingResponse.json();
+            setPricingOptions(pricingData.pricingOptions || []);
+          }
+
+          // Initialiser les valeurs d'édition
+          setEditValues({
+            clientFirstName: data.clientFirstName,
+            clientLastName: data.clientLastName,
+            clientEmail: data.clientEmail,
+            clientPhone: data.clientPhone,
+            clientBirthPlace: data.clientBirthPlace,
+            clientAddress: data.clientAddress,
+            clientPostalCode: data.clientPostalCode,
+            clientCity: data.clientCity,
+            clientCountry: data.clientCountry,
+            clientIdNumber: data.clientIdNumber,
+            clientVehicleNumber: data.clientVehicleNumber,
+          });
+        }
       } catch (err) {
         setError(err instanceof Error ? err.message : "Erreur de chargement");
       } finally {
@@ -121,8 +193,32 @@ export function BookingSummary({ bookingId }: BookingSummaryProps) {
     setEditingField(field);
   };
 
+  const handleGoBack = () => {
+    // Rediriger vers la page de réservation en conservant l'état
+    if (booking) {
+      router.push(`/${booking.hotelSlug}`);
+    } else {
+      router.back();
+    }
+  };
+
   const handleSaveField = async (field: string) => {
     try {
+      // Si c'est une réservation temporaire, mettre à jour le sessionStorage
+      if (bookingId.startsWith("temp_")) {
+        if (booking) {
+          const updatedBooking = { ...booking, [field]: editValues[field] };
+          sessionStorage.setItem(
+            `booking_${bookingId}`,
+            JSON.stringify(updatedBooking)
+          );
+          setBooking(updatedBooking as BookingData);
+          setEditingField(null);
+        }
+        return;
+      }
+
+      // Si c'est une vraie réservation, utiliser l'API
       const response = await fetch(`/api/bookings/${bookingId}`, {
         method: "PATCH",
         headers: {
@@ -156,11 +252,13 @@ export function BookingSummary({ bookingId }: BookingSummaryProps) {
         clientLastName: booking.clientLastName,
         clientEmail: booking.clientEmail,
         clientPhone: booking.clientPhone,
+        clientBirthPlace: booking.clientBirthPlace,
         clientAddress: booking.clientAddress,
         clientPostalCode: booking.clientPostalCode,
         clientCity: booking.clientCity,
         clientCountry: booking.clientCountry,
         clientIdNumber: booking.clientIdNumber,
+        clientVehicleNumber: booking.clientVehicleNumber,
       });
     }
   };
@@ -173,10 +271,64 @@ export function BookingSummary({ bookingId }: BookingSummaryProps) {
 
     setProcessingPayment(true);
     try {
-      // Rediriger vers la page de paiement
-      router.push(`/${booking?.hotelSlug}/payment?booking=${bookingId}`);
-    } catch {
-      setError("Erreur lors du processus de paiement");
+      // Si c'est une réservation temporaire, il faut la créer maintenant
+      if (bookingId.startsWith("temp_") && booking) {
+        const response = await fetch(
+          `/api/establishments/${booking.hotelSlug}/bookings`,
+          {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+              roomId: booking.roomId,
+              checkInDate: booking.checkInDate,
+              checkOutDate: booking.checkOutDate,
+              adults: booking.adults,
+              children: booking.children,
+              clientFirstName: booking.clientFirstName,
+              clientLastName: booking.clientLastName,
+              clientEmail: booking.clientEmail,
+              clientPhone: booking.clientPhone,
+              clientBirthDate: booking.clientBirthDate,
+              clientBirthPlace: booking.clientBirthPlace,
+              clientAddress: booking.clientAddress,
+              clientPostalCode: booking.clientPostalCode,
+              clientCity: booking.clientCity,
+              clientCountry: booking.clientCountry,
+              clientIdNumber: booking.clientIdNumber,
+              clientVehicleNumber: booking.clientVehicleNumber,
+              expectedPrice: booking.amount,
+              selectedPricingOptions: booking.selectedPricingOptions,
+              pricingOptionsTotal: booking.pricingOptionsTotal,
+            }),
+          }
+        );
+
+        if (!response.ok) {
+          const errorData = await response.json();
+          throw new Error(
+            errorData.error || "Erreur lors de la création de la réservation"
+          );
+        }
+
+        const data = await response.json();
+
+        // Nettoyer le sessionStorage
+        sessionStorage.removeItem(`booking_${bookingId}`);
+
+        // Rediriger vers la page de paiement avec la vraie réservation
+        router.push(`/${booking.hotelSlug}/payment?booking=${data.bookingId}`);
+      } else {
+        // Si c'est déjà une vraie réservation, rediriger directement
+        router.push(`/${booking?.hotelSlug}/payment?booking=${bookingId}`);
+      }
+    } catch (err) {
+      setError(
+        err instanceof Error
+          ? err.message
+          : "Erreur lors du processus de paiement"
+      );
       setProcessingPayment(false);
     }
   };
@@ -223,6 +375,26 @@ export function BookingSummary({ bookingId }: BookingSummaryProps) {
     });
   };
 
+  const getOptionDisplayName = (
+    optionId: string,
+    valueId: string | string[]
+  ): string => {
+    const option = pricingOptions.find((opt) => opt.id === optionId);
+    if (!option)
+      return `${optionId}: ${Array.isArray(valueId) ? valueId.join(", ") : valueId}`;
+
+    if (Array.isArray(valueId)) {
+      const valueNames = valueId.map((id) => {
+        const value = option.values.find((val) => val.id === id);
+        return value ? value.label : id;
+      });
+      return `${option.name}: ${valueNames.join(", ")}`;
+    } else {
+      const value = option.values.find((val) => val.id === valueId);
+      return `${option.name}: ${value ? value.label : valueId}`;
+    }
+  };
+
   const EditableField = ({
     field,
     label,
@@ -236,13 +408,13 @@ export function BookingSummary({ bookingId }: BookingSummaryProps) {
     type?: string;
     icon: React.ElementType;
   }) => (
-    <div className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
-      <div className="flex items-center gap-3">
-        <Icon className="h-4 w-4 text-gray-500" />
-        <div>
-          <div className="text-sm font-medium text-gray-700">{label}</div>
+    <div className="flex items-center justify-between p-1 bg-gray-50 rounded-lg">
+      <div className="flex items-center gap-1 flex-1 min-w-0">
+        <Icon className="h-3 w-3 text-gray-500 flex-shrink-0" />
+        <div className="flex-1 min-w-0">
+          <div className="text-xs font-medium text-gray-700">{label}</div>
           {editingField === field ? (
-            <div className="flex items-center gap-2 mt-1">
+            <div className="flex items-center gap-0.5 mt-0.5">
               <Input
                 type={type}
                 value={editValues[field] || ""}
@@ -252,12 +424,12 @@ export function BookingSummary({ bookingId }: BookingSummaryProps) {
                     [field]: e.target.value,
                   }))
                 }
-                className="h-8 text-sm"
+                className="h-5 text-xs"
               />
               <Button
                 size="sm"
                 onClick={() => handleSaveField(field)}
-                className="h-8 px-2"
+                className="h-5 px-0.5 text-xs"
               >
                 ✓
               </Button>
@@ -265,13 +437,13 @@ export function BookingSummary({ bookingId }: BookingSummaryProps) {
                 size="sm"
                 variant="outline"
                 onClick={handleCancelEdit}
-                className="h-8 px-2"
+                className="h-5 px-0.5 text-xs"
               >
                 ✕
               </Button>
             </div>
           ) : (
-            <div className="text-sm text-gray-900">{value}</div>
+            <div className="text-xs text-gray-900 truncate">{value}</div>
           )}
         </div>
       </div>
@@ -280,196 +452,347 @@ export function BookingSummary({ bookingId }: BookingSummaryProps) {
           size="sm"
           variant="ghost"
           onClick={() => handleEditField(field)}
-          className="h-8 w-8 p-0"
+          className="h-4 w-4 p-0 flex-shrink-0"
         >
-          <Edit className="h-4 w-4" />
+          <Edit className="h-3 w-3" />
         </Button>
       )}
     </div>
   );
 
   return (
-    <div className="max-w-4xl mx-auto space-y-6">
-      {/* Étapes de réservation */}
-      <BookingSteps currentStep={2} />
-
-      {/* En-tête */}
-      <div className="text-center">
-        <h1 className="text-2xl font-bold text-gray-900 mb-2">
-          Résumé de votre réservation
-        </h1>
-        <p className="text-gray-600">
-          Vérifiez vos informations avant de procéder au paiement
-        </p>
+    <div className="max-w-7xl mx-auto px-3 space-y-2 pb-3">
+      {/* Étapes de réservation - version ultra-compacte */}
+      <div className="flex items-center justify-center gap-1 py-1">
+        <div className="flex items-center gap-1">
+          <div className="w-5 h-5 bg-gray-600 rounded-full flex items-center justify-center">
+            <span className="text-white text-xs font-bold">✓</span>
+          </div>
+          <span className="text-xs text-gray-600 font-medium hidden md:inline">
+            Réservation
+          </span>
+        </div>
+        <div className="w-3 h-0.5 bg-gray-300"></div>
+        <div className="flex items-center gap-1">
+          <div className="w-5 h-5 bg-gray-800 rounded-full flex items-center justify-center">
+            <span className="text-white text-xs font-bold">2</span>
+          </div>
+          <span className="text-xs text-gray-800 font-medium hidden md:inline">
+            Résumé
+          </span>
+        </div>
+        <div className="w-3 h-0.5 bg-gray-300"></div>
+        <div className="flex items-center gap-1">
+          <div className="w-5 h-5 bg-gray-400 rounded-full flex items-center justify-center">
+            <span className="text-white text-xs font-bold">3</span>
+          </div>
+          <span className="text-xs text-gray-600 font-medium hidden md:inline">
+            Paiement
+          </span>
+        </div>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+      {/* En-tête - ultra compact */}
+      <div className="text-center">
+        <div className="flex items-center justify-between mb-2">
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={handleGoBack}
+            className="flex items-center gap-2 text-gray-600 hover:text-gray-800"
+          >
+            <ArrowLeft className="h-4 w-4" />
+            <span className="hidden sm:inline">Retour</span>
+          </Button>
+          <div>
+            <h1 className="text-base sm:text-lg font-bold text-gray-900">
+              Résumé de votre réservation
+            </h1>
+            <p className="text-xs text-gray-600">
+              Vérifiez vos informations avant de procéder au paiement
+            </p>
+          </div>
+          <div className="w-20"></div> {/* Spacer pour équilibrer */}
+        </div>
+      </div>
+
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-3 lg:gap-4">
         {/* Détails de la réservation */}
-        <div className="lg:col-span-2 space-y-6">
-          {/* Informations du séjour */}
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Calendar className="h-5 w-5" />
-                Détails du séjour
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div className="flex items-center gap-3">
-                  <Clock className="h-5 w-5 text-green-600" />
-                  <div>
-                    <div className="text-sm font-medium text-gray-700">
-                      Arrivée
+        <div className="lg:col-span-2 space-y-2">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-2">
+            {/* Informations du séjour */}
+            <Card>
+              <CardHeader className="pb-1">
+                <CardTitle className="flex items-center gap-2 text-sm">
+                  <Calendar className="h-4 w-4" />
+                  Détails du séjour
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-1.5">
+                <div className="grid grid-cols-2 gap-1.5">
+                  <div className="flex items-center gap-1.5 p-1.5 bg-gray-50 rounded-lg">
+                    <Clock className="h-3 w-3 text-gray-600" />
+                    <div>
+                      <div className="text-xs font-medium text-gray-700">
+                        Arrivée
+                      </div>
+                      <div className="text-xs text-gray-900">
+                        {formatDate(booking.checkInDate)}
+                      </div>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-1.5 p-1.5 bg-gray-50 rounded-lg">
+                    <Clock className="h-3 w-3 text-gray-600" />
+                    <div>
+                      <div className="text-xs font-medium text-gray-700">
+                        Départ
+                      </div>
+                      <div className="text-xs text-gray-900">
+                        {formatDate(booking.checkOutDate)}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="flex items-center gap-1.5 p-1.5 bg-gray-50 rounded-lg">
+                  <MapPin className="h-3 w-3 text-gray-600" />
+                  <div className="flex-1">
+                    <div className="text-xs font-medium text-gray-700">
+                      Établissement
                     </div>
                     <div className="text-sm text-gray-900">
-                      {formatDate(booking.checkInDate)}
+                      {booking.establishment.name}
+                    </div>
+                    <div className="text-xs text-gray-700">
+                      Chambre: {booking.room.name}
                     </div>
                   </div>
+                  <Badge variant="secondary" className="text-xs">
+                    {duration} nuit{duration > 1 ? "s" : ""}
+                  </Badge>
                 </div>
-                <div className="flex items-center gap-3">
-                  <Clock className="h-5 w-5 text-red-600" />
-                  <div>
-                    <div className="text-sm font-medium text-gray-700">
-                      Départ
-                    </div>
-                    <div className="text-sm text-gray-900">
-                      {formatDate(booking.checkOutDate)}
-                    </div>
-                  </div>
-                </div>
-              </div>
+              </CardContent>
+            </Card>
 
-              <div className="flex items-center gap-3 p-3 bg-blue-50 rounded-lg">
-                <MapPin className="h-5 w-5 text-blue-600" />
-                <div>
-                  <div className="text-sm font-medium text-blue-700">
-                    Établissement
+            {/* Invités - Carte séparée pour plus de visibilité */}
+            <Card>
+              <CardHeader className="pb-1">
+                <CardTitle className="flex items-center gap-2 text-sm">
+                  <User className="h-4 w-4" />
+                  Invités
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="grid grid-cols-3 gap-1.5">
+                  <div className="flex items-center gap-1 p-1.5 bg-gray-50 rounded-lg">
+                    <User className="h-3 w-3 text-gray-600" />
+                    <div>
+                      <div className="text-xs font-medium text-gray-700">
+                        Adultes
+                      </div>
+                      <div className="text-sm font-semibold text-gray-900">
+                        {booking.adults}
+                      </div>
+                    </div>
                   </div>
-                  <div className="text-sm text-blue-900">
-                    {booking.establishment.name}
+                  <div className="flex items-center gap-1 p-1.5 bg-gray-50 rounded-lg">
+                    <User className="h-3 w-3 text-gray-600" />
+                    <div>
+                      <div className="text-xs font-medium text-gray-700">
+                        Enfants
+                      </div>
+                      <div className="text-sm font-semibold text-gray-900">
+                        {booking.children}
+                      </div>
+                    </div>
                   </div>
-                  <div className="text-sm text-blue-700">
-                    Chambre: {booking.room.name}
+                  <div className="flex items-center gap-1 p-1.5 bg-gray-100 rounded-lg">
+                    <User className="h-3 w-3 text-gray-600" />
+                    <div>
+                      <div className="text-xs font-medium text-gray-700">
+                        Total
+                      </div>
+                      <div className="text-sm font-semibold text-gray-900">
+                        {booking.adults + booking.children}
+                      </div>
+                    </div>
                   </div>
                 </div>
-                <Badge variant="secondary" className="ml-auto">
-                  {duration} nuit{duration > 1 ? "s" : ""}
-                </Badge>
-              </div>
-            </CardContent>
-          </Card>
+              </CardContent>
+            </Card>
+          </div>
 
-          {/* Informations du client */}
+          {/* Informations du client - Layout optimisé */}
           <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <User className="h-5 w-5" />
+            <CardHeader className="pb-1">
+              <CardTitle className="flex items-center gap-2 text-sm">
+                <User className="h-4 w-4" />
                 Vos informations
-                <Badge variant="outline" className="ml-auto">
+                <Badge variant="outline" className="ml-auto text-xs">
                   Modifiables
                 </Badge>
               </CardTitle>
             </CardHeader>
-            <CardContent className="space-y-3">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                <EditableField
-                  field="clientFirstName"
-                  label="Prénom"
-                  value={booking.clientFirstName}
-                  icon={User}
-                />
-                <EditableField
-                  field="clientLastName"
-                  label="Nom"
-                  value={booking.clientLastName}
-                  icon={User}
-                />
+            <CardContent className="space-y-2">
+              {/* Informations personnelles - Layout en grille optimisé */}
+              <div>
+                <h4 className="font-medium text-xs text-gray-700 mb-1">
+                  Informations personnelles
+                </h4>
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-1">
+                  <EditableField
+                    field="clientFirstName"
+                    label="Prénom"
+                    value={booking.clientFirstName}
+                    icon={User}
+                  />
+                  <EditableField
+                    field="clientLastName"
+                    label="Nom"
+                    value={booking.clientLastName}
+                    icon={User}
+                  />
+                  <div className="flex items-center gap-1.5 p-1 bg-gray-50 rounded-lg">
+                    <Calendar className="h-3 w-3 text-gray-600" />
+                    <div>
+                      <div className="text-xs font-medium text-gray-600">
+                        Date de naissance
+                      </div>
+                      <div className="text-xs text-gray-900">
+                        {formatDate(booking.clientBirthDate)}
+                      </div>
+                    </div>
+                  </div>
+                  <EditableField
+                    field="clientBirthPlace"
+                    label="Lieu de naissance"
+                    value={booking.clientBirthPlace}
+                    icon={MapPin}
+                  />
+                </div>
               </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                <EditableField
-                  field="clientEmail"
-                  label="Email"
-                  value={booking.clientEmail}
-                  type="email"
-                  icon={Mail}
-                />
-                <EditableField
-                  field="clientPhone"
-                  label="Téléphone"
-                  value={booking.clientPhone}
-                  type="tel"
-                  icon={Phone}
-                />
+              {/* Contact - Layout compact */}
+              <div>
+                <h4 className="font-medium text-xs text-gray-700 mb-1">
+                  Contact
+                </h4>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-1">
+                  <EditableField
+                    field="clientEmail"
+                    label="Email"
+                    value={booking.clientEmail}
+                    type="email"
+                    icon={Mail}
+                  />
+                  <EditableField
+                    field="clientPhone"
+                    label="Téléphone"
+                    value={booking.clientPhone}
+                    type="tel"
+                    icon={Phone}
+                  />
+                </div>
               </div>
 
-              <EditableField
-                field="clientAddress"
-                label="Adresse"
-                value={booking.clientAddress}
-                icon={MapPin}
-              />
-
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-                <EditableField
-                  field="clientPostalCode"
-                  label="Code postal"
-                  value={booking.clientPostalCode}
-                  icon={MapPin}
-                />
-                <EditableField
-                  field="clientCity"
-                  label="Ville"
-                  value={booking.clientCity}
-                  icon={MapPin}
-                />
-                <EditableField
-                  field="clientCountry"
-                  label="Pays"
-                  value={booking.clientCountry}
-                  icon={MapPin}
-                />
+              {/* Adresse - Layout en ligne */}
+              <div>
+                <h4 className="font-medium text-xs text-gray-700 mb-1">
+                  Adresse
+                </h4>
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-1">
+                  <EditableField
+                    field="clientAddress"
+                    label="Adresse"
+                    value={booking.clientAddress}
+                    icon={MapPin}
+                  />
+                  <EditableField
+                    field="clientPostalCode"
+                    label="Code postal"
+                    value={booking.clientPostalCode}
+                    icon={MapPin}
+                  />
+                  <EditableField
+                    field="clientCity"
+                    label="Ville"
+                    value={booking.clientCity}
+                    icon={MapPin}
+                  />
+                  <EditableField
+                    field="clientCountry"
+                    label="Pays"
+                    value={booking.clientCountry}
+                    icon={MapPin}
+                  />
+                </div>
               </div>
 
-              <EditableField
-                field="clientIdNumber"
-                label="N° d'identification"
-                value={booking.clientIdNumber}
-                icon={FileText}
-              />
+              {/* Documents et véhicule */}
+              <div>
+                <h4 className="font-medium text-xs text-gray-700 mb-1">
+                  Documents et véhicule
+                </h4>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-1">
+                  <EditableField
+                    field="clientIdNumber"
+                    label="N° d'identification"
+                    value={booking.clientIdNumber}
+                    icon={FileText}
+                  />
+                  <EditableField
+                    field="clientVehicleNumber"
+                    label="N° d'immatriculation"
+                    value={booking.clientVehicleNumber}
+                    icon={Car}
+                  />
+                </div>
+              </div>
             </CardContent>
           </Card>
         </div>
 
-        {/* Récapitulatif des prix */}
+        {/* Récapitulatif des prix - Optimisé */}
         <div className="lg:col-span-1">
-          <Card className="sticky top-6">
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
+          <Card className="lg:sticky lg:top-4">
+            <CardHeader className="pb-2">
+              <CardTitle className="flex items-center gap-2 text-base">
                 <Euro className="h-5 w-5" />
                 Récapitulatif
               </CardTitle>
             </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="space-y-3">
+            <CardContent className="space-y-3">
+              <div className="space-y-2">
                 <div className="flex justify-between items-center">
                   <span className="text-sm text-gray-600">
                     Chambre ({duration} nuit{duration > 1 ? "s" : ""})
                   </span>
-                  <span className="text-sm font-medium">
+                  <span className="text-base font-medium">
                     {booking.room.price * duration} {booking.currency}
                   </span>
                 </div>
 
+                {/* Options de pricing - affichage simple */}
                 {booking.pricingOptionsTotal > 0 && (
-                  <div className="flex justify-between items-center">
-                    <span className="text-sm text-gray-600">
-                      Options supplémentaires
-                    </span>
-                    <span className="text-sm font-medium">
-                      +{booking.pricingOptionsTotal} {booking.currency}
-                    </span>
+                  <div className="border rounded-lg p-2 bg-gray-50">
+                    <div className="flex justify-between items-center mb-2">
+                      <span className="text-sm text-gray-700 font-medium">
+                        Options supplémentaires
+                      </span>
+                      <span className="text-base font-medium text-gray-800">
+                        +{booking.pricingOptionsTotal} {booking.currency}
+                      </span>
+                    </div>
+
+                    <div className="space-y-1">
+                      {Object.entries(booking.selectedPricingOptions).map(
+                        ([key, value]) => (
+                          <div key={key} className="text-sm text-gray-600">
+                            {getOptionDisplayName(key, value)}
+                          </div>
+                        )
+                      )}
+                    </div>
                   </div>
                 )}
               </div>
@@ -477,28 +800,28 @@ export function BookingSummary({ bookingId }: BookingSummaryProps) {
               <Separator />
 
               <div className="flex justify-between items-center">
-                <span className="text-lg font-semibold">Total</span>
-                <span className="text-2xl font-bold text-blue-600">
+                <span className="text-base font-semibold">Total</span>
+                <span className="text-xl font-bold text-gray-900">
                   {booking.amount} {booking.currency}
                 </span>
               </div>
 
-              <div className="space-y-2">
+              <div className="space-y-1">
                 <div className="flex items-center gap-2 text-sm text-gray-600">
                   <Shield className="h-4 w-4" />
                   <span>Paiement 100% sécurisé</span>
                 </div>
                 <div className="flex items-center gap-2 text-sm text-gray-600">
                   <CreditCard className="h-4 w-4" />
-                  <span>Cartes acceptées: Visa, Mastercard, TWINT</span>
+                  <span>Visa, Mastercard, TWINT</span>
                 </div>
               </div>
 
               <Separator />
 
               {/* Conditions générales */}
-              <div className="space-y-3">
-                <div className="flex items-start space-x-3">
+              <div className="space-y-2">
+                <div className="flex items-start space-x-2">
                   <Checkbox
                     id="terms"
                     checked={acceptedTerms}
@@ -508,11 +831,14 @@ export function BookingSummary({ bookingId }: BookingSummaryProps) {
                     className="mt-1"
                   />
                   <div className="flex-1">
-                    <Label htmlFor="terms" className="text-sm cursor-pointer">
+                    <Label
+                      htmlFor="terms"
+                      className="text-sm cursor-pointer leading-relaxed"
+                    >
                       J&apos;accepte les{" "}
                       <Dialog>
                         <DialogTrigger asChild>
-                          <span className="text-blue-600 hover:underline cursor-pointer">
+                          <span className="text-gray-700 hover:underline cursor-pointer">
                             conditions générales de vente
                           </span>
                         </DialogTrigger>
@@ -578,7 +904,7 @@ export function BookingSummary({ bookingId }: BookingSummaryProps) {
                 </div>
 
                 {!acceptedTerms && (
-                  <Alert>
+                  <Alert className="py-2">
                     <AlertDescription className="text-sm">
                       Vous devez accepter les conditions générales pour procéder
                       au paiement.

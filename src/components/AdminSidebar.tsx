@@ -15,6 +15,7 @@ import {
   ExternalLink,
   LogOut,
   Menu,
+  FileSpreadsheet,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
@@ -66,6 +67,11 @@ const navigation = [
     id: "integrations",
     name: "Intégrations",
     icon: Zap,
+  },
+  {
+    id: "export-excel",
+    name: "Export Excel",
+    icon: FileSpreadsheet,
   },
   {
     id: "settings",

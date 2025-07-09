@@ -14,6 +14,7 @@ import { ConfirmationManager } from "@/components/ConfirmationManager";
 import { BookingsTable } from "@/components/BookingsTable";
 import { DashboardCharts } from "@/components/DashboardCharts";
 import { ChartColorSelector } from "@/components/ChartColorSelector";
+import ExcelExportManager from "@/components/ExcelExportManager";
 import {
   Card,
   CardContent,
@@ -432,6 +433,13 @@ export function AdminDashboard({
 
       case "integrations":
         return <IntegrationManager hotelSlug={hotel} />;
+
+      case "export-excel":
+        return (
+          <div className="max-w-4xl mx-auto">
+            <ExcelExportManager hotelSlug={hotel} />
+          </div>
+        );
 
       case "settings":
         return (

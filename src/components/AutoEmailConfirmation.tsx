@@ -55,10 +55,11 @@ export function AutoEmailConfirmation({
       }
     };
 
-    if (bookingId) {
+    // Éviter les appels multiples en vérifiant les états
+    if (bookingId && !emailSent && !error && isLoading) {
       sendConfirmationEmail();
     }
-  }, [bookingId]);
+  }, [bookingId, emailSent, error, isLoading]);
 
   // Composant invisible, juste pour déclencher l'envoi
   if (isLoading) {

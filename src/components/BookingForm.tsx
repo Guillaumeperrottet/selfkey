@@ -68,6 +68,9 @@ export function BookingForm({ hotelSlug, establishment }: BookingFormProps) {
   const [checkOutDate, setCheckOutDate] = useState("");
   const [availableRooms, setAvailableRooms] = useState<Room[]>([]);
   const [selectedRoom, setSelectedRoom] = useState<Room | null>(null);
+  // Informations invités
+  const [adults, setAdults] = useState(1); // Nombre d'adultes (16 ans et +)
+  const [children, setChildren] = useState(0); // Nombre d'enfants (moins de 16 ans)
   // Informations client détaillées
   const [clientFirstName, setClientFirstName] = useState("");
   const [clientLastName, setClientLastName] = useState("");
@@ -78,7 +81,9 @@ export function BookingForm({ hotelSlug, establishment }: BookingFormProps) {
   const [clientPostalCode, setClientPostalCode] = useState("");
   const [clientCity, setClientCity] = useState("");
   const [clientCountry, setClientCountry] = useState("Suisse");
+  const [clientBirthPlace, setClientBirthPlace] = useState("");
   const [clientIdNumber, setClientIdNumber] = useState("");
+  const [clientVehicleNumber, setClientVehicleNumber] = useState("");
   const [loading, setLoading] = useState(false);
   const [searchPerformed, setSearchPerformed] = useState(false);
   const [bookingInProgress, setBookingInProgress] = useState(false);
@@ -213,11 +218,14 @@ export function BookingForm({ hotelSlug, establishment }: BookingFormProps) {
       !clientEmail.trim() ||
       !clientPhone.trim() ||
       !clientBirthDate ||
+      !clientBirthPlace.trim() ||
       !clientAddress.trim() ||
       !clientPostalCode.trim() ||
       !clientCity.trim() ||
       !clientCountry.trim() ||
-      !clientIdNumber.trim()
+      !clientIdNumber.trim() ||
+      !clientVehicleNumber.trim() ||
+      adults < 1
     ) {
       toastUtils.error("Veuillez remplir tous les champs obligatoires");
       return;
@@ -241,47 +249,47 @@ export function BookingForm({ hotelSlug, establishment }: BookingFormProps) {
       );
       const totalPrice = selectedRoom.price * duration + pricingOptionsTotal;
 
-      const response = await fetch(
-        `/api/establishments/${hotelSlug}/bookings`,
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            roomId: selectedRoom.id,
-            checkInDate,
-            checkOutDate,
-            clientFirstName: clientFirstName.trim(),
-            clientLastName: clientLastName.trim(),
-            clientEmail: clientEmail.trim(),
-            clientPhone: clientPhone.trim(),
-            clientBirthDate,
-            clientAddress: clientAddress.trim(),
-            clientPostalCode: clientPostalCode.trim(),
-            clientCity: clientCity.trim(),
-            clientCountry: clientCountry.trim(),
-            clientIdNumber: clientIdNumber.trim(),
-            expectedPrice: totalPrice,
-            selectedPricingOptions,
-            pricingOptionsTotal,
-          }),
-        }
+      // Stocker les données de réservation temporairement dans sessionStorage
+      const bookingData = {
+        hotelSlug,
+        roomId: selectedRoom.id,
+        room: selectedRoom,
+        establishment: { name: establishment.name, slug: hotelSlug },
+        checkInDate,
+        checkOutDate,
+        adults,
+        children,
+        clientFirstName: clientFirstName.trim(),
+        clientLastName: clientLastName.trim(),
+        clientEmail: clientEmail.trim(),
+        clientPhone: clientPhone.trim(),
+        clientBirthDate,
+        clientBirthPlace: clientBirthPlace.trim(),
+        clientAddress: clientAddress.trim(),
+        clientPostalCode: clientPostalCode.trim(),
+        clientCity: clientCity.trim(),
+        clientCountry: clientCountry.trim(),
+        clientIdNumber: clientIdNumber.trim(),
+        clientVehicleNumber: clientVehicleNumber.trim(),
+        amount: totalPrice,
+        currency: "CHF",
+        selectedPricingOptions,
+        pricingOptionsTotal,
+        guests: adults + children,
+      };
+
+      // Générer un ID temporaire pour la session
+      const tempBookingId = `temp_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+
+      // Stocker dans sessionStorage
+      sessionStorage.setItem(
+        `booking_${tempBookingId}`,
+        JSON.stringify(bookingData)
       );
 
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(
-          errorData.error || "Erreur lors de la création de la réservation"
-        );
-      }
-
-      const data = await response.json();
-
-      // Rediriger vers la page de résumé
+      // Rediriger vers la page de résumé avec l'ID temporaire
       toastUtils.dismiss(loadingToast);
-      toastUtils.success("Réservation créée avec succès !");
-      router.push(`/${hotelSlug}/summary?booking=${data.bookingId}`);
+      router.push(`/${hotelSlug}/summary?booking=${tempBookingId}`);
     } catch (err) {
       toastUtils.dismiss(loadingToast);
       toastUtils.error(
@@ -377,6 +385,87 @@ export function BookingForm({ hotelSlug, establishment }: BookingFormProps) {
     }
   }, [checkInDate, checkOutDate]);
 
+  // Récupérer les données du sessionStorage si l'utilisateur revient du résumé
+  useEffect(() => {
+    const loadSavedData = () => {
+      try {
+        // Chercher toutes les clés de réservation temporaire dans sessionStorage
+        const keys = Object.keys(sessionStorage);
+        const bookingKey = keys.find((key) =>
+          key.startsWith(`booking_temp_${hotelSlug}_`)
+        );
+
+        if (bookingKey) {
+          const savedBookingData = sessionStorage.getItem(bookingKey);
+          if (savedBookingData) {
+            const data = JSON.parse(savedBookingData);
+
+            // Pré-remplir tous les champs du formulaire
+            setCheckInDate(data.checkInDate || today);
+            setCheckOutDate(data.checkOutDate || "");
+            setAdults(data.adults || 1);
+            setChildren(data.children || 0);
+            setClientFirstName(data.clientFirstName || "");
+            setClientLastName(data.clientLastName || "");
+            setClientEmail(data.clientEmail || "");
+            setClientPhone(data.clientPhone || "");
+            setClientBirthDate(data.clientBirthDate || "");
+            setClientBirthPlace(data.clientBirthPlace || "");
+            setClientAddress(data.clientAddress || "");
+            setClientPostalCode(data.clientPostalCode || "");
+            setClientCity(data.clientCity || "");
+            setClientCountry(data.clientCountry || "Suisse");
+            setClientIdNumber(data.clientIdNumber || "");
+            setClientVehicleNumber(data.clientVehicleNumber || "");
+
+            // Restaurer les options de pricing sélectionnées
+            if (data.selectedPricingOptions) {
+              setSelectedPricingOptions(data.selectedPricingOptions);
+            }
+
+            // Si une chambre était sélectionnée, la restaurer
+            if (data.room) {
+              setSelectedRoom(data.room);
+            }
+
+            // Si des dates étaient définies, rechercher automatiquement les chambres
+            if (data.checkInDate && data.checkOutDate) {
+              setSearchPerformed(true);
+              // Déclencher la recherche de chambres avec un délai
+              setTimeout(async () => {
+                try {
+                  const response = await fetch(
+                    `/api/establishments/${hotelSlug}/availability?checkInDate=${data.checkInDate}&checkOutDate=${data.checkOutDate}`
+                  );
+                  if (response.ok) {
+                    const roomData = await response.json();
+                    setAvailableRooms(roomData.availableRooms || []);
+                  }
+                } catch (error) {
+                  console.error(
+                    "Erreur lors de la recherche automatique:",
+                    error
+                  );
+                }
+              }, 100);
+            }
+
+            console.log(
+              "DEBUG: Données du formulaire restaurées depuis sessionStorage"
+            );
+          }
+        }
+      } catch (error) {
+        console.error(
+          "Erreur lors de la récupération des données sauvegardées:",
+          error
+        );
+      }
+    };
+
+    loadSavedData();
+  }, [hotelSlug, today]); // Déclencher uniquement au montage du composant
+
   return (
     <div className="space-y-6">
       {/* Header */}
@@ -410,7 +499,9 @@ export function BookingForm({ hotelSlug, establishment }: BookingFormProps) {
                 value={checkInDate}
                 onChange={(e) => setCheckInDate(e.target.value)}
                 readOnly={!establishment.allowFutureBookings}
-                className={`mt-1 ${!establishment.allowFutureBookings ? "bg-gray-50" : ""}`}
+                className={`mt-1 ${
+                  !establishment.allowFutureBookings ? "bg-gray-50" : ""
+                }`}
                 title={
                   establishment.allowFutureBookings
                     ? "Sélectionnez votre date d'arrivée"
@@ -427,11 +518,6 @@ export function BookingForm({ hotelSlug, establishment }: BookingFormProps) {
                     : undefined
                 }
               />
-              <p className="text-xs text-gray-500 mt-1">
-                {establishment.allowFutureBookings
-                  ? "Choisissez votre date d'arrivée"
-                  : "Arrivée fixée à aujourd'hui"}
-              </p>
             </div>
             <div>
               <Label htmlFor="checkOut">Date de départ</Label>
@@ -550,151 +636,264 @@ export function BookingForm({ hotelSlug, establishment }: BookingFormProps) {
         </Card>
       )}
 
-      {/* Informations du client */}
+      {/* Formulaire de réservation unifié */}
       {selectedRoom && (
         <Card>
           <CardHeader>
-            <CardTitle>Informations personnelles</CardTitle>
+            <CardTitle>Informations de réservation</CardTitle>
+            <p className="text-sm text-gray-600">
+              Veuillez remplir tous les champs obligatoires pour votre
+              réservation
+            </p>
           </CardHeader>
-          <CardContent className="space-y-4">
-            {/* Nom et Prénom */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div>
-                <Label htmlFor="clientLastName">Nom *</Label>
-                <Input
-                  id="clientLastName"
-                  type="text"
-                  value={clientLastName}
-                  onChange={(e) => setClientLastName(e.target.value)}
-                  placeholder="Nom de famille"
-                  className="mt-1"
-                  required
-                />
-              </div>
-              <div>
-                <Label htmlFor="clientFirstName">Prénom *</Label>
-                <Input
-                  id="clientFirstName"
-                  type="text"
-                  value={clientFirstName}
-                  onChange={(e) => setClientFirstName(e.target.value)}
-                  placeholder="Prénom"
-                  className="mt-1"
-                  required
-                />
+          <CardContent className="space-y-6">
+            {/* Résumé de la sélection */}
+            <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+              <h4 className="font-medium text-blue-900 mb-2">
+                Résumé de votre réservation
+              </h4>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
+                <div>
+                  <p>
+                    <strong>Chambre :</strong> {selectedRoom.name}
+                  </p>
+                  <p>
+                    <strong>Durée :</strong> {duration} nuit
+                    {duration > 1 ? "s" : ""}
+                  </p>
+                </div>
+                <div>
+                  <p>
+                    <strong>Du :</strong>{" "}
+                    {new Date(checkInDate).toLocaleDateString()}
+                  </p>
+                  <p>
+                    <strong>Au :</strong>{" "}
+                    {new Date(checkOutDate).toLocaleDateString()}
+                  </p>
+                </div>
               </div>
             </div>
 
-            {/* Date de naissance */}
+            {/* Nombre d'invités */}
             <div>
-              <Label htmlFor="clientBirthDate">Date de naissance *</Label>
-              <Input
-                id="clientBirthDate"
-                type="date"
-                value={clientBirthDate}
-                onChange={(e) => setClientBirthDate(e.target.value)}
-                className="mt-1"
-                required
-              />
+              <h4 className="font-medium text-lg mb-3">Nombre de personnes</h4>
+              <p className="text-sm text-gray-600 mb-3">
+                Adultes : 16 ans et plus • Enfants : moins de 16 ans
+              </p>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <Label htmlFor="adults">Nombre d&apos;adultes *</Label>
+                  <Select
+                    value={adults.toString()}
+                    onValueChange={(value) => setAdults(parseInt(value))}
+                  >
+                    <SelectTrigger className="mt-1">
+                      <SelectValue placeholder="Sélectionner" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {[1, 2, 3, 4, 5, 6, 7, 8].map((num) => (
+                        <SelectItem key={num} value={num.toString()}>
+                          {num} adulte{num > 1 ? "s" : ""}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div>
+                  <Label htmlFor="children">Nombre d&apos;enfants</Label>
+                  <Select
+                    value={children.toString()}
+                    onValueChange={(value) => setChildren(parseInt(value))}
+                  >
+                    <SelectTrigger className="mt-1">
+                      <SelectValue placeholder="Sélectionner" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {[0, 1, 2, 3, 4, 5, 6].map((num) => (
+                        <SelectItem key={num} value={num.toString()}>
+                          {num} enfant{num > 1 ? "s" : ""}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+              </div>
             </div>
 
-            {/* Adresse */}
+            {/* Informations personnelles */}
             <div>
-              <Label htmlFor="clientAddress">Adresse *</Label>
-              <Input
-                id="clientAddress"
-                type="text"
-                value={clientAddress}
-                onChange={(e) => setClientAddress(e.target.value)}
-                placeholder="Rue et numéro"
-                className="mt-1"
-                required
-              />
-            </div>
+              <h4 className="font-medium text-lg mb-3">
+                Informations personnelles
+              </h4>
 
-            {/* Code postal et Localité */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div>
-                <Label htmlFor="clientPostalCode">Code postal *</Label>
+              {/* Nom et Prénom */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                <div>
+                  <Label htmlFor="clientLastName">Nom *</Label>
+                  <Input
+                    id="clientLastName"
+                    type="text"
+                    value={clientLastName}
+                    onChange={(e) => setClientLastName(e.target.value)}
+                    placeholder="Nom de famille"
+                    className="mt-1"
+                    required
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="clientFirstName">Prénom *</Label>
+                  <Input
+                    id="clientFirstName"
+                    type="text"
+                    value={clientFirstName}
+                    onChange={(e) => setClientFirstName(e.target.value)}
+                    placeholder="Prénom"
+                    className="mt-1"
+                    required
+                  />
+                </div>
+              </div>
+
+              {/* Date et lieu de naissance */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                <div>
+                  <Label htmlFor="clientBirthDate">Date de naissance *</Label>
+                  <Input
+                    id="clientBirthDate"
+                    type="date"
+                    value={clientBirthDate}
+                    onChange={(e) => setClientBirthDate(e.target.value)}
+                    className="mt-1"
+                    required
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="clientBirthPlace">Lieu de naissance *</Label>
+                  <Input
+                    id="clientBirthPlace"
+                    type="text"
+                    value={clientBirthPlace}
+                    onChange={(e) => setClientBirthPlace(e.target.value)}
+                    placeholder="Ville, Pays"
+                    className="mt-1"
+                    required
+                  />
+                </div>
+              </div>
+
+              {/* Email et Téléphone */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                <div>
+                  <Label htmlFor="clientEmail">Email *</Label>
+                  <Input
+                    id="clientEmail"
+                    type="email"
+                    value={clientEmail}
+                    onChange={(e) => setClientEmail(e.target.value)}
+                    placeholder="votre@email.com"
+                    className="mt-1"
+                    required
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="clientPhone">Téléphone mobile *</Label>
+                  <Input
+                    id="clientPhone"
+                    type="tel"
+                    value={clientPhone}
+                    onChange={(e) => setClientPhone(e.target.value)}
+                    placeholder="+41 79 123 45 67"
+                    className="mt-1"
+                    required
+                  />
+                </div>
+              </div>
+
+              {/* Adresse complète */}
+              <div className="mb-4">
+                <Label htmlFor="clientAddress">Adresse *</Label>
                 <Input
-                  id="clientPostalCode"
+                  id="clientAddress"
                   type="text"
-                  value={clientPostalCode}
-                  onChange={(e) => setClientPostalCode(e.target.value)}
-                  placeholder="1234"
+                  value={clientAddress}
+                  onChange={(e) => setClientAddress(e.target.value)}
+                  placeholder="Rue et numéro"
                   className="mt-1"
                   required
                 />
               </div>
-              <div>
-                <Label htmlFor="clientCity">Localité *</Label>
-                <Input
-                  id="clientCity"
-                  type="text"
-                  value={clientCity}
-                  onChange={(e) => setClientCity(e.target.value)}
-                  placeholder="Ville"
-                  className="mt-1"
-                  required
-                />
+
+              {/* Code postal, Localité et Pays */}
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+                <div>
+                  <Label htmlFor="clientPostalCode">Code postal *</Label>
+                  <Input
+                    id="clientPostalCode"
+                    type="text"
+                    value={clientPostalCode}
+                    onChange={(e) => setClientPostalCode(e.target.value)}
+                    placeholder="1234"
+                    className="mt-1"
+                    required
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="clientCity">Localité *</Label>
+                  <Input
+                    id="clientCity"
+                    type="text"
+                    value={clientCity}
+                    onChange={(e) => setClientCity(e.target.value)}
+                    placeholder="Ville"
+                    className="mt-1"
+                    required
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="clientCountry">Pays *</Label>
+                  <Input
+                    id="clientCountry"
+                    type="text"
+                    value={clientCountry}
+                    onChange={(e) => setClientCountry(e.target.value)}
+                    placeholder="Pays"
+                    className="mt-1"
+                    required
+                  />
+                </div>
               </div>
-            </div>
 
-            {/* Pays */}
-            <div>
-              <Label htmlFor="clientCountry">Pays *</Label>
-              <Input
-                id="clientCountry"
-                type="text"
-                value={clientCountry}
-                onChange={(e) => setClientCountry(e.target.value)}
-                placeholder="Pays"
-                className="mt-1"
-                required
-              />
-            </div>
-
-            {/* N° de permis ou carte d'identité */}
-            <div>
-              <Label htmlFor="clientIdNumber">
-                N° de permis ou de carte d&apos;identité *
-              </Label>
-              <Input
-                id="clientIdNumber"
-                type="text"
-                value={clientIdNumber}
-                onChange={(e) => setClientIdNumber(e.target.value)}
-                placeholder="Numéro d'identification"
-                className="mt-1"
-                required
-              />
-            </div>
-
-            {/* Email et Téléphone */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div>
-                <Label htmlFor="clientEmail">Email *</Label>
-                <Input
-                  id="clientEmail"
-                  type="email"
-                  value={clientEmail}
-                  onChange={(e) => setClientEmail(e.target.value)}
-                  placeholder="votre@email.com"
-                  className="mt-1"
-                  required
-                />
-              </div>
-              <div>
-                <Label htmlFor="clientPhone">Téléphone mobile *</Label>
-                <Input
-                  id="clientPhone"
-                  type="tel"
-                  value={clientPhone}
-                  onChange={(e) => setClientPhone(e.target.value)}
-                  placeholder="+41 79 123 45 67"
-                  className="mt-1"
-                  required
-                />
+              {/* Documents et véhicule */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                <div>
+                  <Label htmlFor="clientIdNumber">
+                    N° de permis ou de carte d&apos;identité *
+                  </Label>
+                  <Input
+                    id="clientIdNumber"
+                    type="text"
+                    value={clientIdNumber}
+                    onChange={(e) => setClientIdNumber(e.target.value)}
+                    placeholder="Numéro d'identification"
+                    className="mt-1"
+                    required
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="clientVehicleNumber">
+                    N° d&apos;immatriculation du véhicule *
+                  </Label>
+                  <Input
+                    id="clientVehicleNumber"
+                    type="text"
+                    value={clientVehicleNumber}
+                    onChange={(e) => setClientVehicleNumber(e.target.value)}
+                    placeholder="Ex: FR 123456"
+                    className="mt-1"
+                    required
+                  />
+                </div>
               </div>
             </div>
 

@@ -17,16 +17,20 @@ export async function POST(
       roomId,
       checkInDate,
       checkOutDate,
+      adults,
+      children,
       clientFirstName,
       clientLastName,
       clientEmail,
       clientPhone,
       clientBirthDate,
+      clientBirthPlace,
       clientAddress,
       clientPostalCode,
       clientCity,
       clientCountry,
       clientIdNumber,
+      clientVehicleNumber,
       expectedPrice,
       selectedPricingOptions,
     } = body;
@@ -41,12 +45,18 @@ export async function POST(
       !clientEmail ||
       !clientPhone ||
       !clientBirthDate ||
+      !clientBirthPlace ||
       !clientAddress ||
       !clientPostalCode ||
       !clientCity ||
       !clientCountry ||
       !clientIdNumber ||
-      typeof expectedPrice !== "number"
+      !clientVehicleNumber ||
+      typeof expectedPrice !== "number" ||
+      typeof adults !== "number" ||
+      typeof children !== "number" ||
+      adults < 1 ||
+      children < 0
     ) {
       return NextResponse.json(
         { error: "Données manquantes ou invalides" },
@@ -220,12 +230,16 @@ export async function POST(
         clientEmail,
         clientPhone,
         clientBirthDate: new Date(clientBirthDate),
+        clientBirthPlace,
         clientAddress,
         clientPostalCode,
         clientCity,
         clientCountry,
         clientIdNumber,
-        guests: 1, // TODO: ajouter le nombre d'invités au formulaire si nécessaire
+        clientVehicleNumber,
+        guests: adults + children, // Total des invités pour compatibilité
+        adults,
+        children,
         amount: calculatedPrice,
         platformCommission,
         ownerAmount,

@@ -1,6 +1,7 @@
 import { prisma } from "@/lib/prisma";
 import { NextResponse } from "next/server";
 import { sendEmail } from "@/lib/resend";
+import { isRateLimited } from "@/lib/rate-limiter";
 
 interface Props {
   params: Promise<{ bookingId: string }>;
@@ -26,6 +27,8 @@ interface BookingWithDetails {
   checkInDate: Date;
   checkOutDate: Date;
   stripePaymentIntentId: string | null;
+  confirmationSent: boolean | null;
+  confirmationSentAt: Date | null;
   room: {
     id: string;
     name: string;
@@ -49,6 +52,24 @@ interface BookingWithDetails {
 export async function POST(request: Request, { params }: Props) {
   try {
     const { bookingId } = await params;
+
+    // Protection rate limiting par booking ID (maximum 3 tentatives par minute)
+    if (
+      isRateLimited(`booking-confirmation-${bookingId}`, {
+        windowMs: 60000,
+        maxRequests: 3,
+      })
+    ) {
+      console.log(`🚫 Rate limit dépassé pour la réservation ${bookingId}`);
+      return NextResponse.json(
+        {
+          error:
+            "Trop de tentatives d'envoi. Veuillez patienter avant de réessayer.",
+        },
+        { status: 429 }
+      );
+    }
+
     const body = await request.json();
     const { method } = body;
 
@@ -99,6 +120,25 @@ export async function POST(request: Request, { params }: Props) {
         { error: "Confirmation par WhatsApp non activée" },
         { status: 400 }
       );
+    }
+
+    // Vérifier si une confirmation a déjà été envoyée récemment (dans les 5 dernières minutes)
+    if (booking.confirmationSent && booking.confirmationSentAt) {
+      const now = new Date();
+      const lastSent = new Date(booking.confirmationSentAt);
+      const diffInMinutes = (now.getTime() - lastSent.getTime()) / (1000 * 60);
+
+      if (diffInMinutes < 5) {
+        console.log(
+          `⚠️ Email de confirmation déjà envoyé il y a ${Math.round(
+            diffInMinutes
+          )} minute(s). Éviter l'envoi en double.`
+        );
+        return NextResponse.json({
+          message: "Confirmation déjà envoyée récemment",
+          lastSent: booking.confirmationSentAt,
+        });
+      }
     }
 
     // Déterminer le code d'accès selon la configuration
@@ -219,7 +259,6 @@ async function sendEmailConfirmation(
   try {
     // Logique intelligente pour l'adresse email de destination
     let destinationEmail = booking.clientEmail;
-    let useTestEmail = false;
 
     // En développement, utiliser l'adresse de test Resend SAUF si l'admin a configuré un domaine vérifié
     if (process.env.NODE_ENV === "development") {
@@ -233,55 +272,71 @@ async function sendEmailConfirmation(
         );
       } else {
         destinationEmail = "delivered@resend.dev";
-        useTestEmail = true;
         console.log(
           `📧 Utilisation de l'adresse de test Resend: ${destinationEmail} (original: ${booking.clientEmail})`
         );
       }
     }
 
-    const result = await sendEmail({
-      to: destinationEmail,
-      from: booking.establishment.confirmationEmailFrom || `noreply@resend.dev`,
-      subject: `Confirmation de réservation - ${booking.establishment.name}`,
-      html: htmlContent,
-    });
+    // Fonction d'envoi avec retry automatique
+    const sendEmailWithRetry = async () => {
+      const result = await sendEmail({
+        to: destinationEmail,
+        from:
+          booking.establishment.confirmationEmailFrom || `noreply@resend.dev`,
+        subject: `Confirmation de réservation - ${booking.establishment.name}`,
+        html: htmlContent,
+      });
 
-    if (!result.success) {
-      // Si l'envoi échoue avec un domaine personnalisé, essayer avec l'adresse de test
-      if (!useTestEmail && process.env.NODE_ENV === "development") {
-        console.log(
-          `❌ Échec avec le domaine personnalisé. Tentative avec l'adresse de test...`
-        );
-
-        const fallbackResult = await sendEmail({
-          to: "delivered@resend.dev",
-          from: "noreply@resend.dev",
-          subject: `Confirmation de réservation - ${booking.establishment.name}`,
-          html: htmlContent,
-        });
-
-        if (fallbackResult.success) {
-          console.log(
-            `✅ Email envoyé avec succès à l'adresse de test (fallback)`
-          );
-        } else {
-          // Ajouter un délai pour éviter le rate limit
-          await new Promise((resolve) => setTimeout(resolve, 1000));
-          throw new Error(
-            fallbackResult.error || "Erreur lors de l'envoi de l'email"
-          );
-        }
-      } else {
-        // Ajouter un délai pour éviter le rate limit
-        await new Promise((resolve) => setTimeout(resolve, 1000));
+      if (!result.success) {
         throw new Error(result.error || "Erreur lors de l'envoi de l'email");
       }
-    } else {
-      console.log("✅ Email envoyé avec succès à:", destinationEmail);
-    }
+
+      return result;
+    };
+
+    // Tenter l'envoi avec retry automatique
+    await retryWithBackoff(sendEmailWithRetry, 3, 1000);
+
+    console.log("✅ Email envoyé avec succès à:", destinationEmail);
   } catch (error) {
     console.error("❌ Erreur lors de l'envoi de l'email:", error);
+
+    // Si on est en développement et qu'on n'utilisait pas déjà l'adresse de test, essayer en fallback
+    if (
+      process.env.NODE_ENV === "development" &&
+      booking.clientEmail !== "delivered@resend.dev"
+    ) {
+      console.log("🔄 Tentative de fallback avec l'adresse de test Resend...");
+
+      try {
+        const fallbackSend = async () => {
+          const fallbackResult = await sendEmail({
+            to: "delivered@resend.dev",
+            from: "noreply@resend.dev",
+            subject: `Confirmation de réservation - ${booking.establishment.name}`,
+            html: htmlContent,
+          });
+
+          if (!fallbackResult.success) {
+            throw new Error(
+              fallbackResult.error || "Erreur lors de l'envoi de l'email"
+            );
+          }
+
+          return fallbackResult;
+        };
+
+        await retryWithBackoff(fallbackSend, 2, 1500);
+        console.log(
+          "✅ Email envoyé avec succès à l'adresse de test (fallback)"
+        );
+        return;
+      } catch (fallbackError) {
+        console.error("❌ Échec du fallback:", fallbackError);
+      }
+    }
+
     throw error;
   }
 }
@@ -395,4 +450,49 @@ Ihre Buchung im {establishmentName} ist bestätigt ✅
 {accessInstructions}
 
 Schönen Aufenthalt! 😊`;
+}
+
+// Fonction utilitaire pour gérer les délais avec retry progressif
+async function retryWithBackoff<T>(
+  fn: () => Promise<T>,
+  maxRetries: number = 3,
+  baseDelay: number = 1000
+): Promise<T> {
+  let lastError: Error;
+
+  for (let attempt = 0; attempt <= maxRetries; attempt++) {
+    try {
+      if (attempt > 0) {
+        // Délai progressif: 1s, 2s, 4s
+        const delay = baseDelay * Math.pow(2, attempt - 1);
+        console.log(
+          `⏳ Tentative ${attempt}/${maxRetries} après un délai de ${delay}ms`
+        );
+        await new Promise((resolve) => setTimeout(resolve, delay));
+      }
+
+      return await fn();
+    } catch (error) {
+      lastError = error as Error;
+
+      // Si c'est une erreur de rate limit et qu'il reste des tentatives
+      if (
+        error instanceof Error &&
+        error.message.includes("rate_limit_exceeded") &&
+        attempt < maxRetries
+      ) {
+        console.log(
+          `🔄 Rate limit détecté, tentative ${attempt + 1}/${maxRetries + 1}`
+        );
+        continue;
+      }
+
+      // Pour les autres erreurs ou si on a épuisé les tentatives
+      if (attempt === maxRetries) {
+        throw lastError;
+      }
+    }
+  }
+
+  throw lastError!;
 }
