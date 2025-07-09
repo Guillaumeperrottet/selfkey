@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { sendEmail } from "@/lib/resend";
+import { prisma } from "@/lib/prisma";
 
 interface Params {
   params: Promise<{
@@ -30,6 +31,49 @@ export async function POST(request: NextRequest, { params }: Params) {
       );
     }
 
+    // Récupérer les paramètres de l'établissement pour connaître le type de système d'accès
+    const establishment = await prisma.establishment.findUnique({
+      where: { slug: hotel },
+      select: {
+        accessCodeType: true,
+        generalAccessCode: true,
+        accessInstructions: true,
+      },
+    });
+
+    if (!establishment) {
+      return NextResponse.json(
+        { error: "Établissement non trouvé" },
+        { status: 404 }
+      );
+    }
+
+    // Déterminer le code d'accès et les instructions selon la configuration
+    let accessCode = "1234"; // Par défaut pour les tests
+    let accessInstructions = "Instructions d'accès par défaut";
+
+    switch (establishment.accessCodeType) {
+      case "room":
+        accessCode = "1234"; // Code d'exemple pour une chambre
+        accessInstructions =
+          "Utilisez le code 1234 pour accéder à votre chambre. L'entrée se trouve à droite du bâtiment principal.";
+        break;
+      case "general":
+        accessCode = establishment.generalAccessCode || "5678";
+        accessInstructions = `Utilisez le code général ${accessCode} pour accéder à l'établissement.`;
+        break;
+      case "custom":
+        accessCode = "Voir instructions ci-dessous";
+        accessInstructions =
+          establishment.accessInstructions ||
+          "Instructions personnalisées non configurées";
+        break;
+      default:
+        accessCode = "1234";
+        accessInstructions =
+          "Utilisez le code fourni pour accéder à votre hébergement.";
+    }
+
     // Données d'exemple pour remplacer les variables
     const sampleData = {
       clientFirstName: "Jean",
@@ -38,9 +82,8 @@ export async function POST(request: NextRequest, { params }: Params) {
       roomName: "Chambre Standard",
       checkInDate: "15 juillet 2025",
       checkOutDate: "17 juillet 2025",
-      accessCode: "1234",
-      accessInstructions:
-        "Utilisez le code 1234 pour accéder à votre chambre. L'entrée se trouve à droite du bâtiment principal.",
+      accessCode,
+      accessInstructions,
       hotelContactEmail: settings.hotelContactEmail || "contact@hotel.ch",
       hotelContactPhone: settings.hotelContactPhone || "+41 XX XXX XX XX",
     };

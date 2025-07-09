@@ -12,6 +12,7 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { AccessCodeType } from "@/lib/access-codes";
+import { toastUtils } from "@/lib/toast-utils";
 
 interface AccessCodeManagerProps {
   establishmentSlug: string;
@@ -55,6 +56,10 @@ export function AccessCodeManager({
 
   const handleUpdateEstablishmentSettings = async () => {
     setIsLoading(true);
+    const loadingToast = toastUtils.loading(
+      "Sauvegarde de la configuration..."
+    );
+
     try {
       const response = await fetch(
         `/api/admin/${establishmentSlug}/access-codes`,
@@ -71,10 +76,17 @@ export function AccessCodeManager({
         }
       );
 
-      if (!response.ok) throw new Error("Erreur lors de la mise à jour");
+      toastUtils.dismiss(loadingToast);
 
-      console.log("Configuration mise à jour avec succès");
+      if (response.ok) {
+        toastUtils.success("Configuration sauvegardée avec succès !");
+      } else {
+        const data = await response.json();
+        toastUtils.error(data.error || "Erreur lors de la sauvegarde");
+      }
     } catch (error) {
+      toastUtils.dismiss(loadingToast);
+      toastUtils.error("Erreur lors de la sauvegarde");
       console.error("Erreur lors de la mise à jour", error);
     } finally {
       setIsLoading(false);
@@ -92,11 +104,16 @@ export function AccessCodeManager({
         }
       );
 
-      if (!response.ok) throw new Error("Erreur lors de la mise à jour");
-
-      setRoomCodes((prev) => ({ ...prev, [roomId]: code }));
-      console.log("Code de la place mis à jour");
+      if (response.ok) {
+        setRoomCodes((prev) => ({ ...prev, [roomId]: code }));
+        const roomName = rooms.find((r) => r.id === roomId)?.name || "Chambre";
+        toastUtils.success(`Code mis à jour pour ${roomName}`);
+      } else {
+        const data = await response.json();
+        toastUtils.error(data.error || "Erreur lors de la mise à jour du code");
+      }
     } catch (error) {
+      toastUtils.error("Erreur lors de la mise à jour du code");
       console.error("Erreur lors de la mise à jour du code", error);
     }
   };
@@ -113,7 +130,7 @@ export function AccessCodeManager({
       <CardContent>
         <div className="space-y-6">
           {/* Type de système */}
-          <div className="space-y-2">
+          <div className="space-y-4">
             <Label htmlFor="access-type">Type de système d&apos;accès</Label>
             <select
               value={accessCodeType}
@@ -126,6 +143,62 @@ export function AccessCodeManager({
               <option value="general">Code général</option>
               <option value="custom">Instructions personnalisées</option>
             </select>
+
+            {/* Explications pour chaque type */}
+            <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+              <h4 className="font-medium text-blue-900 mb-2">
+                💡 À quoi sert ce choix ?
+              </h4>
+              {accessCodeType === "room" && (
+                <div className="text-sm text-blue-800">
+                  <p className="mb-2">
+                    <strong>Code par place :</strong> Chaque chambre a son
+                    propre code unique.
+                  </p>
+                  <p className="mb-2">
+                    <strong>Dans l&apos;email :</strong> &quot;Code d&apos;accès
+                    : 1234&quot;
+                  </p>
+                  <p>
+                    <strong>Avantages :</strong> Sécurité maximale, traçabilité,
+                    gestion individuelle des codes.
+                  </p>
+                </div>
+              )}
+              {accessCodeType === "general" && (
+                <div className="text-sm text-blue-800">
+                  <p className="mb-2">
+                    <strong>Code général :</strong> Un seul code pour tout
+                    l&apos;établissement.
+                  </p>
+                  <p className="mb-2">
+                    <strong>Dans l&apos;email :</strong> &quot;Code d&apos;accès
+                    : 5678&quot;
+                  </p>
+                  <p>
+                    <strong>Avantages :</strong> Simple à gérer, facile à
+                    retenir pour les clients.
+                  </p>
+                </div>
+              )}
+              {accessCodeType === "custom" && (
+                <div className="text-sm text-blue-800">
+                  <p className="mb-2">
+                    <strong>Instructions personnalisées :</strong> Vous rédigez
+                    vos propres instructions d&apos;accès.
+                  </p>
+                  <p className="mb-2">
+                    <strong>Dans l&apos;email :</strong> &quot;Code d&apos;accès
+                    : Voir instructions ci-dessous&quot; + vos instructions
+                    complètes
+                  </p>
+                  <p>
+                    <strong>Idéal pour :</strong> Boîte à clés, réception
+                    automatique, instructions step-by-step, HTML autorisé.
+                  </p>
+                </div>
+              )}
+            </div>
           </div>
 
           {/* Configuration selon le type */}
