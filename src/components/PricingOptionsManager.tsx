@@ -26,8 +26,6 @@ import {
   CollapsibleContent,
   CollapsibleTrigger,
 } from "@/components/ui/collapsible";
-import { FeeBreakdown } from "@/components/FeeBreakdown";
-import { useEstablishmentFees } from "@/hooks/useEstablishmentFees";
 import { toastUtils } from "@/lib/toast-utils";
 
 interface PricingOptionValue {
@@ -59,10 +57,9 @@ export function PricingOptionsManager({
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [isGuideOpen, setIsGuideOpen] = useState(false);
-  const [selectedPrice, setSelectedPrice] = useState<number>(0); // Pour prévisualiser les frais
-
-  // Récupérer les frais de l'établissement
-  const fees = useEstablishmentFees(hotelSlug);
+  const [previewSelections, setPreviewSelections] = useState<
+    Record<string, string | string[]>
+  >({});
 
   useEffect(() => {
     const loadData = async () => {
@@ -210,6 +207,80 @@ export function PricingOptionsManager({
     }
   };
 
+  // Fonctions pour gérer la prévisualisation interactive
+  const handlePreviewSelect = (optionName: string, value: string) => {
+    setPreviewSelections((prev) => ({ ...prev, [optionName]: value }));
+  };
+
+  const handlePreviewRadio = (optionName: string, value: string) => {
+    setPreviewSelections((prev) => ({ ...prev, [optionName]: value }));
+  };
+
+  const handlePreviewCheckbox = (
+    optionName: string,
+    value: string,
+    checked: boolean
+  ) => {
+    setPreviewSelections((prev) => {
+      const current = (prev[optionName] as string[]) || [];
+      if (checked) {
+        return { ...prev, [optionName]: [...current, value] };
+      } else {
+        return { ...prev, [optionName]: current.filter((v) => v !== value) };
+      }
+    });
+  };
+
+  // Calculer le prix total avec les sélections
+  const calculatePreviewTotal = () => {
+    let total = 0;
+
+    pricingOptions
+      .filter(
+        (option) =>
+          option.isActive && option.name && option.values.some((v) => v.label)
+      )
+      .forEach((option) => {
+        const selection = previewSelections[option.name];
+
+        if (option.type === "checkbox" && Array.isArray(selection)) {
+          selection.forEach((selectedValue) => {
+            const value = option.values.find((v) => v.label === selectedValue);
+            if (value) total += value.priceModifier;
+          });
+        } else if (typeof selection === "string" && selection) {
+          const value = option.values.find((v) => v.label === selection);
+          if (value) total += value.priceModifier;
+        }
+      });
+
+    return total;
+  };
+
+  // Initialiser les sélections par défaut
+  useEffect(() => {
+    const defaultSelections: Record<string, string | string[]> = {};
+
+    pricingOptions
+      .filter(
+        (option) =>
+          option.isActive && option.name && option.values.some((v) => v.label)
+      )
+      .forEach((option) => {
+        const defaultValues = option.values.filter(
+          (v) => v.isDefault && v.label
+        );
+
+        if (option.type === "checkbox") {
+          defaultSelections[option.name] = defaultValues.map((v) => v.label);
+        } else if (defaultValues.length > 0) {
+          defaultSelections[option.name] = defaultValues[0].label;
+        }
+      });
+
+    setPreviewSelections(defaultSelections);
+  }, [pricingOptions]);
+
   if (loading) {
     return <div>Chargement...</div>;
   }
@@ -223,43 +294,6 @@ export function PricingOptionsManager({
         </CardTitle>
       </CardHeader>
       <CardContent className="space-y-6">
-        {/* Calculateur de frais */}
-        <div className="space-y-4">
-          <Label htmlFor="fee-calculator">Simulateur de frais et revenus</Label>
-          <div className="flex gap-4">
-            <div className="flex-1">
-              <Input
-                id="fee-calculator"
-                type="number"
-                step="0.01"
-                min="0"
-                value={selectedPrice}
-                onChange={(e) =>
-                  setSelectedPrice(parseFloat(e.target.value) || 0)
-                }
-                placeholder="Entrez un prix pour voir les frais..."
-              />
-              <p className="text-xs text-gray-500 mt-1">
-                Entrez un prix pour voir combien vous recevrez après déduction
-                des frais
-              </p>
-            </div>
-          </div>
-
-          {selectedPrice > 0 && !fees.loading && (
-            <FeeBreakdown
-              amount={selectedPrice}
-              commissionRate={fees.commissionRate}
-              fixedFee={fees.fixedFee}
-              className="mt-4"
-            />
-          )}
-
-          {fees.loading && selectedPrice > 0 && (
-            <div className="text-sm text-gray-500">Chargement des frais...</div>
-          )}
-        </div>
-
         {/* Guide d'utilisation discret */}
         <Collapsible open={isGuideOpen} onOpenChange={setIsGuideOpen}>
           <CollapsibleTrigger asChild>
@@ -380,6 +414,155 @@ export function PricingOptionsManager({
           </CollapsibleContent>
         </Collapsible>
 
+        {/* Prévisualisation des options */}
+        {pricingOptions.filter(
+          (option) =>
+            option.isActive && option.name && option.values.some((v) => v.label)
+        ).length > 0 && (
+          <Card className="bg-gray-50 border-gray-200">
+            <CardHeader className="pb-3">
+              <CardTitle className="text-base flex items-center justify-between">
+                <span className="flex items-center gap-2">
+                  👀 Aperçu - Vue client lors de la réservation
+                </span>
+                {calculatePreviewTotal() !== 0 && (
+                  <span className="text-sm font-normal bg-green-100 text-green-700 px-3 py-1 rounded-full">
+                    Total options: {calculatePreviewTotal() > 0 ? "+" : ""}
+                    {calculatePreviewTotal()} CHF
+                  </span>
+                )}
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              {pricingOptions
+                .filter(
+                  (option) =>
+                    option.isActive &&
+                    option.name &&
+                    option.values.some((v) => v.label)
+                )
+                .map((option, index) => (
+                  <div key={index} className="bg-white p-4 rounded border">
+                    <div className="flex items-center gap-2 mb-3">
+                      <h4 className="font-medium text-gray-900">
+                        {option.name}
+                      </h4>
+                      {option.isRequired && (
+                        <span className="text-xs bg-red-100 text-red-700 px-2 py-1 rounded">
+                          Obligatoire
+                        </span>
+                      )}
+                    </div>
+
+                    {option.type === "select" && (
+                      <select
+                        className="w-full p-2 border rounded-md bg-white focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
+                        value={(previewSelections[option.name] as string) || ""}
+                        onChange={(e) =>
+                          handlePreviewSelect(option.name, e.target.value)
+                        }
+                      >
+                        <option value="">Choisissez une option...</option>
+                        {option.values
+                          .filter((value) => value.label)
+                          .map((value, idx) => (
+                            <option key={idx} value={value.label}>
+                              {value.label}
+                              {value.priceModifier !== 0 &&
+                                ` (${value.priceModifier > 0 ? "+" : ""}${value.priceModifier} CHF)`}
+                            </option>
+                          ))}
+                      </select>
+                    )}
+
+                    {option.type === "radio" && (
+                      <div className="space-y-2">
+                        {option.values
+                          .filter((value) => value.label)
+                          .map((value, idx) => (
+                            <label
+                              key={idx}
+                              className="flex items-center gap-2 cursor-pointer hover:bg-gray-50 p-1 rounded"
+                            >
+                              <input
+                                type="radio"
+                                name={`preview-${option.name}-${index}`}
+                                value={value.label}
+                                checked={
+                                  previewSelections[option.name] === value.label
+                                }
+                                onChange={(e) =>
+                                  handlePreviewRadio(
+                                    option.name,
+                                    e.target.value
+                                  )
+                                }
+                                className="text-blue-600"
+                              />
+                              <span className="text-gray-700">
+                                {value.label}
+                                {value.priceModifier !== 0 && (
+                                  <span className="text-gray-500 ml-1">
+                                    ({value.priceModifier > 0 ? "+" : ""}
+                                    {value.priceModifier} CHF)
+                                  </span>
+                                )}
+                              </span>
+                            </label>
+                          ))}
+                      </div>
+                    )}
+
+                    {option.type === "checkbox" && (
+                      <div className="space-y-2">
+                        {option.values
+                          .filter((value) => value.label)
+                          .map((value, idx) => (
+                            <label
+                              key={idx}
+                              className="flex items-center gap-2 cursor-pointer hover:bg-gray-50 p-1 rounded"
+                            >
+                              <input
+                                type="checkbox"
+                                checked={(
+                                  (previewSelections[
+                                    option.name
+                                  ] as string[]) || []
+                                ).includes(value.label)}
+                                onChange={(e) =>
+                                  handlePreviewCheckbox(
+                                    option.name,
+                                    value.label,
+                                    e.target.checked
+                                  )
+                                }
+                                className="text-blue-600"
+                              />
+                              <span className="text-gray-700">
+                                {value.label}
+                                {value.priceModifier !== 0 && (
+                                  <span className="text-gray-500 ml-1">
+                                    ({value.priceModifier > 0 ? "+" : ""}
+                                    {value.priceModifier} CHF)
+                                  </span>
+                                )}
+                              </span>
+                            </label>
+                          ))}
+                      </div>
+                    )}
+                  </div>
+                ))}
+
+              <div className="text-xs text-gray-500 italic mt-3">
+                💡 Cette prévisualisation est interactive ! Testez vos options
+                pour voir comment elles fonctionneront pour vos clients. Le
+                total des options sélectionnées s&apos;affiche en temps réel.
+              </div>
+            </CardContent>
+          </Card>
+        )}
+
         <div className="space-y-4">
           {pricingOptions.map((option, optionIndex) => (
             <Card key={optionIndex} className="border-gray-200">
@@ -499,23 +682,6 @@ export function PricingOptionsManager({
                           }
                           placeholder="Prix (CHF)"
                         />
-                        {value.priceModifier > 0 && !fees.loading && (
-                          <div className="text-xs text-green-600 mt-1">
-                            Net:{" "}
-                            {new Intl.NumberFormat("fr-CH", {
-                              style: "currency",
-                              currency: "CHF",
-                            }).format(
-                              Math.max(
-                                0,
-                                value.priceModifier -
-                                  (value.priceModifier * fees.commissionRate) /
-                                    100 -
-                                  fees.fixedFee
-                              )
-                            )}
-                          </div>
-                        )}
                       </div>
                       <label className="flex items-center gap-1">
                         <input
