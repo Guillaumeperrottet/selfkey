@@ -11,7 +11,7 @@ export interface EmailData {
 
 export async function sendEmail(
   data: EmailData
-): Promise<{ success: boolean; error?: string }> {
+): Promise<{ success: boolean; error?: string; data?: { id: string } }> {
   try {
     if (!process.env.RESEND_API_KEY) {
       throw new Error("RESEND_API_KEY not configured");
@@ -30,7 +30,10 @@ export async function sendEmail(
     }
 
     console.log("Email sent successfully:", result.data?.id);
-    return { success: true };
+    return {
+      success: true,
+      data: result.data ? { id: result.data.id } : undefined,
+    };
   } catch (error) {
     console.error("Email sending failed:", error);
     return {
