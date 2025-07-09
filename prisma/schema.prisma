@@ -107,6 +107,9 @@ model Establishment {
   confirmationWhatsappFrom     String? // Numéro WhatsApp d'envoi
   confirmationEmailTemplate    String? // Template email personnalisé
   confirmationWhatsappTemplate String? // Template WhatsApp personnalisé
+  // Informations de contact de l'hôtel
+  hotelContactEmail            String? // Email de contact de l'hôtel
+  hotelContactPhone            String? // Téléphone de contact de l'hôtel
   createdAt                    DateTime            @default(now())
   users                        UserEstablishment[]
   bookings                     Booking[]

@@ -113,8 +113,7 @@ export function ConfirmationManager({ hotelSlug }: ConfirmationManagerProps) {
 
   const handleSave = async () => {
     setSaving(true);
-    setError("");
-    setSuccess("");
+    const loadingToast = toastUtils.loading("Sauvegarde des paramètres...");
 
     try {
       const response = await fetch(
@@ -128,15 +127,18 @@ export function ConfirmationManager({ hotelSlug }: ConfirmationManagerProps) {
         }
       );
 
+      toastUtils.dismiss(loadingToast);
+
       if (response.ok) {
-        setSuccess("Paramètres sauvegardés avec succès");
-        setTimeout(() => setSuccess(""), 3000);
+        toastUtils.success("Paramètres sauvegardés avec succès !");
       } else {
         const data = await response.json();
-        setError(data.error || "Erreur lors de la sauvegarde");
+        toastUtils.error(data.error || "Erreur lors de la sauvegarde");
       }
-    } catch {
-      setError("Erreur lors de la sauvegarde");
+    } catch (error) {
+      toastUtils.dismiss(loadingToast);
+      toastUtils.error("Erreur lors de la sauvegarde");
+      console.error("Erreur sauvegarde:", error);
     } finally {
       setSaving(false);
     }
@@ -266,12 +268,7 @@ export function ConfirmationManager({ hotelSlug }: ConfirmationManagerProps) {
                 {settings.confirmationEmailEnabled ? "activé" : "désactivé"}
               </span>
             </div>
-            <Button
-              onClick={handleSave}
-              disabled={saving}
-              size="sm"
-              className="bg-blue-600 hover:bg-blue-700"
-            >
+            <Button onClick={handleSave} disabled={saving} size="sm">
               <Save className="h-3 w-3 mr-1" />
               {saving ? "Sauvegarde..." : "Sauvegarder"}
             </Button>

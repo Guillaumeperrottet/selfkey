@@ -37,6 +37,8 @@ export async function GET(request: Request, { params }: Props) {
             confirmationWhatsappFrom: true,
             confirmationEmailTemplate: true,
             confirmationWhatsappTemplate: true,
+            hotelContactEmail: true,
+            hotelContactPhone: true,
           },
         },
       },
@@ -92,6 +94,8 @@ export async function POST(request: Request, { params }: Props) {
       confirmationWhatsappFrom,
       confirmationEmailTemplate,
       confirmationWhatsappTemplate,
+      hotelContactEmail,
+      hotelContactPhone,
     } = body;
 
     // Valider que si l'email est activé, une adresse d'envoi est fournie
@@ -121,6 +125,8 @@ export async function POST(request: Request, { params }: Props) {
         confirmationEmailTemplate: confirmationEmailTemplate?.trim() || null,
         confirmationWhatsappTemplate:
           confirmationWhatsappTemplate?.trim() || null,
+        hotelContactEmail: hotelContactEmail?.trim() || null,
+        hotelContactPhone: hotelContactPhone?.trim() || null,
       },
     });
 
