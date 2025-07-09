@@ -6,13 +6,13 @@ const prisma = new PrismaClient();
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: { hotel: string } }
+  { params }: { params: Promise<{ hotel: string }> }
 ) {
   try {
     const { searchParams } = new URL(request.url);
     const startDate = searchParams.get("startDate");
     const endDate = searchParams.get("endDate");
-    const hotelSlug = params.hotel;
+    const { hotel: hotelSlug } = await params;
 
     if (!startDate || !endDate) {
       return NextResponse.json(
