@@ -154,19 +154,19 @@ export function ConfirmationManager({ hotelSlug }: ConfirmationManagerProps) {
   const availableVariables = [
     { key: "clientFirstName", label: "Prénom du client" },
     { key: "clientLastName", label: "Nom du client" },
-    { key: "establishmentName", label: "Nom de l&apos;établissement" },
+    { key: "establishmentName", label: "Nom de l'établissement" },
     { key: "roomName", label: "Nom de la chambre" },
-    { key: "checkInDate", label: "Date d&apos;arrivée" },
+    { key: "checkInDate", label: "Date d'arrivée" },
     { key: "checkOutDate", label: "Date de départ" },
-    { key: "accessCode", label: "Code d&apos;accès" },
-    { key: "accessInstructions", label: "Instructions d&apos;accès" },
+    { key: "accessCode", label: "Code d'accès" },
+    { key: "accessInstructions", label: "Instructions d'accès" },
     {
       key: "hotelContactEmail",
-      label: "Email de contact de l&apos;établissement",
+      label: "Email de contact de l'établissement",
     },
     {
       key: "hotelContactPhone",
-      label: "Téléphone de contact de l&apos;établissement",
+      label: "Téléphone de contact de l'établissement",
     },
   ];
 
