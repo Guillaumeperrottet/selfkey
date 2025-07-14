@@ -205,8 +205,9 @@ export default function Home() {
               </CardHeader>
               <CardContent>
                 <CardDescription className="text-base">
-                  S&apos;intègre parfaitement avec vos systèmes existants.
-                  Configuration simple via QR code et tableau de bord intuitif.
+                  Configuration simple via QR code, tableau de bord intuitif et
+                  export Excel automatique pour vos déclarations de taxes de
+                  séjour.
                 </CardDescription>
               </CardContent>
             </Card>
@@ -425,7 +426,7 @@ export default function Home() {
               <Card className="border-0 shadow-sm">
                 <CardHeader>
                   <div className="w-12 h-12 bg-green-100 dark:bg-green-900 rounded-lg flex items-center justify-center mb-4">
-                    <span className="text-2xl">�️</span>
+                    <span className="text-2xl">🅿️</span>
                   </div>
                   <CardTitle className="text-xl">Parkings</CardTitle>
                 </CardHeader>
@@ -527,28 +528,6 @@ export default function Home() {
             </div>
           </div>
         </section>
-
-        {/* CTA Section */}
-        <section className="py-20 text-center">
-          <Card className="max-w-3xl mx-auto border-0 shadow-lg">
-            <CardHeader>
-              <CardTitle className="text-2xl md:text-3xl">
-                Prêt à automatiser votre check-in ?
-              </CardTitle>
-              <CardDescription className="text-lg">
-                Rejoignez les établissements qui ont déjà adopté SelfKey
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <Button asChild size="lg" className="px-8">
-                <Link href="/establishments">Commencer maintenant</Link>
-              </Button>
-              <p className="text-sm text-gray-500 dark:text-gray-400 mt-4">
-                Aucun engagement • Configuration en 5 minutes
-              </p>
-            </CardContent>
-          </Card>
-        </section>
       </main>
 
       {/* Footer */}
@@ -569,7 +548,7 @@ export default function Home() {
             </span>
           </div>
           <p className="text-gray-600 dark:text-gray-400">
-            Solution suisse de check-in automatique pour l&apos;hôtellerie
+            Solution suisse de check-in automatique
           </p>
         </div>
       </footer>
