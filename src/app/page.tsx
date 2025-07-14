@@ -117,19 +117,13 @@ export default function Home() {
               SelfKey
             </h1>
           </div>
-          <nav className="hidden md:flex gap-6">
-            <Link
-              href="#features"
-              className="text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white transition-colors"
-            >
-              Fonctionnalités
-            </Link>
-            <Link
-              href="#benefits"
-              className="text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white transition-colors"
-            >
-              Avantages
-            </Link>
+          <nav className="hidden md:flex gap-2 items-center">
+            <Button asChild variant="ghost" size="sm" className="font-normal">
+              <Link href="#features">Fonctionnalités</Link>
+            </Button>
+            <Button asChild variant="ghost" size="sm" className="font-normal">
+              <Link href="#benefits">Avantages</Link>
+            </Button>
             <Button asChild variant="outline" size="sm">
               <Link href="/establishments">Connexion</Link>
             </Button>
@@ -550,6 +544,19 @@ export default function Home() {
           <p className="text-gray-600 dark:text-gray-400">
             Solution suisse de check-in automatique
           </p>
+          <div className="mt-4 flex items-center justify-center space-x-2">
+            <span className="text-sm text-gray-700 flex items-center gap-2">
+              Create and powered by
+              <a
+                href="https://www.webbing.ch"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="ml-1 hover:text-gray-900 dark:hover:text-white"
+              >
+                Webbing
+              </a>
+            </span>
+          </div>
         </div>
       </footer>
     </div>
