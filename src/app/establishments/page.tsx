@@ -35,6 +35,7 @@ import {
   CheckCircle,
   AlertCircle,
   LogOut,
+  Trash2,
 } from "lucide-react";
 import Image from "next/image";
 import { toastUtils } from "@/lib/toast-utils";
@@ -62,6 +63,10 @@ export default function EstablishmentsPage() {
   const [establishments, setEstablishments] = useState<Establishment[]>([]);
   const [loading, setLoading] = useState(true);
   const [showCreateForm, setShowCreateForm] = useState(false);
+  const [showDeleteDialog, setShowDeleteDialog] = useState(false);
+  const [establishmentToDelete, setEstablishmentToDelete] =
+    useState<Establishment | null>(null);
+  const [deleteConfirmationName, setDeleteConfirmationName] = useState("");
   const [newEstablishment, setNewEstablishment] = useState({
     name: "",
     slug: "",
@@ -271,6 +276,53 @@ export default function EstablishmentsPage() {
       .replace(/[\u0300-\u036f]/g, "")
       .replace(/[^a-z0-9]+/g, "-")
       .replace(/(^-|-$)/g, "");
+  };
+
+  const handleDeleteEstablishment = async () => {
+    if (
+      !establishmentToDelete ||
+      deleteConfirmationName !== establishmentToDelete.name
+    ) {
+      return;
+    }
+
+    const loadingToast = toastUtils.loading(
+      "Suppression de l'établissement..."
+    );
+
+    try {
+      const response = await fetch(
+        `/api/establishments/${establishmentToDelete.slug}`,
+        {
+          method: "DELETE",
+        }
+      );
+
+      toastUtils.dismiss(loadingToast);
+
+      if (response.ok) {
+        toastUtils.crud.deleted(
+          `Établissement "${establishmentToDelete.name}"`
+        );
+        setShowDeleteDialog(false);
+        setEstablishmentToDelete(null);
+        setDeleteConfirmationName("");
+        fetchEstablishments();
+      } else {
+        const error = await response.json();
+        toastUtils.error(error.error || "Erreur lors de la suppression");
+      }
+    } catch (error) {
+      toastUtils.dismiss(loadingToast);
+      toastUtils.error("Erreur lors de la suppression");
+      console.error("Erreur:", error);
+    }
+  };
+
+  const openDeleteDialog = (establishment: Establishment) => {
+    setEstablishmentToDelete(establishment);
+    setDeleteConfirmationName("");
+    setShowDeleteDialog(true);
   };
 
   if (loading) {
@@ -594,26 +646,41 @@ export default function EstablishmentsPage() {
               >
                 <CardHeader>
                   <div className="flex items-start justify-between">
-                    <CardTitle className="text-xl">
-                      {establishment.name}
-                    </CardTitle>
-                    <Badge
-                      variant={
-                        establishment.stripeOnboarded ? "default" : "secondary"
-                      }
-                      className="flex items-center gap-1"
-                    >
-                      {establishment.stripeOnboarded ? (
-                        <CheckCircle className="h-3 w-3" />
-                      ) : (
-                        <AlertCircle className="h-3 w-3" />
-                      )}
-                      {establishment.stripeOnboarded
-                        ? "Configuré"
-                        : "À configurer"}
-                    </Badge>
+                    <div className="flex-1">
+                      <CardTitle className="text-xl">
+                        {establishment.name}
+                      </CardTitle>
+                      <CardDescription>/{establishment.slug}</CardDescription>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <Badge
+                        variant={
+                          establishment.stripeOnboarded
+                            ? "default"
+                            : "secondary"
+                        }
+                        className="flex items-center gap-1"
+                      >
+                        {establishment.stripeOnboarded ? (
+                          <CheckCircle className="h-3 w-3" />
+                        ) : (
+                          <AlertCircle className="h-3 w-3" />
+                        )}
+                        {establishment.stripeOnboarded
+                          ? "Configuré"
+                          : "À configurer"}
+                      </Badge>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => openDeleteDialog(establishment)}
+                        className="h-8 w-8 p-0 text-destructive hover:text-destructive hover:bg-destructive/10"
+                        title="Supprimer l'établissement"
+                      >
+                        <Trash2 className="h-4 w-4" />
+                      </Button>
+                    </div>
                   </div>
-                  <CardDescription>/{establishment.slug}</CardDescription>
                 </CardHeader>
 
                 <CardContent className="space-y-4">
@@ -669,6 +736,111 @@ export default function EstablishmentsPage() {
 
       {/* Tutorial Guide */}
       {tutorial.tutorialComponent}
+
+      {/* Dialogue de suppression */}
+      <Dialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2 text-destructive">
+              <Trash2 className="h-5 w-5" />
+              Supprimer l&apos;établissement
+            </DialogTitle>
+            <DialogDescription>
+              Cette action est <strong>irréversible</strong>. Toutes les données
+              associées à cet établissement seront définitivement supprimées.
+            </DialogDescription>
+          </DialogHeader>
+
+          {establishmentToDelete && (
+            <div className="space-y-4">
+              <div className="bg-destructive/10 border border-destructive/20 rounded-lg p-4">
+                <h4 className="font-medium text-destructive mb-2">
+                  Données qui seront supprimées :
+                </h4>
+                <ul className="text-sm text-destructive/80 space-y-1">
+                  <li>
+                    • L&apos;établissement &quot;{establishmentToDelete.name}
+                    &quot;
+                  </li>
+                  <li>
+                    • Toutes les places ({establishmentToDelete._count.rooms})
+                  </li>
+                  <li>
+                    • Toutes les réservations (
+                    {establishmentToDelete._count.bookings})
+                  </li>
+                  <li>• Tous les paramètres et configurations</li>
+                  <li>• L&apos;historique des paiements</li>
+                </ul>
+              </div>
+
+              <div className="space-y-2">
+                <Label
+                  htmlFor="confirmation-name"
+                  className="text-sm font-medium"
+                >
+                  Pour confirmer, saisissez le nom exact de l&apos;établissement
+                  :
+                </Label>
+                <div className="text-sm text-muted-foreground mb-2">
+                  Tapez :{" "}
+                  <code className="bg-muted px-1 py-0.5 rounded text-xs">
+                    {establishmentToDelete.name}
+                  </code>
+                </div>
+                <Input
+                  id="confirmation-name"
+                  type="text"
+                  value={deleteConfirmationName}
+                  onChange={(e) => setDeleteConfirmationName(e.target.value)}
+                  placeholder={establishmentToDelete.name}
+                  className={
+                    deleteConfirmationName === establishmentToDelete.name &&
+                    deleteConfirmationName !== ""
+                      ? "border-green-500 focus:ring-green-500"
+                      : deleteConfirmationName !== "" &&
+                          deleteConfirmationName !== establishmentToDelete.name
+                        ? "border-red-500 focus:ring-red-500"
+                        : ""
+                  }
+                />
+                {deleteConfirmationName !== "" &&
+                  deleteConfirmationName !== establishmentToDelete.name && (
+                    <p className="text-xs text-red-500">
+                      Le nom saisi ne correspond pas exactement.
+                    </p>
+                  )}
+              </div>
+
+              <div className="flex space-x-3 pt-4">
+                <Button
+                  type="button"
+                  variant="outline"
+                  className="flex-1"
+                  onClick={() => {
+                    setShowDeleteDialog(false);
+                    setEstablishmentToDelete(null);
+                    setDeleteConfirmationName("");
+                  }}
+                >
+                  Annuler
+                </Button>
+                <Button
+                  type="button"
+                  variant="destructive"
+                  className="flex-1"
+                  disabled={
+                    deleteConfirmationName !== establishmentToDelete.name
+                  }
+                  onClick={handleDeleteEstablishment}
+                >
+                  Supprimer définitivement
+                </Button>
+              </div>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
