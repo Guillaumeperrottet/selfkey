@@ -11,6 +11,13 @@ import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Separator } from "@/components/ui/separator";
 import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import {
   Dialog,
   DialogContent,
   DialogHeader,
@@ -97,6 +104,22 @@ export function BookingSummary({ bookingId }: BookingSummaryProps) {
   const [error, setError] = useState("");
   const [processingPayment, setProcessingPayment] = useState(false);
   const [pricingOptions, setPricingOptions] = useState<PricingOption[]>([]);
+
+  // Liste des pays avec codes ISO
+  const countries = [
+    { name: "Suisse", code: "CH" },
+    { name: "France", code: "FR" },
+    { name: "Allemagne", code: "DE" },
+    { name: "Italie", code: "IT" },
+    { name: "Autriche", code: "AT" },
+    { name: "Espagne", code: "ES" },
+    { name: "Belgique", code: "BE" },
+    { name: "Pays-Bas", code: "NL" },
+    { name: "Luxembourg", code: "LU" },
+    { name: "Portugal", code: "PT" },
+    { name: "Royaume-Uni", code: "GB" },
+    { name: "États-Unis", code: "US" },
+  ];
 
   // États pour les conditions générales
   const [acceptedTerms, setAcceptedTerms] = useState(false);
@@ -423,17 +446,40 @@ export function BookingSummary({ bookingId }: BookingSummaryProps) {
           <div className="text-xs font-medium text-gray-700">{label}</div>
           {editingField === field ? (
             <div className="flex items-center gap-0.5 mt-0.5">
-              <Input
-                type={type}
-                value={editValues[field] || ""}
-                onChange={(e) =>
-                  setEditValues((prev) => ({
-                    ...prev,
-                    [field]: e.target.value,
-                  }))
-                }
-                className="h-5 text-xs"
-              />
+              {field === "clientCountry" ? (
+                <Select
+                  value={editValues[field] || ""}
+                  onValueChange={(value) =>
+                    setEditValues((prev) => ({
+                      ...prev,
+                      [field]: value,
+                    }))
+                  }
+                >
+                  <SelectTrigger className="h-5 text-xs">
+                    <SelectValue placeholder="Sélectionnez un pays" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {countries.map((country) => (
+                      <SelectItem key={country.code} value={country.name}>
+                        {country.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              ) : (
+                <Input
+                  type={type}
+                  value={editValues[field] || ""}
+                  onChange={(e) =>
+                    setEditValues((prev) => ({
+                      ...prev,
+                      [field]: e.target.value,
+                    }))
+                  }
+                  className="h-5 text-xs"
+                />
+              )}
               <Button
                 size="sm"
                 onClick={() => handleSaveField(field)}

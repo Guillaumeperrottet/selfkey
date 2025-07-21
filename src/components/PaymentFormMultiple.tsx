@@ -73,6 +73,35 @@ function CheckoutForm({ booking }: Pick<PaymentFormProps, "booking">) {
     setError("");
 
     try {
+      // Convertir le nom du pays en code ISO 3166-1 alpha-2
+      const getCountryCode = (countryName: string): string => {
+        const countryMap: { [key: string]: string } = {
+          Suisse: "CH",
+          Switzerland: "CH",
+          France: "FR",
+          Allemagne: "DE",
+          Germany: "DE",
+          Italie: "IT",
+          Italy: "IT",
+          Autriche: "AT",
+          Austria: "AT",
+          Espagne: "ES",
+          Spain: "ES",
+          Belgique: "BE",
+          Belgium: "BE",
+          "Pays-Bas": "NL",
+          Netherlands: "NL",
+          Luxembourg: "LU",
+          Portugal: "PT",
+          "Royaume-Uni": "GB",
+          "United Kingdom": "GB",
+          "États-Unis": "US",
+          "United States": "US",
+        };
+
+        return countryMap[countryName] || countryName.toUpperCase();
+      };
+
       // Utiliser confirmPayment pour supporter TWINT et cartes
       const { error: stripeError, paymentIntent } = await stripe.confirmPayment(
         {
@@ -90,7 +119,7 @@ function CheckoutForm({ booking }: Pick<PaymentFormProps, "booking">) {
                   postal_code: booking.clientPostalCode,
                   city: booking.clientCity,
                   state: "", // Pas de champ state dans notre schéma, valeur vide acceptable
-                  country: booking.clientCountry,
+                  country: getCountryCode(booking.clientCountry),
                 },
               },
             },
