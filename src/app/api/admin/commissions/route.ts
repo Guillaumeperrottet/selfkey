@@ -8,10 +8,13 @@ export async function GET(request: NextRequest) {
     if (session?.value !== "authenticated") {
       return NextResponse.json({ error: "Non autorisé" }, { status: 401 });
     }
-    // Récupération des établissements avec leurs statistiques
+    // Récupération des établissements avec leurs statistiques (seulement paiements réussis)
     const establishments = await prisma.establishment.findMany({
       include: {
         bookings: {
+          where: {
+            paymentStatus: "succeeded",
+          },
           select: {
             platformCommission: true,
             amount: true,
@@ -20,7 +23,11 @@ export async function GET(request: NextRequest) {
         },
         _count: {
           select: {
-            bookings: true,
+            bookings: {
+              where: {
+                paymentStatus: "succeeded",
+              },
+            },
           },
         },
       },

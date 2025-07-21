@@ -11,10 +11,19 @@ export async function GET(request: NextRequest) {
 
     // Récupération des stats générales
     const totalEstablishments = await prisma.establishment.count();
-    const totalBookings = await prisma.booking.count();
 
-    // Calcul des commissions totales
+    // Compter seulement les réservations avec paiement réussi
+    const totalBookings = await prisma.booking.count({
+      where: {
+        paymentStatus: "succeeded",
+      },
+    });
+
+    // Calcul des commissions totales (seulement pour les paiements réussis)
     const commissionsSum = await prisma.booking.aggregate({
+      where: {
+        paymentStatus: "succeeded",
+      },
       _sum: {
         platformCommission: true,
       },
@@ -27,15 +36,22 @@ export async function GET(request: NextRequest) {
       },
     });
 
-    // Commissions du mois en cours
+    // Commissions du mois en cours (seulement pour les paiements réussis)
     const now = new Date();
     const firstDayOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
 
     const monthlyCommissionsSum = await prisma.booking.aggregate({
       where: {
-        bookingDate: {
-          gte: firstDayOfMonth,
-        },
+        AND: [
+          {
+            bookingDate: {
+              gte: firstDayOfMonth,
+            },
+          },
+          {
+            paymentStatus: "succeeded",
+          },
+        ],
       },
       _sum: {
         platformCommission: true,
@@ -56,10 +72,17 @@ export async function GET(request: NextRequest) {
 
     const previousMonthCommissionsSum = await prisma.booking.aggregate({
       where: {
-        bookingDate: {
-          gte: firstDayOfPreviousMonth,
-          lte: lastDayOfPreviousMonth,
-        },
+        AND: [
+          {
+            bookingDate: {
+              gte: firstDayOfPreviousMonth,
+              lte: lastDayOfPreviousMonth,
+            },
+          },
+          {
+            paymentStatus: "succeeded",
+          },
+        ],
       },
       _sum: {
         platformCommission: true,

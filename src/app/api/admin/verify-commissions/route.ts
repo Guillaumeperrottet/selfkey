@@ -9,8 +9,11 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: "Non autorisé" }, { status: 401 });
     }
 
-    // Récupérer les dernières réservations avec détails des commissions
+    // Récupérer les dernières réservations avec paiements réussis et détails des commissions
     const recentBookings = await prisma.booking.findMany({
+      where: {
+        paymentStatus: "succeeded",
+      },
       take: 10,
       orderBy: { bookingDate: "desc" },
       include: {
