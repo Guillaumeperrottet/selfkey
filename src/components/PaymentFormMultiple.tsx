@@ -88,6 +88,7 @@ function CheckoutForm({ booking }: Pick<PaymentFormProps, "booking">) {
                   line1: booking.clientAddress,
                   postal_code: booking.clientPostalCode,
                   city: booking.clientCity,
+                  state: "", // Pas de champ state dans notre schéma, valeur vide acceptable
                   country: booking.clientCountry,
                 },
               },
