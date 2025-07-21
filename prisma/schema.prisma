@@ -162,6 +162,7 @@ model Booking {
   checkInDate            DateTime // Date d'arrivée
   checkOutDate           DateTime // Date de départ
   stripePaymentIntentId  String?
+  paymentStatus          String        @default("pending") // "pending", "succeeded", "failed"
   guests                 Int           @default(1) // Total des invités (pour compatibilité)
   adults                 Int           @default(1) // Nombre d'adultes (16 ans et +)
   children               Int           @default(0) // Nombre d'enfants (moins de 16 ans)

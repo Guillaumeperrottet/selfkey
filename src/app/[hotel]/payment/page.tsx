@@ -36,8 +36,8 @@ export default async function PaymentPage({ params, searchParams }: Props) {
     notFound();
   }
 
-  // Si déjà payé, rediriger vers succès
-  if (booking.stripePaymentIntentId) {
+  // Si déjà payé avec succès, rediriger vers succès
+  if (booking.paymentStatus === "succeeded") {
     redirect(`/${hotel}/success?booking=${bookingId}`);
   }
 

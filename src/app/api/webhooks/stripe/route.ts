@@ -82,11 +82,11 @@ async function handleAccountDeauthorized(data: { account: string }) {
 
 async function handlePaymentSucceeded(paymentIntent: Stripe.PaymentIntent) {
   try {
-    // Mettre à jour la réservation comme payée
+    // Mettre à jour la réservation comme payée avec succès
     await prisma.booking.updateMany({
       where: { stripePaymentIntentId: paymentIntent.id },
       data: {
-        // Vous pouvez ajouter un champ status si nécessaire
+        paymentStatus: "succeeded",
       },
     });
 
@@ -98,9 +98,15 @@ async function handlePaymentSucceeded(paymentIntent: Stripe.PaymentIntent) {
 
 async function handlePaymentFailed(paymentIntent: Stripe.PaymentIntent) {
   try {
-    // Gérer l'échec du paiement selon vos besoins
-    console.log(`Payment failed for PaymentIntent: ${paymentIntent.id}`);
+    // Mettre à jour la réservation comme échec de paiement
+    await prisma.booking.updateMany({
+      where: { stripePaymentIntentId: paymentIntent.id },
+      data: {
+        paymentStatus: "failed",
+      },
+    });
 
+    console.log(`Payment failed for PaymentIntent: ${paymentIntent.id}`);
     // Vous pourriez envoyer un email de notification, logger l'échec, etc.
   } catch (error) {
     console.error("Error handling payment failure:", error);
