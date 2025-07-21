@@ -16,6 +16,8 @@ interface TemplateData {
   checkOutDate: string;
   accessCode: string;
   accessInstructions: string;
+  hotelContactEmail: string;
+  hotelContactPhone: string;
 }
 
 interface BookingWithDetails {
@@ -46,6 +48,8 @@ interface BookingWithDetails {
     confirmationWhatsappFrom: string | null;
     generalAccessCode: string | null;
     accessInstructions: string | null;
+    hotelContactEmail: string | null;
+    hotelContactPhone: string | null;
   };
 }
 
@@ -178,6 +182,10 @@ export async function POST(request: Request, { params }: Props) {
       accessInstructions:
         booking.establishment.accessInstructions ||
         "Contactez-nous pour plus d'informations",
+      hotelContactEmail:
+        booking.establishment.hotelContactEmail || "Non renseigné",
+      hotelContactPhone:
+        booking.establishment.hotelContactPhone || "Non renseigné",
     };
 
     // Envoyer la confirmation selon la méthode choisie
@@ -393,6 +401,12 @@ Détails de votre réservation :
 
 {accessInstructions}
 
+Contactez-nous pour plus d'informations
+
+Pour toute question, vous pouvez nous contacter :
+📧 Email : {hotelContactEmail}
+📞 Téléphone : {hotelContactPhone}
+
 Nous vous souhaitons un excellent séjour !
 
 Cordialement,
@@ -411,6 +425,10 @@ Details Ihrer Buchung:
 - Zugangscode: {accessCode}
 
 {accessInstructions}
+
+Bei Fragen können Sie uns gerne kontaktieren:
+📧 E-Mail: {hotelContactEmail}
+📞 Telefon: {hotelContactPhone}
 
 Wir wünschen Ihnen einen ausgezeichneten Aufenthalt!
 
@@ -432,6 +450,10 @@ Votre réservation à {establishmentName} est confirmée ✅
 
 {accessInstructions}
 
+💬 Contact :
+📧 {hotelContactEmail}
+📞 {hotelContactPhone}
+
 Bon séjour ! 😊
 
 ---
@@ -448,6 +470,10 @@ Ihre Buchung im {establishmentName} ist bestätigt ✅
 🔑 Zugangscode: {accessCode}
 
 {accessInstructions}
+
+💬 Kontakt:
+📧 {hotelContactEmail}
+📞 {hotelContactPhone}
 
 Schönen Aufenthalt! 😊`;
 }
