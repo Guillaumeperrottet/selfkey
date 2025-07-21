@@ -686,11 +686,22 @@ export function RoomManagement({ hotelSlug, currency }: Props) {
                                 <div className="flex items-center gap-1 text-emerald-600 cursor-help">
                                   <span className="font-medium">
                                     Net:{" "}
-                                    {calculateFees(
-                                      room.price,
-                                      commissionRate / 100,
-                                      fixedFee
-                                    ).netAmount.toFixed(2)}{" "}
+                                    {(() => {
+                                      const calculation = calculateFees(
+                                        room.price,
+                                        commissionRate / 100,
+                                        fixedFee
+                                      );
+                                      // Déduction des frais Stripe (2.9% + 0.30 CHF)
+                                      const stripeRate = 0.029;
+                                      const stripeFixedFee = 0.3;
+                                      const stripeFees =
+                                        room.price * stripeRate +
+                                        stripeFixedFee;
+                                      const finalAmount =
+                                        calculation.netAmount - stripeFees;
+                                      return finalAmount.toFixed(2);
+                                    })()}{" "}
                                     {currency}
                                   </span>
                                 </div>
@@ -698,7 +709,7 @@ export function RoomManagement({ hotelSlug, currency }: Props) {
                               <TooltipContent>
                                 <div className="text-xs">
                                   <div className="font-medium mb-1">
-                                    Calcul des frais :
+                                    Calcul complet des frais :
                                   </div>
                                   <div>
                                     Prix affiché: {room.price.toFixed(2)}{" "}
@@ -707,7 +718,7 @@ export function RoomManagement({ hotelSlug, currency }: Props) {
                                   {/* Commission - seulement si > 0 */}
                                   {commissionRate > 0 && (
                                     <div>
-                                      Commission ({commissionRate}%): -
+                                      Commission SelfKey ({commissionRate}%): -
                                       {(
                                         (room.price * commissionRate) /
                                         100
@@ -718,23 +729,41 @@ export function RoomManagement({ hotelSlug, currency }: Props) {
                                   {/* Frais fixes - seulement si > 0 */}
                                   {fixedFee > 0 && (
                                     <div>
-                                      Frais fixes: -{fixedFee.toFixed(2)}{" "}
-                                      {currency}
+                                      Frais fixes SelfKey: -
+                                      {fixedFee.toFixed(2)} {currency}
                                     </div>
                                   )}
-                                  {/* Si aucun frais, afficher un message contextuel */}
+                                  {/* Frais Stripe */}
+                                  <div>
+                                    Frais Stripe (2.9%): -
+                                    {(room.price * 0.029).toFixed(2)} {currency}
+                                  </div>
+                                  <div>
+                                    Frais Stripe (fixes): -0.30 {currency}
+                                  </div>
+                                  {/* Si aucun frais SelfKey, afficher un message contextuel */}
                                   {commissionRate === 0 && fixedFee === 0 && (
-                                    <div className="text-muted-foreground">
-                                      Aucun frais appliqué
+                                    <div className="text-muted-foreground italic">
+                                      (Seuls les frais Stripe s&apos;appliquent)
                                     </div>
                                   )}
                                   <div className="border-t pt-1 mt-1 font-medium text-emerald-600">
-                                    Montant net:{" "}
-                                    {calculateFees(
-                                      room.price,
-                                      commissionRate / 100,
-                                      fixedFee
-                                    ).netAmount.toFixed(2)}{" "}
+                                    Montant net final:{" "}
+                                    {(() => {
+                                      const calculation = calculateFees(
+                                        room.price,
+                                        commissionRate / 100,
+                                        fixedFee
+                                      );
+                                      const stripeRate = 0.029;
+                                      const stripeFixedFee = 0.3;
+                                      const stripeFees =
+                                        room.price * stripeRate +
+                                        stripeFixedFee;
+                                      const finalAmount =
+                                        calculation.netAmount - stripeFees;
+                                      return finalAmount.toFixed(2);
+                                    })()}{" "}
                                     {currency}
                                   </div>
                                 </div>
@@ -803,14 +832,14 @@ export function RoomManagement({ hotelSlug, currency }: Props) {
               <Bed className="h-8 w-8 text-muted-foreground" />
             </div>
             <h3 className="text-lg font-semibold mb-2">
-              Aucune chambre configurée
+              Aucune place configurée
             </h3>
             <p className="text-sm text-muted-foreground mb-4">
-              Commencez par ajouter vos premières chambres
+              Commencez par ajouter vos premières places
             </p>
             <Button onClick={() => setShowAddForm(true)}>
               <Plus className="h-4 w-4 mr-2" />
-              Ajouter une chambre
+              Ajouter une place
             </Button>
           </CardContent>
         </Card>
