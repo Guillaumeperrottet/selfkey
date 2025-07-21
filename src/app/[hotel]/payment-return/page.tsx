@@ -16,6 +16,7 @@ export default function PaymentReturnPage({
   );
   const [error, setError] = useState<string>("");
   const [hotelSlug, setHotelSlug] = useState<string>("");
+  const [retryCount, setRetryCount] = useState(0);
 
   useEffect(() => {
     const initPage = async () => {
@@ -29,29 +30,34 @@ export default function PaymentReturnPage({
     if (!hotelSlug) return;
 
     const handlePaymentReturn = async () => {
-      const stripe = await loadStripe(
-        process.env.NEXT_PUBLIC_STRIPE_PUBLIC_KEY || ""
-      );
-
-      if (!stripe) {
-        setError("Erreur de chargement Stripe");
-        setStatus("error");
-        return;
-      }
-
-      // Récupérer le PaymentIntent depuis l'URL
-      const paymentIntentClientSecret = searchParams.get(
-        "payment_intent_client_secret"
-      );
-      const bookingId = searchParams.get("booking");
-
-      if (!paymentIntentClientSecret) {
-        setError("Paramètres de paiement manquants");
-        setStatus("error");
-        return;
-      }
-
+      // Récupérer la clé publique Stripe dynamiquement
       try {
+        const stripeResponse = await fetch("/api/stripe/public-key");
+        if (!stripeResponse.ok) {
+          throw new Error("Erreur lors de la récupération de la clé publique");
+        }
+        const { publishableKey } = await stripeResponse.json();
+
+        const stripe = await loadStripe(publishableKey);
+
+        if (!stripe) {
+          setError("Erreur de chargement Stripe");
+          setStatus("error");
+          return;
+        }
+
+        // Récupérer le PaymentIntent depuis l'URL
+        const paymentIntentClientSecret = searchParams.get(
+          "payment_intent_client_secret"
+        );
+        const bookingId = searchParams.get("booking");
+
+        if (!paymentIntentClientSecret) {
+          setError("Paramètres de paiement manquants");
+          setStatus("error");
+          return;
+        }
+
         const { paymentIntent } = await stripe.retrievePaymentIntent(
           paymentIntentClientSecret
         );
@@ -79,8 +85,16 @@ export default function PaymentReturnPage({
               break;
 
             case "processing":
-              // Attendre et vérifier à nouveau
-              setTimeout(() => handlePaymentReturn(), 2000);
+              // Limiter les tentatives pour éviter la boucle infinie
+              if (retryCount < 10) {
+                setRetryCount((prev) => prev + 1);
+                setTimeout(() => handlePaymentReturn(), 3000);
+              } else {
+                setError(
+                  "Le paiement prend trop de temps à être confirmé. Veuillez vérifier votre compte ou contacter le support."
+                );
+                setStatus("error");
+              }
               break;
 
             case "requires_payment_method":
@@ -106,7 +120,7 @@ export default function PaymentReturnPage({
     };
 
     handlePaymentReturn();
-  }, [router, searchParams, hotelSlug]);
+  }, [router, searchParams, hotelSlug, retryCount]);
 
   if (status === "loading") {
     return (
@@ -116,12 +130,29 @@ export default function PaymentReturnPage({
           <h2 className="text-xl font-semibold text-gray-900 mb-2">
             Vérification du paiement...
           </h2>
-          <p className="text-gray-600">
+          <p className="text-gray-600 mb-4">
             Veuillez patienter pendant que nous confirmons votre paiement.
           </p>
-          <div className="mt-4 text-sm text-gray-500">
+          <div className="mt-4 text-sm text-gray-500 mb-4">
             🇨🇭 TWINT • 💳 Carte • 📱 Paiement mobile
           </div>
+
+          {retryCount > 3 && (
+            <div className="mt-6 p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
+              <p className="text-sm text-yellow-800 mb-3">
+                La vérification prend plus de temps que prévu...
+              </p>
+              <button
+                onClick={() => {
+                  const bookingId = searchParams.get("booking");
+                  router.push(`/${hotelSlug}/success?booking=${bookingId}`);
+                }}
+                className="w-full bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition-colors text-sm"
+              >
+                Continuer vers la confirmation
+              </button>
+            </div>
+          )}
         </div>
       </div>
     );
