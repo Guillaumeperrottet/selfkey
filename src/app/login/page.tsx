@@ -19,6 +19,7 @@ import {
 import { Separator } from "@/components/ui/separator";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Loader2, ArrowLeft } from "lucide-react";
+import { toastUtils } from "@/lib/toast-utils";
 
 function LoginContent() {
   const [isLogin, setIsLogin] = useState(true);
@@ -87,19 +88,88 @@ function LoginContent() {
     const isPasswordValid = validatePassword(password);
 
     if (!isEmailValid || !isPasswordValid) {
+      toastUtils.error("Veuillez corriger les erreurs dans le formulaire.");
       setLoading(false);
       return;
     }
 
     try {
       if (isLogin) {
-        await signIn.email({
-          email,
-          password,
-          callbackURL: callbackUrl,
-        });
-        // Utiliser window.location.href pour forcer un rechargement complet
-        window.location.href = callbackUrl;
+        // Vérifier d'abord directement l'API auth
+        try {
+          const response = await fetch("/api/auth/sign-in/email", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+              email,
+              password,
+              callbackURL: callbackUrl,
+            }),
+          });
+
+          console.log(
+            "Réponse de l'API auth:",
+            response.status,
+            response.statusText
+          );
+
+          if (response.status === 401) {
+            // Authentification échouée
+            toastUtils.error(
+              "Email ou mot de passe incorrect. Vérifiez vos identifiants."
+            );
+            setError(
+              "Email ou mot de passe incorrect. Vérifiez vos identifiants."
+            );
+            return;
+          } else if (response.status === 200) {
+            // Authentification réussie
+            toastUtils.success("Connexion réussie ! Redirection en cours...");
+            setTimeout(() => {
+              window.location.href = callbackUrl;
+            }, 1000);
+            return;
+          } else {
+            // Autre erreur
+            throw new Error(`Erreur HTTP: ${response.status}`);
+          }
+        } catch (fetchError) {
+          console.error("Erreur lors de l'appel direct à l'API:", fetchError);
+
+          // Fallback: essayer avec signIn.email
+          try {
+            await signIn.email({
+              email,
+              password,
+              callbackURL: callbackUrl,
+            });
+
+            // Si on arrive ici, vérifier la session
+            await new Promise((resolve) => setTimeout(resolve, 500));
+
+            const sessionCheck = await fetch("/api/debug-session");
+            const sessionData = await sessionCheck.json();
+
+            if (sessionData.hasSession) {
+              toastUtils.success("Connexion réussie ! Redirection en cours...");
+              setTimeout(() => {
+                window.location.href = callbackUrl;
+              }, 1000);
+            } else {
+              throw new Error("Échec de la connexion");
+            }
+          } catch (signInError) {
+            console.error("Erreur avec signIn.email:", signInError);
+            toastUtils.error(
+              "Email ou mot de passe incorrect. Vérifiez vos identifiants."
+            );
+            setError(
+              "Email ou mot de passe incorrect. Vérifiez vos identifiants."
+            );
+          }
+        }
       } else {
         try {
           // Inscription
@@ -163,8 +233,10 @@ function LoginContent() {
       }
     } catch (err: unknown) {
       console.error("Erreur d'authentification:", err);
+      console.log("Type d'erreur:", typeof err);
+      console.log("Erreur détaillée:", JSON.stringify(err, null, 2));
 
-      // Gestion des erreurs spécifiques
+      // Gestion des erreurs spécifiques avec toasts
       let errorMessage = "Une erreur est survenue";
 
       if (err instanceof Error) {
@@ -180,22 +252,29 @@ function LoginContent() {
             errorMsg.includes("incorrect") ||
             errorMsg.includes("wrong password") ||
             errorMsg.includes("user not found") ||
-            errorMsg.includes("invalid login")
+            errorMsg.includes("invalid login") ||
+            errorMsg.includes("credential account not found") ||
+            errorMsg.includes("email ou mot de passe incorrect")
           ) {
             errorMessage =
               "Email ou mot de passe incorrect. Vérifiez vos identifiants et réessayez.";
+            toastUtils.error(errorMessage);
           } else if (
             errorMsg.includes("user not verified") ||
             errorMsg.includes("email not verified")
           ) {
             errorMessage =
               "Votre compte n'est pas encore vérifié. Vérifiez votre email.";
+            toastUtils.warning(errorMessage);
           } else if (
             errorMsg.includes("account locked") ||
             errorMsg.includes("too many attempts")
           ) {
             errorMessage =
               "Trop de tentatives de connexion. Veuillez réessayer plus tard.";
+            toastUtils.warning(errorMessage);
+          } else {
+            toastUtils.error("Erreur de connexion. Veuillez réessayer.");
           }
         }
         // Gestion des erreurs d'inscription
@@ -208,18 +287,25 @@ function LoginContent() {
           ) {
             errorMessage =
               "Cette adresse email est déjà utilisée. Essayez de vous connecter ou utilisez une autre adresse.";
+            toastUtils.warning(errorMessage);
           } else if (
             errorMsg.includes("password too weak") ||
             errorMsg.includes("password requirements")
           ) {
             errorMessage =
               "Le mot de passe doit contenir au moins 8 caractères.";
+            toastUtils.error(errorMessage);
           } else if (
             errorMsg.includes("invalid email format") ||
             errorMsg.includes("invalid email")
           ) {
             errorMessage =
               "Format d'email invalide. Vérifiez votre adresse email.";
+            toastUtils.error(errorMessage);
+          } else {
+            toastUtils.error(
+              "Erreur lors de l'inscription. Veuillez réessayer."
+            );
           }
         }
 
@@ -231,6 +317,7 @@ function LoginContent() {
         ) {
           errorMessage =
             "Problème de connexion réseau. Vérifiez votre connexion internet et réessayez.";
+          toastUtils.error(errorMessage);
         } else if (
           errorMsg.includes("server error") ||
           errorMsg.includes("500") ||
@@ -238,6 +325,7 @@ function LoginContent() {
         ) {
           errorMessage =
             "Erreur du serveur. Veuillez réessayer dans quelques instants.";
+          toastUtils.error(errorMessage);
         }
 
         // Si aucune erreur spécifique n'a été détectée, utiliser le message original s'il est informatif
@@ -247,7 +335,13 @@ function LoginContent() {
           err.message.length > 0
         ) {
           errorMessage = err.message;
+          toastUtils.error(errorMessage);
         }
+      } else {
+        // Cas où l'erreur n'est pas une instance d'Error
+        toastUtils.error(
+          "Une erreur inattendue s'est produite. Veuillez réessayer."
+        );
       }
 
       setError(errorMessage);
@@ -266,6 +360,9 @@ function LoginContent() {
       const errorMessage =
         err instanceof Error ? err.message : "Erreur avec Google";
       setError(errorMessage);
+      toastUtils.error(
+        "Erreur lors de la connexion avec Google. Veuillez réessayer."
+      );
     }
   };
 
