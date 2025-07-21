@@ -7,7 +7,6 @@ import { TutorialMenu } from "@/components/TutorialMenu";
 import { StripeOnboarding } from "@/components/StripeOnboarding";
 import { RoomManagement } from "@/components/RoomManagement";
 import { AccessCodeManager } from "@/components/AccessCodeManager";
-import { IntegrationManager } from "@/components/IntegrationManager";
 import { SettingsManager } from "@/components/SettingsManager";
 import { PricingOptionsManager } from "@/components/PricingOptionsManager";
 import { ConfirmationManager } from "@/components/ConfirmationManager";
@@ -155,14 +154,6 @@ export function AdminDashboard({
       title: "Codes d'accès",
       content:
         "Configurez les codes d'accès pour vos places. Automatiques (générés par le système) ou manuels selon vos besoins.",
-      position: "right" as const,
-      offset: { x: 20, y: 0 },
-    },
-    {
-      target: '[data-tutorial="nav-integrations"]',
-      title: "Intégrations",
-      content:
-        "Connectez des services externes : systèmes de serrures intelligentes, plateformes de réservation tierces, etc.",
       position: "right" as const,
       offset: { x: 20, y: 0 },
     },
@@ -430,9 +421,6 @@ export function AdminDashboard({
             </CardContent>
           </Card>
         );
-
-      case "integrations":
-        return <IntegrationManager hotelSlug={hotel} />;
 
       case "export-excel":
         return (

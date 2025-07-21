@@ -9,7 +9,6 @@ import {
   DollarSign,
   MessageSquare,
   Users,
-  Zap,
   Settings,
   QrCode,
   ExternalLink,
@@ -62,11 +61,6 @@ const navigation = [
     id: "access-codes",
     name: "Codes d'accès",
     icon: QrCode,
-  },
-  {
-    id: "integrations",
-    name: "Intégrations",
-    icon: Zap,
   },
   {
     id: "export-excel",
