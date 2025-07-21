@@ -36,6 +36,7 @@ export async function checkRoomAvailability(
     where: {
       roomId,
       ...(excludeBookingId ? { id: { not: excludeBookingId } } : {}),
+      paymentStatus: "succeeded", // Seulement les réservations payées
       OR: [
         // Cas 1: La nouvelle réservation commence pendant une réservation existante
         {
@@ -203,7 +204,7 @@ async function getAvailableRoomsToday(
     return [];
   }
 
-  // Récupérer les IDs des chambres déjà réservées aujourd'hui
+  // Récupérer les IDs des chambres déjà réservées aujourd'hui (avec paiement confirmé)
   const bookedRoomIds = await prisma.booking
     .findMany({
       where: {
@@ -215,9 +216,7 @@ async function getAvailableRoomsToday(
           gte: today,
           lt: new Date(today.getTime() + 24 * 60 * 60 * 1000),
         },
-        stripePaymentIntentId: {
-          not: null, // Seulement les réservations confirmées
-        },
+        paymentStatus: "succeeded", // Seulement les réservations payées
       },
       select: {
         roomId: true,
@@ -284,8 +283,8 @@ export async function isRoomCurrentlyAvailable(
           ],
         },
       ],
-      // Seulement les réservations confirmées (avec payment intent)
-      stripePaymentIntentId: { not: null },
+      // Seulement les réservations avec paiement confirmé
+      paymentStatus: "succeeded",
     },
   });
 

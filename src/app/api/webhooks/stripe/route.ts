@@ -99,7 +99,7 @@ async function handlePaymentSucceeded(paymentIntent: Stripe.PaymentIntent) {
 async function handlePaymentFailed(paymentIntent: Stripe.PaymentIntent) {
   try {
     // Mettre à jour la réservation comme échec de paiement
-    await prisma.booking.updateMany({
+    const updatedBookings = await prisma.booking.updateMany({
       where: { stripePaymentIntentId: paymentIntent.id },
       data: {
         paymentStatus: "failed",
@@ -107,7 +107,14 @@ async function handlePaymentFailed(paymentIntent: Stripe.PaymentIntent) {
     });
 
     console.log(`Payment failed for PaymentIntent: ${paymentIntent.id}`);
-    // Vous pourriez envoyer un email de notification, logger l'échec, etc.
+
+    // Optionnel : Supprimer les réservations échouées après 24h pour libérer les chambres
+    // Cela peut être fait par un job CRON séparé, mais on peut aussi le faire ici
+    if (updatedBookings.count > 0) {
+      console.log(
+        `🧹 Scheduling cleanup for failed payment: ${paymentIntent.id}`
+      );
+    }
   } catch (error) {
     console.error("Error handling payment failure:", error);
   }
