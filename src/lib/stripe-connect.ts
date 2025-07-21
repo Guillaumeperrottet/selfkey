@@ -81,11 +81,7 @@ export async function createPaymentIntentWithCommission(
       transfer_data: {
         destination: connectedAccountId, // L'argent va directement au propriétaire
       },
-      automatic_payment_methods: {
-        enabled: true,
-        allow_redirects: "always", // Nécessaire pour TWINT
-      },
-      // Supprimé payment_method_types car incompatible avec automatic_payment_methods
+      payment_method_types: ["card", "twint", "apple_pay", "google_pay"],
       metadata: {
         integration_type: "direct_charge",
         platform: "selfkey_hotels",

@@ -182,6 +182,12 @@ function CheckoutForm({ booking }: Pick<PaymentFormProps, "booking">) {
               <PaymentElement
                 options={{
                   layout: "tabs",
+                  paymentMethodOrder: [
+                    "card",
+                    "apple_pay",
+                    "google_pay",
+                    "twint",
+                  ],
                   wallets: {
                     applePay: "auto",
                     googlePay: "auto",
