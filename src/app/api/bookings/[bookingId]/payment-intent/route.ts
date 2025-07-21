@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
-import { stripe } from "@/lib/stripe";
+import { createPaymentIntentWithCommission } from "@/lib/stripe-connect";
 
 interface Props {
   params: Promise<{ bookingId: string }>;
@@ -25,24 +25,50 @@ export async function GET(request: NextRequest, { params }: Props) {
       );
     }
 
-    if (!booking.stripePaymentIntentId) {
+    // Vérifier que l'établissement a Stripe configuré
+    if (!booking.establishment.stripeAccountId) {
       return NextResponse.json(
-        { error: "PaymentIntent non trouvé pour cette réservation" },
-        { status: 404 }
+        { error: "Paiements non configurés pour cet établissement" },
+        { status: 503 }
       );
     }
 
-    // Récupérer le PaymentIntent depuis Stripe
-    const paymentIntent = await stripe.paymentIntents.retrieve(
-      booking.stripePaymentIntentId,
-      {
-        stripeAccount: booking.establishment.stripeAccountId || undefined,
+    // Si le PaymentIntent existe déjà, tenter de le récupérer
+    if (booking.stripePaymentIntentId) {
+      try {
+        // Si on a déjà un PaymentIntent, on peut recréer le clientSecret
+        // En fait, on va simplement créer un nouveau PaymentIntent pour être sûr
+        // car récupérer le clientSecret depuis Stripe est complexe avec Connect
+        console.log("PaymentIntent existant trouvé, création d'un nouveau...");
+      } catch (error) {
+        console.warn(
+          "Impossible de récupérer le PaymentIntent existant:",
+          error
+        );
       }
+    }
+
+    // Créer un nouveau PaymentIntent
+    const paymentIntent = await createPaymentIntentWithCommission(
+      booking.amount,
+      booking.currency.toLowerCase(),
+      booking.establishment.stripeAccountId,
+      booking.establishment.commissionRate,
+      booking.establishment.fixedFee
     );
 
+    // Mettre à jour la réservation avec le nouveau PaymentIntent
+    await prisma.booking.update({
+      where: { id: bookingId },
+      data: { stripePaymentIntentId: paymentIntent.id },
+    });
+
+    const clientSecret = paymentIntent.client_secret || "";
+
     return NextResponse.json({
-      clientSecret: paymentIntent.client_secret,
+      clientSecret,
       status: paymentIntent.status,
+      paymentIntentId: paymentIntent.id,
     });
   } catch (error) {
     console.error("Erreur récupération PaymentIntent:", error);

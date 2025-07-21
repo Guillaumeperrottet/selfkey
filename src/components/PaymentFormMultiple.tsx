@@ -67,6 +67,21 @@ function CheckoutForm({ booking }: Pick<PaymentFormProps, "booking">) {
     // Récupérer le PaymentIntent existant depuis la réservation
     const getExistingPaymentIntent = async () => {
       try {
+        // Vérifier d'abord si on a un clientSecret dans le sessionStorage
+        const storedClientSecret = sessionStorage.getItem(
+          `payment_${booking.id}`
+        );
+        if (storedClientSecret) {
+          setClientSecret(storedClientSecret);
+          console.log("💳 PaymentIntent récupéré depuis sessionStorage:", {
+            clientSecret: storedClientSecret,
+          });
+          // Nettoyer le sessionStorage après utilisation
+          sessionStorage.removeItem(`payment_${booking.id}`);
+          return;
+        }
+
+        // Sinon, récupérer ou créer un PaymentIntent via l'API
         const response = await fetch(
           `/api/bookings/${booking.id}/payment-intent`
         );
@@ -77,7 +92,7 @@ function CheckoutForm({ booking }: Pick<PaymentFormProps, "booking">) {
 
         const { clientSecret } = await response.json();
         setClientSecret(clientSecret);
-        console.log("💳 PaymentIntent récupéré:", { clientSecret });
+        console.log("💳 PaymentIntent récupéré depuis API:", { clientSecret });
       } catch (error) {
         console.error("Erreur PaymentIntent:", error);
         setError("Erreur lors de l'initialisation du paiement");
