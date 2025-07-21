@@ -25,7 +25,6 @@ import {
   ArrowUpDown,
   Users,
   Calendar,
-  Euro,
   MapPin,
   Phone,
   Mail,
@@ -672,8 +671,10 @@ export function BookingsTable({ bookings }: BookingsTableProps) {
                     </TableCell>
                     <TableCell>
                       <div className="flex items-center gap-1">
-                        <Euro className="h-3 w-3 text-muted-foreground" />
                         <span className="font-medium">{booking.amount}</span>
+                        <span className="text-xs text-muted-foreground">
+                          CHF
+                        </span>
                       </div>
                     </TableCell>
                     <TableCell>
@@ -917,7 +918,9 @@ export function BookingsTable({ bookings }: BookingsTableProps) {
                 {/* Informations de paiement */}
                 <div className="bg-muted/50 p-4 rounded-lg">
                   <h3 className="font-semibold mb-3 flex items-center gap-2">
-                    <Euro className="h-4 w-4" />
+                    <span className="text-sm bg-primary/10 text-primary px-2 py-1 rounded">
+                      CHF
+                    </span>
                     Paiement
                   </h3>
                   <div className="space-y-2 text-sm">
