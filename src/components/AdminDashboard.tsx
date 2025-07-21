@@ -266,17 +266,36 @@ export function AdminDashboard({
                 <Card>
                   <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                     <CardTitle className="text-sm font-medium">
-                      Revenus du jour
+                      Revenus nets du jour
                     </CardTitle>
                     <CreditCard className="h-4 w-4 text-muted-foreground" />
                   </CardHeader>
                   <CardContent>
                     <div className="text-2xl font-bold">
-                      {currentBookings
-                        .reduce((sum: number, b) => sum + b.amount, 0)
-                        .toFixed(2)}{" "}
+                      {(() => {
+                        const totalGross = currentBookings.reduce(
+                          (sum: number, b) => sum + b.amount,
+                          0
+                        );
+                        const totalCommissions = currentBookings.reduce(
+                          (sum: number, booking) => {
+                            const commission = Math.round(
+                              (booking.amount * establishment.commissionRate) /
+                                100 +
+                                establishment.fixedFee
+                            );
+                            return sum + commission;
+                          },
+                          0
+                        );
+                        const netRevenue = totalGross - totalCommissions;
+                        return netRevenue.toFixed(2);
+                      })()}{" "}
                       CHF
                     </div>
+                    <p className="text-xs text-muted-foreground">
+                      après déduction des frais
+                    </p>
                   </CardContent>
                 </Card>
 
@@ -356,6 +375,10 @@ export function AdminDashboard({
                   bookings={currentBookings}
                   rooms={roomsWithInventory}
                   colors={chartColors}
+                  establishment={{
+                    commissionRate: establishment.commissionRate,
+                    fixedFee: establishment.fixedFee,
+                  }}
                 />
               </div>
             )}

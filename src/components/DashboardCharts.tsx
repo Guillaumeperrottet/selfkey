@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo } from "react";
+import { useMemo, useCallback } from "react";
 import {
   Bar,
   BarChart,
@@ -63,13 +63,35 @@ interface DashboardChartsProps {
   bookings: Booking[];
   rooms: Room[];
   colors?: ChartColors;
+  establishment?: {
+    commissionRate: number;
+    fixedFee: number;
+  };
 }
 
 export function DashboardCharts({
   bookings,
   rooms,
   colors,
+  establishment,
 }: DashboardChartsProps) {
+  // Fonction pour calculer le revenu net après commissions
+  const calculateNetRevenue = useCallback(
+    (bookings: Booking[]) => {
+      if (!establishment) {
+        return bookings.reduce((sum, b) => sum + b.amount, 0);
+      }
+
+      return bookings.reduce((sum, booking) => {
+        const commission = Math.round(
+          (booking.amount * establishment.commissionRate) / 100 +
+            establishment.fixedFee
+        );
+        return sum + (booking.amount - commission);
+      }, 0);
+    },
+    [establishment]
+  );
   // Couleurs par défaut ou couleurs personnalisées
   const chartColors = useMemo(
     () =>
@@ -93,7 +115,7 @@ export function DashboardCharts({
 
   const revenueChartConfig = {
     revenus: {
-      label: "Revenus",
+      label: "Revenus nets",
       color: chartColors.chart2,
     },
   } satisfies ChartConfig;
@@ -144,19 +166,19 @@ export function DashboardCharts({
       last6Months.push({
         month: monthName,
         reservations: monthBookings.length,
-        revenus: monthBookings.reduce((sum, b) => sum + b.amount, 0),
+        revenus: calculateNetRevenue(monthBookings),
         clients: monthBookings.reduce((sum, b) => sum + b.guests, 0),
       });
     }
 
     return last6Months;
-  }, [bookings]);
+  }, [bookings, calculateNetRevenue]);
 
   // Données pour le graphique des chambres
   const roomsData = useMemo(() => {
     return rooms.map((room) => {
       const roomBookings = bookings.filter((b) => b.room.name === room.name);
-      const totalRevenue = roomBookings.reduce((sum, b) => sum + b.amount, 0);
+      const totalRevenue = calculateNetRevenue(roomBookings);
 
       return {
         name: room.name,
@@ -166,7 +188,7 @@ export function DashboardCharts({
         statut: room.isActive ? "active" : "inactive",
       };
     });
-  }, [rooms, bookings]);
+  }, [rooms, bookings, calculateNetRevenue]);
 
   // Données pour le graphique de l'évolution des revenus
   const revenueData = useMemo(() => {
@@ -189,13 +211,13 @@ export function DashboardCharts({
           day: "numeric",
           month: "short",
         }),
-        revenus: dayBookings.reduce((sum, b) => sum + b.amount, 0),
+        revenus: calculateNetRevenue(dayBookings),
         reservations: dayBookings.length,
       });
     }
 
     return last30Days;
-  }, [bookings]);
+  }, [bookings, calculateNetRevenue]);
 
   // Données pour le graphique de répartition des clients
   const guestDistributionData = useMemo(() => {
@@ -298,10 +320,10 @@ export function DashboardCharts({
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <TrendingUp className="h-5 w-5" />
-                Évolution des revenus
+                Évolution des revenus nets
               </CardTitle>
               <CardDescription>
-                Revenus quotidiens sur les 30 derniers jours
+                Revenus nets quotidiens sur les 30 derniers jours
               </CardDescription>
             </CardHeader>
             <CardContent>
