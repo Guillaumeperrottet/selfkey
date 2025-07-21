@@ -61,51 +61,11 @@ function CheckoutForm({ booking }: Pick<PaymentFormProps, "booking">) {
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string>("");
-  const [clientSecret, setClientSecret] = useState<string>("");
-
-  useEffect(() => {
-    // Récupérer le PaymentIntent existant depuis la réservation
-    const getExistingPaymentIntent = async () => {
-      try {
-        // Vérifier d'abord si on a un clientSecret dans le sessionStorage
-        const storedClientSecret = sessionStorage.getItem(
-          `payment_${booking.id}`
-        );
-        if (storedClientSecret) {
-          setClientSecret(storedClientSecret);
-          console.log("💳 PaymentIntent récupéré depuis sessionStorage:", {
-            clientSecret: storedClientSecret,
-          });
-          // Nettoyer le sessionStorage après utilisation
-          sessionStorage.removeItem(`payment_${booking.id}`);
-          return;
-        }
-
-        // Sinon, récupérer ou créer un PaymentIntent via l'API
-        const response = await fetch(
-          `/api/bookings/${booking.id}/payment-intent`
-        );
-
-        if (!response.ok) {
-          throw new Error("Erreur lors de la récupération du PaymentIntent");
-        }
-
-        const { clientSecret } = await response.json();
-        setClientSecret(clientSecret);
-        console.log("💳 PaymentIntent récupéré depuis API:", { clientSecret });
-      } catch (error) {
-        console.error("Erreur PaymentIntent:", error);
-        setError("Erreur lors de l'initialisation du paiement");
-      }
-    };
-
-    getExistingPaymentIntent();
-  }, [booking.id]);
 
   const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault();
 
-    if (!stripe || !elements || !clientSecret) {
+    if (!stripe || !elements) {
       return;
     }
 
@@ -189,7 +149,7 @@ function CheckoutForm({ booking }: Pick<PaymentFormProps, "booking">) {
       </div>
 
       <form onSubmit={handleSubmit} className="space-y-6">
-        {clientSecret && (
+        {stripe && elements && (
           <div>
             {/* Debug info en mode développement */}
             {process.env.NODE_ENV === "development" && (
@@ -213,7 +173,7 @@ function CheckoutForm({ booking }: Pick<PaymentFormProps, "booking">) {
                   </span>
                 </div>
                 <p className="text-blue-700 mt-1">
-                  PaymentIntent: {clientSecret.split("_")[1]}...
+                  Paiement initialisé pour la réservation {booking.id}
                 </p>
               </div>
             )}
@@ -249,7 +209,7 @@ function CheckoutForm({ booking }: Pick<PaymentFormProps, "booking">) {
           </div>
         )}
 
-        {!clientSecret && (
+        {(!stripe || !elements) && (
           <div className="animate-pulse">
             <div className="h-48 bg-gray-200 rounded-lg"></div>
           </div>
@@ -325,7 +285,7 @@ function CheckoutForm({ booking }: Pick<PaymentFormProps, "booking">) {
 
         <button
           type="submit"
-          disabled={!stripe || isLoading || !clientSecret}
+          disabled={!stripe || !elements || isLoading}
           className="w-full py-4 px-6 bg-blue-600 text-white font-semibold rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 shadow-sm hover:shadow-md"
         >
           <div className="flex items-center justify-center gap-2">
@@ -384,32 +344,67 @@ export function PaymentFormMultiple(props: PaymentFormProps) {
   const [stripePromise, setStripePromise] = useState<ReturnType<
     typeof loadStripe
   > | null>(null);
+  const [clientSecret, setClientSecret] = useState<string>("");
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    // Récupérer la clé publique Stripe depuis l'API
-    const initializeStripe = async () => {
+    // Récupérer la clé publique Stripe et le clientSecret
+    const initializePayment = async () => {
       try {
-        const response = await fetch("/api/stripe/public-key");
-        if (!response.ok) {
+        setIsLoading(true);
+
+        // 1. Récupérer la clé publique Stripe
+        const stripeResponse = await fetch("/api/stripe/public-key");
+        if (!stripeResponse.ok) {
           throw new Error("Erreur lors de la récupération de la clé publique");
         }
 
-        const { publishableKey } = await response.json();
+        const { publishableKey } = await stripeResponse.json();
         console.log(
           "🔑 Clé publique Stripe récupérée:",
           publishableKey.substring(0, 12) + "..."
         );
 
         setStripePromise(loadStripe(publishableKey));
+
+        // 2. Récupérer le clientSecret
+        // Vérifier d'abord si on a un clientSecret dans le sessionStorage
+        const storedClientSecret = sessionStorage.getItem(
+          `payment_${props.booking.id}`
+        );
+        if (storedClientSecret) {
+          setClientSecret(storedClientSecret);
+          console.log("💳 PaymentIntent récupéré depuis sessionStorage:", {
+            clientSecret: storedClientSecret,
+          });
+          // Nettoyer le sessionStorage après utilisation
+          sessionStorage.removeItem(`payment_${props.booking.id}`);
+        } else {
+          // Sinon, récupérer ou créer un PaymentIntent via l'API
+          const paymentResponse = await fetch(
+            `/api/bookings/${props.booking.id}/payment-intent`
+          );
+          if (!paymentResponse.ok) {
+            throw new Error("Erreur lors de la récupération du PaymentIntent");
+          }
+
+          const paymentData = await paymentResponse.json();
+          setClientSecret(paymentData.clientSecret);
+          console.log("💳 PaymentIntent récupéré depuis API:", {
+            clientSecret: paymentData.clientSecret,
+          });
+        }
       } catch (error) {
-        console.error("Erreur lors de l'initialisation de Stripe:", error);
+        console.error("Erreur lors de l'initialisation du paiement:", error);
+      } finally {
+        setIsLoading(false);
       }
     };
 
-    initializeStripe();
-  }, []);
+    initializePayment();
+  }, [props.booking.id]);
 
-  if (!stripePromise) {
+  if (!stripePromise || !clientSecret || isLoading) {
     return (
       <div className="p-4 text-center">
         <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto"></div>
@@ -422,6 +417,7 @@ export function PaymentFormMultiple(props: PaymentFormProps) {
     <Elements
       stripe={stripePromise}
       options={{
+        clientSecret: clientSecret,
         appearance: {
           theme: "stripe",
           variables: {
