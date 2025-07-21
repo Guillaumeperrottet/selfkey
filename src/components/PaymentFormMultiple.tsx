@@ -86,6 +86,7 @@ function CheckoutForm({ booking }: Pick<PaymentFormProps, "booking">) {
                 phone: booking.clientPhone,
                 address: {
                   line1: booking.clientAddress,
+                  line2: "", // Deuxième ligne d'adresse optionnelle
                   postal_code: booking.clientPostalCode,
                   city: booking.clientCity,
                   state: "", // Pas de champ state dans notre schéma, valeur vide acceptable
