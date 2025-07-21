@@ -279,13 +279,9 @@ function CheckoutForm({ booking }: Pick<PaymentFormProps, "booking">) {
             Méthodes de paiement acceptées
           </p>
           <div className="flex items-center gap-3 text-sm text-blue-700">
-            <span>💳 Cartes bancaires</span>
-            <span>•</span>
-            <span>🇨🇭 TWINT</span>
-            <span>•</span>
-            <span>📱 Apple Pay</span>
-            <span>•</span>
-            <span>💳 Google Pay</span>
+            <span>• Cartes bancaires</span>
+            <span>• Twint</span>
+            <span>• Apple Pay*</span>
           </div>
         </div>
 
