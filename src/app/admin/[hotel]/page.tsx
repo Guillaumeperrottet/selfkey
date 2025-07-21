@@ -56,7 +56,7 @@ export default async function AdminPage({ params }: Props) {
   const today = new Date();
   today.setHours(0, 0, 0, 0);
 
-  // Récupérer les réservations actuelles et futures
+  // Récupérer les réservations actuelles et futures (uniquement payées)
   const currentBookings = await prisma.booking.findMany({
     where: {
       hotelSlug: hotel,
@@ -66,8 +66,8 @@ export default async function AdminPage({ params }: Props) {
         // Réservations d'aujourd'hui
         { checkInDate: { gte: today } },
       ],
-      // Seulement les réservations confirmées
-      stripePaymentIntentId: { not: null },
+      // Seulement les réservations avec paiement confirmé
+      paymentStatus: "succeeded",
     },
     include: {
       room: true, // Inclure les détails de la chambre
