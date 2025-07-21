@@ -120,6 +120,9 @@ export async function updateBookingWithPayment(
 ) {
   return await prisma.booking.update({
     where: { id: bookingId },
-    data: { stripePaymentIntentId: paymentIntentId },
+    data: {
+      stripePaymentIntentId: paymentIntentId,
+      paymentStatus: "succeeded", // Marquer le paiement comme réussi
+    },
   });
 }

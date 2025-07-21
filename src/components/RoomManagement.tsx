@@ -452,16 +452,8 @@ export function RoomManagement({ hotelSlug, currency }: Props) {
                         fixedFee
                       );
 
-                      // Calcul des frais Stripe (2.9% + 0.30 CHF)
-                      const stripeRate = 0.029; // 2.9%
-                      const stripeFixedFee = 0.3; // 0.30 CHF
-                      const stripeFees = price * stripeRate + stripeFixedFee;
-
-                      // Montant final après déduction de tous les frais
-                      const finalAmount = calculation.netAmount - stripeFees;
-
                       return (
-                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 text-xs">
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
                           {/* Prix affiché au client */}
                           <div className="bg-background border border-border rounded-md p-3">
                             <div className="font-medium text-foreground mb-1 flex items-center gap-1">
@@ -518,89 +510,11 @@ export function RoomManagement({ hotelSlug, currency }: Props) {
                               </div>
                             )}
                           </div>
-
-                          {/* Frais Stripe */}
-                          <div className="bg-background border border-amber-500/20 rounded-md p-3">
-                            <div className="font-medium text-foreground mb-1 flex items-center gap-1">
-                              <span className="text-amber-600">⚡</span>
-                              Frais Stripe
-                            </div>
-                            <div className="space-y-1 text-muted-foreground">
-                              <div className="flex justify-between">
-                                <span>Commission (2.9%):</span>
-                                <span>
-                                  {(price * stripeRate).toFixed(2)} {currency}
-                                </span>
-                              </div>
-                              <div className="flex justify-between">
-                                <span>Frais fixes:</span>
-                                <span>
-                                  {stripeFixedFee.toFixed(2)} {currency}
-                                </span>
-                              </div>
-                              <div className="flex justify-between font-medium text-foreground border-t border-border pt-1">
-                                <span>Total:</span>
-                                <span>
-                                  {stripeFees.toFixed(2)} {currency}
-                                </span>
-                              </div>
-                            </div>
-                          </div>
-
-                          {/* Montant final reçu */}
-                          <div className="bg-background border border-emerald-500/20 rounded-md p-3">
-                            <div className="font-medium text-foreground mb-1 flex items-center gap-1">
-                              <span className="text-emerald-600">✓</span>
-                              Montant final
-                            </div>
-                            <div className="text-xl font-bold text-emerald-600">
-                              {finalAmount.toFixed(2)} {currency}
-                            </div>
-                            <div className="text-muted-foreground text-xs mt-1">
-                              Après tous frais
-                            </div>
-                          </div>
-                        </div>
-                      );
-                    })()}
-
-                    {(() => {
-                      return (
-                        <div className="text-xs text-muted-foreground bg-muted/20 rounded p-2 border border-muted">
-                          💡 <strong>Calcul complet :</strong> Ce montant final
-                          inclut la déduction automatique de tous les frais
-                          (SelfKey + Stripe). C&apos;est exactement ce que vous
-                          recevrez sur votre compte.
                         </div>
                       );
                     })()}
                   </div>
                 )}
-
-              {/* Information sur les frais Stripe */}
-              <div className="bg-blue-50 border border-blue-200 rounded-lg p-3">
-                <div className="flex items-start gap-2">
-                  <div className="flex-shrink-0 w-5 h-5 bg-blue-100 rounded-full flex items-center justify-center">
-                    <AlertTriangle className="h-3 w-3 text-blue-600" />
-                  </div>
-                  <div className="flex-1">
-                    <p className="text-xs text-blue-700">
-                      <strong>Frais de paiement :</strong> Les frais Stripe
-                      (2,9% + 0,30 CHF) sont maintenant inclus dans le calcul
-                      ci-dessus pour vous donner une vision complète de vos
-                      revenus.{" "}
-                      <a
-                        href="https://stripe.com/fr/pricing"
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="text-blue-600 hover:text-blue-800 underline"
-                      >
-                        Plus d&apos;infos
-                      </a>
-                    </p>
-                  </div>
-                </div>
-              </div>
 
               <div className="flex gap-3 pt-4">
                 <Button type="submit" disabled={isLoading}>
@@ -692,15 +606,7 @@ export function RoomManagement({ hotelSlug, currency }: Props) {
                                         commissionRate / 100,
                                         fixedFee
                                       );
-                                      // Déduction des frais Stripe (2.9% + 0.30 CHF)
-                                      const stripeRate = 0.029;
-                                      const stripeFixedFee = 0.3;
-                                      const stripeFees =
-                                        room.price * stripeRate +
-                                        stripeFixedFee;
-                                      const finalAmount =
-                                        calculation.netAmount - stripeFees;
-                                      return finalAmount.toFixed(2);
+                                      return calculation.netAmount.toFixed(2);
                                     })()}{" "}
                                     {currency}
                                   </span>
@@ -709,7 +615,7 @@ export function RoomManagement({ hotelSlug, currency }: Props) {
                               <TooltipContent>
                                 <div className="text-xs">
                                   <div className="font-medium mb-1">
-                                    Calcul complet des frais :
+                                    Calcul des frais SelfKey :
                                   </div>
                                   <div>
                                     Prix affiché: {room.price.toFixed(2)}{" "}
@@ -733,36 +639,21 @@ export function RoomManagement({ hotelSlug, currency }: Props) {
                                       {fixedFee.toFixed(2)} {currency}
                                     </div>
                                   )}
-                                  {/* Frais Stripe */}
-                                  <div>
-                                    Frais Stripe (2.9%): -
-                                    {(room.price * 0.029).toFixed(2)} {currency}
-                                  </div>
-                                  <div>
-                                    Frais Stripe (fixes): -0.30 {currency}
-                                  </div>
                                   {/* Si aucun frais SelfKey, afficher un message contextuel */}
                                   {commissionRate === 0 && fixedFee === 0 && (
                                     <div className="text-muted-foreground italic">
-                                      (Seuls les frais Stripe s&apos;appliquent)
+                                      (Aucun frais SelfKey configuré)
                                     </div>
                                   )}
                                   <div className="border-t pt-1 mt-1 font-medium text-emerald-600">
-                                    Montant net final:{" "}
+                                    Montant net:{" "}
                                     {(() => {
                                       const calculation = calculateFees(
                                         room.price,
                                         commissionRate / 100,
                                         fixedFee
                                       );
-                                      const stripeRate = 0.029;
-                                      const stripeFixedFee = 0.3;
-                                      const stripeFees =
-                                        room.price * stripeRate +
-                                        stripeFixedFee;
-                                      const finalAmount =
-                                        calculation.netAmount - stripeFees;
-                                      return finalAmount.toFixed(2);
+                                      return calculation.netAmount.toFixed(2);
                                     })()}{" "}
                                     {currency}
                                   </div>

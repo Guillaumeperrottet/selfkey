@@ -133,9 +133,6 @@ export default function PaymentReturnPage({
           <p className="text-gray-600 mb-4">
             Veuillez patienter pendant que nous confirmons votre paiement.
           </p>
-          <div className="mt-4 text-sm text-gray-500 mb-4">
-            🇨🇭 TWINT • 💳 Carte • 📱 Paiement mobile
-          </div>
 
           {retryCount > 3 && (
             <div className="mt-6 p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
