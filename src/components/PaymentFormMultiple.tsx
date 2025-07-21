@@ -381,9 +381,42 @@ function CheckoutForm({ booking }: Pick<PaymentFormProps, "booking">) {
 
 // Composant principal avec Elements provider
 export function PaymentFormMultiple(props: PaymentFormProps) {
-  const [stripePromise] = useState(() =>
-    loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLIC_KEY || "")
-  );
+  const [stripePromise, setStripePromise] = useState<ReturnType<
+    typeof loadStripe
+  > | null>(null);
+
+  useEffect(() => {
+    // Récupérer la clé publique Stripe depuis l'API
+    const initializeStripe = async () => {
+      try {
+        const response = await fetch("/api/stripe/public-key");
+        if (!response.ok) {
+          throw new Error("Erreur lors de la récupération de la clé publique");
+        }
+
+        const { publishableKey } = await response.json();
+        console.log(
+          "🔑 Clé publique Stripe récupérée:",
+          publishableKey.substring(0, 12) + "..."
+        );
+
+        setStripePromise(loadStripe(publishableKey));
+      } catch (error) {
+        console.error("Erreur lors de l'initialisation de Stripe:", error);
+      }
+    };
+
+    initializeStripe();
+  }, []);
+
+  if (!stripePromise) {
+    return (
+      <div className="p-4 text-center">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto"></div>
+        <p className="mt-2 text-gray-600">Initialisation du paiement...</p>
+      </div>
+    );
+  }
 
   return (
     <Elements
