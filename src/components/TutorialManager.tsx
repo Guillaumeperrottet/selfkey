@@ -28,6 +28,9 @@ export function useTutorial({
   useEffect(() => {
     const hasSeenTutorial = localStorage.getItem(`tutorial_${tutorialKey}`);
 
+    // Debug: log pour aider au débogage
+    console.log(`Tutorial ${tutorialKey}: hasSeenTutorial =`, hasSeenTutorial);
+
     if (!hasSeenTutorial && autoStart) {
       setIsFirstVisit(true);
       // Petite pause pour laisser le temps à la page de se charger

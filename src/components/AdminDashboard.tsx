@@ -201,7 +201,7 @@ export function AdminDashboard({
   ];
 
   const tutorial = useTutorial({
-    tutorialKey: `admin-dashboard-${hotel}`,
+    tutorialKey: "admin-dashboard-first-time",
     steps: adminTutorialSteps,
     autoStart: true,
     delay: 2000,
