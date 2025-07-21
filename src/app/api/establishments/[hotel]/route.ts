@@ -5,7 +5,7 @@ import { prisma } from "@/lib/prisma";
 
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { hotel: string } }
+  { params }: { params: Promise<{ hotel: string }> }
 ) {
   try {
     // Vérifier l'authentification
@@ -17,7 +17,7 @@ export async function DELETE(
       return NextResponse.json({ error: "Non autorisé" }, { status: 401 });
     }
 
-    const establishmentSlug = params.hotel;
+    const { hotel: establishmentSlug } = await params;
 
     if (!establishmentSlug) {
       return NextResponse.json(
