@@ -64,31 +64,27 @@ function CheckoutForm({ booking }: Pick<PaymentFormProps, "booking">) {
   const [clientSecret, setClientSecret] = useState<string>("");
 
   useEffect(() => {
-    // Créer le PaymentIntent avec support TWINT
-    const createPaymentIntent = async () => {
+    // Récupérer le PaymentIntent existant depuis la réservation
+    const getExistingPaymentIntent = async () => {
       try {
-        const response = await fetch("/api/payment-intent", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            bookingId: booking.id,
-          }),
-        });
+        const response = await fetch(
+          `/api/bookings/${booking.id}/payment-intent`
+        );
 
         if (!response.ok) {
-          throw new Error("Erreur lors de la création du PaymentIntent");
+          throw new Error("Erreur lors de la récupération du PaymentIntent");
         }
 
         const { clientSecret } = await response.json();
         setClientSecret(clientSecret);
-        console.log("💳 PaymentIntent créé:", { clientSecret });
+        console.log("💳 PaymentIntent récupéré:", { clientSecret });
       } catch (error) {
         console.error("Erreur PaymentIntent:", error);
         setError("Erreur lors de l'initialisation du paiement");
       }
     };
 
-    createPaymentIntent();
+    getExistingPaymentIntent();
   }, [booking.id]);
 
   const handleSubmit = async (event: React.FormEvent) => {
@@ -151,23 +147,63 @@ function CheckoutForm({ booking }: Pick<PaymentFormProps, "booking">) {
 
   return (
     <div className="bg-white rounded-lg shadow-md p-6">
-      <h2 className="text-lg font-semibold text-gray-900 mb-6">
-        Informations de paiement
-      </h2>
+      <div className="flex items-center gap-3 mb-6">
+        <div className="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center">
+          <svg
+            className="w-5 h-5 text-blue-600"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={2}
+              d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"
+            />
+          </svg>
+        </div>
+        <div>
+          <h2 className="text-lg font-semibold text-gray-900">
+            Informations de paiement
+          </h2>
+          <p className="text-sm text-gray-600">
+            Sélectionnez votre méthode de paiement préférée
+          </p>
+        </div>
+      </div>
 
       <form onSubmit={handleSubmit} className="space-y-6">
         {clientSecret && (
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              Choisissez votre méthode de paiement
-            </label>
             {/* Debug info en mode développement */}
             {process.env.NODE_ENV === "development" && (
-              <div className="bg-yellow-50 border border-yellow-200 rounded-md p-2 mb-2 text-xs">
-                🔧 Mode test - PaymentIntent: {clientSecret.split("_")[1]}...
+              <div className="bg-blue-50 border border-blue-200 rounded-md p-3 mb-4 text-xs">
+                <div className="flex items-center gap-2">
+                  <svg
+                    className="w-4 h-4 text-blue-600"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                    />
+                  </svg>
+                  <span className="font-medium text-blue-800">
+                    Mode test actif
+                  </span>
+                </div>
+                <p className="text-blue-700 mt-1">
+                  PaymentIntent: {clientSecret.split("_")[1]}...
+                </p>
               </div>
             )}
-            <div className="border border-gray-300 rounded-md p-3">
+
+            <div className="border border-gray-200 rounded-lg p-4 bg-gray-50">
               <PaymentElement
                 options={{
                   layout: "tabs",
@@ -189,36 +225,139 @@ function CheckoutForm({ booking }: Pick<PaymentFormProps, "booking">) {
                 }}
                 onChange={(event) => {
                   console.log("💳 PaymentElement changement:", event);
+                  if (event.complete) {
+                    setError(""); // Effacer les erreurs quand le formulaire est complet
+                  }
                 }}
               />
             </div>
           </div>
         )}
 
-        {error && (
-          <div className="bg-red-50 border border-red-200 rounded-md p-3">
-            <p className="text-sm text-red-600">{error}</p>
+        {!clientSecret && (
+          <div className="animate-pulse">
+            <div className="h-48 bg-gray-200 rounded-lg"></div>
           </div>
         )}
 
-        <div className="bg-blue-50 border border-blue-200 rounded-md p-3">
-          <p className="text-sm text-blue-700">
-            🔒 Paiement sécurisé par Stripe. Vos données bancaires sont
-            protégées.
+        {error && (
+          <div className="bg-red-50 border border-red-200 rounded-md p-4">
+            <div className="flex items-center gap-2">
+              <svg
+                className="w-5 h-5 text-red-500"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                />
+              </svg>
+              <p className="text-sm text-red-800 font-medium">
+                Erreur de paiement
+              </p>
+            </div>
+            <p className="text-sm text-red-700 mt-1">{error}</p>
+          </div>
+        )}
+
+        {/* Informations de sécurité */}
+        <div className="bg-green-50 border border-green-200 rounded-md p-4">
+          <div className="flex items-start gap-3">
+            <svg
+              className="w-5 h-5 text-green-600 mt-0.5"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"
+              />
+            </svg>
+            <div>
+              <p className="text-sm font-medium text-green-800">
+                Paiement 100% sécurisé
+              </p>
+              <p className="text-sm text-green-700 mt-1">
+                Vos données bancaires sont protégées par un cryptage SSL de
+                niveau bancaire
+              </p>
+            </div>
+          </div>
+        </div>
+
+        {/* Méthodes de paiement acceptées */}
+        <div className="bg-blue-50 border border-blue-200 rounded-md p-4">
+          <p className="text-sm font-medium text-blue-800 mb-2">
+            Méthodes de paiement acceptées
           </p>
-          <p className="text-sm text-blue-700 mt-1">
-            💳 Cartes acceptées • 🇨🇭 TWINT • 📱 Apple Pay • 💳 Google Pay
-          </p>
+          <div className="flex items-center gap-3 text-sm text-blue-700">
+            <span>💳 Cartes bancaires</span>
+            <span>•</span>
+            <span>🇨🇭 TWINT</span>
+            <span>•</span>
+            <span>📱 Apple Pay</span>
+            <span>•</span>
+            <span>💳 Google Pay</span>
+          </div>
         </div>
 
         <button
           type="submit"
           disabled={!stripe || isLoading || !clientSecret}
-          className="w-full py-3 px-4 bg-blue-600 text-white font-medium rounded-md hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+          className="w-full py-4 px-6 bg-blue-600 text-white font-semibold rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 shadow-sm hover:shadow-md"
         >
-          {isLoading
-            ? "Traitement du paiement..."
-            : `Payer ${booking.amount} ${booking.currency}`}
+          <div className="flex items-center justify-center gap-2">
+            {isLoading ? (
+              <>
+                <svg
+                  className="animate-spin h-5 w-5"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                >
+                  <circle
+                    className="opacity-25"
+                    cx="12"
+                    cy="12"
+                    r="10"
+                    stroke="currentColor"
+                    strokeWidth="4"
+                  ></circle>
+                  <path
+                    className="opacity-75"
+                    fill="currentColor"
+                    d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                  ></path>
+                </svg>
+                <span>Traitement du paiement...</span>
+              </>
+            ) : (
+              <>
+                <svg
+                  className="w-5 h-5"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
+                  />
+                </svg>
+                <span>
+                  Payer {booking.amount} {booking.currency}
+                </span>
+              </>
+            )}
+          </div>
         </button>
       </form>
     </div>
