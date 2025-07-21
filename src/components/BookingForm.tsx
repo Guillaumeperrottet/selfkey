@@ -95,27 +95,6 @@ export function BookingForm({ hotelSlug, establishment }: BookingFormProps) {
   >({});
   const [pricingOptionsTotal, setPricingOptionsTotal] = useState(0);
 
-  // Date maximale : dépend de la configuration de l'établissement
-  const maxDate = new Date();
-  if (establishment.allowFutureBookings) {
-    // Pour les réservations futures : limiter à 1 an ou selon maxBookingDays depuis la date d'arrivée
-    const maxFromCheckIn = new Date(checkInDate);
-    maxFromCheckIn.setDate(
-      maxFromCheckIn.getDate() + establishment.maxBookingDays
-    );
-
-    const maxOneYear = new Date();
-    maxOneYear.setFullYear(maxOneYear.getFullYear() + 1);
-
-    // Prendre la plus petite des deux dates
-    maxDate.setTime(Math.min(maxFromCheckIn.getTime(), maxOneYear.getTime()));
-  } else {
-    // Si les réservations futures ne sont pas autorisées, limiter selon maxBookingDays (en nuits)
-    // La date de départ maximale = aujourd'hui + maxBookingDays nuits
-    maxDate.setDate(maxDate.getDate() + establishment.maxBookingDays);
-  }
-  const maxDateStr = maxDate.toISOString().split("T")[0];
-
   const handleSearchRooms = async () => {
     if (!checkOutDate) {
       toastUtils.error("Veuillez sélectionner la date de départ");
@@ -468,16 +447,6 @@ export function BookingForm({ hotelSlug, establishment }: BookingFormProps) {
 
   return (
     <div className="space-y-6">
-      {/* Header */}
-      <div className="flex items-center justify-between mb-6">
-        <div>
-          <h2 className="text-2xl font-bold">Réservation</h2>
-          <p className="text-muted-foreground">
-            Sélectionnez vos dates et votre chambre
-          </p>
-        </div>
-      </div>
-
       {/* Étapes de réservation */}
       <BookingSteps currentStep={1} />
 
@@ -498,14 +467,16 @@ export function BookingForm({ hotelSlug, establishment }: BookingFormProps) {
                 type="date"
                 value={checkInDate}
                 onChange={(e) => setCheckInDate(e.target.value)}
-                readOnly={!establishment.allowFutureBookings}
+                disabled={!establishment.allowFutureBookings}
                 className={`mt-1 ${
-                  !establishment.allowFutureBookings ? "bg-gray-50" : ""
+                  !establishment.allowFutureBookings
+                    ? "bg-gray-50 cursor-not-allowed opacity-60"
+                    : ""
                 }`}
                 title={
                   establishment.allowFutureBookings
                     ? "Sélectionnez votre date d'arrivée"
-                    : "La date d'arrivée est fixée à aujourd'hui"
+                    : "La date d'arrivée est fixée à aujourd'hui - les réservations futures ne sont pas autorisées"
                 }
                 min={today}
                 max={
@@ -531,8 +502,34 @@ export function BookingForm({ hotelSlug, establishment }: BookingFormProps) {
                   minDate.setDate(minDate.getDate() + 1);
                   return minDate.toISOString().split("T")[0];
                 })()}
-                max={maxDateStr}
+                max={(() => {
+                  // Calculer la date de départ maximum basée sur maxBookingDays
+                  const maxCheckOut = new Date(checkInDate);
+                  maxCheckOut.setDate(
+                    maxCheckOut.getDate() + establishment.maxBookingDays
+                  );
+
+                  // Si les réservations futures sont autorisées, limiter aussi à 1 an
+                  if (establishment.allowFutureBookings) {
+                    const oneYearFromToday = new Date();
+                    oneYearFromToday.setFullYear(
+                      oneYearFromToday.getFullYear() + 1
+                    );
+
+                    // Prendre la plus petite des deux dates
+                    const finalMaxDate =
+                      maxCheckOut.getTime() < oneYearFromToday.getTime()
+                        ? maxCheckOut
+                        : oneYearFromToday;
+
+                    return finalMaxDate.toISOString().split("T")[0];
+                  } else {
+                    // Si pas de réservations futures, juste limiter par maxBookingDays
+                    return maxCheckOut.toISOString().split("T")[0];
+                  }
+                })()}
                 className="mt-1"
+                title={`Date de départ maximum : ${establishment.maxBookingDays} nuit${establishment.maxBookingDays > 1 ? "s" : ""} après l'arrivée`}
               />
             </div>
           </div>
