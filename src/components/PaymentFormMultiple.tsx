@@ -84,6 +84,12 @@ function CheckoutForm({ booking }: Pick<PaymentFormProps, "booking">) {
                 name: `${booking.clientFirstName} ${booking.clientLastName}`,
                 email: booking.clientEmail,
                 phone: booking.clientPhone,
+                address: {
+                  line1: booking.clientAddress,
+                  postal_code: booking.clientPostalCode,
+                  city: booking.clientCity,
+                  country: booking.clientCountry,
+                },
               },
             },
           },
