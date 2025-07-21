@@ -570,7 +570,9 @@ export function BookingForm({ hotelSlug, establishment }: BookingFormProps) {
             disabled={loading || !checkOutDate}
             className="w-full"
           >
-            {loading ? "Recherche en cours..." : "Rechercher les chambres"}
+            {loading
+              ? "Recherche en cours..."
+              : "Rechercher les places disponibles"}
           </Button>
         </CardContent>
       </Card>

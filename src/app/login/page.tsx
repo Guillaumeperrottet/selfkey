@@ -27,14 +27,69 @@ function LoginContent() {
   const [name, setName] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const [emailError, setEmailError] = useState("");
+  const [passwordError, setPasswordError] = useState("");
 
   const searchParams = useSearchParams();
   const callbackUrl = searchParams.get("callbackUrl") || "/admin";
+
+  // Validation des champs
+  const validateEmail = (email: string) => {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!email) {
+      setEmailError("L'email est requis");
+      return false;
+    }
+    if (!emailRegex.test(email)) {
+      setEmailError("Format d'email invalide");
+      return false;
+    }
+    setEmailError("");
+    return true;
+  };
+
+  const validatePassword = (password: string) => {
+    if (!password) {
+      setPasswordError("Le mot de passe est requis");
+      return false;
+    }
+    if (!isLogin && password.length < 8) {
+      setPasswordError("Le mot de passe doit contenir au moins 8 caractères");
+      return false;
+    }
+    setPasswordError("");
+    return true;
+  };
+
+  const handleEmailChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const newEmail = e.target.value;
+    setEmail(newEmail);
+    if (emailError) {
+      validateEmail(newEmail);
+    }
+  };
+
+  const handlePasswordChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const newPassword = e.target.value;
+    setPassword(newPassword);
+    if (passwordError) {
+      validatePassword(newPassword);
+    }
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
     setError("");
+
+    // Validation côté client
+    const isEmailValid = validateEmail(email);
+    const isPasswordValid = validatePassword(password);
+
+    if (!isEmailValid || !isPasswordValid) {
+      setLoading(false);
+      return;
+    }
 
     try {
       if (isLogin) {
@@ -113,39 +168,86 @@ function LoginContent() {
       let errorMessage = "Une erreur est survenue";
 
       if (err instanceof Error) {
-        // Gestion des erreurs spécifiques de better-auth
+        const errorMsg = err.message.toLowerCase();
+
+        // Gestion des erreurs de connexion
+        if (isLogin) {
+          if (
+            errorMsg.includes("invalid credentials") ||
+            errorMsg.includes("invalid email or password") ||
+            errorMsg.includes("unauthorized") ||
+            errorMsg.includes("401") ||
+            errorMsg.includes("incorrect") ||
+            errorMsg.includes("wrong password") ||
+            errorMsg.includes("user not found") ||
+            errorMsg.includes("invalid login")
+          ) {
+            errorMessage =
+              "Email ou mot de passe incorrect. Vérifiez vos identifiants et réessayez.";
+          } else if (
+            errorMsg.includes("user not verified") ||
+            errorMsg.includes("email not verified")
+          ) {
+            errorMessage =
+              "Votre compte n'est pas encore vérifié. Vérifiez votre email.";
+          } else if (
+            errorMsg.includes("account locked") ||
+            errorMsg.includes("too many attempts")
+          ) {
+            errorMessage =
+              "Trop de tentatives de connexion. Veuillez réessayer plus tard.";
+          }
+        }
+        // Gestion des erreurs d'inscription
+        else {
+          if (
+            errorMsg.includes("user already exists") ||
+            errorMsg.includes("already exists") ||
+            errorMsg.includes("email already registered") ||
+            errorMsg.includes("422")
+          ) {
+            errorMessage =
+              "Cette adresse email est déjà utilisée. Essayez de vous connecter ou utilisez une autre adresse.";
+          } else if (
+            errorMsg.includes("password too weak") ||
+            errorMsg.includes("password requirements")
+          ) {
+            errorMessage =
+              "Le mot de passe doit contenir au moins 8 caractères.";
+          } else if (
+            errorMsg.includes("invalid email format") ||
+            errorMsg.includes("invalid email")
+          ) {
+            errorMessage =
+              "Format d'email invalide. Vérifiez votre adresse email.";
+          }
+        }
+
+        // Erreurs génériques
         if (
-          err.message.includes("User already exists") ||
-          err.message.includes("already exists") ||
-          err.message.includes("422")
+          errorMsg.includes("network") ||
+          errorMsg.includes("fetch") ||
+          errorMsg.includes("connection")
         ) {
-          errorMessage = isLogin
-            ? "Email ou mot de passe incorrect"
-            : "Cette adresse email est déjà utilisée. Essayez de vous connecter ou utilisez une autre adresse.";
+          errorMessage =
+            "Problème de connexion réseau. Vérifiez votre connexion internet et réessayez.";
         } else if (
-          err.message.includes("Invalid credentials") ||
-          err.message.includes("invalid") ||
-          err.message.includes("401")
+          errorMsg.includes("server error") ||
+          errorMsg.includes("500") ||
+          errorMsg.includes("503")
         ) {
-          errorMessage = "Email ou mot de passe incorrect";
-        } else if (
-          err.message.includes("Network") ||
-          err.message.includes("fetch")
+          errorMessage =
+            "Erreur du serveur. Veuillez réessayer dans quelques instants.";
+        }
+
+        // Si aucune erreur spécifique n'a été détectée, utiliser le message original s'il est informatif
+        if (
+          errorMessage === "Une erreur est survenue" &&
+          err.message &&
+          err.message.length > 0
         ) {
-          errorMessage = "Problème de connexion. Veuillez réessayer.";
-        } else {
           errorMessage = err.message;
         }
-      }
-
-      // Si c'est une erreur 422 et qu'on est en mode inscription
-      if (
-        !isLogin &&
-        (errorMessage.includes("422") ||
-          errorMessage.includes("Une erreur est survenue"))
-      ) {
-        errorMessage =
-          "Cette adresse email est déjà utilisée. Essayez de vous connecter ou utilisez une autre adresse.";
       }
 
       setError(errorMessage);
@@ -198,9 +300,14 @@ function LoginContent() {
 
           <CardContent className="space-y-6">
             {error && (
-              <Alert variant="destructive">
+              <Alert
+                variant="destructive"
+                className="border-red-200 bg-red-50 dark:bg-red-950/50"
+              >
                 <AlertDescription className="space-y-2">
-                  <div>{error}</div>
+                  <div className="font-medium text-red-800 dark:text-red-200">
+                    {error}
+                  </div>
                   {error.includes("déjà utilisée") && (
                     <Button
                       variant="outline"
@@ -208,12 +315,20 @@ function LoginContent() {
                       onClick={() => {
                         setIsLogin(true);
                         setError("");
+                        setEmail(email); // Garder l'email saisi
                       }}
                       className="mt-2"
                     >
                       Se connecter avec cet email
                     </Button>
                   )}
+                  {error.includes("Email ou mot de passe incorrect") &&
+                    isLogin && (
+                      <div className="text-sm text-red-700 dark:text-red-300 mt-2">
+                        💡 Assurez-vous que votre email et mot de passe sont
+                        corrects.
+                      </div>
+                    )}
                 </AlertDescription>
               </Alert>
             )}
@@ -239,10 +354,17 @@ function LoginContent() {
                   id="email"
                   type="email"
                   value={email}
-                  onChange={(e) => setEmail(e.target.value)}
+                  onChange={handleEmailChange}
+                  onBlur={() => validateEmail(email)}
                   required
                   placeholder="votre@email.com"
+                  className={
+                    emailError ? "border-red-500 focus:ring-red-500" : ""
+                  }
                 />
+                {emailError && (
+                  <p className="text-sm text-red-500 mt-1">{emailError}</p>
+                )}
               </div>
 
               <div className="space-y-2">
@@ -251,10 +373,22 @@ function LoginContent() {
                   id="password"
                   type="password"
                   value={password}
-                  onChange={(e) => setPassword(e.target.value)}
+                  onChange={handlePasswordChange}
+                  onBlur={() => validatePassword(password)}
                   required
                   placeholder="••••••••"
+                  className={
+                    passwordError ? "border-red-500 focus:ring-red-500" : ""
+                  }
                 />
+                {passwordError && (
+                  <p className="text-sm text-red-500 mt-1">{passwordError}</p>
+                )}
+                {!isLogin && !passwordError && (
+                  <p className="text-sm text-gray-500 mt-1">
+                    Le mot de passe doit contenir au moins 8 caractères
+                  </p>
+                )}
               </div>
 
               <Button type="submit" disabled={loading} className="w-full">
@@ -307,7 +441,12 @@ function LoginContent() {
             <div className="text-center space-y-2">
               <Button
                 variant="link"
-                onClick={() => setIsLogin(!isLogin)}
+                onClick={() => {
+                  setIsLogin(!isLogin);
+                  setError("");
+                  setEmailError("");
+                  setPasswordError("");
+                }}
                 className="text-sm"
               >
                 {isLogin
