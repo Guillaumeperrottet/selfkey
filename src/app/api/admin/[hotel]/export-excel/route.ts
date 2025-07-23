@@ -1,5 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { PrismaClient } from "@prisma/client";
+import { auth } from "@/lib/auth";
+import { headers } from "next/headers";
 import * as XLSX from "xlsx";
 
 const prisma = new PrismaClient();
@@ -21,6 +23,11 @@ export async function GET(
       );
     }
 
+    // Vérifier l'authentification pour récupérer l'utilisateur
+    const session = await auth.api.getSession({
+      headers: await headers(),
+    });
+
     // Récupérer les réservations pour la période donnée
     const bookings = await prisma.booking.findMany({
       where: {
@@ -29,6 +36,8 @@ export async function GET(
           gte: new Date(startDate),
           lte: new Date(endDate),
         },
+        // Seulement les réservations avec paiement confirmé
+        paymentStatus: "succeeded",
       },
       include: {
         room: true,
@@ -122,6 +131,18 @@ export async function GET(
 
     // Créer le nom du fichier avec les dates
     const fileName = `declaration_taxes_sejour_${hotelSlug}_${startDate}_${endDate}.xlsx`;
+
+    // Enregistrer l'export dans l'historique
+    await prisma.excelExportHistory.create({
+      data: {
+        establishmentSlug: hotelSlug,
+        startDate: new Date(startDate),
+        endDate: new Date(endDate),
+        fileName,
+        recordsCount: bookings.length,
+        userId: session?.user?.id || null,
+      },
+    });
 
     // Retourner le fichier
     return new NextResponse(excelBuffer, {
