@@ -257,7 +257,7 @@ export default function Home() {
                       },
                     ]}
                     autoPlay={true}
-                    autoPlayInterval={4000}
+                    autoPlayInterval={6000}
                     showIndicators={true}
                     showControls={true}
                     className="max-w-lg"

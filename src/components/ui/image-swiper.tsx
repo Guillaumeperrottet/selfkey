@@ -74,7 +74,7 @@ export function ImageSwiper({
       {/* Main Image Container */}
       <div className="relative overflow-hidden rounded-2xl shadow-2xl">
         <div
-          className="flex transition-transform duration-500 ease-in-out"
+          className="flex transition-transform duration-1000 ease-in-out"
           style={{ transform: `translateX(-${currentIndex * 100}%)` }}
         >
           {images.map((image, index) => (
