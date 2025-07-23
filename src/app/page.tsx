@@ -8,6 +8,7 @@ import {
   CardDescription,
 } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { ImageSwiper } from "@/components/ui/image-swiper";
 import Image from "next/image";
 import {
   Clock,
@@ -237,20 +238,30 @@ export default function Home() {
             </div>
 
             <div className="grid lg:grid-cols-2 gap-12 items-center">
-              {/* Image du totem */}
+              {/* Image swiper du totem */}
               <div className="flex justify-center">
-                <div className="relative max-w-md">
-                  <Image
-                    src="/totem.png"
-                    alt="Totem SelfKey - Système de check-in automatique"
-                    width={400}
-                    height={600}
-                    className="rounded-2xl shadow-2xl"
-                    priority
+                <div className="relative max-w-lg">
+                  <ImageSwiper
+                    images={[
+                      {
+                        src: "/totem.png",
+                        alt: "Totem SelfKey - Système de check-in automatique",
+                        width: 800,
+                        height: 1050,
+                      },
+                      {
+                        src: "/totem_debout.png",
+                        alt: "Totem SelfKey debout - Alternative de présentation",
+                        width: 800,
+                        height: 1050,
+                      },
+                    ]}
+                    autoPlay={true}
+                    autoPlayInterval={4000}
+                    showIndicators={true}
+                    showControls={true}
+                    className="max-w-lg"
                   />
-                  <div className="absolute -top-4 -right-4 bg-gray-900 dark:bg-gray-100 text-white dark:text-gray-900 rounded-full w-12 h-12 flex items-center justify-center font-bold text-lg shadow-lg">
-                    QR
-                  </div>
                 </div>
               </div>
 
@@ -273,7 +284,7 @@ export default function Home() {
                 </div>
 
                 <div className="flex gap-4">
-                  <div className="w-12 h-12 bg-gray-800 dark:bg-gray-200 text-white dark:text-gray-900 rounded-full flex items-center justify-center font-bold text-lg flex-shrink-0">
+                  <div className="w-12 h-12 bg-gray-900 dark:bg-gray-100 text-white dark:text-gray-900 rounded-full flex items-center justify-center font-bold text-lg flex-shrink-0">
                     2
                   </div>
                   <div>
@@ -289,7 +300,7 @@ export default function Home() {
                 </div>
 
                 <div className="flex gap-4">
-                  <div className="w-12 h-12 bg-gray-700 dark:bg-gray-300 text-white dark:text-gray-900 rounded-full flex items-center justify-center font-bold text-lg flex-shrink-0">
+                  <div className="w-12 h-12 bg-gray-900 dark:bg-gray-100 text-white dark:text-gray-900 rounded-full flex items-center justify-center font-bold text-lg flex-shrink-0">
                     3
                   </div>
                   <div>
