@@ -56,16 +56,10 @@ export default async function AdminPage({ params }: Props) {
   const today = new Date();
   today.setHours(0, 0, 0, 0);
 
-  // Récupérer les réservations actuelles et futures (uniquement payées)
-  const currentBookings = await prisma.booking.findMany({
+  // Récupérer toutes les réservations (payées) pour l'affichage complet
+  const allBookings = await prisma.booking.findMany({
     where: {
       hotelSlug: hotel,
-      OR: [
-        // Réservations en cours ou à venir
-        { checkOutDate: { gte: today } },
-        // Réservations d'aujourd'hui
-        { checkInDate: { gte: today } },
-      ],
       // Seulement les réservations avec paiement confirmé
       paymentStatus: "succeeded",
     },
@@ -73,8 +67,15 @@ export default async function AdminPage({ params }: Props) {
       room: true, // Inclure les détails de la chambre
     },
     orderBy: {
-      checkInDate: "asc",
+      checkInDate: "desc", // Plus récentes en premier
     },
+  });
+
+  // Calculer les réservations actuelles pour les statistiques du dashboard
+  const currentBookings = allBookings.filter((booking) => {
+    const checkOut = new Date(booking.checkOutDate);
+    const checkIn = new Date(booking.checkInDate);
+    return checkOut >= today || checkIn >= today;
   });
 
   // Utiliser la nouvelle logique de disponibilité avec checkout à 12h
@@ -132,6 +133,7 @@ export default async function AdminPage({ params }: Props) {
       }}
       roomsWithInventory={roomsWithInventory}
       currentBookings={currentBookings}
+      allBookings={allBookings}
       dbRooms={dbRooms}
       finalIsStripeConfigured={!!finalIsStripeConfigured}
     />

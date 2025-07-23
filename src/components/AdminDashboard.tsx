@@ -73,6 +73,20 @@ interface AdminDashboardProps {
       name: string;
     };
   }>;
+  allBookings: Array<{
+    id: string;
+    clientFirstName: string;
+    clientLastName: string;
+    clientEmail: string;
+    amount: number;
+    guests: number;
+    checkInDate: Date;
+    checkOutDate: Date;
+    bookingDate: Date;
+    room: {
+      name: string;
+    };
+  }>;
   dbRooms: Array<{
     id: string;
     name: string;
@@ -87,6 +101,7 @@ export function AdminDashboard({
   establishment,
   roomsWithInventory,
   currentBookings,
+  allBookings,
   dbRooms,
   finalIsStripeConfigured,
 }: AdminDashboardProps) {
@@ -433,14 +448,15 @@ export function AdminDashboard({
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <Users className="h-5 w-5" />
-                Réservations récentes
+                Réservations
               </CardTitle>
               <CardDescription>
-                Consultez et gérez les réservations de votre établissement
+                Consultez et gérez toutes les réservations de votre
+                établissement
               </CardDescription>
             </CardHeader>
             <CardContent>
-              <BookingsTable bookings={currentBookings} />
+              <BookingsTable bookings={allBookings} />
             </CardContent>
           </Card>
         );
