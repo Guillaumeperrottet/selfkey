@@ -93,21 +93,26 @@ export function BookingsTable({ bookings }: BookingsTableProps) {
     const today = new Date();
     today.setHours(0, 0, 0, 0);
     const checkOut = new Date(booking.checkOutDate);
+    checkOut.setHours(0, 0, 0, 0); // Normaliser la date de départ
     const checkIn = new Date(booking.checkInDate);
+    checkIn.setHours(0, 0, 0, 0); // Normaliser la date d'arrivée
 
-    if (checkIn.toDateString() === today.toDateString()) {
+    if (checkIn.getTime() === today.getTime()) {
       return {
         status: "checkin",
         label: "Arrivée aujourd'hui",
         color: "bg-blue-100 text-blue-800",
       };
-    } else if (checkIn < today && checkOut > today) {
+    } else if (
+      checkIn.getTime() < today.getTime() &&
+      checkOut.getTime() > today.getTime()
+    ) {
       return {
         status: "current",
         label: "En cours",
         color: "bg-red-100 text-red-800",
       };
-    } else if (checkIn > today) {
+    } else if (checkIn.getTime() > today.getTime()) {
       return {
         status: "future",
         label: "À venir",

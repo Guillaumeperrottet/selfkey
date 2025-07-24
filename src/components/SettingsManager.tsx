@@ -28,6 +28,8 @@ export function SettingsManager({ hotelSlug }: SettingsManagerProps) {
   const [enableCutoffTime, setEnableCutoffTime] = useState<boolean>(false);
   const [cutoffTime, setCutoffTime] = useState<string>("22:00");
   const [reopenTime, setReopenTime] = useState<string>("00:00");
+  const [checkoutTime, setCheckoutTime] = useState<string>("12:00");
+  const [checkinTime, setCheckinTime] = useState<string>("15:00");
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
 
@@ -51,6 +53,8 @@ export function SettingsManager({ hotelSlug }: SettingsManagerProps) {
           setEnableCutoffTime(data.enableCutoffTime || false);
           setCutoffTime(data.cutoffTime || "22:00");
           setReopenTime(data.reopenTime || "00:00");
+          setCheckoutTime(data.checkoutTime || "12:00");
+          setCheckinTime(data.checkinTime || "15:00");
         } else {
           toastUtils.error("Erreur lors du chargement des paramètres");
         }
@@ -97,6 +101,8 @@ export function SettingsManager({ hotelSlug }: SettingsManagerProps) {
             enableCutoffTime,
             cutoffTime,
             reopenTime,
+            checkoutTime,
+            checkinTime,
           }),
         }
       );
@@ -307,6 +313,57 @@ export function SettingsManager({ hotelSlug }: SettingsManagerProps) {
             </p>
           </div>
 
+          {/* Section Heures d'arrivée et de départ */}
+          <div className="space-y-4 pt-4 border-t">
+            <h4 className="font-semibold text-sm text-foreground">
+              🕐 Heures d&apos;arrivée et de départ
+            </h4>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label htmlFor="checkinTime">
+                  Heure d&apos;arrivée (check-in)
+                </Label>
+                <Input
+                  id="checkinTime"
+                  type="time"
+                  value={checkinTime}
+                  onChange={(e) => setCheckinTime(e.target.value)}
+                  className="w-32"
+                />
+                <p className="text-xs text-muted-foreground">
+                  Heure à partir de laquelle les clients peuvent arriver
+                </p>
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="checkoutTime">
+                  Heure de départ (check-out)
+                </Label>
+                <Input
+                  id="checkoutTime"
+                  type="time"
+                  value={checkoutTime}
+                  onChange={(e) => setCheckoutTime(e.target.value)}
+                  className="w-32"
+                />
+                <p className="text-xs text-muted-foreground">
+                  Heure à laquelle les chambres redeviennent disponibles
+                </p>
+              </div>
+            </div>
+
+            <div className="bg-blue-50 p-3 rounded-lg">
+              <p className="text-sm text-blue-800">
+                <strong>💡 Disponibilité des chambres :</strong> Les chambres
+                qui ont un départ aujourd&apos;hui redeviennent disponibles à
+                partir de <strong>{checkoutTime}</strong>. Les nouvelles
+                réservations peuvent commencer à partir de{" "}
+                <strong>{checkinTime}</strong>.
+              </p>
+            </div>
+          </div>
+
           <Button
             onClick={handleSave}
             disabled={isSaving}
@@ -442,6 +499,21 @@ export function SettingsManager({ hotelSlug }: SettingsManagerProps) {
                 <span>
                   <strong>Réouverture :</strong> Heure à laquelle les
                   réservations redeviennent disponibles le lendemain
+                </span>
+              </div>
+              <div className="flex items-start gap-2">
+                <span className="text-primary font-medium min-w-fit">•</span>
+                <span>
+                  <strong>Heure de check-in :</strong> Heure à partir de
+                  laquelle les clients peuvent arriver dans leurs chambres
+                </span>
+              </div>
+              <div className="flex items-start gap-2">
+                <span className="text-primary font-medium min-w-fit">•</span>
+                <span>
+                  <strong>Heure de check-out :</strong> Heure à laquelle les
+                  chambres redeviennent disponibles pour de nouvelles
+                  réservations (par défaut 12h00)
                 </span>
               </div>
             </div>

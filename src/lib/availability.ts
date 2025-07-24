@@ -242,7 +242,7 @@ export function getCurrentDateTime(): Date {
 
 /**
  * Vérifie si une chambre est actuellement disponible en tenant compte
- * de l'heure de checkout (12h00)
+ * de l'heure de checkout configurable
  */
 export async function isRoomCurrentlyAvailable(
   roomId: string,
@@ -254,6 +254,15 @@ export async function isRoomCurrentlyAvailable(
 
   const tomorrow = new Date(today);
   tomorrow.setDate(tomorrow.getDate() + 1);
+
+  // Récupérer les paramètres de l'établissement pour l'heure de checkout
+  const establishment = await prisma.establishment.findFirst({
+    where: { slug: hotelSlug },
+    select: { checkoutTime: true },
+  });
+
+  const checkoutTime = establishment?.checkoutTime || "12:00";
+  const [checkoutHour, checkoutMinute] = checkoutTime.split(":").map(Number);
 
   // Récupérer les réservations qui pourraient affecter la disponibilité aujourd'hui
   const conflictingBookings = await prisma.booking.findMany({
@@ -294,13 +303,16 @@ export async function isRoomCurrentlyAvailable(
 
   // Vérifier les règles spécifiques selon l'heure
   const currentHour = now.getHours();
+  const currentMinute = now.getMinutes();
+  const currentTimeInMinutes = currentHour * 60 + currentMinute;
+  const checkoutTimeInMinutes = checkoutHour * 60 + checkoutMinute;
 
   for (const booking of conflictingBookings) {
     // Si la réservation part aujourd'hui
     if (booking.checkOutDate.toDateString() === today.toDateString()) {
-      // Avant 12h : chambre occupée
-      // Après 12h : chambre disponible
-      if (currentHour < 12) {
+      // Avant l'heure de checkout : chambre occupée
+      // Après l'heure de checkout : chambre disponible
+      if (currentTimeInMinutes < checkoutTimeInMinutes) {
         return false;
       }
     }

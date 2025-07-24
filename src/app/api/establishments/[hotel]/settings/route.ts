@@ -18,6 +18,8 @@ export async function GET(
         enableCutoffTime: true,
         cutoffTime: true,
         reopenTime: true,
+        checkoutTime: true,
+        checkinTime: true,
       },
     });
 
@@ -63,6 +65,8 @@ export async function PUT(
       enableCutoffTime,
       cutoffTime,
       reopenTime,
+      checkoutTime,
+      checkinTime,
     } = body;
 
     // Validation
@@ -101,6 +105,34 @@ export async function PUT(
       }
     }
 
+    // Validation pour l'heure de checkout
+    if (checkoutTime) {
+      const timeRegex = /^([01]?[0-9]|2[0-3]):[0-5][0-9]$/;
+      if (!timeRegex.test(checkoutTime)) {
+        return NextResponse.json(
+          {
+            error:
+              "Format d'heure invalide pour l'heure de checkout. Utilisez le format HH:mm (ex: 12:00)",
+          },
+          { status: 400 }
+        );
+      }
+    }
+
+    // Validation pour l'heure de checkin
+    if (checkinTime) {
+      const timeRegex = /^([01]?[0-9]|2[0-3]):[0-5][0-9]$/;
+      if (!timeRegex.test(checkinTime)) {
+        return NextResponse.json(
+          {
+            error:
+              "Format d'heure invalide pour l'heure de checkin. Utilisez le format HH:mm (ex: 15:00)",
+          },
+          { status: 400 }
+        );
+      }
+    }
+
     // Vérifier que l'établissement existe
     const establishment = await prisma.establishment.findUnique({
       where: { slug: hotel },
@@ -122,6 +154,8 @@ export async function PUT(
         enableCutoffTime: enableCutoffTime,
         cutoffTime: enableCutoffTime && cutoffTime ? cutoffTime : null,
         reopenTime: enableCutoffTime && reopenTime ? reopenTime : null,
+        checkoutTime: checkoutTime || null,
+        checkinTime: checkinTime || null,
       },
       select: {
         id: true,
@@ -131,6 +165,8 @@ export async function PUT(
         enableCutoffTime: true,
         cutoffTime: true,
         reopenTime: true,
+        checkoutTime: true,
+        checkinTime: true,
       },
     });
 
