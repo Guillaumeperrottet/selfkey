@@ -159,6 +159,8 @@ export function DayParkingForm({
 
       if (response.ok) {
         const data = await response.json();
+        
+        console.log("🔍 API Response:", data);
 
         // Pour le parking jour, on utilise le système payment-first
         // Les données sont dans data.payment, pas data.booking
@@ -180,9 +182,13 @@ export function DayParkingForm({
           type: "day_parking",
         };
 
+        console.log("💾 Saving booking data:", bookingData);
+
         // Sauvegarder les informations de paiement dans sessionStorage
         const storageKey = `payment_${data.payment.paymentIntentId}`;
         sessionStorage.setItem(storageKey, JSON.stringify(bookingData));
+        
+        console.log("✅ Data saved to sessionStorage with key:", storageKey);
 
         toastUtils.success("Paiement initialisé avec succès !");
 

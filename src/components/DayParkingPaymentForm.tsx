@@ -133,7 +133,6 @@ function PaymentFormContent({
 
         <div className="text-xs text-gray-500 text-center">
           <p>Paiement sécurisé par Stripe</p>
-          <p>Votre parking commence immédiatement après confirmation</p>
         </div>
       </CardContent>
     </Card>
@@ -151,8 +150,22 @@ export function DayParkingPaymentForm({
     // Récupérer les données de réservation depuis sessionStorage
     const storageKey = `payment_${paymentIntentId}`;
     const storedData = sessionStorage.getItem(storageKey);
+    
+    console.log("🔍 Debug info:", {
+      paymentIntentId,
+      storageKey,
+      storedData: storedData ? "Found" : "Not found",
+      sessionStorageKeys: Object.keys(sessionStorage)
+    });
+    
     if (storedData) {
-      setBookingData(JSON.parse(storedData));
+      try {
+        const parsedData = JSON.parse(storedData);
+        console.log("📊 Parsed data:", parsedData);
+        setBookingData(parsedData);
+      } catch (error) {
+        console.error("❌ Error parsing booking data:", error);
+      }
     }
   }, [paymentIntentId]);
 
@@ -163,6 +176,13 @@ export function DayParkingPaymentForm({
           <p className="text-gray-600">
             Chargement des informations de paiement...
           </p>
+          <details className="mt-4">
+            <summary className="text-sm cursor-pointer text-gray-500">Debug info</summary>
+            <pre className="text-xs mt-2 bg-gray-100 p-2 rounded">
+              PaymentIntent ID: {paymentIntentId}
+              {"\n"}Storage keys: {Object.keys(sessionStorage).join(", ")}
+            </pre>
+          </details>
         </CardContent>
       </Card>
     );
@@ -175,6 +195,15 @@ export function DayParkingPaymentForm({
           <p className="text-red-600">
             Erreur: Informations de paiement manquantes
           </p>
+          <p className="text-sm text-gray-500 mt-2">
+            Client secret manquant dans les données de réservation
+          </p>
+          <details className="mt-4">
+            <summary className="text-sm cursor-pointer">Debug info</summary>
+            <pre className="text-xs mt-2 bg-gray-100 p-2 rounded">
+              {JSON.stringify(bookingData, null, 2)}
+            </pre>
+          </details>
         </CardContent>
       </Card>
     );
