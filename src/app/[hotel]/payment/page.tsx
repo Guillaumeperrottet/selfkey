@@ -1,17 +1,64 @@
 import { notFound, redirect } from "next/navigation";
 import { prisma } from "@/lib/prisma";
 import { PaymentFormMultiple } from "@/components/PaymentFormMultiple";
+import { DayParkingPaymentForm } from "@/components/DayParkingPaymentForm";
 import { BookingSteps } from "@/components/BookingSteps";
 
 interface Props {
   params: Promise<{ hotel: string }>;
-  searchParams: Promise<{ booking?: string }>;
+  searchParams: Promise<{
+    booking?: string;
+    paymentIntent?: string;
+    type?: string;
+  }>;
 }
 
 export default async function PaymentPage({ params, searchParams }: Props) {
   const { hotel } = await params;
-  const { booking: bookingId } = await searchParams;
+  const { booking: bookingId, paymentIntent, type } = await searchParams;
 
+  // Nouveau flux payment-first pour parking jour
+  if (paymentIntent && type === "day_parking") {
+    // Récupérer l'établissement
+    const establishment = await prisma.establishment.findUnique({
+      where: { slug: hotel },
+    });
+
+    if (!establishment) {
+      notFound();
+    }
+
+    // Note: Le client_secret sera récupéré côté client depuis sessionStorage
+    // car il est sauvegardé par DayParkingForm.tsx
+
+    // Rendu spécial pour le parking jour (payment-first)
+    return (
+      <div className="min-h-screen bg-gray-50">
+        <div className="container mx-auto px-4 py-8 max-w-4xl">
+          {/* Header pour parking jour */}
+          <div className="text-center mb-8">
+            <h1 className="text-2xl font-bold text-gray-900 mb-2">
+              Paiement Parking Jour / Day Parking Payment
+            </h1>
+            <p className="text-gray-600">
+              Paiement sécurisé par Stripe • Cartes • TWINT • Apple Pay
+              <br />
+              <em>Secure payment by Stripe • Cards • TWINT • Apple Pay</em>
+            </p>
+          </div>
+
+          <div className="max-w-md mx-auto">
+            <DayParkingPaymentForm
+              paymentIntentId={paymentIntent}
+              hotelSlug={hotel}
+            />
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // Flux classique pour réservations nuit
   if (!bookingId) {
     redirect(`/${hotel}`);
   }
