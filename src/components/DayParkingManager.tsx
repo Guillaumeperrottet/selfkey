@@ -23,8 +23,7 @@ interface DayParkingSettings {
 }
 
 interface EstablishmentCommission {
-  commissionRate: number;
-  fixedFee: number;
+  dayParkingCommissionRate: number;
 }
 
 export function DayParkingManager({ hotelSlug }: DayParkingManagerProps) {
@@ -71,8 +70,8 @@ export function DayParkingManager({ hotelSlug }: DayParkingManagerProps) {
         if (establishmentResponse.ok) {
           const establishmentData = await establishmentResponse.json();
           setEstablishment({
-            commissionRate: establishmentData.commissionRate || 0,
-            fixedFee: establishmentData.fixedFee || 0,
+            dayParkingCommissionRate:
+              establishmentData.dayParkingCommissionRate || 5,
           });
         }
       } catch (error) {
@@ -113,13 +112,12 @@ export function DayParkingManager({ hotelSlug }: DayParkingManagerProps) {
 
       for (const tarif of tarifs) {
         const commission = Math.round(
-          (tarif.value * establishment.commissionRate) / 100 +
-            establishment.fixedFee
+          (tarif.value * establishment.dayParkingCommissionRate) / 100
         );
 
         if (commission >= tarif.value) {
           toastUtils.error(
-            `Le tarif ${tarif.name} (${tarif.value} CHF) doit être supérieur à la commission (${commission} CHF = ${establishment.commissionRate}% + ${establishment.fixedFee} CHF de frais fixes)`
+            `Le tarif ${tarif.name} (${tarif.value} CHF) doit être supérieur à la commission (${commission} CHF = ${establishment.dayParkingCommissionRate}% de ${tarif.value} CHF)`
           );
           return;
         }
