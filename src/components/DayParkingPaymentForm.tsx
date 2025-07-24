@@ -12,9 +12,10 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { toastUtils } from "@/lib/toast-utils";
 
-const stripePromise = loadStripe(
-  process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY!
-);
+const stripePromise =
+  typeof window !== "undefined" && process.env.NODE_ENV !== "development"
+    ? loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY!)
+    : null;
 
 interface DayParkingPaymentFormProps {
   paymentIntentId: string;
@@ -30,8 +31,8 @@ interface BookingData {
   clientSecret: string;
 }
 
-// Composant interne qui utilise Stripe
-function PaymentFormContent({
+// Composant interne qui utilise Stripe (mode production uniquement)
+function StripePaymentFormContent({
   paymentIntentId,
   hotelSlug,
   bookingData,
@@ -139,6 +140,99 @@ function PaymentFormContent({
   );
 }
 
+// Composant pour le mode développement (sans Stripe)
+function DevPaymentFormContent({
+  paymentIntentId,
+  hotelSlug,
+  bookingData,
+}: DayParkingPaymentFormProps & { bookingData: BookingData }) {
+  const [isLoading, setIsLoading] = useState(false);
+
+  const handleSubmit = async (event: React.FormEvent) => {
+    event.preventDefault();
+
+    console.log("🧪 Mode développement : simulation du paiement");
+    setIsLoading(true);
+
+    // Simuler un délai de traitement
+    setTimeout(() => {
+      window.location.href = `${window.location.origin}/${hotelSlug}/success?paymentIntent=${paymentIntentId}&type=day_parking&dev=true`;
+    }, 2000);
+  };
+
+  return (
+    <Card>
+      <CardHeader>
+        <CardTitle>Finaliser votre paiement</CardTitle>
+      </CardHeader>
+      <CardContent className="space-y-6">
+        {/* Résumé de la réservation */}
+        <div className="bg-gray-50 p-4 rounded-lg">
+          <h3 className="font-semibold mb-3">Résumé de votre parking jour</h3>
+          <div className="space-y-2 text-sm">
+            <div className="flex justify-between">
+              <span>Client :</span>
+              <span>
+                {bookingData.clientFirstName} {bookingData.clientLastName}
+              </span>
+            </div>
+            <div className="flex justify-between">
+              <span>Durée :</span>
+              <span>{bookingData.selectedDuration}</span>
+            </div>
+            <div className="flex justify-between">
+              <span>Véhicule :</span>
+              <span>{bookingData.clientVehicleNumber}</span>
+            </div>
+            <div className="flex justify-between font-semibold">
+              <span>Total :</span>
+              <span>{bookingData.amount} CHF</span>
+            </div>
+          </div>
+        </div>
+
+        {/* Formulaire de paiement simulé */}
+        <form onSubmit={handleSubmit}>
+          <div className="mb-6 p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
+            <div className="flex items-center mb-2">
+              <span className="text-yellow-600 font-medium">
+                🧪 Mode Développement
+              </span>
+            </div>
+            <p className="text-sm text-yellow-700 mb-3">
+              Le paiement sera simulé pour éviter les erreurs Stripe en
+              développement.
+            </p>
+            <div className="bg-white p-3 rounded border">
+              <p className="text-sm font-medium text-gray-700">
+                Simulation de carte :
+              </p>
+              <p className="text-xs text-gray-500 mt-1">
+                **** **** **** 4242 • 12/25 • CVC 123
+              </p>
+            </div>
+          </div>
+
+          <Button
+            type="submit"
+            disabled={isLoading}
+            className="w-full"
+            size="lg"
+          >
+            {isLoading
+              ? "Traitement en cours..."
+              : `Simuler le paiement ${bookingData.amount} CHF`}
+          </Button>
+        </form>
+
+        <div className="text-xs text-gray-500 text-center">
+          <p>Paiement simulé en mode développement</p>
+        </div>
+      </CardContent>
+    </Card>
+  );
+}
+
 // Composant principal qui gère Stripe Elements
 export function DayParkingPaymentForm({
   paymentIntentId,
@@ -150,14 +244,14 @@ export function DayParkingPaymentForm({
     // Récupérer les données de réservation depuis sessionStorage
     const storageKey = `payment_${paymentIntentId}`;
     const storedData = sessionStorage.getItem(storageKey);
-    
+
     console.log("🔍 Debug info:", {
       paymentIntentId,
       storageKey,
       storedData: storedData ? "Found" : "Not found",
-      sessionStorageKeys: Object.keys(sessionStorage)
+      sessionStorageKeys: Object.keys(sessionStorage),
     });
-    
+
     if (storedData) {
       try {
         const parsedData = JSON.parse(storedData);
@@ -177,7 +271,9 @@ export function DayParkingPaymentForm({
             Chargement des informations de paiement...
           </p>
           <details className="mt-4">
-            <summary className="text-sm cursor-pointer text-gray-500">Debug info</summary>
+            <summary className="text-sm cursor-pointer text-gray-500">
+              Debug info
+            </summary>
             <pre className="text-xs mt-2 bg-gray-100 p-2 rounded">
               PaymentIntent ID: {paymentIntentId}
               {"\n"}Storage keys: {Object.keys(sessionStorage).join(", ")}
@@ -209,6 +305,18 @@ export function DayParkingPaymentForm({
     );
   }
 
+  // Mode développement : pas besoin de Stripe Elements
+  if (bookingData.clientSecret.includes("_dev_")) {
+    return (
+      <DevPaymentFormContent
+        paymentIntentId={paymentIntentId}
+        hotelSlug={hotelSlug}
+        bookingData={bookingData}
+      />
+    );
+  }
+
+  // Mode production : avec Stripe Elements
   return (
     <Elements
       stripe={stripePromise}
@@ -216,7 +324,7 @@ export function DayParkingPaymentForm({
         clientSecret: bookingData.clientSecret,
       }}
     >
-      <PaymentFormContent
+      <StripePaymentFormContent
         paymentIntentId={paymentIntentId}
         hotelSlug={hotelSlug}
         bookingData={bookingData}

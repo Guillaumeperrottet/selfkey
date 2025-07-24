@@ -86,8 +86,10 @@ export async function POST(request: NextRequest, { params }: Props) {
       );
     }
 
-    // Vérifier que Stripe est configuré
-    if (!establishment.stripeAccountId) {
+    // Vérifier que Stripe est configuré (sauf en mode développement)
+    const isDevelopment = process.env.NODE_ENV === "development";
+
+    if (!establishment.stripeAccountId && !isDevelopment) {
       return NextResponse.json(
         { error: "Paiements non configurés pour cet établissement" },
         { status: 503 }
@@ -138,11 +140,37 @@ export async function POST(request: NextRequest, { params }: Props) {
       });
     }
 
-    // Créer le PaymentIntent avec les données de réservation en metadata
+    // Mode développement : simuler un PaymentIntent
+    if (isDevelopment) {
+      console.log("🧪 Mode développement : simulation du PaymentIntent");
+
+      const fakePaymentIntent = {
+        id: `pi_dev_${Date.now()}`,
+        client_secret: `pi_dev_${Date.now()}_secret_dev`,
+        amount_received: amount * 100, // Stripe utilise les centimes
+        currency: "chf",
+      };
+
+      return NextResponse.json({
+        success: true,
+        payment: {
+          clientSecret: fakePaymentIntent.client_secret,
+          paymentIntentId: fakePaymentIntent.id,
+          amount: amount,
+          dayParkingDuration: dayParkingDuration,
+          dayParkingStartTime: dayParkingStartTime,
+          dayParkingEndTime: dayParkingEndTime,
+        },
+        message: "PaymentIntent simulé créé pour le développement.",
+        isDevelopment: true,
+      });
+    }
+
+    // Mode production : créer un vrai PaymentIntent
     const paymentIntent = await createPaymentIntentWithCommission(
       amount,
       "CHF",
-      establishment.stripeAccountId,
+      establishment.stripeAccountId!,
       establishment.dayParkingCommissionRate || 5,
       establishment.fixedFee || 0.5,
       {
