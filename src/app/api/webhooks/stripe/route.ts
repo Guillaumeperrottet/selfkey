@@ -204,16 +204,19 @@ async function createDayParkingBookingFromMetadata(
     if (metadata.email_confirmation === "true") {
       try {
         console.log("📧 Envoi automatique de l'email de confirmation...");
-        
-        const confirmationResponse = await fetch(`${process.env.NEXTAUTH_URL || 'http://localhost:3000'}/api/bookings/${booking.id}/send-confirmation`, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-            method: 'email'
-          })
-        });
+
+        const confirmationResponse = await fetch(
+          `${process.env.NEXTAUTH_URL || "http://localhost:3000"}/api/bookings/${booking.id}/send-confirmation`,
+          {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+              method: "email",
+            }),
+          }
+        );
 
         if (confirmationResponse.ok) {
           console.log("✅ Email de confirmation envoyé automatiquement");
@@ -221,7 +224,10 @@ async function createDayParkingBookingFromMetadata(
           console.error("❌ Erreur lors de l'envoi automatique de l'email");
         }
       } catch (emailError) {
-        console.error("❌ Erreur lors de l'envoi de l'email de confirmation:", emailError);
+        console.error(
+          "❌ Erreur lors de l'envoi de l'email de confirmation:",
+          emailError
+        );
         // Ne pas faire échouer la création de la réservation si l'email échoue
       }
     }

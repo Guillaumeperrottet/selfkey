@@ -251,11 +251,16 @@ export function DayParkingControlTable({
             <div className="text-center p-3 bg-gray-50 rounded-lg">
               <div className="text-2xl font-bold text-gray-600">
                 {filteredBookings
-                  .reduce((sum, b) => sum + b.amount, 0)
+                  .reduce((sum, b) => {
+                    // Calcul du revenu net après commission (5% par défaut)
+                    const commissionRate = 5.0; // Taux par défaut
+                    const netAmount = b.amount * (1 - commissionRate / 100);
+                    return sum + netAmount;
+                  }, 0)
                   .toFixed(2)}{" "}
                 CHF
               </div>
-              <div className="text-sm text-gray-800">Revenus</div>
+              <div className="text-sm text-gray-800">Revenus nets</div>
             </div>
           </div>
         </CardContent>
