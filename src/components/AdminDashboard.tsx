@@ -59,20 +59,6 @@ interface AdminDashboardProps {
     inventory: number;
     isActive: boolean;
   }>;
-  currentBookings: Array<{
-    id: string;
-    clientFirstName: string;
-    clientLastName: string;
-    clientEmail: string;
-    amount: number;
-    guests: number;
-    checkInDate: Date;
-    checkOutDate: Date;
-    bookingDate: Date;
-    room: {
-      name: string;
-    };
-  }>;
   allBookings: Array<{
     id: string;
     clientFirstName: string;
@@ -100,7 +86,6 @@ export function AdminDashboard({
   hotel,
   establishment,
   roomsWithInventory,
-  currentBookings,
   allBookings,
   dbRooms,
   finalIsStripeConfigured,
@@ -266,13 +251,35 @@ export function AdminDashboard({
                   </CardHeader>
                   <CardContent>
                     <div className="text-2xl font-bold">
-                      {currentBookings.length}
+                      {(() => {
+                        const today = new Date();
+                        today.setHours(0, 0, 0, 0);
+                        const tomorrow = new Date(today);
+                        tomorrow.setDate(today.getDate() + 1);
+
+                        const todayBookings = allBookings.filter((booking) => {
+                          const bookingDate = new Date(booking.bookingDate);
+                          return bookingDate >= today && bookingDate < tomorrow;
+                        });
+                        return todayBookings.length;
+                      })()}
                     </div>
                     <p className="text-xs text-muted-foreground">
-                      {currentBookings.reduce(
-                        (sum: number, b) => sum + b.guests,
-                        0
-                      )}{" "}
+                      {(() => {
+                        const today = new Date();
+                        today.setHours(0, 0, 0, 0);
+                        const tomorrow = new Date(today);
+                        tomorrow.setDate(today.getDate() + 1);
+
+                        const todayBookings = allBookings.filter((booking) => {
+                          const bookingDate = new Date(booking.bookingDate);
+                          return bookingDate >= today && bookingDate < tomorrow;
+                        });
+                        return todayBookings.reduce(
+                          (sum: number, b) => sum + b.guests,
+                          0
+                        );
+                      })()}{" "}
                       clients
                     </p>
                   </CardContent>
@@ -288,11 +295,21 @@ export function AdminDashboard({
                   <CardContent>
                     <div className="text-2xl font-bold">
                       {(() => {
-                        const totalGross = currentBookings.reduce(
+                        const today = new Date();
+                        today.setHours(0, 0, 0, 0);
+                        const tomorrow = new Date(today);
+                        tomorrow.setDate(today.getDate() + 1);
+
+                        const todayBookings = allBookings.filter((booking) => {
+                          const bookingDate = new Date(booking.bookingDate);
+                          return bookingDate >= today && bookingDate < tomorrow;
+                        });
+
+                        const totalGross = todayBookings.reduce(
                           (sum: number, b) => sum + b.amount,
                           0
                         );
-                        const totalCommissions = currentBookings.reduce(
+                        const totalCommissions = todayBookings.reduce(
                           (sum: number, booking) => {
                             const commission = Math.round(
                               (booking.amount * establishment.commissionRate) /
@@ -379,7 +396,7 @@ export function AdminDashboard({
                       Visualisez les performances de votre établissement
                     </p>
                   </div>
-                  {currentBookings.length > 0 && (
+                  {allBookings.length > 0 && (
                     <ChartColorSelector
                       onColorsChange={handleColorsChange}
                       currentColors={chartColors}
@@ -387,7 +404,7 @@ export function AdminDashboard({
                   )}
                 </div>
                 <DashboardCharts
-                  bookings={currentBookings}
+                  bookings={allBookings}
                   rooms={roomsWithInventory}
                   colors={chartColors}
                   establishment={{

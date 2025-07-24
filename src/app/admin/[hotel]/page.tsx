@@ -71,13 +71,6 @@ export default async function AdminPage({ params }: Props) {
     },
   });
 
-  // Calculer les réservations actuelles pour les statistiques du dashboard
-  const currentBookings = allBookings.filter((booking) => {
-    const checkOut = new Date(booking.checkOutDate);
-    const checkIn = new Date(booking.checkInDate);
-    return checkOut >= today || checkIn >= today;
-  });
-
   // Utiliser la nouvelle logique de disponibilité avec checkout à 12h
   const { getCurrentlyAvailableRooms } = await import("@/lib/availability");
   const roomsAvailability = await getCurrentlyAvailableRooms(hotel);
@@ -132,7 +125,6 @@ export default async function AdminPage({ params }: Props) {
         accessInstructions: establishment.accessInstructions,
       }}
       roomsWithInventory={roomsWithInventory}
-      currentBookings={currentBookings}
       allBookings={allBookings}
       dbRooms={dbRooms}
       finalIsStripeConfigured={!!finalIsStripeConfigured}
