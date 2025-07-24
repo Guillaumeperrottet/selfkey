@@ -7,15 +7,10 @@ import {
   useElements,
   PaymentElement,
 } from "@stripe/react-stripe-js";
-import { loadStripe } from "@stripe/stripe-js";
+import { loadStripe, Stripe } from "@stripe/stripe-js";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { toastUtils } from "@/lib/toast-utils";
-
-const stripePromise =
-  typeof window !== "undefined" && process.env.NODE_ENV !== "development"
-    ? loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY!)
-    : null;
 
 interface DayParkingPaymentFormProps {
   paymentIntentId: string;
@@ -239,29 +234,72 @@ export function DayParkingPaymentForm({
   hotelSlug,
 }: DayParkingPaymentFormProps) {
   const [bookingData, setBookingData] = useState<BookingData | null>(null);
+  const [stripePromise, setStripePromise] =
+    useState<Promise<Stripe | null> | null>(null);
+  const [isInitializing, setIsInitializing] = useState(true);
 
   useEffect(() => {
-    // Récupérer les données de réservation depuis sessionStorage
-    const storageKey = `payment_${paymentIntentId}`;
-    const storedData = sessionStorage.getItem(storageKey);
-
-    console.log("🔍 Debug info:", {
-      paymentIntentId,
-      storageKey,
-      storedData: storedData ? "Found" : "Not found",
-      sessionStorageKeys: Object.keys(sessionStorage),
-    });
-
-    if (storedData) {
+    const initializePayment = async () => {
       try {
-        const parsedData = JSON.parse(storedData);
-        console.log("📊 Parsed data:", parsedData);
-        setBookingData(parsedData);
+        setIsInitializing(true);
+
+        // Récupérer les données de réservation depuis sessionStorage
+        const storageKey = `payment_${paymentIntentId}`;
+        const storedData = sessionStorage.getItem(storageKey);
+
+        console.log("🔍 Debug info:", {
+          paymentIntentId,
+          storageKey,
+          storedData: storedData ? "Found" : "Not found",
+          sessionStorageKeys: Object.keys(sessionStorage),
+        });
+
+        if (storedData) {
+          const parsedData = JSON.parse(storedData);
+          console.log("📊 Parsed data:", parsedData);
+          setBookingData(parsedData);
+
+          // Si ce n'est pas en mode dev, initialiser Stripe
+          if (!parsedData.clientSecret.includes("_dev_")) {
+            console.log("🔑 Initializing Stripe for production...");
+
+            // Récupérer la clé publique Stripe
+            const stripeResponse = await fetch("/api/stripe/public-key");
+            if (!stripeResponse.ok) {
+              throw new Error(
+                "Erreur lors de la récupération de la clé publique"
+              );
+            }
+
+            const { publishableKey } = await stripeResponse.json();
+            console.log(
+              "🔑 Clé publique Stripe récupérée:",
+              publishableKey.substring(0, 12) + "..."
+            );
+
+            const stripe = loadStripe(publishableKey);
+            setStripePromise(stripe);
+          }
+        }
       } catch (error) {
-        console.error("❌ Error parsing booking data:", error);
+        console.error("❌ Error initializing payment:", error);
+      } finally {
+        setIsInitializing(false);
       }
-    }
+    };
+
+    initializePayment();
   }, [paymentIntentId]);
+
+  if (isInitializing) {
+    return (
+      <Card>
+        <CardContent className="p-6">
+          <p className="text-gray-600">Initialisation du paiement...</p>
+        </CardContent>
+      </Card>
+    );
+  }
 
   if (!bookingData) {
     return (
@@ -317,6 +355,23 @@ export function DayParkingPaymentForm({
   }
 
   // Mode production : avec Stripe Elements
+  if (!stripePromise) {
+    return (
+      <Card>
+        <CardContent className="p-6">
+          <div className="text-center">
+            <p className="text-red-600 font-semibold mb-2">
+              Erreur de configuration Stripe
+            </p>
+            <p className="text-sm text-gray-600 mb-4">
+              Impossible de charger Stripe. Veuillez réessayer.
+            </p>
+          </div>
+        </CardContent>
+      </Card>
+    );
+  }
+
   return (
     <Elements
       stripe={stripePromise}

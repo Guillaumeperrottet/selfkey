@@ -2,7 +2,6 @@
 
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Clock } from "lucide-react";
 
 interface DayParkingDurationSelectorProps {
   onSelect: (duration: string, price: number) => void;
@@ -97,22 +96,6 @@ export function DayParkingDurationSelector({
               duration
             </p>
           </div>
-        </div>
-
-        {/* Information sur l'heure de début */}
-        <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-8">
-          <div className="flex items-center gap-2 text-blue-800">
-            <Clock className="w-5 h-5" />
-            <span className="font-medium">
-              Début du stationnement : Maintenant / Parking starts: Now
-            </span>
-          </div>
-          <p className="text-sm text-blue-600 mt-1">
-            Votre temps de stationnement commence dès la confirmation du
-            paiement
-            <br />
-            <em>Your parking time starts upon payment confirmation</em>
-          </p>
         </div>
 
         {/* Sélecteur simple */}
