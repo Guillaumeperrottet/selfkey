@@ -2,7 +2,7 @@
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Moon, Sun, Car } from "lucide-react";
+import { Moon, Sun } from "lucide-react";
 
 interface ParkingTypeSelectorProps {
   onSelect: (type: "night" | "day") => void;
@@ -49,7 +49,6 @@ export function ParkingTypeSelector({
 
               <div className="space-y-2 text-sm text-gray-500">
                 <div className="flex items-center justify-center gap-2">
-                  <Car className="w-4 h-4" />
                   <span>
                     Des contrôles sont effectués / Controls are performed
                   </span>

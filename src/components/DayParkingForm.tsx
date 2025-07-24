@@ -160,9 +160,11 @@ export function DayParkingForm({
       if (response.ok) {
         const data = await response.json();
 
-        // Sauvegarder les informations dans sessionStorage
+        // Pour le parking jour, on utilise le système payment-first
+        // Les données sont dans data.payment, pas data.booking
         const bookingData = {
-          bookingId: data.booking.id,
+          paymentIntentId: data.payment.paymentIntentId,
+          clientSecret: data.payment.clientSecret,
           clientFirstName,
           clientLastName,
           clientEmail,
@@ -170,18 +172,23 @@ export function DayParkingForm({
           clientVehicleNumber,
           selectedDuration,
           selectedPrice,
-          startTime: now.toISOString(),
-          endTime: endTime.toISOString(),
+          amount: data.payment.amount,
+          startTime: data.payment.dayParkingStartTime,
+          endTime: data.payment.dayParkingEndTime,
+          hotelSlug,
+          establishmentName,
+          type: "day_parking",
         };
 
-        const storageKey = `day_parking_temp_${hotelSlug}_${data.booking.id}`;
+        // Sauvegarder les informations de paiement dans sessionStorage
+        const storageKey = `payment_${data.payment.paymentIntentId}`;
         sessionStorage.setItem(storageKey, JSON.stringify(bookingData));
 
-        toastUtils.success("Réservation créée avec succès !");
+        toastUtils.success("Paiement initialisé avec succès !");
 
-        // Rediriger vers le paiement
+        // Rediriger directement vers le paiement avec le PaymentIntent
         router.push(
-          `/${hotelSlug}/payment?booking=${data.booking.id}&type=day`
+          `/${hotelSlug}/payment?paymentIntent=${data.payment.paymentIntentId}&type=day_parking`
         );
       } else {
         const errorData = await response.json();
