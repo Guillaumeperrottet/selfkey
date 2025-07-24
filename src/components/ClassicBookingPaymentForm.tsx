@@ -95,7 +95,7 @@ function StripePaymentFormContent({
       const { error: confirmError } = await stripe.confirmPayment({
         elements,
         confirmParams: {
-          return_url: `${window.location.origin}/${hotelSlug}/success?payment=${paymentIntentId}`,
+          return_url: `${window.location.origin}/${hotelSlug}/success?paymentIntent=${paymentIntentId}&type=classic_booking`,
         },
       });
 
