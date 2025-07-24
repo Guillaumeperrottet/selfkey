@@ -22,9 +22,16 @@ interface DayParkingSettings {
   dayParkingTarifFullDay: number;
 }
 
+interface EstablishmentCommission {
+  commissionRate: number;
+  fixedFee: number;
+}
+
 export function DayParkingManager({ hotelSlug }: DayParkingManagerProps) {
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
+  const [establishment, setEstablishment] =
+    useState<EstablishmentCommission | null>(null);
   const [settings, setSettings] = useState<DayParkingSettings>({
     dayParkingTarif1h: 5.0,
     dayParkingTarif2h: 8.0,
@@ -38,11 +45,15 @@ export function DayParkingManager({ hotelSlug }: DayParkingManagerProps) {
   useEffect(() => {
     const loadSettings = async () => {
       try {
-        const response = await fetch(
+        setIsLoading(true);
+
+        // Charger les paramètres parking jour
+        const settingsResponse = await fetch(
           `/api/admin/${hotelSlug}/day-parking-settings`
         );
-        if (response.ok) {
-          const data = await response.json();
+
+        if (settingsResponse.ok) {
+          const data = await settingsResponse.json();
           setSettings({
             dayParkingTarif1h: data.dayParkingTarif1h || 5.0,
             dayParkingTarif2h: data.dayParkingTarif2h || 8.0,
@@ -52,8 +63,20 @@ export function DayParkingManager({ hotelSlug }: DayParkingManagerProps) {
             dayParkingTarifFullDay: data.dayParkingTarifFullDay || 35.0,
           });
         }
+
+        // Charger les informations de commission de l'établissement
+        const establishmentResponse = await fetch(
+          `/api/establishments/${hotelSlug}`
+        );
+        if (establishmentResponse.ok) {
+          const establishmentData = await establishmentResponse.json();
+          setEstablishment({
+            commissionRate: establishmentData.commissionRate || 0,
+            fixedFee: establishmentData.fixedFee || 0,
+          });
+        }
       } catch (error) {
-        console.error("Error loading day parking settings:", error);
+        console.error("Erreur lors du chargement des paramètres:", error);
         toastUtils.error("Erreur lors du chargement des paramètres");
       } finally {
         setIsLoading(false);
@@ -75,6 +98,32 @@ export function DayParkingManager({ hotelSlug }: DayParkingManagerProps) {
     ) {
       toastUtils.warning("Les tarifs ne peuvent pas être négatifs");
       return;
+    }
+
+    // Validation de la commission pour chaque tarif
+    if (establishment) {
+      const tarifs = [
+        { name: "1 heure", value: settings.dayParkingTarif1h },
+        { name: "2 heures", value: settings.dayParkingTarif2h },
+        { name: "3 heures", value: settings.dayParkingTarif3h },
+        { name: "4 heures", value: settings.dayParkingTarif4h },
+        { name: "demi-journée", value: settings.dayParkingTarifHalfDay },
+        { name: "journée complète", value: settings.dayParkingTarifFullDay },
+      ];
+
+      for (const tarif of tarifs) {
+        const commission = Math.round(
+          (tarif.value * establishment.commissionRate) / 100 +
+            establishment.fixedFee
+        );
+
+        if (commission >= tarif.value) {
+          toastUtils.error(
+            `Le tarif ${tarif.name} (${tarif.value} CHF) doit être supérieur à la commission (${commission} CHF = ${establishment.commissionRate}% + ${establishment.fixedFee} CHF de frais fixes)`
+          );
+          return;
+        }
+      }
     }
 
     // Validation de logique des tarifs croissants
