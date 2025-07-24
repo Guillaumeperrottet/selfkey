@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useParams } from "next/navigation";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -43,30 +43,28 @@ export default function ExtendParkingPage() {
     { hours: 8, label: "Journée (+8h)", price: "25.00 CHF" },
   ];
 
-  useEffect(() => {
-    loadBookingData();
-  }, [token]);
-
-  const loadBookingData = async () => {
+  const loadBookingData = useCallback(async () => {
     try {
       const response = await fetch(`/api/extend-parking/${token}`);
       const data = await response.json();
-
       if (data.success) {
         setBooking(data.booking);
       } else {
         setError(data.error || "Réservation non trouvée");
       }
-    } catch (err) {
+    } catch {
       setError("Erreur de connexion");
     } finally {
       setLoading(false);
     }
-  };
+  }, [token]);
+
+  useEffect(() => {
+    loadBookingData();
+  }, [token, loadBookingData]);
 
   const handleExtension = async (hours: number) => {
     if (!booking) return;
-
     setExtending(true);
     try {
       const response = await fetch(`/api/extend-parking/${token}`, {
@@ -74,22 +72,18 @@ export default function ExtendParkingPage() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ extensionHours: hours }),
       });
-
       const data = await response.json();
-
       if (data.success) {
         setSuccess(true);
         toastUtils.success(`Parking étendu de ${hours}h avec succès !`);
-
         // Mettre à jour les données localement
-        const newEndTime = new Date(data.newEndTime);
         setBooking((prev) =>
           prev ? { ...prev, endTime: data.newEndTime } : null
         );
       } else {
         toastUtils.error(data.error || "Erreur lors de l'extension");
       }
-    } catch (err) {
+    } catch {
       toastUtils.error("Erreur de connexion");
     } finally {
       setExtending(false);
