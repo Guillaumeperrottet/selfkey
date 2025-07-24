@@ -15,6 +15,7 @@ import {
   LogOut,
   Menu,
   FileSpreadsheet,
+  Car,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
@@ -51,6 +52,16 @@ const navigation = [
     id: "pricing",
     name: "Options de prix",
     icon: DollarSign,
+  },
+  {
+    id: "day-parking",
+    name: "Parking Jour",
+    icon: Car,
+  },
+  {
+    id: "day-parking-control",
+    name: "Contrôle Parking",
+    icon: Car,
   },
   {
     id: "confirmations",

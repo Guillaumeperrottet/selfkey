@@ -10,6 +10,8 @@ import { AccessCodeManager } from "@/components/AccessCodeManager";
 import { SettingsManager } from "@/components/SettingsManager";
 import { PricingOptionsManager } from "@/components/PricingOptionsManager";
 import { ConfirmationManager } from "@/components/ConfirmationManager";
+import { DayParkingManager } from "@/components/DayParkingManager";
+import { DayParkingControlTable } from "@/components/DayParkingControlTable";
 import { BookingsTable } from "@/components/BookingsTable";
 import { DashboardCharts } from "@/components/DashboardCharts";
 import { ChartColorSelector } from "@/components/ChartColorSelector";
@@ -437,6 +439,12 @@ export function AdminDashboard({
 
       case "pricing":
         return <PricingOptionsManager hotelSlug={hotel} />;
+
+      case "day-parking":
+        return <DayParkingManager hotelSlug={hotel} />;
+
+      case "day-parking-control":
+        return <DayParkingControlTable hotelSlug={hotel} />;
 
       case "confirmations":
         return <ConfirmationManager hotelSlug={hotel} />;

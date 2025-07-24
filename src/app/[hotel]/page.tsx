@@ -1,5 +1,5 @@
 import { notFound } from "next/navigation";
-import { BookingForm } from "@/components/BookingForm";
+import { HotelLanding } from "@/components/HotelLanding";
 import { prisma } from "@/lib/prisma";
 
 interface Props {
@@ -24,6 +24,7 @@ export default async function HotelPage({ params }: Props) {
       name: true,
       maxBookingDays: true,
       allowFutureBookings: true,
+      enableDayParking: true,
     },
   });
 
@@ -67,26 +68,13 @@ export default async function HotelPage({ params }: Props) {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <div className="container mx-auto px-4 py-8 max-w-2xl">
-        {/* Header */}
-        <div className="text-center mb-8">
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">
-            {establishment.name}
-          </h1>
-          <p className="text-gray-600">Réservation en ligne</p>
-        </div>
-
-        {/* Nouveau formulaire de réservation avec dates */}
-        <BookingForm
-          hotelSlug={hotel}
-          establishment={{
-            name: establishment.name,
-            maxBookingDays: establishment.maxBookingDays,
-            allowFutureBookings: establishment.allowFutureBookings,
-          }}
-        />
-      </div>
-    </div>
+    <HotelLanding
+      hotelSlug={hotel}
+      establishment={{
+        name: establishment.name,
+        maxBookingDays: establishment.maxBookingDays,
+        allowFutureBookings: establishment.allowFutureBookings,
+      }}
+    />
   );
 }
