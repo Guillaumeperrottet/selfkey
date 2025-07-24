@@ -120,6 +120,7 @@ model Establishment {
   dayParkingTarif4h            Float?              @default(15.00) // Tarif 4h
   dayParkingTarifHalfDay       Float?              @default(20.00) // Tarif demi-journée
   dayParkingTarifFullDay       Float?              @default(35.00) // Tarif journée complète
+  dayParkingEmailTemplate      String? // Template email spécifique au parking jour
   createdAt                    DateTime            @default(now())
   users                        UserEstablishment[]
   bookings                     Booking[]

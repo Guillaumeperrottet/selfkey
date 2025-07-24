@@ -38,6 +38,7 @@ export async function GET(request: NextRequest, { params }: Props) {
             dayParkingTarif4h: true,
             dayParkingTarifHalfDay: true,
             dayParkingTarifFullDay: true,
+            dayParkingEmailTemplate: true,
           },
         },
       },
@@ -97,6 +98,7 @@ export async function POST(request: NextRequest, { params }: Props) {
       dayParkingTarif4h,
       dayParkingTarifHalfDay,
       dayParkingTarifFullDay,
+      dayParkingEmailTemplate,
     } = body;
 
     // Validation des types et valeurs
@@ -161,6 +163,9 @@ export async function POST(request: NextRequest, { params }: Props) {
         dayParkingTarifFullDay: enableDayParking
           ? dayParkingTarifFullDay
           : null,
+        dayParkingEmailTemplate: enableDayParking
+          ? dayParkingEmailTemplate
+          : null,
       },
       select: {
         enableDayParking: true,
@@ -170,6 +175,7 @@ export async function POST(request: NextRequest, { params }: Props) {
         dayParkingTarif4h: true,
         dayParkingTarifHalfDay: true,
         dayParkingTarifFullDay: true,
+        dayParkingEmailTemplate: true,
       },
     });
 

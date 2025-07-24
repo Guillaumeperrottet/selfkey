@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
-import { Loader2, Save, Car, Clock, Info } from "lucide-react";
+import { Loader2, Save, Car, Clock } from "lucide-react";
 import { toastUtils } from "@/lib/toast-utils";
 
 interface DayParkingManagerProps {
@@ -95,6 +95,17 @@ export function DayParkingManager({ hotelSlug }: DayParkingManagerProps) {
     setIsSaving(true);
 
     try {
+      // Charger d'abord les paramètres actuels pour préserver l'email template
+      const currentResponse = await fetch(
+        `/api/admin/${hotelSlug}/day-parking-settings`
+      );
+
+      if (!currentResponse.ok) {
+        throw new Error("Erreur lors du chargement des paramètres actuels");
+      }
+
+      const currentData = await currentResponse.json();
+
       const response = await fetch(
         `/api/admin/${hotelSlug}/day-parking-settings`,
         {
@@ -105,6 +116,7 @@ export function DayParkingManager({ hotelSlug }: DayParkingManagerProps) {
           body: JSON.stringify({
             enableDayParking: true, // Toujours true car le composant n'est accessible que si activé
             ...settings,
+            dayParkingEmailTemplate: currentData.dayParkingEmailTemplate, // Préserver l'email template
           }),
         }
       );
@@ -276,12 +288,7 @@ export function DayParkingManager({ hotelSlug }: DayParkingManagerProps) {
 
               {/* Journée complète */}
               <div className="space-y-2">
-                <Label htmlFor="tarifFullDay">
-                  Journée complète (12h)
-                  <Badge variant="secondary" className="ml-2">
-                    Populaire
-                  </Badge>
-                </Label>
+                <Label htmlFor="tarifFullDay">Journée complète (12h)</Label>
                 <div className="flex items-center">
                   <Input
                     id="tarifFullDay"
@@ -323,38 +330,6 @@ export function DayParkingManager({ hotelSlug }: DayParkingManagerProps) {
               )}
             </Button>
           </div>
-        </CardContent>
-      </Card>
-
-      {/* Informations */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Info className="h-5 w-5" />
-            Informations importantes
-          </CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-2 text-sm text-muted-foreground">
-          <p>
-            • Les clients pourront choisir entre &quot;parking nuit&quot;
-            (réservation traditionnelle) et &quot;parking jour&quot; (tarifs
-            horaires)
-          </p>
-          <p>
-            • Pour le parking jour, les tarifs utilisent le système de
-            commission au lieu de frais fixes
-          </p>
-          <p>
-            • Le temps de stationnement commence dès la confirmation du paiement
-          </p>
-          <p>
-            • Les tarifs doivent être croissants pour encourager les durées plus
-            longues
-          </p>
-          <p>
-            • Une fois activé, l&apos;option apparaîtra immédiatement sur votre
-            page de réservation
-          </p>
         </CardContent>
       </Card>
     </div>

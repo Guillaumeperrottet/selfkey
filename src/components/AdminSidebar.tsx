@@ -106,6 +106,11 @@ const dayParkingNavigation = {
       icon: DollarSign,
     },
     {
+      id: "day-parking-email",
+      name: "Email de confirmation",
+      icon: MessageSquare,
+    },
+    {
       id: "day-parking-control",
       name: "Contrôle parking",
       icon: Activity,

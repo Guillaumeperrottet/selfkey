@@ -11,6 +11,7 @@ import { SettingsManager } from "@/components/SettingsManager";
 import { PricingOptionsManager } from "@/components/PricingOptionsManager";
 import { ConfirmationManager } from "@/components/ConfirmationManager";
 import { DayParkingManager } from "@/components/DayParkingManager";
+import { DayParkingEmailManager } from "@/components/DayParkingEmailManager";
 import { DayParkingControlTable } from "@/components/DayParkingControlTable";
 import { BookingsTable } from "@/components/BookingsTable";
 import { DashboardCharts } from "@/components/DashboardCharts";
@@ -468,6 +469,9 @@ export function AdminDashboard({
 
       case "day-parking-manager":
         return <DayParkingManager hotelSlug={hotel} />;
+
+      case "day-parking-email":
+        return <DayParkingEmailManager hotelSlug={hotel} />;
 
       case "day-parking-control":
         return <DayParkingControlTable hotelSlug={hotel} />;
