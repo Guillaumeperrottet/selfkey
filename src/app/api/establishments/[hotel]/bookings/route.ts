@@ -218,53 +218,46 @@ export async function POST(
     );
     const ownerAmount = calculatedPrice - platformCommission;
 
-    // Créer la réservation
-    const booking = await prisma.booking.create({
-      data: {
-        hotelSlug: hotel,
-        roomId,
-        checkInDate: checkInDateObj,
-        checkOutDate: checkOutDateObj,
-        clientFirstName,
-        clientLastName,
-        clientEmail,
-        clientPhone,
-        clientBirthDate: new Date(clientBirthDate),
-        clientBirthPlace,
-        clientAddress,
-        clientPostalCode,
-        clientCity,
-        clientCountry,
-        clientIdNumber,
-        clientVehicleNumber,
-        guests: adults + children, // Total des invités pour compatibilité
-        adults,
-        children,
-        amount: calculatedPrice,
-        platformCommission,
-        ownerAmount,
-        selectedPricingOptions: selectedPricingOptions || {},
-        pricingOptionsTotal: validatedPricingOptionsTotal,
-      },
-    });
-
-    // Créer le Payment Intent Stripe
+    // Créer le Payment Intent Stripe AVANT la réservation
+    // Stocker toutes les données dans les metadata pour création après paiement
     const paymentIntent = await createPaymentIntentWithCommission(
       calculatedPrice,
       "chf", // Devise par défaut
       establishment.stripeAccountId,
       establishment.commissionRate,
-      establishment.fixedFee
+      establishment.fixedFee,
+      {
+        // Stocker les données de réservation pour création après paiement
+        booking_type: "night_parking",
+        establishment_id: establishment.id,
+        hotel_slug: hotel,
+        room_id: roomId,
+        check_in_date: checkInDate,
+        check_out_date: checkOutDate,
+        client_first_name: clientFirstName,
+        client_last_name: clientLastName,
+        client_email: clientEmail,
+        client_phone: clientPhone,
+        client_birth_date: clientBirthDate,
+        client_birth_place: clientBirthPlace || "",
+        client_address: clientAddress,
+        client_postal_code: clientPostalCode,
+        client_city: clientCity,
+        client_country: clientCountry,
+        client_id_number: clientIdNumber,
+        client_vehicle_number: clientVehicleNumber || "",
+        adults: adults.toString(),
+        children: children.toString(),
+        guests: (adults + children).toString(),
+        amount: calculatedPrice.toString(),
+        platform_commission: platformCommission.toString(),
+        owner_amount: ownerAmount.toString(),
+        selected_pricing_options: JSON.stringify(selectedPricingOptions || {}),
+        pricing_options_total: validatedPricingOptionsTotal.toString(),
+      }
     );
 
-    // Mettre à jour la réservation avec l'ID du PaymentIntent
-    await prisma.booking.update({
-      where: { id: booking.id },
-      data: { stripePaymentIntentId: paymentIntent.id },
-    });
-
     return NextResponse.json({
-      bookingId: booking.id,
       clientSecret: paymentIntent.client_secret,
       paymentIntentId: paymentIntent.id,
     });

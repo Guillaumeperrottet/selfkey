@@ -340,12 +340,12 @@ export function BookingSummary({ bookingId }: BookingSummaryProps) {
         // Nettoyer le sessionStorage
         sessionStorage.removeItem(`booking_${bookingId}`);
 
-        // Rediriger vers la page de paiement avec la vraie réservation et le clientSecret
-        const paymentUrl = `/${booking.hotelSlug}/payment?booking=${data.bookingId}`;
+        // Rediriger vers la page de paiement avec le paymentIntentId comme identifiant temporaire
+        const paymentUrl = `/${booking.hotelSlug}/payment?booking=${data.paymentIntentId}`;
         if (data.clientSecret) {
           // Stocker temporairement le clientSecret pour éviter de le passer dans l'URL
           sessionStorage.setItem(
-            `payment_${data.bookingId}`,
+            `payment_${data.paymentIntentId}`,
             data.clientSecret
           );
         }
