@@ -190,8 +190,6 @@ export function DayParkingForm({
 
         console.log("✅ Data saved to sessionStorage with key:", storageKey);
 
-        toastUtils.success("Paiement initialisé avec succès !");
-
         // Rediriger directement vers le paiement avec le PaymentIntent
         router.push(
           `/${hotelSlug}/payment?paymentIntent=${data.payment.paymentIntentId}&type=day_parking`

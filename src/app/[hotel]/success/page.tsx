@@ -9,13 +9,25 @@ import { AutoEmailConfirmation } from "@/components/AutoEmailConfirmation";
 
 interface Props {
   params: Promise<{ hotel: string }>;
-  searchParams: Promise<{ booking?: string }>;
+  searchParams: Promise<{
+    booking?: string;
+    paymentIntent?: string;
+    type?: string;
+  }>;
 }
 
 export default async function SuccessPage({ params, searchParams }: Props) {
   const { hotel } = await params;
-  const { booking: bookingId } = await searchParams;
+  const { booking: bookingId, paymentIntent, type } = await searchParams;
 
+  // Cas du parking jour
+  if (type === "day_parking" && paymentIntent) {
+    return (
+      <DayParkingSuccessPage hotel={hotel} paymentIntent={paymentIntent} />
+    );
+  }
+
+  // Cas des réservations normales
   if (!bookingId) {
     redirect(`/${hotel}`);
   }
@@ -260,6 +272,177 @@ export default async function SuccessPage({ params, searchParams }: Props) {
             Conservez ce numéro pour toute correspondance future.
             <br />
             <em>Keep this number for future correspondence.</em>
+          </p>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// Composant pour la page de succès du parking jour
+async function DayParkingSuccessPage({
+  hotel,
+  paymentIntent,
+}: {
+  hotel: string;
+  paymentIntent: string;
+}) {
+  // Récupérer la réservation parking jour via le PaymentIntent
+  const dayParkingBooking = await prisma.booking.findFirst({
+    where: {
+      stripePaymentIntentId: paymentIntent,
+      bookingType: "day",
+    },
+    include: {
+      establishment: {
+        select: {
+          name: true,
+          slug: true,
+        },
+      },
+    },
+  });
+
+  if (!dayParkingBooking) {
+    console.error("❌ Réservation parking jour non trouvée:", {
+      paymentIntent,
+      hotel,
+    });
+
+    return (
+      <div className="min-h-screen bg-gray-50 py-8">
+        <div className="max-w-2xl mx-auto px-4">
+          <Card>
+            <CardContent className="p-6 text-center">
+              <h1 className="text-xl font-bold text-red-600 mb-4">
+                Réservation non trouvée
+              </h1>
+              <p className="text-gray-600 mb-4">
+                Nous n&apos;avons pas pu trouver votre réservation parking jour.
+              </p>
+              <details className="text-left mb-4">
+                <summary className="text-sm cursor-pointer text-gray-500">
+                  Informations de debug
+                </summary>
+                <pre className="text-xs mt-2 bg-gray-100 p-2 rounded">
+                  {`PaymentIntent: ${paymentIntent}
+Hotel: ${hotel}
+Type: day_parking`}
+                </pre>
+              </details>
+              <Button asChild>
+                <Link href={`/${hotel}`}>Retour à l&apos;accueil</Link>
+              </Button>
+            </CardContent>
+          </Card>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="min-h-screen bg-gray-50 py-8">
+      <div className="max-w-2xl mx-auto px-4">
+        {/* Header de succès */}
+        <div className="text-center mb-8">
+          <div className="flex justify-center mb-4">
+            <CheckCircle className="h-16 w-16 text-green-600" />
+          </div>
+          <h1 className="text-3xl font-bold text-gray-900 mb-2">
+            Paiement confirmé !
+          </h1>
+        </div>
+
+        {/* Détails de la réservation */}
+        <Card className="mb-6">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <MapPin className="h-5 w-5" />
+              Détails de votre parking jour
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <p className="text-sm text-gray-600">Établissement</p>
+                <p className="font-semibold">
+                  {dayParkingBooking.establishment.name}
+                </p>
+              </div>
+
+              <div>
+                <p className="text-sm text-gray-600">Client</p>
+                <p className="font-semibold">
+                  {dayParkingBooking.clientFirstName}{" "}
+                  {dayParkingBooking.clientLastName}
+                </p>
+              </div>
+
+              <div>
+                <p className="text-sm text-gray-600">Véhicule</p>
+                <p className="font-semibold">
+                  {dayParkingBooking.clientVehicleNumber}
+                </p>
+              </div>
+
+              <div>
+                <p className="text-sm text-gray-600">Durée</p>
+                <p className="font-semibold">
+                  {dayParkingBooking.dayParkingDuration}
+                </p>
+              </div>
+
+              <div>
+                <p className="text-sm text-gray-600">Période</p>
+                <p className="font-semibold">
+                  {dayParkingBooking.dayParkingStartTime
+                    ? new Date(
+                        dayParkingBooking.dayParkingStartTime
+                      ).toLocaleString("fr-CH")
+                    : "Non définie"}
+                  <br />
+                  au{" "}
+                  {dayParkingBooking.dayParkingEndTime
+                    ? new Date(
+                        dayParkingBooking.dayParkingEndTime
+                      ).toLocaleString("fr-CH")
+                    : "Non définie"}
+                </p>
+              </div>
+
+              <div>
+                <p className="text-sm text-gray-600">Montant payé</p>
+                <p className="font-semibold text-green-600">
+                  {dayParkingBooking.amount} CHF
+                </p>
+              </div>
+            </div>
+
+            <div className="mt-6 p-4 bg-green-50 rounded-lg border border-green-200">
+              <h3 className="font-semibold text-green-800 mb-2">
+                ✅ Réservation confirmée
+              </h3>
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Actions */}
+        <div className="flex flex-col sm:flex-row gap-4">
+          <Button asChild className="flex-1">
+            <Link href={`/${hotel}`}>Retour à l&apos;accueil</Link>
+          </Button>
+        </div>
+
+        {/* Note de bas de page */}
+        <div className="mt-8 text-center text-sm text-gray-500">
+          <p>
+            Numéro de transaction :{" "}
+            <span className="font-mono">
+              {dayParkingBooking.id.slice(-8).toUpperCase()}
+            </span>
+          </p>
+          <p className="mt-1">
+            Conservez ce numéro pour toute correspondance future.
           </p>
         </div>
       </div>

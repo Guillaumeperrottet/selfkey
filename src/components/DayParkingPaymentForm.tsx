@@ -10,7 +10,6 @@ import {
 import { loadStripe, Stripe } from "@stripe/stripe-js";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { toastUtils } from "@/lib/toast-utils";
 
 interface DayParkingPaymentFormProps {
   paymentIntentId: string;
@@ -66,7 +65,6 @@ function StripePaymentFormContent({
     } catch (err) {
       console.error("Erreur de paiement:", err);
       setError(err instanceof Error ? err.message : "Une erreur est survenue");
-      toastUtils.error("Erreur lors du paiement");
     } finally {
       setIsLoading(false);
     }

@@ -140,9 +140,11 @@ export async function POST(request: NextRequest, { params }: Props) {
       });
     }
 
-    // Mode développement : simuler un PaymentIntent
+    // Mode développement : simuler un PaymentIntent ET créer la réservation
     if (isDevelopment) {
-      console.log("🧪 Mode développement : simulation du PaymentIntent");
+      console.log(
+        "🧪 Mode développement : simulation du PaymentIntent + création de la réservation"
+      );
 
       const fakePaymentIntent = {
         id: `pi_dev_${Date.now()}`,
@@ -150,6 +152,66 @@ export async function POST(request: NextRequest, { params }: Props) {
         amount_received: amount * 100, // Stripe utilise les centimes
         currency: "chf",
       };
+
+      // Créer la réservation parking jour même en mode dev pour tester le flow complet
+      const dayParkingBooking = await prisma.booking.create({
+        data: {
+          hotelSlug: hotel,
+          roomId: room.id,
+          clientFirstName,
+          clientLastName,
+          clientEmail,
+          clientPhone,
+          clientVehicleNumber: clientVehicleNumber || "",
+          clientBirthDate: clientBirthDate
+            ? new Date(clientBirthDate)
+            : new Date(),
+          clientAddress: clientAddress || "",
+          clientPostalCode: clientPostalCode || "",
+          clientCity: clientCity || "",
+          clientCountry: clientCountry || "",
+          clientIdNumber: clientIdNumber || "",
+          amount,
+          currency: "CHF",
+          platformCommission:
+            (amount * (establishment.dayParkingCommissionRate || 5)) / 100,
+          ownerAmount:
+            amount -
+            (amount * (establishment.dayParkingCommissionRate || 5)) / 100,
+          checkInDate: new Date(dayParkingStartTime),
+          checkOutDate: new Date(dayParkingEndTime),
+          stripePaymentIntentId: fakePaymentIntent.id,
+          paymentStatus: "succeeded", // Marquer comme payé en mode dev
+          adults: adults || 1,
+          children: children || 0,
+          bookingType: "day",
+          dayParkingDuration,
+          dayParkingStartTime: new Date(dayParkingStartTime),
+          dayParkingEndTime: new Date(dayParkingEndTime),
+          emailConfirmation,
+        },
+      });
+
+      console.log(
+        "✅ Réservation parking jour créée en mode dev:",
+        dayParkingBooking.id
+      );
+
+      // En mode développement, envoyer l'email de confirmation directement
+      if (emailConfirmation) {
+        try {
+          console.log("📧 Envoi de l'email de confirmation en mode dev...");
+
+          // Ici vous pouvez ajouter l'envoi d'email
+          // Pour l'instant, on log juste qu'il devrait être envoyé
+          console.log(
+            "📧 Email de confirmation devrait être envoyé à:",
+            clientEmail
+          );
+        } catch (emailError) {
+          console.error("❌ Erreur envoi email en mode dev:", emailError);
+        }
+      }
 
       return NextResponse.json({
         success: true,
@@ -163,6 +225,7 @@ export async function POST(request: NextRequest, { params }: Props) {
         },
         message: "PaymentIntent simulé créé pour le développement.",
         isDevelopment: true,
+        bookingId: dayParkingBooking.id,
       });
     }
 
