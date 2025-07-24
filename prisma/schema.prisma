@@ -10,15 +10,15 @@ datasource db {
 model User {
   id             String               @id @default(cuid())
   name           String?
-  email          String              @unique
-  emailVerified  Boolean?            @default(false)
+  email          String               @unique
   image          String?
-  createdAt      DateTime            @default(now())
-  updatedAt      DateTime            @updatedAt
-  accounts       Account[]
-  sessions       Session[]
+  createdAt      DateTime             @default(now())
+  updatedAt      DateTime             @updatedAt
+  emailVerified  Boolean?             @default(false)
   establishments UserEstablishment[]
+  accounts       Account[]
   excelExports   ExcelExportHistory[]
+  sessions       Session[]
 
   @@map("user")
 }
@@ -27,17 +27,17 @@ model Account {
   id                    String    @id @default(cuid())
   userId                String
   type                  String    @default("oauth")
-  providerId            String // Better Auth utilise providerId
   accountId             String
-  accessToken           String?
-  refreshToken          String?
-  idToken               String?
-  accessTokenExpiresAt  DateTime?
-  refreshTokenExpiresAt DateTime?
   scope                 String?
-  password              String?
   createdAt             DateTime  @default(now())
   updatedAt             DateTime  @updatedAt
+  accessToken           String?
+  accessTokenExpiresAt  DateTime?
+  idToken               String?
+  password              String?
+  refreshToken          String?
+  refreshTokenExpiresAt DateTime?
+  providerId            String
   user                  User      @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@unique([providerId, accountId])
@@ -53,8 +53,7 @@ model Session {
   userAgent String?
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
-
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@map("session")
 }
@@ -84,52 +83,46 @@ model UserEstablishment {
 }
 
 model Establishment {
-  id                           String              @id @default(cuid())
-  slug                         String              @unique
+  id                           String               @id @default(cuid())
+  slug                         String               @unique
   name                         String
   stripeAccountId              String?
-  stripeOnboarded              Boolean             @default(false)
-  commissionRate               Float               @default(0) // 0% par défaut
-  fixedFee                     Float               @default(3.00) // 3.00 CHF par défaut
-  dayParkingCommissionRate     Float               @default(5.0) // 5% par défaut pour parking jour
-  // Système de codes d'accès
-  accessCodeType               String              @default("room") // "room", "general", "custom"
-  generalAccessCode            String? // Code général pour tout l'établissement
-  accessInstructions           String? // Instructions personnalisées (JSON ou text)
-  // Configuration des réservations
-  maxBookingDays               Int                 @default(4) // Durée maximale de séjour en jours
-  allowFutureBookings          Boolean             @default(false) // Permettre les réservations dans le futur
-  enableCutoffTime             Boolean             @default(false) // Activer l'heure limite pour les réservations
-  cutoffTime                   String?             @default("22:00") // Heure limite (format HH:mm)
-  reopenTime                   String?             @default("00:00") // Heure de réouverture (format HH:mm)
-  // Configuration des confirmations post-paiement
-  confirmationEmailEnabled     Boolean             @default(true)
-  confirmationWhatsappEnabled  Boolean             @default(false)
-  confirmationEmailFrom        String? // Adresse email d'envoi
-  confirmationWhatsappFrom     String? // Numéro WhatsApp d'envoi
-  confirmationEmailTemplate    String? // Template email personnalisé
-  confirmationWhatsappTemplate String? // Template WhatsApp personnalisé
-  // Informations de contact de l'hôtel
-  hotelContactEmail            String? // Email de contact de l'hôtel
-  hotelContactPhone            String? // Téléphone de contact de l'hôtel
-  // Configuration du formulaire de réservation personnalisable
-  formConfig                   Json?               @default("{}") // Configuration des champs du formulaire (JSON)
-  // Configuration du parking jour
-  enableDayParking             Boolean             @default(false) // Activer le parking jour
-  dayParkingTarif1h            Float?              @default(5.00) // Tarif 1h
-  dayParkingTarif2h            Float?              @default(8.00) // Tarif 2h
-  dayParkingTarif3h            Float?              @default(12.00) // Tarif 3h
-  dayParkingTarif4h            Float?              @default(15.00) // Tarif 4h
-  dayParkingTarifHalfDay       Float?              @default(20.00) // Tarif demi-journée
-  dayParkingTarifFullDay       Float?              @default(35.00) // Tarif journée complète
-  dayParkingEmailTemplate      String? // Template email spécifique au parking jour
-  createdAt                    DateTime            @default(now())
+  stripeOnboarded              Boolean              @default(false)
+  commissionRate               Float                @default(0)
+  fixedFee                     Float                @default(3.00)
+  createdAt                    DateTime             @default(now())
+  accessCodeType               String               @default("room")
+  accessInstructions           String?
+  generalAccessCode            String?
+  maxBookingDays               Int                  @default(4)
+  confirmationEmailEnabled     Boolean              @default(true)
+  confirmationEmailFrom        String?
+  confirmationEmailTemplate    String?
+  confirmationWhatsappEnabled  Boolean              @default(false)
+  confirmationWhatsappFrom     String?
+  confirmationWhatsappTemplate String?
+  allowFutureBookings          Boolean              @default(false)
+  cutoffTime                   String?              @default("22:00")
+  enableCutoffTime             Boolean              @default(false)
+  reopenTime                   String?              @default("00:00")
+  hotelContactEmail            String?
+  hotelContactPhone            String?
+  dayParkingTarif1h            Float?               @default(5.00)
+  dayParkingTarif2h            Float?               @default(8.00)
+  dayParkingTarif3h            Float?               @default(12.00)
+  dayParkingTarif4h            Float?               @default(15.00)
+  dayParkingTarifFullDay       Float?               @default(35.00)
+  dayParkingTarifHalfDay       Float?               @default(20.00)
+  enableDayParking             Boolean              @default(false)
+  dayParkingCommissionRate     Float                @default(5.0)
+  dayParkingEmailTemplate      String?
+  formConfig                   Json?                @default("{}")
   users                        UserEstablishment[]
   bookings                     Booking[]
+  excelExports                 ExcelExportHistory[]
+  integrations                 Integration[]
+  pricingOptions               PricingOption[]
   rooms                        Room[]
-  pricingOptions               PricingOption[] // Options de prix personnalisables
-  integrations                 Integration[] // Intégrations externes
-  excelExports                 ExcelExportHistory[] // Historique des exports Excel
 
   @@map("establishments")
 }
@@ -140,8 +133,8 @@ model Room {
   name          String
   price         Float
   isActive      Boolean       @default(true)
-  accessCode    String? // Code d'accès spécifique à cette chambre
   createdAt     DateTime      @default(now())
+  accessCode    String?
   bookings      Booking[]
   establishment Establishment @relation(fields: [hotelSlug], references: [slug], onDelete: Cascade)
 
@@ -151,45 +144,41 @@ model Room {
 model Booking {
   id                     String        @id @default(cuid())
   hotelSlug              String
-  roomId                 String?       // Optionnel pour le parking jour
-  // Informations client détaillées
-  clientFirstName        String // Prénom
-  clientLastName         String // Nom
-  clientEmail            String // Email
-  clientPhone            String // Téléphone mobile
-  clientBirthDate        DateTime // Date de naissance
-  clientAddress          String // Adresse
-  clientPostalCode       String // Code postal
-  clientCity             String // Localité
-  clientCountry          String // Pays
-  clientBirthPlace       String? // Lieu de naissance
-  clientIdNumber         String // N° de permis ou de carte d'identité
-  clientVehicleNumber    String? // N° d'immatriculation du véhicule
-  // Informations de réservation
+  roomId                 String?
+  clientEmail            String
   amount                 Float
   currency               String        @default("CHF")
   platformCommission     Float         @default(0)
   ownerAmount            Float
-  selectedPricingOptions Json? // Options de prix sélectionnées (JSON)
-  pricingOptionsTotal    Float         @default(0) // Total des suppléments
   bookingDate            DateTime      @default(now())
-  checkInDate            DateTime // Date d'arrivée
-  checkOutDate           DateTime // Date de départ
   stripePaymentIntentId  String?
-  paymentStatus          String        @default("pending") // "pending", "succeeded", "failed"
-  guests                 Int           @default(1) // Total des invités (pour compatibilité)
-  adults                 Int           @default(1) // Nombre d'adultes (16 ans et +)
-  children               Int           @default(0) // Nombre d'enfants (moins de 16 ans)
-  // Configuration du parking jour
-  bookingType            String        @default("night") // "night", "day" - Type de réservation
-  dayParkingDuration     String? // "1h", "2h", "3h", "4h", "half_day", "full_day"
-  dayParkingStartTime    DateTime? // Heure de début pour parking jour
-  dayParkingEndTime      DateTime? // Heure de fin calculée pour parking jour
-  // Configuration de confirmation
-  confirmationMethod     String? // "email" ou "whatsapp"
+  guests                 Int           @default(1)
+  checkInDate            DateTime
+  checkOutDate           DateTime
+  clientAddress          String
+  clientBirthDate        DateTime
+  clientCity             String
+  clientCountry          String
+  clientFirstName        String
+  clientIdNumber         String
+  clientLastName         String
+  clientPhone            String
+  clientPostalCode       String
+  pricingOptionsTotal    Float         @default(0)
+  selectedPricingOptions Json?
+  confirmationMethod     String?
   confirmationSent       Boolean       @default(false)
   confirmationSentAt     DateTime?
-  emailConfirmation      Boolean       @default(true) // Client souhaite recevoir confirmation par email
+  adults                 Int           @default(1)
+  children               Int           @default(0)
+  clientBirthPlace       String?
+  clientVehicleNumber    String?
+  paymentStatus          String        @default("pending")
+  bookingType            String        @default("night")
+  dayParkingDuration     String?
+  dayParkingEndTime      DateTime?
+  dayParkingStartTime    DateTime?
+  emailConfirmation      Boolean       @default(true)
   establishment          Establishment @relation(fields: [hotelSlug], references: [slug])
   room                   Room?         @relation(fields: [roomId], references: [id])
 
@@ -199,14 +188,14 @@ model Booking {
 model PricingOption {
   id              String               @id @default(cuid())
   establishmentId String
-  name            String // ex: "Hauteur du véhicule"
-  type            String // "select", "checkbox", "radio"
+  name            String
+  type            String
   isRequired      Boolean              @default(false)
   isActive        Boolean              @default(true)
   displayOrder    Int                  @default(0)
   createdAt       DateTime             @default(now())
-  establishment   Establishment        @relation(fields: [establishmentId], references: [id], onDelete: Cascade)
   values          PricingOptionValue[]
+  establishment   Establishment        @relation(fields: [establishmentId], references: [id], onDelete: Cascade)
 
   @@map("pricing_options")
 }
@@ -214,8 +203,8 @@ model PricingOption {
 model PricingOptionValue {
   id              String        @id @default(cuid())
   pricingOptionId String
-  label           String // ex: "Moins de 2m", "Plus de 2m"
-  priceModifier   Float // Prix à ajouter/soustraire (peut être négatif)
+  label           String
+  priceModifier   Float
   isDefault       Boolean       @default(false)
   displayOrder    Int           @default(0)
   createdAt       DateTime      @default(now())
@@ -227,17 +216,17 @@ model PricingOptionValue {
 model Integration {
   id                String           @id @default(cuid())
   establishmentSlug String
-  type              String // "booking-com", "airbnb", "pms", "webhook", etc.
-  name              String // Nom personnalisé de l'intégration
-  status            String           @default("disconnected") // "connected", "disconnected", "error"
-  configuration     Json // Configuration spécifique (API keys, URLs, etc.)
-  lastSync          DateTime? // Dernière synchronisation
-  lastError         String? // Dernière erreur rencontrée
+  type              String
+  name              String
+  status            String           @default("disconnected")
+  configuration     Json
+  lastSync          DateTime?
+  lastError         String?
   isActive          Boolean          @default(true)
   createdAt         DateTime         @default(now())
   updatedAt         DateTime         @updatedAt
-  establishment     Establishment    @relation(fields: [establishmentSlug], references: [slug], onDelete: Cascade)
   logs              IntegrationLog[]
+  establishment     Establishment    @relation(fields: [establishmentSlug], references: [slug], onDelete: Cascade)
 
   @@map("integrations")
 }
@@ -245,10 +234,10 @@ model Integration {
 model IntegrationLog {
   id            String      @id @default(cuid())
   integrationId String
-  action        String // "sync", "test", "error", "booking_received", etc.
-  status        String // "success", "error", "warning"
+  action        String
+  status        String
   message       String
-  data          Json? // Données additionnelles
+  data          Json?
   createdAt     DateTime    @default(now())
   integration   Integration @relation(fields: [integrationId], references: [id], onDelete: Cascade)
 
@@ -263,9 +252,9 @@ model ExcelExportHistory {
   fileName          String
   recordsCount      Int
   exportedAt        DateTime      @default(now())
-  userId            String? // Si on veut traquer qui a fait l'export
+  userId            String?
   establishment     Establishment @relation(fields: [establishmentSlug], references: [slug], onDelete: Cascade)
-  user              User?         @relation(fields: [userId], references: [id], onDelete: SetNull)
+  user              User?         @relation(fields: [userId], references: [id])
 
   @@map("excel_export_history")
 }

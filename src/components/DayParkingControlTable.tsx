@@ -99,6 +99,7 @@ export function DayParkingControlTable({
 
   const getStatusBadge = (status: string) => {
     switch (status) {
+      case "succeeded":
       case "paid":
         return (
           <Badge variant="default" className="bg-green-100 text-green-800">

@@ -1,39 +1,28 @@
-import { NextRequest, NextResponse } from "next/server";
-import { prisma } from "@/lib/prisma";
-import { auth } from "@/lib/auth";
+import { PrismaClient } from "@prisma/client";
 
-export async function GET(
-  request: NextRequest,
-  { params }: { params: Promise<{ hotel: string }> }
-) {
+const prisma = new PrismaClient();
+
+async function simulateAPICall() {
   try {
-    const { hotel } = await params;
-    const { searchParams } = new URL(request.url);
-    const date = searchParams.get("date");
+    console.log("🔍 Simulation de l'API day-parking-control...\n");
 
-    // Vérifier l'authentification
-    const session = await auth.api.getSession({
-      headers: request.headers,
-    });
+    const hotel = "guillaumehotel";
+    const date = "2025-07-24"; // Date d'aujourd'hui
 
-    if (!session?.user?.id) {
-      return NextResponse.json({ error: "Non authentifié" }, { status: 401 });
-    }
-
-    // Vérifier que l'utilisateur a accès à cet établissement
+    // Vérifier l'établissement (comme dans l'API)
     const establishment = await prisma.establishment.findUnique({
       where: { slug: hotel },
       select: { id: true },
     });
 
     if (!establishment) {
-      return NextResponse.json(
-        { error: "Établissement introuvable" },
-        { status: 404 }
-      );
+      console.log("❌ Établissement introuvable");
+      return;
     }
 
-    // Construire les filtres de date
+    console.log("✅ Établissement trouvé");
+
+    // Construire les filtres de date (exactement comme dans l'API)
     let dateFilter = {};
     if (date) {
       const startDate = new Date(date);
@@ -48,9 +37,13 @@ export async function GET(
           lte: endDate.toISOString(),
         },
       };
+
+      console.log(
+        `📅 Filtre de date appliqué: ${startDate.toISOString()} -> ${endDate.toISOString()}`
+      );
     }
 
-    // Récupérer les réservations parking jour
+    // Récupérer les réservations parking jour (exactement comme dans l'API)
     const bookings = await prisma.booking.findMany({
       where: {
         hotelSlug: hotel,
@@ -75,7 +68,9 @@ export async function GET(
       orderBy: [{ dayParkingStartTime: "desc" }, { bookingDate: "desc" }],
     });
 
-    // Formater les données pour le frontend
+    console.log(`📊 Réservations trouvées: ${bookings.length}`);
+
+    // Formater les données (exactement comme dans l'API)
     const formattedBookings = bookings.map((booking) => ({
       id: booking.id,
       clientFirstName: booking.clientFirstName,
@@ -92,16 +87,35 @@ export async function GET(
       emailConfirmation: booking.emailConfirmation || false,
     }));
 
-    return NextResponse.json({
+    console.log("\n📋 Données formatées:");
+    formattedBookings.forEach((booking, index) => {
+      console.log(
+        `${index + 1}. ${booking.clientFirstName} ${booking.clientLastName}`
+      );
+      console.log(`   Email: ${booking.clientEmail}`);
+      console.log(`   Véhicule: ${booking.clientVehicleNumber}`);
+      console.log(`   Durée: ${booking.dayParkingDuration}`);
+      console.log(`   Start: ${booking.dayParkingStartTime}`);
+      console.log(`   End: ${booking.dayParkingEndTime}`);
+      console.log(`   Montant: ${booking.amount} CHF`);
+      console.log(`   Status: ${booking.paymentStatus}`);
+      console.log(`   Email conf: ${booking.emailConfirmation}`);
+      console.log("");
+    });
+
+    const response = {
       success: true,
       bookings: formattedBookings,
       count: formattedBookings.length,
-    });
+    };
+
+    console.log("✅ Réponse JSON simulée:");
+    console.log(JSON.stringify(response, null, 2));
   } catch (error) {
-    console.error("Erreur lors de la récupération des réservations:", error);
-    return NextResponse.json(
-      { error: "Erreur interne du serveur" },
-      { status: 500 }
-    );
+    console.error("❌ Erreur:", error);
+  } finally {
+    await prisma.$disconnect();
   }
 }
+
+simulateAPICall();

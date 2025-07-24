@@ -319,7 +319,6 @@ async function createNightParkingBookingFromMetadata(
 
     // TODO: Envoyer l'email de confirmation pour parking nuit si nécessaire
     // Cette logique peut être ajoutée plus tard si besoin
-    
   } catch (error) {
     console.error("Error creating night parking booking from metadata:", error);
     throw error;
