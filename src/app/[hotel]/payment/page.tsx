@@ -58,7 +58,46 @@ export default async function PaymentPage({ params, searchParams }: Props) {
     );
   }
 
-  // Flux classique pour réservations nuit
+  // Flux payment-first pour réservations nuit (nouvelle logique unifiée)
+  if (bookingId && bookingId.startsWith("pi_")) {
+    // Si bookingId commence par "pi_", c'est un paymentIntentId
+    const establishment = await prisma.establishment.findUnique({
+      where: { slug: hotel },
+    });
+
+    if (!establishment) {
+      notFound();
+    }
+
+    // Pour les réservations nuit avec payment-first, on utilisera le même composant
+    // mais adapté pour récupérer les données depuis sessionStorage/PaymentIntent metadata
+    return (
+      <div className="min-h-screen bg-gray-50">
+        <div className="container mx-auto px-4 py-8 max-w-4xl">
+          {/* Header pour parking nuit */}
+          <div className="text-center mb-8">
+            <h1 className="text-2xl font-bold text-gray-900 mb-2">
+              Finaliser votre réservation / Complete Your Booking
+            </h1>
+            <p className="text-gray-600">
+              Paiement sécurisé par Stripe • Cartes • TWINT • Apple Pay
+              <br />
+              <em>Secure payment by Stripe • Cards • TWINT • Apple Pay</em>
+            </p>
+          </div>
+
+          <div className="max-w-md mx-auto">
+            <DayParkingPaymentForm
+              paymentIntentId={bookingId}
+              hotelSlug={hotel}
+            />
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // Flux classique pour réservations nuit (ancien système)
   if (!bookingId) {
     redirect(`/${hotel}`);
   }
