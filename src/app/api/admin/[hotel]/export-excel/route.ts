@@ -40,7 +40,9 @@ export async function GET(
         paymentStatus: "succeeded",
         // Exclure les réservations de parking jour (elles ont leur propre export)
         NOT: {
-          bookingType: "day",
+          bookingType: {
+            in: ["day", "day_parking"],
+          },
         },
       },
       include: {

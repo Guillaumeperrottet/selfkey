@@ -64,7 +64,9 @@ export default async function AdminPage({ params }: Props) {
       paymentStatus: "succeeded",
       // Exclure les réservations de parking jour (elles ont leur propre table)
       NOT: {
-        bookingType: "day",
+        bookingType: {
+          in: ["day", "day_parking"],
+        },
       },
     },
     include: {
