@@ -185,12 +185,12 @@ export async function POST(request: NextRequest, { params }: Props) {
       },
     });
 
-    // Créer le Payment Intent Stripe avec commission uniquement
+    // Créer le Payment Intent Stripe avec commission spécifique parking jour
     const paymentIntent = await createPaymentIntentWithCommission(
       amount,
       "chf",
       establishment.stripeAccountId,
-      establishment.commissionRate,
+      establishment.dayParkingCommissionRate,
       0 // Pas de frais fixes pour parking jour
     );
 

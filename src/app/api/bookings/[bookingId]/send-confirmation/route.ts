@@ -28,6 +28,11 @@ interface BookingWithDetails {
   clientPhone: string;
   checkInDate: Date;
   checkOutDate: Date;
+  bookingType: string; // "night" ou "day"
+  dayParkingDuration?: string | null;
+  dayParkingStartTime?: Date | null;
+  dayParkingEndTime?: Date | null;
+  clientVehicleNumber?: string | null;
   stripePaymentIntentId: string | null;
   confirmationSent: boolean | null;
   confirmationSentAt: Date | null;
@@ -84,15 +89,30 @@ export async function POST(request: Request, { params }: Props) {
       );
     }
 
-    // Récupérer la réservation avec les détails
-    const booking = (await prisma.booking.findUnique({
+    // Récupérer la réservation complète
+    const booking: BookingWithDetails | null = await prisma.booking.findUnique({
       where: { id: bookingId },
       include: {
         room: true,
-        establishment: true,
+        establishment: {
+          select: {
+            id: true,
+            name: true,
+            accessCodeType: true,
+            confirmationEmailEnabled: true,
+            confirmationWhatsappEnabled: true,
+            confirmationEmailTemplate: true,
+            confirmationWhatsappTemplate: true,
+            confirmationEmailFrom: true,
+            confirmationWhatsappFrom: true,
+            generalAccessCode: true,
+            accessInstructions: true,
+            hotelContactEmail: true,
+            hotelContactPhone: true,
+          },
+        },
       },
-    })) as BookingWithDetails | null;
-
+    });
     if (!booking) {
       return NextResponse.json(
         { error: "Réservation non trouvée" },
@@ -170,18 +190,37 @@ export async function POST(request: Request, { params }: Props) {
           "Voir instructions";
     }
 
-    // Préparer les données pour le template
+    // Préparer les données pour le template selon le type de réservation
+    const isBookingDayParking = booking.bookingType === "day";
+
     const templateData: TemplateData = {
       clientFirstName: booking.clientFirstName,
       clientLastName: booking.clientLastName,
       establishmentName: booking.establishment.name,
-      roomName: booking.room.name,
-      checkInDate: booking.checkInDate.toLocaleDateString("fr-FR"),
-      checkOutDate: booking.checkOutDate.toLocaleDateString("fr-FR"),
+      roomName: isBookingDayParking
+        ? `Place de parking (${booking.dayParkingDuration})`
+        : booking.room.name,
+      checkInDate: isBookingDayParking
+        ? booking.dayParkingStartTime?.toLocaleDateString("fr-FR", {
+            weekday: "long",
+            year: "numeric",
+            month: "long",
+            day: "numeric",
+            hour: "2-digit",
+            minute: "2-digit",
+          }) || "Non défini"
+        : booking.checkInDate.toLocaleDateString("fr-FR"),
+      checkOutDate: isBookingDayParking
+        ? booking.dayParkingEndTime?.toLocaleDateString("fr-FR", {
+            hour: "2-digit",
+            minute: "2-digit",
+          }) || "Non défini"
+        : booking.checkOutDate.toLocaleDateString("fr-FR"),
       accessCode,
-      accessInstructions:
-        booking.establishment.accessInstructions ||
-        "Contactez-nous pour plus d'informations",
+      accessInstructions: isBookingDayParking
+        ? `Votre véhicule : ${booking.clientVehicleNumber}\n${booking.establishment.accessInstructions || "Garez-vous dans les places disponibles"}`
+        : booking.establishment.accessInstructions ||
+          "Contactez-nous pour plus d'informations",
       hotelContactEmail:
         booking.establishment.hotelContactEmail || "Non renseigné",
       hotelContactPhone:

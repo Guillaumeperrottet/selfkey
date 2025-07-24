@@ -16,12 +16,30 @@ import {
   Menu,
   FileSpreadsheet,
   Car,
+  ChevronDown,
+  ChevronRight,
+  Activity,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
+
+import { LucideIcon } from "lucide-react";
+
+interface NavItem {
+  id: string;
+  name: string;
+  icon: LucideIcon;
+  subItems?: NavSubItem[];
+}
+
+interface NavSubItem {
+  id: string;
+  name: string;
+  icon: LucideIcon;
+}
 
 interface AdminSidebarProps {
   hotel: string;
@@ -30,9 +48,10 @@ interface AdminSidebarProps {
   stripeAccountId?: string;
   activeTab: string;
   onTabChange: (tab: string) => void;
+  enableDayParking?: boolean; // Nouveau prop pour l'état du parking jour
 }
 
-const navigation = [
+const baseNavigation = [
   {
     id: "overview",
     name: "Vue d'ensemble",
@@ -52,16 +71,6 @@ const navigation = [
     id: "pricing",
     name: "Options de prix",
     icon: DollarSign,
-  },
-  {
-    id: "day-parking",
-    name: "Parking Jour",
-    icon: Car,
-  },
-  {
-    id: "day-parking-control",
-    name: "Contrôle Parking",
-    icon: Car,
   },
   {
     id: "confirmations",
@@ -85,6 +94,30 @@ const navigation = [
   },
 ];
 
+// Navigation parking jour (visible seulement si activé)
+const dayParkingNavigation = {
+  id: "day-parking",
+  name: "Parking Jour",
+  icon: Car,
+  subItems: [
+    {
+      id: "day-parking-manager",
+      name: "Gestion des tarifs",
+      icon: DollarSign,
+    },
+    {
+      id: "day-parking-control",
+      name: "Contrôle parking",
+      icon: Activity,
+    },
+    {
+      id: "day-parking-stats",
+      name: "Statistiques",
+      icon: BarChart3,
+    },
+  ],
+};
+
 export function AdminSidebar({
   hotel,
   establishmentName,
@@ -92,8 +125,25 @@ export function AdminSidebar({
   stripeAccountId,
   activeTab,
   onTabChange,
+  enableDayParking = false, // Par défaut désactivé
 }: AdminSidebarProps) {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [dayParkingExpanded, setDayParkingExpanded] = useState(false);
+
+  // Construire la navigation dynamiquement selon l'état du parking jour
+  const getNavigation = (): NavItem[] => {
+    const navigation: NavItem[] = [...baseNavigation];
+
+    // Insérer le parking jour après "Options de prix" si activé
+    if (enableDayParking) {
+      const pricingIndex = navigation.findIndex(
+        (item) => item.id === "pricing"
+      );
+      navigation.splice(pricingIndex + 1, 0, dayParkingNavigation);
+    }
+
+    return navigation;
+  };
 
   const SidebarContent = () => (
     <div className="flex h-full flex-col" data-tutorial="admin-sidebar">
@@ -113,20 +163,61 @@ export function AdminSidebar({
 
       {/* Navigation */}
       <nav className="flex-1 space-y-1 p-2 pt-4">
-        {navigation.map((item) => (
-          <Button
-            key={item.id}
-            variant="ghost"
-            className={cn(
-              "w-full justify-start",
-              activeTab === item.id && "bg-muted font-medium"
+        {getNavigation().map((item: NavItem) => (
+          <div key={item.id}>
+            {/* Élément principal */}
+            <Button
+              variant="ghost"
+              className={cn(
+                "w-full justify-start",
+                activeTab === item.id && "bg-muted font-medium"
+              )}
+              onClick={() => {
+                if (item.subItems) {
+                  // Si c'est le parking jour, toggle l'expansion
+                  if (item.id === "day-parking") {
+                    setDayParkingExpanded(!dayParkingExpanded);
+                  }
+                } else {
+                  onTabChange(item.id);
+                }
+              }}
+              data-tutorial={`nav-${item.id}`}
+            >
+              <item.icon className="mr-2 h-4 w-4" />
+              {item.name}
+              {item.subItems && (
+                <span className="ml-auto">
+                  {dayParkingExpanded ? (
+                    <ChevronDown className="h-4 w-4" />
+                  ) : (
+                    <ChevronRight className="h-4 w-4" />
+                  )}
+                </span>
+              )}
+            </Button>
+
+            {/* Sous-éléments pour parking jour */}
+            {item.subItems && dayParkingExpanded && (
+              <div className="ml-6 mt-1 space-y-1">
+                {item.subItems.map((subItem: NavSubItem) => (
+                  <Button
+                    key={subItem.id}
+                    variant="ghost"
+                    size="sm"
+                    className={cn(
+                      "w-full justify-start",
+                      activeTab === subItem.id && "bg-muted font-medium"
+                    )}
+                    onClick={() => onTabChange(subItem.id)}
+                  >
+                    <subItem.icon className="mr-2 h-3 w-3" />
+                    {subItem.name}
+                  </Button>
+                ))}
+              </div>
             )}
-            onClick={() => onTabChange(item.id)}
-            data-tutorial={`nav-${item.id}`}
-          >
-            <item.icon className="mr-2 h-4 w-4" />
-            {item.name}
-          </Button>
+          </div>
         ))}
       </nav>
 

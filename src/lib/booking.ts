@@ -103,12 +103,22 @@ export async function createPaymentIntentForBooking(bookingId: string) {
     throw new Error("Compte Stripe non configuré pour cet établissement");
   }
 
+  // Déterminer le taux de commission selon le type de réservation
+  const commissionRate =
+    booking.bookingType === "day"
+      ? booking.establishment.dayParkingCommissionRate
+      : booking.establishment.commissionRate;
+
+  // Pour le parking jour, pas de frais fixes
+  const fixedFee =
+    booking.bookingType === "day" ? 0 : booking.establishment.fixedFee;
+
   const paymentIntent = await createPaymentIntentWithCommission(
     booking.amount,
     booking.currency,
     booking.establishment.stripeAccountId,
-    booking.establishment.commissionRate,
-    booking.establishment.fixedFee
+    commissionRate,
+    fixedFee
   );
 
   return paymentIntent;

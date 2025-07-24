@@ -5,7 +5,6 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Switch } from "@/components/ui/switch";
 import { Badge } from "@/components/ui/badge";
 import { Loader2, Save, Car, Clock, Info } from "lucide-react";
 import { toastUtils } from "@/lib/toast-utils";
@@ -15,7 +14,6 @@ interface DayParkingManagerProps {
 }
 
 interface DayParkingSettings {
-  enableDayParking: boolean;
   dayParkingTarif1h: number;
   dayParkingTarif2h: number;
   dayParkingTarif3h: number;
@@ -28,7 +26,6 @@ export function DayParkingManager({ hotelSlug }: DayParkingManagerProps) {
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
   const [settings, setSettings] = useState<DayParkingSettings>({
-    enableDayParking: false,
     dayParkingTarif1h: 5.0,
     dayParkingTarif2h: 8.0,
     dayParkingTarif3h: 12.0,
@@ -47,7 +44,6 @@ export function DayParkingManager({ hotelSlug }: DayParkingManagerProps) {
         if (response.ok) {
           const data = await response.json();
           setSettings({
-            enableDayParking: data.enableDayParking || false,
             dayParkingTarif1h: data.dayParkingTarif1h || 5.0,
             dayParkingTarif2h: data.dayParkingTarif2h || 8.0,
             dayParkingTarif3h: data.dayParkingTarif3h || 12.0,
@@ -106,7 +102,10 @@ export function DayParkingManager({ hotelSlug }: DayParkingManagerProps) {
           headers: {
             "Content-Type": "application/json",
           },
-          body: JSON.stringify(settings),
+          body: JSON.stringify({
+            enableDayParking: true, // Toujours true car le composant n'est accessible que si activé
+            ...settings,
+          }),
         }
       );
 
@@ -144,193 +143,165 @@ export function DayParkingManager({ hotelSlug }: DayParkingManagerProps) {
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <Car className="h-5 w-5" />
-            Configuration du Parking Jour
+            Gestion des Tarifs - Parking Jour
           </CardTitle>
+          <p className="text-muted-foreground">
+            Configurez les tarifs pour les différentes durées de parking jour.
+            Les tarifs doivent être croissants.
+          </p>
         </CardHeader>
         <CardContent className="space-y-6">
-          {/* Activation du parking jour */}
-          <div className="flex items-center justify-between">
-            <div className="space-y-1">
-              <Label
-                htmlFor="enableDayParking"
-                className="text-base font-medium"
-              >
-                Activer le parking jour
-              </Label>
-              <p className="text-sm text-muted-foreground">
-                Permettre aux clients de choisir entre parking nuit et parking
-                jour
-              </p>
+          {/* Configuration des tarifs */}
+          <div className="space-y-4">
+            <div className="flex items-center gap-2 mb-4">
+              <Clock className="h-4 w-4 text-blue-600" />
+              <h3 className="text-lg font-medium">Tarifs par durée</h3>
             </div>
-            <Switch
-              id="enableDayParking"
-              checked={settings.enableDayParking}
-              onCheckedChange={(checked) =>
-                setSettings((prev) => ({ ...prev, enableDayParking: checked }))
-              }
-            />
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {/* 1 heure */}
+              <div className="space-y-2">
+                <Label htmlFor="tarif1h">
+                  1 heure
+                  <Badge variant="outline" className="ml-2">
+                    Base
+                  </Badge>
+                </Label>
+                <div className="flex items-center">
+                  <Input
+                    id="tarif1h"
+                    type="number"
+                    step="0.50"
+                    min="0"
+                    value={settings.dayParkingTarif1h}
+                    onChange={(e) =>
+                      setSettings((prev) => ({
+                        ...prev,
+                        dayParkingTarif1h: parseFloat(e.target.value) || 0,
+                      }))
+                    }
+                    className="w-24"
+                  />
+                  <span className="ml-2 text-sm text-gray-500">CHF</span>
+                </div>
+              </div>
+
+              {/* 2 heures */}
+              <div className="space-y-2">
+                <Label htmlFor="tarif2h">2 heures</Label>
+                <div className="flex items-center">
+                  <Input
+                    id="tarif2h"
+                    type="number"
+                    step="0.50"
+                    min="0"
+                    value={settings.dayParkingTarif2h}
+                    onChange={(e) =>
+                      setSettings((prev) => ({
+                        ...prev,
+                        dayParkingTarif2h: parseFloat(e.target.value) || 0,
+                      }))
+                    }
+                    className="w-24"
+                  />
+                  <span className="ml-2 text-sm text-gray-500">CHF</span>
+                </div>
+              </div>
+
+              {/* 3 heures */}
+              <div className="space-y-2">
+                <Label htmlFor="tarif3h">3 heures</Label>
+                <div className="flex items-center">
+                  <Input
+                    id="tarif3h"
+                    type="number"
+                    step="0.50"
+                    min="0"
+                    value={settings.dayParkingTarif3h}
+                    onChange={(e) =>
+                      setSettings((prev) => ({
+                        ...prev,
+                        dayParkingTarif3h: parseFloat(e.target.value) || 0,
+                      }))
+                    }
+                    className="w-24"
+                  />
+                  <span className="ml-2 text-sm text-gray-500">CHF</span>
+                </div>
+              </div>
+
+              {/* 4 heures */}
+              <div className="space-y-2">
+                <Label htmlFor="tarif4h">4 heures</Label>
+                <div className="flex items-center">
+                  <Input
+                    id="tarif4h"
+                    type="number"
+                    step="0.50"
+                    min="0"
+                    value={settings.dayParkingTarif4h}
+                    onChange={(e) =>
+                      setSettings((prev) => ({
+                        ...prev,
+                        dayParkingTarif4h: parseFloat(e.target.value) || 0,
+                      }))
+                    }
+                    className="w-24"
+                  />
+                  <span className="ml-2 text-sm text-gray-500">CHF</span>
+                </div>
+              </div>
+
+              {/* Demi-journée */}
+              <div className="space-y-2">
+                <Label htmlFor="tarifHalfDay">Demi-journée (6h)</Label>
+                <div className="flex items-center">
+                  <Input
+                    id="tarifHalfDay"
+                    type="number"
+                    step="0.50"
+                    min="0"
+                    value={settings.dayParkingTarifHalfDay}
+                    onChange={(e) =>
+                      setSettings((prev) => ({
+                        ...prev,
+                        dayParkingTarifHalfDay: parseFloat(e.target.value) || 0,
+                      }))
+                    }
+                    className="w-24"
+                  />
+                  <span className="ml-2 text-sm text-gray-500">CHF</span>
+                </div>
+              </div>
+
+              {/* Journée complète */}
+              <div className="space-y-2">
+                <Label htmlFor="tarifFullDay">
+                  Journée complète (12h)
+                  <Badge variant="secondary" className="ml-2">
+                    Populaire
+                  </Badge>
+                </Label>
+                <div className="flex items-center">
+                  <Input
+                    id="tarifFullDay"
+                    type="number"
+                    step="0.50"
+                    min="0"
+                    value={settings.dayParkingTarifFullDay}
+                    onChange={(e) =>
+                      setSettings((prev) => ({
+                        ...prev,
+                        dayParkingTarifFullDay: parseFloat(e.target.value) || 0,
+                      }))
+                    }
+                    className="w-24"
+                  />
+                  <span className="ml-2 text-sm text-gray-500">CHF</span>
+                </div>
+              </div>
+            </div>
           </div>
-
-          {/* Configuration des tarifs (visible seulement si activé) */}
-          {settings.enableDayParking && (
-            <div className="space-y-4 pt-4 border-t">
-              <div className="flex items-center gap-2 mb-4">
-                <Clock className="h-4 w-4 text-blue-600" />
-                <h3 className="text-lg font-medium">Tarifs par durée</h3>
-              </div>
-
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                {/* 1 heure */}
-                <div className="space-y-2">
-                  <Label htmlFor="tarif1h">
-                    1 heure
-                    <Badge variant="outline" className="ml-2">
-                      Base
-                    </Badge>
-                  </Label>
-                  <div className="flex items-center">
-                    <Input
-                      id="tarif1h"
-                      type="number"
-                      step="0.50"
-                      min="0"
-                      value={settings.dayParkingTarif1h}
-                      onChange={(e) =>
-                        setSettings((prev) => ({
-                          ...prev,
-                          dayParkingTarif1h: parseFloat(e.target.value) || 0,
-                        }))
-                      }
-                      className="w-24"
-                    />
-                    <span className="ml-2 text-sm text-gray-500">CHF</span>
-                  </div>
-                </div>
-
-                {/* 2 heures */}
-                <div className="space-y-2">
-                  <Label htmlFor="tarif2h">2 heures</Label>
-                  <div className="flex items-center">
-                    <Input
-                      id="tarif2h"
-                      type="number"
-                      step="0.50"
-                      min="0"
-                      value={settings.dayParkingTarif2h}
-                      onChange={(e) =>
-                        setSettings((prev) => ({
-                          ...prev,
-                          dayParkingTarif2h: parseFloat(e.target.value) || 0,
-                        }))
-                      }
-                      className="w-24"
-                    />
-                    <span className="ml-2 text-sm text-gray-500">CHF</span>
-                  </div>
-                </div>
-
-                {/* 3 heures */}
-                <div className="space-y-2">
-                  <Label htmlFor="tarif3h">3 heures</Label>
-                  <div className="flex items-center">
-                    <Input
-                      id="tarif3h"
-                      type="number"
-                      step="0.50"
-                      min="0"
-                      value={settings.dayParkingTarif3h}
-                      onChange={(e) =>
-                        setSettings((prev) => ({
-                          ...prev,
-                          dayParkingTarif3h: parseFloat(e.target.value) || 0,
-                        }))
-                      }
-                      className="w-24"
-                    />
-                    <span className="ml-2 text-sm text-gray-500">CHF</span>
-                  </div>
-                </div>
-
-                {/* 4 heures */}
-                <div className="space-y-2">
-                  <Label htmlFor="tarif4h">4 heures</Label>
-                  <div className="flex items-center">
-                    <Input
-                      id="tarif4h"
-                      type="number"
-                      step="0.50"
-                      min="0"
-                      value={settings.dayParkingTarif4h}
-                      onChange={(e) =>
-                        setSettings((prev) => ({
-                          ...prev,
-                          dayParkingTarif4h: parseFloat(e.target.value) || 0,
-                        }))
-                      }
-                      className="w-24"
-                    />
-                    <span className="ml-2 text-sm text-gray-500">CHF</span>
-                  </div>
-                </div>
-
-                {/* Demi-journée */}
-                <div className="space-y-2">
-                  <Label htmlFor="tarifHalfDay">
-                    Demi-journée (6h)
-                    <Badge variant="secondary" className="ml-2">
-                      Populaire
-                    </Badge>
-                  </Label>
-                  <div className="flex items-center">
-                    <Input
-                      id="tarifHalfDay"
-                      type="number"
-                      step="0.50"
-                      min="0"
-                      value={settings.dayParkingTarifHalfDay}
-                      onChange={(e) =>
-                        setSettings((prev) => ({
-                          ...prev,
-                          dayParkingTarifHalfDay:
-                            parseFloat(e.target.value) || 0,
-                        }))
-                      }
-                      className="w-24"
-                    />
-                    <span className="ml-2 text-sm text-gray-500">CHF</span>
-                  </div>
-                </div>
-
-                {/* Journée complète */}
-                <div className="space-y-2">
-                  <Label htmlFor="tarifFullDay">
-                    Journée complète (12h)
-                    <Badge variant="secondary" className="ml-2">
-                      Populaire
-                    </Badge>
-                  </Label>
-                  <div className="flex items-center">
-                    <Input
-                      id="tarifFullDay"
-                      type="number"
-                      step="0.50"
-                      min="0"
-                      value={settings.dayParkingTarifFullDay}
-                      onChange={(e) =>
-                        setSettings((prev) => ({
-                          ...prev,
-                          dayParkingTarifFullDay:
-                            parseFloat(e.target.value) || 0,
-                        }))
-                      }
-                      className="w-24"
-                    />
-                    <span className="ml-2 text-sm text-gray-500">CHF</span>
-                  </div>
-                </div>
-              </div>
-            </div>
-          )}
 
           {/* Bouton de sauvegarde */}
           <div className="pt-4 border-t">

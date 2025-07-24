@@ -93,6 +93,7 @@ export function AdminDashboard({
   finalIsStripeConfigured,
 }: AdminDashboardProps) {
   const [activeTab, setActiveTab] = useState("overview");
+  const [enableDayParking, setEnableDayParking] = useState(false);
   const [chartColors, setChartColors] = useState<ChartColors>({
     chart1: "#3b82f6",
     chart2: "#10b981",
@@ -211,6 +212,28 @@ export function AdminDashboard({
         console.error("Erreur lors du chargement des couleurs:", error);
       }
     }
+  }, [hotel]);
+
+  // Charger l'état du parking jour
+  useEffect(() => {
+    const loadDayParkingStatus = async () => {
+      try {
+        const response = await fetch(
+          `/api/admin/${hotel}/day-parking-settings`
+        );
+        if (response.ok) {
+          const data = await response.json();
+          setEnableDayParking(data.enableDayParking || false);
+        }
+      } catch (error) {
+        console.error(
+          "Erreur lors du chargement du statut parking jour:",
+          error
+        );
+      }
+    };
+
+    loadDayParkingStatus();
   }, [hotel]);
 
   const handleColorsChange = (newColors: ChartColors) => {
@@ -443,8 +466,36 @@ export function AdminDashboard({
       case "day-parking":
         return <DayParkingManager hotelSlug={hotel} />;
 
+      case "day-parking-manager":
+        return <DayParkingManager hotelSlug={hotel} />;
+
       case "day-parking-control":
         return <DayParkingControlTable hotelSlug={hotel} />;
+
+      case "day-parking-stats":
+        return (
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <BarChart3 className="h-5 w-5" />
+                Statistiques Parking Jour
+              </CardTitle>
+              <CardDescription>
+                Consultez les statistiques et métriques de votre parking jour
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="text-center py-8 text-muted-foreground">
+                <BarChart3 className="h-12 w-12 mx-auto mb-4 opacity-50" />
+                <p>Les statistiques détaillées arrivent bientôt...</p>
+                <p className="text-sm mt-2">
+                  Cette section affichera les revenus, taux d&apos;occupation et
+                  tendances de votre parking jour.
+                </p>
+              </div>
+            </CardContent>
+          </Card>
+        );
 
       case "confirmations":
         return <ConfirmationManager hotelSlug={hotel} />;
@@ -525,6 +576,7 @@ export function AdminDashboard({
         stripeAccountId={establishment.stripeAccountId || undefined}
         activeTab={activeTab}
         onTabChange={setActiveTab}
+        enableDayParking={enableDayParking}
       />
 
       {/* Main content */}
