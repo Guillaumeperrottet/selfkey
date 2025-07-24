@@ -188,7 +188,7 @@ export function ClassicBookingPaymentForm({
         setIsInitializing(true);
 
         // Récupérer la clé publique Stripe depuis l'API
-        const stripeResponse = await fetch("/api/stripe-config");
+        const stripeResponse = await fetch("/api/stripe/public-key");
         if (stripeResponse.ok) {
           const { publishableKey } = await stripeResponse.json();
           console.log(
