@@ -291,7 +291,7 @@ async function DayParkingSuccessPage({
   const dayParkingBooking = await prisma.booking.findFirst({
     where: {
       stripePaymentIntentId: paymentIntent,
-      bookingType: "day",
+      bookingType: "day_parking",
     },
     include: {
       establishment: {
