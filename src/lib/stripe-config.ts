@@ -26,8 +26,10 @@ export const stripeConfig = {
 
   // Webhook secrets (si vous en avez)
   webhookSecret: useTestKeys
-    ? (process.env.STRIPE_TEST_WEBHOOK_SECRET || process.env.STRIPE_WEBHOOK_SECRET)
-    : (process.env.STRIPE_LIVE_WEBHOOK_SECRET || process.env.STRIPE_WEBHOOK_SECRET),
+    ? process.env.STRIPE_TEST_WEBHOOK_SECRET ||
+      process.env.STRIPE_WEBHOOK_SECRET
+    : process.env.STRIPE_LIVE_WEBHOOK_SECRET ||
+      process.env.STRIPE_WEBHOOK_SECRET,
 
   // Informations utiles
   isTestMode: useTestKeys,

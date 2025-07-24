@@ -287,26 +287,42 @@ async function DayParkingSuccessPage({
   hotel: string;
   paymentIntent: string;
 }) {
-  // Récupérer la réservation parking jour via le PaymentIntent
-  const dayParkingBooking = await prisma.booking.findFirst({
-    where: {
-      stripePaymentIntentId: paymentIntent,
-      bookingType: "day_parking",
-    },
-    include: {
-      establishment: {
-        select: {
-          name: true,
-          slug: true,
+  // Retry logic pour attendre que le webhook crée la réservation
+  let dayParkingBooking = null;
+  let attempts = 0;
+  const maxAttempts = 10; // 10 tentatives maximum
+  
+  while (!dayParkingBooking && attempts < maxAttempts) {
+    attempts++;
+    
+    // Récupérer la réservation parking jour via le PaymentIntent
+    dayParkingBooking = await prisma.booking.findFirst({
+      where: {
+        stripePaymentIntentId: paymentIntent,
+        bookingType: "day_parking",
+      },
+      include: {
+        establishment: {
+          select: {
+            name: true,
+            slug: true,
+          },
         },
       },
-    },
-  });
+    });
+    
+    // Si pas trouvée et qu'on n'a pas atteint le maximum, attendre 1 seconde
+    if (!dayParkingBooking && attempts < maxAttempts) {
+      console.log(`🔄 Tentative ${attempts}/${maxAttempts} - Attente de la création de la réservation par webhook...`);
+      await new Promise(resolve => setTimeout(resolve, 1000));
+    }
+  }
 
   if (!dayParkingBooking) {
     console.error("❌ Réservation parking jour non trouvée:", {
       paymentIntent,
       hotel,
+      attempts,
     });
 
     return (
