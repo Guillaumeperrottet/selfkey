@@ -343,10 +343,27 @@ export function BookingSummary({ bookingId }: BookingSummaryProps) {
         // Rediriger vers la page de paiement avec le paymentIntentId comme identifiant temporaire
         const paymentUrl = `/${booking.hotelSlug}/payment?booking=${data.paymentIntentId}`;
         if (data.clientSecret) {
-          // Stocker temporairement le clientSecret pour éviter de le passer dans l'URL
+          // Stocker les données complètes pour le composant de paiement
+          const paymentData = {
+            clientSecret: data.clientSecret,
+            paymentIntentId: data.paymentIntentId,
+            // Données de la réservation pour affichage
+            bookingData: {
+              hotelSlug: booking.hotelSlug,
+              clientFirstName: booking.clientFirstName,
+              clientLastName: booking.clientLastName,
+              clientEmail: booking.clientEmail,
+              amount: booking.amount,
+              checkInDate: booking.checkInDate,
+              checkOutDate: booking.checkOutDate,
+              guests: booking.guests,
+              room: booking.room,
+            },
+          };
+
           sessionStorage.setItem(
             `payment_${data.paymentIntentId}`,
-            data.clientSecret
+            JSON.stringify(paymentData)
           );
         }
         router.push(paymentUrl);
