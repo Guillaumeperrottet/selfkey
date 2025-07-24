@@ -194,6 +194,7 @@ export async function POST(request: NextRequest, { params }: Props) {
           currency: "CHF",
           establishmentName: establishment.name,
           bookingId: dayParkingBooking.id,
+          hotelSlug: hotel, // Ajouter le hotelSlug manquant
         };
 
         await sendDayParkingConfirmation(dayParkingBookingData);
