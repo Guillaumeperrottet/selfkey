@@ -111,6 +111,15 @@ async function handlePaymentSucceeded(paymentIntent: Stripe.PaymentIntent) {
       return;
     }
 
+    // Vérifier si c'est une réservation classique (hôtel/chambre)
+    if (paymentIntent.metadata.booking_type === "classic_booking") {
+      console.log(
+        "🏨 Detected classic booking (hotel), creating reservation..."
+      );
+      await createClassicBookingFromMetadata(paymentIntent);
+      return;
+    }
+
     // Logique existante pour les réservations classiques
     await prisma.booking.updateMany({
       where: { stripePaymentIntentId: paymentIntent.id },
@@ -321,6 +330,88 @@ async function createNightParkingBookingFromMetadata(
     // Cette logique peut être ajoutée plus tard si besoin
   } catch (error) {
     console.error("Error creating night parking booking from metadata:", error);
+    throw error;
+  }
+}
+
+async function createClassicBookingFromMetadata(
+  paymentIntent: Stripe.PaymentIntent
+) {
+  try {
+    console.log("🏨 Creating classic booking (hotel) from metadata...");
+    const metadata = paymentIntent.metadata;
+    console.log("📋 Metadata details:", JSON.stringify(metadata, null, 2));
+
+    // Récupérer l'établissement
+    console.log("🏨 Looking for establishment:", metadata.establishment_id);
+    const establishment = await prisma.establishment.findUnique({
+      where: { id: metadata.establishment_id },
+    });
+
+    if (!establishment) {
+      console.error("❌ Establishment not found:", metadata.establishment_id);
+      throw new Error(`Establishment not found: ${metadata.establishment_id}`);
+    }
+
+    console.log("✅ Establishment found:", establishment.name);
+
+    // Vérifier que la chambre existe toujours
+    const room = await prisma.room.findFirst({
+      where: {
+        id: metadata.room_id,
+        hotelSlug: metadata.hotel_slug,
+        isActive: true,
+      },
+    });
+
+    if (!room) {
+      console.error("❌ Room not found or inactive:", metadata.room_id);
+      throw new Error(`Room not found or inactive: ${metadata.room_id}`);
+    }
+
+    console.log("✅ Room found:", room.name);
+
+    // Créer la réservation classique (hôtel)
+    const booking = await prisma.booking.create({
+      data: {
+        hotelSlug: metadata.hotel_slug,
+        roomId: metadata.room_id,
+        clientFirstName: metadata.client_first_name,
+        clientLastName: metadata.client_last_name,
+        clientEmail: metadata.client_email,
+        clientPhone: metadata.client_phone,
+        clientBirthDate: new Date(metadata.client_birth_date),
+        clientBirthPlace: metadata.client_birth_place || undefined,
+        clientAddress: metadata.client_address,
+        clientPostalCode: metadata.client_postal_code,
+        clientCity: metadata.client_city,
+        clientCountry: metadata.client_country,
+        clientIdNumber: metadata.client_id_number,
+        clientVehicleNumber: metadata.client_vehicle_number || undefined,
+        checkInDate: new Date(metadata.check_in_date),
+        checkOutDate: new Date(metadata.check_out_date),
+        guests: parseInt(metadata.guests),
+        adults: parseInt(metadata.adults),
+        children: parseInt(metadata.children),
+        amount: parseFloat(metadata.amount),
+        platformCommission: parseFloat(metadata.platform_commission),
+        ownerAmount: parseFloat(metadata.owner_amount),
+        selectedPricingOptions: JSON.parse(metadata.selected_pricing_options),
+        pricingOptionsTotal: parseFloat(metadata.pricing_options_total),
+        paymentStatus: "succeeded",
+        stripePaymentIntentId: paymentIntent.id,
+        bookingType: "night", // Type standard pour réservations d'hôtel
+      },
+    });
+
+    console.log(
+      `Classic booking created: ${booking.id} for PaymentIntent: ${paymentIntent.id}`
+    );
+
+    // TODO: Envoyer l'email de confirmation pour réservation classique si nécessaire
+    // Cette logique peut être ajoutée plus tard si besoin
+  } catch (error) {
+    console.error("Error creating classic booking from metadata:", error);
     throw error;
   }
 }

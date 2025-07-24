@@ -218,7 +218,7 @@ export async function POST(
     );
     const ownerAmount = calculatedPrice - platformCommission;
 
-    // Créer le Payment Intent Stripe AVANT la réservation
+    // Créer le Payment Intent Stripe AVANT la réservation (pour éviter les réservations fantômes)
     // Stocker toutes les données dans les metadata pour création après paiement
     const paymentIntent = await createPaymentIntentWithCommission(
       calculatedPrice,
@@ -227,8 +227,8 @@ export async function POST(
       establishment.commissionRate,
       establishment.fixedFee,
       {
-        // Stocker les données de réservation pour création après paiement
-        booking_type: "night_parking",
+        // Distinguer du parking jour avec "classic_booking"
+        booking_type: "classic_booking",
         establishment_id: establishment.id,
         hotel_slug: hotel,
         room_id: roomId,

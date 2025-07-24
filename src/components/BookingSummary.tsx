@@ -340,25 +340,33 @@ export function BookingSummary({ bookingId }: BookingSummaryProps) {
         // Nettoyer le sessionStorage
         sessionStorage.removeItem(`booking_${bookingId}`);
 
-        // Rediriger vers la page de paiement avec le paymentIntentId comme identifiant temporaire
+        // Rediriger vers la page de paiement avec le paymentIntentId
         const paymentUrl = `/${booking.hotelSlug}/payment?booking=${data.paymentIntentId}`;
         if (data.clientSecret) {
-          // Stocker les données complètes pour le composant de paiement
+          // Stocker les données dans un format spécifique pour les réservations classiques
           const paymentData = {
             clientSecret: data.clientSecret,
+            bookingType: "classic_booking",
+            // Données complètes pour affichage détaillé
+            clientFirstName: booking.clientFirstName,
+            clientLastName: booking.clientLastName,
+            clientEmail: booking.clientEmail,
+            clientPhone: booking.clientPhone,
+            clientVehicleNumber: booking.clientVehicleNumber || "Non renseigné",
+            selectedDuration: `${duration} nuit${duration > 1 ? "s" : ""}`,
+            amount: booking.amount,
+            currency: booking.currency,
+            checkInDate: booking.checkInDate,
+            checkOutDate: booking.checkOutDate,
+            adults: booking.adults,
+            children: booking.children,
+            room: booking.room,
+            establishment: booking.establishment,
+            selectedPricingOptions: booking.selectedPricingOptions,
+            pricingOptionsTotal: booking.pricingOptionsTotal,
+            // Métadonnées supplémentaires
             paymentIntentId: data.paymentIntentId,
-            // Données de la réservation pour affichage
-            bookingData: {
-              hotelSlug: booking.hotelSlug,
-              clientFirstName: booking.clientFirstName,
-              clientLastName: booking.clientLastName,
-              clientEmail: booking.clientEmail,
-              amount: booking.amount,
-              checkInDate: booking.checkInDate,
-              checkOutDate: booking.checkOutDate,
-              guests: booking.guests,
-              room: booking.room,
-            },
+            hotelSlug: booking.hotelSlug,
           };
 
           sessionStorage.setItem(
