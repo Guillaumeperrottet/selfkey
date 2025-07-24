@@ -8,6 +8,7 @@ import { StripeOnboarding } from "@/components/StripeOnboarding";
 import { RoomManagement } from "@/components/RoomManagement";
 import { AccessCodeManager } from "@/components/AccessCodeManager";
 import { SettingsManager } from "@/components/SettingsManager";
+import { FormCustomizer } from "@/components/FormCustomizer";
 import { PricingOptionsManager } from "@/components/PricingOptionsManager";
 import { ConfirmationManager } from "@/components/ConfirmationManager";
 import { DayParkingManager } from "@/components/DayParkingManager";
@@ -249,9 +250,9 @@ export function AdminDashboard({
         return (
           <div className="space-y-6">
             {finalIsStripeConfigured && dbRooms.length > 0 ? (
-              <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+              <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-4">
                 {/* Statistiques */}
-                <Card>
+                <Card className="stats-card">
                   <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                     <CardTitle className="text-sm font-medium">
                       Places disponibles
@@ -268,7 +269,7 @@ export function AdminDashboard({
                   </CardContent>
                 </Card>
 
-                <Card>
+                <Card className="stats-card">
                   <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                     <CardTitle className="text-sm font-medium">
                       Réservations aujourd&apos;hui
@@ -311,7 +312,7 @@ export function AdminDashboard({
                   </CardContent>
                 </Card>
 
-                <Card>
+                <Card className="stats-card">
                   <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                     <CardTitle className="text-sm font-medium">
                       Revenus nets du jour
@@ -357,7 +358,7 @@ export function AdminDashboard({
                   </CardContent>
                 </Card>
 
-                <Card>
+                <Card className="stats-card">
                   <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                     <CardTitle className="text-sm font-medium">
                       Taux d&apos;occupation
@@ -412,8 +413,8 @@ export function AdminDashboard({
 
             {/* Graphiques analytiques */}
             {finalIsStripeConfigured && dbRooms.length > 0 && (
-              <div className="mt-8">
-                <div className="mb-6 flex items-center justify-between">
+              <div className="mt-8 dashboard-container">
+                <div className="mb-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
                   <div>
                     <h2 className="text-xl font-semibold mb-2">
                       Analyses et statistiques
@@ -423,10 +424,12 @@ export function AdminDashboard({
                     </p>
                   </div>
                   {allBookings.length > 0 && (
-                    <ChartColorSelector
-                      onColorsChange={handleColorsChange}
-                      currentColors={chartColors}
-                    />
+                    <div className="flex-shrink-0">
+                      <ChartColorSelector
+                        onColorsChange={handleColorsChange}
+                        currentColors={chartColors}
+                      />
+                    </div>
                   )}
                 </div>
                 <DashboardCharts
@@ -566,6 +569,13 @@ export function AdminDashboard({
           </Card>
         );
 
+      case "form-customizer":
+        return (
+          <div className="max-w-4xl mx-auto">
+            <FormCustomizer hotelSlug={hotel} />
+          </div>
+        );
+
       default:
         return null;
     }
@@ -585,7 +595,7 @@ export function AdminDashboard({
 
       {/* Main content */}
       <div className="lg:pl-72">
-        <div className="px-4 py-8 sm:px-6 lg:px-8">
+        <div className="px-4 py-8 sm:px-6 lg:px-8 admin-dashboard-content">
           {/* Header */}
           <div className="mb-8">
             <div className="flex items-center justify-between">

@@ -121,6 +121,48 @@
   }
 }
 
+/* Responsive design pour les graphiques et tableaux de bord */
+.dashboard-container {
+  @apply w-full max-w-full overflow-hidden;
+}
+
+.chart-container {
+  @apply w-full max-w-full overflow-hidden;
+}
+
+/* Amélioration de l'affichage des graphiques sur petits écrans */
+@media (max-width: 640px) {
+  .recharts-wrapper {
+    @apply w-full;
+  }
+
+  /* Réduction de la taille des textes des axes sur mobile */
+  .recharts-cartesian-axis-tick-value {
+    font-size: 10px !important;
+  }
+
+  /* Réduction de la hauteur minimale sur mobile */
+  .chart-container {
+    min-height: 250px !important;
+  }
+}
+
+@media (max-width: 768px) {
+  .recharts-cartesian-axis-tick-value {
+    font-size: 11px !important;
+  }
+}
+
+/* Amélioration du responsive pour les cartes */
+.stats-card {
+  @apply min-w-0 w-full;
+}
+
+/* Éviter le débordement horizontal */
+.admin-dashboard-content {
+  @apply w-full max-w-full overflow-x-hidden;
+}
+
 /* Styles pour le tutorial */
 .tutorial-highlight {
   @apply relative z-30 ring-2 ring-primary ring-offset-2 ring-offset-background;

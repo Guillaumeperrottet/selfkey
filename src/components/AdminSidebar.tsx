@@ -19,6 +19,7 @@ import {
   ChevronDown,
   ChevronRight,
   Activity,
+  Edit3,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
@@ -91,6 +92,11 @@ const baseNavigation = [
     id: "settings",
     name: "Paramètres",
     icon: Settings,
+  },
+  {
+    id: "form-customizer",
+    name: "Formulaire de réservation",
+    icon: Edit3,
   },
 ];
 

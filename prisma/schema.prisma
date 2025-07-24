@@ -112,6 +112,8 @@ model Establishment {
   // Informations de contact de l'hôtel
   hotelContactEmail            String? // Email de contact de l'hôtel
   hotelContactPhone            String? // Téléphone de contact de l'hôtel
+  // Configuration du formulaire de réservation personnalisable
+  formConfig                   Json?               @default("{}") // Configuration des champs du formulaire (JSON)
   // Configuration du parking jour
   enableDayParking             Boolean             @default(false) // Activer le parking jour
   dayParkingTarif1h            Float?              @default(5.00) // Tarif 1h

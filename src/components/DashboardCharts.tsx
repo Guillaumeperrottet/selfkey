@@ -254,179 +254,233 @@ export function DashboardCharts({
   }, [bookings, chartColors]);
 
   return (
-    <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-2">
+    <div className="space-y-6">
       {bookings.length === 0 ? (
         // Message explicatif quand il n'y a pas de réservations
-        <div className="col-span-full">
-          <Card>
-            <CardContent className="text-center py-8">
-              <div className="space-y-4">
-                <div className="w-16 h-16 bg-muted rounded-full flex items-center justify-center mx-auto">
-                  <BarChart3 className="h-8 w-8 text-muted-foreground" />
-                </div>
-                <div className="space-y-2">
-                  <h3 className="font-semibold">Analyses et statistiques</h3>
-                  <p className="text-sm text-muted-foreground max-w-md mx-auto">
-                    Les graphiques de performance s&apos;afficheront
-                    automatiquement dès que vous recevrez vos premières
-                    réservations. Vous pourrez alors analyser vos revenus, le
-                    taux d&apos;occupation et les tendances.
-                  </p>
-                </div>
+        <Card>
+          <CardContent className="text-center py-8">
+            <div className="space-y-4">
+              <div className="w-16 h-16 bg-muted rounded-full flex items-center justify-center mx-auto">
+                <BarChart3 className="h-8 w-8 text-muted-foreground" />
               </div>
-            </CardContent>
-          </Card>
-        </div>
+              <div className="space-y-2">
+                <h3 className="font-semibold">Analyses et statistiques</h3>
+                <p className="text-sm text-muted-foreground max-w-md mx-auto">
+                  Les graphiques de performance s&apos;afficheront
+                  automatiquement dès que vous recevrez vos premières
+                  réservations. Vous pourrez alors analyser vos revenus, le taux
+                  d&apos;occupation et les tendances.
+                </p>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
       ) : (
-        <>
-          {/* Graphique des réservations par mois */}
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Calendar className="h-5 w-5" />
-                Réservations par mois
-              </CardTitle>
-              <CardDescription>
-                Évolution des réservations sur les 6 derniers mois
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <ChartContainer
-                config={monthlyChartConfig}
-                className="min-h-[300px]"
-              >
-                <BarChart accessibilityLayer data={monthlyBookingsData}>
-                  <CartesianGrid vertical={false} />
-                  <XAxis
-                    dataKey="month"
-                    tickLine={false}
-                    tickMargin={10}
-                    axisLine={false}
-                  />
-                  <YAxis tickLine={false} tickMargin={10} axisLine={false} />
-                  <ChartTooltip content={<ChartTooltipContent />} />
-                  <Bar
-                    dataKey="reservations"
-                    fill="var(--color-reservations)"
-                    radius={4}
-                  />
-                </BarChart>
-              </ChartContainer>
-            </CardContent>
-          </Card>
-
-          {/* Graphique des revenus par jour */}
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <TrendingUp className="h-5 w-5" />
-                Évolution des revenus nets
-              </CardTitle>
-              <CardDescription>
-                Revenus nets quotidiens sur les 30 derniers jours
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <ChartContainer
-                config={revenueChartConfig}
-                className="min-h-[300px]"
-              >
-                <AreaChart accessibilityLayer data={revenueData}>
-                  <CartesianGrid vertical={false} />
-                  <XAxis
-                    dataKey="date"
-                    tickLine={false}
-                    tickMargin={10}
-                    axisLine={false}
-                  />
-                  <YAxis tickLine={false} axisLine={false} />
-                  <ChartTooltip content={<ChartTooltipContent />} />
-                  <Area
-                    dataKey="revenus"
-                    type="monotone"
-                    fill="var(--color-revenus)"
-                    fillOpacity={0.4}
-                    stroke="var(--color-revenus)"
-                    strokeWidth={2}
-                  />
-                </AreaChart>
-              </ChartContainer>
-            </CardContent>
-          </Card>
-
-          {/* Graphique des chambres par performance */}
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Euro className="h-5 w-5" />
-                Performance des chambres
-              </CardTitle>
-              <CardDescription>
-                Nombre de réservations par chambre
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <ChartContainer
-                config={roomsChartConfig}
-                className="min-h-[300px]"
-              >
-                <BarChart accessibilityLayer data={roomsData}>
-                  <CartesianGrid vertical={false} />
-                  <XAxis
-                    dataKey="name"
-                    tickLine={false}
-                    tickMargin={10}
-                    axisLine={false}
-                  />
-                  <YAxis tickLine={false} axisLine={false} />
-                  <ChartTooltip content={<ChartTooltipContent />} />
-                  <Bar
-                    dataKey="reservations"
-                    fill="var(--color-reservations)"
-                    radius={4}
-                  />
-                </BarChart>
-              </ChartContainer>
-            </CardContent>
-          </Card>
-
-          {/* Graphique de répartition des clients */}
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Users className="h-5 w-5" />
-                Répartition des clients
-              </CardTitle>
-              <CardDescription>
-                Nombre de personnes par réservation
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <ChartContainer
-                config={guestChartConfig}
-                className="min-h-[300px]"
-              >
-                <PieChart>
-                  <ChartTooltip
-                    cursor={false}
-                    content={<ChartTooltipContent hideLabel />}
-                  />
-                  <Pie
-                    data={guestDistributionData}
-                    dataKey="value"
-                    nameKey="name"
-                    innerRadius={60}
-                    strokeWidth={5}
+        <div className="space-y-6">
+          {/* Graphiques principaux - Responsive layout */}
+          <div className="grid gap-6 grid-cols-1 xl:grid-cols-2">
+            {/* Graphique des réservations par mois */}
+            <Card className="w-full">
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Calendar className="h-5 w-5" />
+                  Réservations par mois
+                </CardTitle>
+                <CardDescription>
+                  Évolution des réservations sur les 6 derniers mois
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <ChartContainer
+                  config={monthlyChartConfig}
+                  className="min-h-[300px] w-full chart-container"
+                >
+                  <BarChart
+                    accessibilityLayer
+                    data={monthlyBookingsData}
+                    width={undefined}
+                    height={undefined}
+                    margin={{
+                      top: 5,
+                      right: 10,
+                      left: 10,
+                      bottom: 5,
+                    }}
                   >
-                    {guestDistributionData.map((entry, index) => (
-                      <Cell key={`cell-${index}`} fill={entry.fill} />
-                    ))}
-                  </Pie>
-                </PieChart>
-              </ChartContainer>
-            </CardContent>
-          </Card>
-        </>
+                    <CartesianGrid vertical={false} />
+                    <XAxis
+                      dataKey="month"
+                      tickLine={false}
+                      tickMargin={10}
+                      axisLine={false}
+                      fontSize={12}
+                    />
+                    <YAxis
+                      tickLine={false}
+                      tickMargin={10}
+                      axisLine={false}
+                      fontSize={12}
+                    />
+                    <ChartTooltip content={<ChartTooltipContent />} />
+                    <Bar
+                      dataKey="reservations"
+                      fill="var(--color-reservations)"
+                      radius={4}
+                    />
+                  </BarChart>
+                </ChartContainer>
+              </CardContent>
+            </Card>
+
+            {/* Graphique des revenus par jour */}
+            <Card className="w-full">
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <TrendingUp className="h-5 w-5" />
+                  Évolution des revenus nets
+                </CardTitle>
+                <CardDescription>
+                  Revenus nets quotidiens sur les 30 derniers jours
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <ChartContainer
+                  config={revenueChartConfig}
+                  className="min-h-[300px] w-full chart-container"
+                >
+                  <AreaChart
+                    accessibilityLayer
+                    data={revenueData}
+                    width={undefined}
+                    height={undefined}
+                    margin={{
+                      top: 5,
+                      right: 10,
+                      left: 10,
+                      bottom: 5,
+                    }}
+                  >
+                    <CartesianGrid vertical={false} />
+                    <XAxis
+                      dataKey="date"
+                      tickLine={false}
+                      tickMargin={10}
+                      axisLine={false}
+                      fontSize={12}
+                    />
+                    <YAxis tickLine={false} axisLine={false} fontSize={12} />
+                    <ChartTooltip content={<ChartTooltipContent />} />
+                    <Area
+                      dataKey="revenus"
+                      type="monotone"
+                      fill="var(--color-revenus)"
+                      fillOpacity={0.4}
+                      stroke="var(--color-revenus)"
+                      strokeWidth={2}
+                    />
+                  </AreaChart>
+                </ChartContainer>
+              </CardContent>
+            </Card>
+          </div>
+
+          {/* Graphiques secondaires - Responsive layout */}
+          <div className="grid gap-6 grid-cols-1 xl:grid-cols-2">
+            {/* Graphique des chambres par performance */}
+            <Card className="w-full">
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Euro className="h-5 w-5" />
+                  Performance des chambres
+                </CardTitle>
+                <CardDescription>
+                  Nombre de réservations par chambre
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <ChartContainer
+                  config={roomsChartConfig}
+                  className="min-h-[300px] w-full chart-container"
+                >
+                  <BarChart
+                    accessibilityLayer
+                    data={roomsData}
+                    width={undefined}
+                    height={undefined}
+                    margin={{
+                      top: 5,
+                      right: 10,
+                      left: 10,
+                      bottom: 5,
+                    }}
+                  >
+                    <CartesianGrid vertical={false} />
+                    <XAxis
+                      dataKey="name"
+                      tickLine={false}
+                      tickMargin={10}
+                      axisLine={false}
+                      fontSize={12}
+                    />
+                    <YAxis tickLine={false} axisLine={false} fontSize={12} />
+                    <ChartTooltip content={<ChartTooltipContent />} />
+                    <Bar
+                      dataKey="reservations"
+                      fill="var(--color-reservations)"
+                      radius={4}
+                    />
+                  </BarChart>
+                </ChartContainer>
+              </CardContent>
+            </Card>
+
+            {/* Graphique de répartition des clients */}
+            <Card className="w-full">
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Users className="h-5 w-5" />
+                  Répartition des clients
+                </CardTitle>
+                <CardDescription>
+                  Nombre de personnes par réservation
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <ChartContainer
+                  config={guestChartConfig}
+                  className="min-h-[300px] w-full chart-container"
+                >
+                  <PieChart
+                    width={undefined}
+                    height={undefined}
+                    margin={{
+                      top: 5,
+                      right: 5,
+                      left: 5,
+                      bottom: 5,
+                    }}
+                  >
+                    <ChartTooltip
+                      cursor={false}
+                      content={<ChartTooltipContent hideLabel />}
+                    />
+                    <Pie
+                      data={guestDistributionData}
+                      dataKey="value"
+                      nameKey="name"
+                      innerRadius={60}
+                      strokeWidth={5}
+                    >
+                      {guestDistributionData.map((entry, index) => (
+                        <Cell key={`cell-${index}`} fill={entry.fill} />
+                      ))}
+                    </Pie>
+                  </PieChart>
+                </ChartContainer>
+              </CardContent>
+            </Card>
+          </div>
+        </div>
       )}
     </div>
   );

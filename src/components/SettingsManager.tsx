@@ -397,43 +397,146 @@ export function SettingsManager({ hotelSlug }: SettingsManagerProps) {
         </CardContent>
       </Card>
 
+      {/* Section Informations améliorée */}
       <Card>
         <CardHeader>
-          <CardTitle>Informations</CardTitle>
+          <CardTitle className="flex items-center gap-2">
+            <Settings2 className="h-5 w-5" />
+            Guide des paramètres
+          </CardTitle>
+          <CardDescription>
+            Informations détaillées sur le fonctionnement de chaque paramètre
+          </CardDescription>
         </CardHeader>
-        <CardContent className="space-y-2 text-sm text-muted-foreground">
-          <p>
-            • Les clients verront cette limitation lors de la sélection des
-            dates
-          </p>
-          <p>
-            • Les réservations existantes ne sont pas affectées par ce
-            changement
-          </p>
-          <p>
-            • Cette limite s&apos;applique à toutes les places de
-            l&apos;établissement
-          </p>
-          <p>
-            • Les réservations futures peuvent être activées ou désactivées
-            selon vos besoins
-          </p>
-          <p>
-            • Si les réservations futures sont désactivées, les clients ne
-            pourront réserver que pour aujourd&apos;hui
-          </p>
-          <p>
-            • L&apos;heure limite empêche les nouvelles réservations après
-            l&apos;heure définie (utile pour éviter les arrivées tardives)
-          </p>
-          <p>
-            • Le message &quot;trop tard&quot; s&apos;affiche automatiquement
-            quand l&apos;heure limite est dépassée
-          </p>
-          <p>
-            • Les réservations redeviennent disponibles à l&apos;heure de
-            réouverture définie (par défaut minuit)
-          </p>
+        <CardContent className="space-y-6">
+          {/* Section Réservations */}
+          <div className="space-y-3">
+            <h4 className="font-semibold text-sm text-foreground border-b pb-1">
+              📅 Paramètres de réservation
+            </h4>
+            <div className="space-y-2 text-sm text-muted-foreground">
+              <div className="flex items-start gap-2">
+                <span className="text-primary font-medium min-w-fit">•</span>
+                <span>
+                  <strong>Durée maximale :</strong> Limite le nombre de nuits
+                  consécutives que les clients peuvent réserver (1-365 nuits)
+                </span>
+              </div>
+              <div className="flex items-start gap-2">
+                <span className="text-primary font-medium min-w-fit">•</span>
+                <span>
+                  <strong>Réservations futures :</strong> Si désactivé, les
+                  clients ne peuvent réserver que pour aujourd&apos;hui
+                </span>
+              </div>
+              <div className="flex items-start gap-2">
+                <span className="text-primary font-medium min-w-fit">•</span>
+                <span>
+                  <strong>Heure limite :</strong> Empêche les nouvelles
+                  réservations après l&apos;heure définie (évite les arrivées
+                  tardives)
+                </span>
+              </div>
+              <div className="flex items-start gap-2">
+                <span className="text-primary font-medium min-w-fit">•</span>
+                <span>
+                  <strong>Réouverture :</strong> Heure à laquelle les
+                  réservations redeviennent disponibles le lendemain
+                </span>
+              </div>
+            </div>
+          </div>
+
+          {/* Section Parking Jour */}
+          <div className="space-y-3">
+            <h4 className="font-semibold text-sm text-foreground border-b pb-1">
+              🚗 Parking jour
+            </h4>
+            <div className="space-y-2 text-sm text-muted-foreground">
+              <div className="flex items-start gap-2">
+                <span className="text-primary font-medium min-w-fit">•</span>
+                <span>
+                  <strong>Fonctionnalité :</strong> Permet aux clients de
+                  réserver des places de parking à l&apos;heure ou à la journée
+                </span>
+              </div>
+              <div className="flex items-start gap-2">
+                <span className="text-primary font-medium min-w-fit">•</span>
+                <span>
+                  <strong>Configuration :</strong> Tarifs flexibles (1h, 2h, 4h,
+                  journée complète) avec gestion automatique des créneaux
+                </span>
+              </div>
+              <div className="flex items-start gap-2">
+                <span className="text-primary font-medium min-w-fit">•</span>
+                <span>
+                  <strong>Templates email :</strong> Emails de confirmation
+                  personnalisables avec variables dynamiques
+                </span>
+              </div>
+              <div className="flex items-start gap-2">
+                <span className="text-primary font-medium min-w-fit">•</span>
+                <span>
+                  <strong>Gestion :</strong> Interface dédiée pour le contrôle,
+                  statistiques et gestion des réservations parking
+                </span>
+              </div>
+            </div>
+          </div>
+
+          {/* Section Bonnes Pratiques */}
+          <div className="space-y-3">
+            <h4 className="font-semibold text-sm text-foreground border-b pb-1">
+              💡 Bonnes pratiques
+            </h4>
+            <div className="space-y-2 text-sm text-muted-foreground">
+              <div className="flex items-start gap-2">
+                <span className="text-green-600 font-medium min-w-fit">✓</span>
+                <span>
+                  Activez l&apos;heure limite (22h) pour éviter les arrivées
+                  nocturnes non souhaitées
+                </span>
+              </div>
+              <div className="flex items-start gap-2">
+                <span className="text-green-600 font-medium min-w-fit">✓</span>
+                <span>
+                  Limitez les séjours (4-7 nuits) pour maintenir un bon taux de
+                  rotation
+                </span>
+              </div>
+              <div className="flex items-start gap-2">
+                <span className="text-green-600 font-medium min-w-fit">✓</span>
+                <span>
+                  Testez vos templates d&apos;email avant d&apos;activer le
+                  parking jour
+                </span>
+              </div>
+              <div className="flex items-start gap-2">
+                <span className="text-green-600 font-medium min-w-fit">✓</span>
+                <span>
+                  Les modifications s&apos;appliquent immédiatement aux
+                  nouvelles réservations
+                </span>
+              </div>
+            </div>
+          </div>
+
+          {/* Section Support */}
+          <div className="bg-blue-50 dark:bg-blue-950/20 rounded-lg p-4 border border-blue-200 dark:border-blue-800">
+            <div className="flex items-start gap-3">
+              <div className="text-blue-600 dark:text-blue-400 text-lg">ℹ️</div>
+              <div className="space-y-1">
+                <h5 className="font-medium text-blue-900 dark:text-blue-100">
+                  Besoin d&apos;aide ?
+                </h5>
+                <p className="text-sm text-blue-700 dark:text-blue-300">
+                  Les réservations existantes ne sont jamais affectées par les
+                  changements de paramètres. Seules les nouvelles réservations
+                  suivront les nouveaux paramètres configurés.
+                </p>
+              </div>
+            </div>
+          </div>
         </CardContent>
       </Card>
 

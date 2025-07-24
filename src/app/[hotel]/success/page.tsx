@@ -3,14 +3,7 @@ import { prisma } from "@/lib/prisma";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import {
-  CheckCircle,
-  Calendar,
-  MapPin,
-  Mail,
-  Phone,
-  Download,
-} from "lucide-react";
+import { CheckCircle, Calendar, MapPin, Mail, Phone } from "lucide-react";
 import Link from "next/link";
 import { AutoEmailConfirmation } from "@/components/AutoEmailConfirmation";
 
@@ -79,11 +72,16 @@ export default async function SuccessPage({ params, searchParams }: Props) {
             </div>
           </div>
           <h1 className="text-3xl font-bold text-gray-900 mb-2">
-            Réservation confirmée !
+            Réservation confirmée ! / Booking Confirmed!
           </h1>
           <p className="text-gray-600">
             Votre paiement a été traité avec succès. Vous recevrez une
             confirmation par email sous peu.
+            <br />
+            <em>
+              Your payment has been processed successfully. You will receive an
+              email confirmation shortly.
+            </em>
           </p>
         </div>
 
@@ -92,7 +90,7 @@ export default async function SuccessPage({ params, searchParams }: Props) {
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <Calendar className="h-5 w-5" />
-              Détails de votre séjour
+              Détails de votre séjour / Stay Details
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
@@ -114,29 +112,31 @@ export default async function SuccessPage({ params, searchParams }: Props) {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="p-3 bg-gray-50 rounded-lg">
                 <div className="text-sm font-medium text-gray-700 mb-1">
-                  Arrivée
+                  Arrivée / Check-in
                 </div>
                 <div className="text-sm text-gray-900">
                   {formatDate(booking.checkInDate)}
                 </div>
                 <div className="text-xs text-gray-500 mt-1">
-                  À partir de 15h00
+                  À partir de 15h00 / From 3:00 PM
                 </div>
               </div>
               <div className="p-3 bg-gray-50 rounded-lg">
                 <div className="text-sm font-medium text-gray-700 mb-1">
-                  Départ
+                  Départ / Check-out
                 </div>
                 <div className="text-sm text-gray-900">
                   {formatDate(booking.checkOutDate)}
                 </div>
-                <div className="text-xs text-gray-500 mt-1">Avant 11h00</div>
+                <div className="text-xs text-gray-500 mt-1">
+                  Avant 11h00 / Before 11:00 AM
+                </div>
               </div>
             </div>
 
             <div className="border-t pt-4">
               <div className="flex justify-between items-center">
-                <span className="font-medium">Total payé</span>
+                <span className="font-medium">Total payé / Total Paid</span>
                 <span className="text-xl font-bold text-green-600">
                   {booking.amount} {booking.currency}
                 </span>
@@ -150,7 +150,7 @@ export default async function SuccessPage({ params, searchParams }: Props) {
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <Mail className="h-5 w-5" />
-              Vos informations
+              Vos informations / Your Information
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-3">
@@ -168,7 +168,7 @@ export default async function SuccessPage({ params, searchParams }: Props) {
                 <Phone className="h-4 w-4 text-gray-500" />
                 <div>
                   <div className="text-sm font-medium text-gray-700">
-                    Téléphone
+                    Téléphone / Phone
                   </div>
                   <div className="text-sm text-gray-900">
                     {booking.clientPhone}
@@ -180,6 +180,12 @@ export default async function SuccessPage({ params, searchParams }: Props) {
               <strong>Note :</strong> Un email de confirmation avec tous les
               détails de votre réservation et les instructions d&apos;accès vous
               sera envoyé sous peu à {booking.clientEmail}
+              <br />
+              <em>
+                <strong>Note:</strong> A confirmation email with all booking
+                details and access instructions will be sent shortly to{" "}
+                {booking.clientEmail}
+              </em>
             </div>
           </CardContent>
         </Card>
@@ -187,7 +193,7 @@ export default async function SuccessPage({ params, searchParams }: Props) {
         {/* Prochaines étapes */}
         <Card className="mb-6">
           <CardHeader>
-            <CardTitle>Prochaines étapes</CardTitle>
+            <CardTitle>Prochaines étapes / Next Steps</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="space-y-3">
@@ -197,25 +203,16 @@ export default async function SuccessPage({ params, searchParams }: Props) {
                 </div>
                 <div>
                   <div className="font-medium text-gray-900">
-                    Confirmation par email
+                    Confirmation par email / Email Confirmation
                   </div>
                   <div className="text-sm text-gray-600">
                     Vous recevrez un email avec votre code d&apos;accès et les
                     instructions détaillées.
-                  </div>
-                </div>
-              </div>
-              <div className="flex items-start gap-3">
-                <div className="w-6 h-6 bg-blue-100 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
-                  <span className="text-xs font-medium text-blue-600">2</span>
-                </div>
-                <div>
-                  <div className="font-medium text-gray-900">
-                    Jour de votre arrivée
-                  </div>
-                  <div className="text-sm text-gray-600">
-                    Présentez-vous à partir de 15h00 avec votre pièce
-                    d&apos;identité.
+                    <br />
+                    <em>
+                      You will receive an email with your access code and
+                      detailed instructions.
+                    </em>
                   </div>
                 </div>
               </div>
@@ -225,11 +222,16 @@ export default async function SuccessPage({ params, searchParams }: Props) {
                 </div>
                 <div>
                   <div className="font-medium text-gray-900">
-                    Profitez de votre séjour !
+                    Profitez de votre séjour ! / Enjoy Your Stay!
                   </div>
                   <div className="text-sm text-gray-600">
                     N&apos;hésitez pas à nous contacter si vous avez des
                     questions.
+                    <br />
+                    <em>
+                      Don&apos;t hesitate to contact us if you have any
+                      questions.
+                    </em>
                   </div>
                 </div>
               </div>
@@ -240,24 +242,24 @@ export default async function SuccessPage({ params, searchParams }: Props) {
         {/* Actions */}
         <div className="flex flex-col sm:flex-row gap-4">
           <Button asChild className="flex-1">
-            <Link href={`/${hotel}`}>Retour à l&apos;accueil</Link>
-          </Button>
-          <Button variant="outline" className="flex-1">
-            <Download className="h-4 w-4 mr-2" />
-            Télécharger le reçu
+            <Link href={`/${hotel}`}>
+              Retour à l&apos;accueil / Back to Home
+            </Link>
           </Button>
         </div>
 
         {/* Note de bas de page */}
         <div className="mt-8 text-center text-sm text-gray-500">
           <p>
-            Numéro de réservation :{" "}
+            Numéro de réservation / Booking Number :{" "}
             <span className="font-mono">
               {booking.id.slice(-8).toUpperCase()}
             </span>
           </p>
           <p className="mt-1">
             Conservez ce numéro pour toute correspondance future.
+            <br />
+            <em>Keep this number for future correspondence.</em>
           </p>
         </div>
       </div>
