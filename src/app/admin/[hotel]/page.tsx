@@ -62,6 +62,10 @@ export default async function AdminPage({ params }: Props) {
       hotelSlug: hotel,
       // Seulement les réservations avec paiement confirmé
       paymentStatus: "succeeded",
+      // Exclure les réservations de parking jour (elles ont leur propre table)
+      NOT: {
+        bookingType: "day",
+      },
     },
     include: {
       room: true, // Inclure les détails de la chambre

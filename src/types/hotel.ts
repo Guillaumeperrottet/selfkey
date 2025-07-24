@@ -28,7 +28,7 @@ export interface HotelConfig {
 export type AvailableRoom = Room;
 
 export interface BookingData {
-  roomId: string;
+  roomId: string | null; // Optionnel pour le parking jour
   clientFirstName: string;
   clientLastName: string;
   clientEmail: string;

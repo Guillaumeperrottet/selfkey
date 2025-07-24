@@ -6,7 +6,53 @@ export async function createBooking(
   hotelSlug: string,
   bookingData: BookingData
 ) {
-  // Vérifier que la chambre existe et appartient à l'hôtel
+  // Si c'est un parking jour (pas de roomId), on skip la validation de chambre
+  if (!bookingData.roomId) {
+    // Récupérer les infos de l'établissement pour calculer la commission
+    const establishment = await prisma.establishment.findUnique({
+      where: { slug: hotelSlug },
+    });
+
+    if (!establishment) {
+      throw new Error("Établissement non trouvé");
+    }
+
+    // Calculer la commission
+    const platformCommission = Math.round(
+      (bookingData.amount * establishment.commissionRate) / 100 +
+        establishment.fixedFee
+    );
+    const ownerAmount = bookingData.amount - platformCommission;
+
+    // Pour le parking jour, on crée directement la réservation
+    const booking = await prisma.booking.create({
+      data: {
+        hotelSlug,
+        roomId: null,
+        clientFirstName: bookingData.clientFirstName,
+        clientLastName: bookingData.clientLastName,
+        clientEmail: bookingData.clientEmail,
+        clientPhone: bookingData.clientPhone,
+        clientBirthDate: bookingData.clientBirthDate,
+        clientAddress: bookingData.clientAddress,
+        clientPostalCode: bookingData.clientPostalCode,
+        clientCity: bookingData.clientCity,
+        clientCountry: bookingData.clientCountry,
+        clientIdNumber: bookingData.clientIdNumber,
+        guests: bookingData.guests,
+        amount: bookingData.amount,
+        checkInDate: bookingData.checkInDate,
+        checkOutDate: bookingData.checkOutDate,
+        bookingType: "day",
+        currency: "CHF",
+        platformCommission,
+        ownerAmount,
+      },
+    });
+    return booking;
+  }
+
+  // Vérifier que la chambre existe et appartient à l'hôtel (pour parking de nuit)
   const room = await prisma.room.findFirst({
     where: {
       id: bookingData.roomId,

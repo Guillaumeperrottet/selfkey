@@ -40,7 +40,7 @@ interface BookingWithDetails {
     id: string;
     name: string;
     accessCode: string | null;
-  };
+  } | null;
   establishment: {
     id: string;
     name: string;
@@ -171,7 +171,7 @@ export async function POST(request: Request, { params }: Props) {
     switch (booking.establishment.accessCodeType) {
       case "room":
         // Priorité au code de la chambre
-        accessCode = booking.room.accessCode || "Code chambre non défini";
+        accessCode = booking.room?.accessCode || "Code chambre non défini";
         break;
       case "general":
         // Code général de l'établissement
@@ -185,7 +185,7 @@ export async function POST(request: Request, { params }: Props) {
       default:
         // Fallback : essayer code chambre puis général
         accessCode =
-          booking.room.accessCode ||
+          booking.room?.accessCode ||
           booking.establishment.generalAccessCode ||
           "Voir instructions";
     }
@@ -199,7 +199,7 @@ export async function POST(request: Request, { params }: Props) {
       establishmentName: booking.establishment.name,
       roomName: isBookingDayParking
         ? `Place de parking (${booking.dayParkingDuration})`
-        : booking.room.name,
+        : booking.room?.name || "Parking jour",
       checkInDate: isBookingDayParking
         ? booking.dayParkingStartTime?.toLocaleDateString("fr-FR", {
             weekday: "long",

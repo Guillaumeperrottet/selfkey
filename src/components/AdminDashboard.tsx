@@ -75,7 +75,7 @@ interface AdminDashboardProps {
     bookingDate: Date;
     room: {
       name: string;
-    };
+    } | null;
   }>;
   dbRooms: Array<{
     id: string;

@@ -54,7 +54,7 @@ export async function POST(request: NextRequest) {
         expiredBookings: expiredBookings.map((b) => ({
           id: b.id,
           hotel: b.hotelSlug,
-          room: b.room.name,
+          room: b.room ? b.room.name : "Parking jour",
           email: b.clientEmail,
         })),
       });
@@ -104,7 +104,7 @@ export async function GET() {
       expiredBookings: expiredBookings.map((b) => ({
         id: b.id,
         hotel: b.hotelSlug,
-        room: b.room.name,
+        room: b.room ? b.room.name : "Parking jour",
         email: b.clientEmail,
         createdAt: b.bookingDate,
         expiredMinutes: Math.floor(

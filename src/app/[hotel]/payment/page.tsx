@@ -129,7 +129,9 @@ export default async function PaymentPage({ params, searchParams }: Props) {
                 </div>
                 <div className="flex justify-between">
                   <span className="text-gray-600">Place / Room :</span>
-                  <span className="font-medium">{booking.room.name}</span>
+                  <span className="font-medium">
+                    {booking.room ? booking.room.name : "Parking jour"}
+                  </span>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-gray-600">Client / Guest :</span>

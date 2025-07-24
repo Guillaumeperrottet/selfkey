@@ -13,7 +13,7 @@ import {
 interface Booking {
   id: string;
   hotelSlug: string;
-  roomId: string;
+  roomId: string | null; // Optionnel pour le parking jour
   clientFirstName: string;
   clientLastName: string;
   clientEmail: string;

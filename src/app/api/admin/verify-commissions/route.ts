@@ -51,7 +51,7 @@ export async function GET(request: NextRequest) {
         bookingDate: booking.bookingDate,
         establishmentName: booking.establishment.name,
         establishmentSlug: booking.establishment.slug,
-        roomName: booking.room.name,
+        roomName: booking.room ? booking.room.name : "Parking jour",
         amount: booking.amount,
         currency: booking.currency,
         commissionRate: booking.establishment.commissionRate,

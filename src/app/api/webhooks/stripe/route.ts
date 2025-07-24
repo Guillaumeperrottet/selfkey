@@ -163,30 +163,13 @@ async function createDayParkingBookingFromMetadata(
 
     console.log("✅ Establishment found:", establishment.name);
 
-    // Récupérer ou créer une place de parking
-    let room = await prisma.room.findFirst({
-      where: {
-        hotelSlug: establishment.slug,
-        isActive: true,
-      },
-    });
-
-    if (!room) {
-      room = await prisma.room.create({
-        data: {
-          hotelSlug: establishment.slug,
-          name: "Place de parking",
-          price: 0,
-          isActive: true,
-        },
-      });
-    }
+    // Le parking jour n'utilise pas de room - c'est un parking ouvert
 
     // Créer la réservation parking jour
     const booking = await prisma.booking.create({
       data: {
         hotelSlug: establishment.slug,
-        roomId: room.id,
+        roomId: null, // Pas de room pour le parking jour
         clientFirstName: metadata.client_first_name,
         clientLastName: metadata.client_last_name,
         clientEmail: metadata.client_email,

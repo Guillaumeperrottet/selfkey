@@ -113,7 +113,7 @@ export default async function SuccessPage({ params, searchParams }: Props) {
                   {booking.establishment.name}
                 </div>
                 <div className="text-sm text-blue-700">
-                  Place: {booking.room.name}
+                  Place: {booking.room ? booking.room.name : "Parking jour"}
                 </div>
               </div>
               <Badge variant="secondary">
@@ -291,10 +291,10 @@ async function DayParkingSuccessPage({
   let dayParkingBooking = null;
   let attempts = 0;
   const maxAttempts = 10; // 10 tentatives maximum
-  
+
   while (!dayParkingBooking && attempts < maxAttempts) {
     attempts++;
-    
+
     // Récupérer la réservation parking jour via le PaymentIntent
     dayParkingBooking = await prisma.booking.findFirst({
       where: {
@@ -310,11 +310,13 @@ async function DayParkingSuccessPage({
         },
       },
     });
-    
+
     // Si pas trouvée et qu'on n'a pas atteint le maximum, attendre 1 seconde
     if (!dayParkingBooking && attempts < maxAttempts) {
-      console.log(`🔄 Tentative ${attempts}/${maxAttempts} - Attente de la création de la réservation par webhook...`);
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      console.log(
+        `🔄 Tentative ${attempts}/${maxAttempts} - Attente de la création de la réservation par webhook...`
+      );
+      await new Promise((resolve) => setTimeout(resolve, 1000));
     }
   }
 

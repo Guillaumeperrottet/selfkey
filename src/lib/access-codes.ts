@@ -102,7 +102,19 @@ export async function updateRoomAccessCode(
 /**
  * Génère le contenu de l'email avec les informations d'accès
  */
-export function generateAccessInstructions(accessInfo: AccessCodeInfo): string {
+export function generateAccessInstructions(
+  accessInfo: AccessCodeInfo | null
+): string {
+  // Pour le parking jour ou quand pas d'info d'accès
+  if (!accessInfo) {
+    return `
+      <div style="background-color: #f0f9ff; padding: 20px; border-radius: 8px; margin: 20px 0;">
+        <h3 style="color: #0369a1; margin-top: 0;">🅿️ Parking jour</h3>
+        <p style="color: #0369a1; margin-bottom: 0;">Vous pouvez utiliser le parking sans restrictions particulières d'accès.</p>
+      </div>
+    `;
+  }
+
   switch (accessInfo.type) {
     case "room":
       if (accessInfo.code) {

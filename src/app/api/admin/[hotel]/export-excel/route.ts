@@ -38,6 +38,10 @@ export async function GET(
         },
         // Seulement les réservations avec paiement confirmé
         paymentStatus: "succeeded",
+        // Exclure les réservations de parking jour (elles ont leur propre export)
+        NOT: {
+          bookingType: "day",
+        },
       },
       include: {
         room: true,

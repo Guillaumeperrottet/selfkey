@@ -120,26 +120,8 @@ export async function POST(request: NextRequest, { params }: Props) {
       );
     }
 
-    // Créer une place temporaire pour le parking jour
-    // On utilisera la première place disponible ou en créera une spécifique
-    let room = await prisma.room.findFirst({
-      where: {
-        hotelSlug: hotel,
-        isActive: true,
-      },
-    });
-
-    // Si aucune place n'existe, créer une place parking par défaut
-    if (!room) {
-      room = await prisma.room.create({
-        data: {
-          hotelSlug: hotel,
-          name: "Place de parking",
-          price: 0, // Prix géré par le système de parking jour
-          isActive: true,
-        },
-      });
-    }
+    // Le parking jour n'utilise pas de "room" spécifique
+    // C'est un parking ouvert sans limitation de places
 
     // Mode développement : simuler un PaymentIntent ET créer la réservation
     if (isDevelopment) {
@@ -158,7 +140,8 @@ export async function POST(request: NextRequest, { params }: Props) {
       const dayParkingBooking = await prisma.booking.create({
         data: {
           hotelSlug: hotel,
-          roomId: room.id,
+          // Pas de roomId pour le parking jour - c'est un parking ouvert
+          roomId: null,
           clientFirstName,
           clientLastName,
           clientEmail,

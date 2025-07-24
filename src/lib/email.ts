@@ -14,7 +14,7 @@ interface BookingConfirmationData {
   clientName: string;
   clientEmail: string;
   roomName: string;
-  roomId: string;
+  roomId: string | null;
   amount: number;
   currency: string;
   bookingDate: Date;
@@ -26,10 +26,9 @@ export async function sendBookingConfirmation(
   hotelConfig: HotelConfig
 ) {
   // Récupérer les informations d'accès pour cette réservation
-  const accessInfo = await getAccessCodeForBooking(
-    booking.hotelSlug,
-    booking.roomId
-  );
+  const accessInfo = booking.roomId
+    ? await getAccessCodeForBooking(booking.hotelSlug, booking.roomId)
+    : null;
   const accessInstructionsHtml = generateAccessInstructions(accessInfo);
 
   const htmlContent = `

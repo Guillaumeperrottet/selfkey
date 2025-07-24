@@ -13,7 +13,7 @@ import {
 interface Booking {
   id: string;
   hotelSlug: string;
-  roomId: string;
+  roomId: string | null; // Optionnel pour le parking jour
   clientFirstName: string;
   clientLastName: string;
   clientEmail: string;
@@ -51,7 +51,7 @@ interface Room {
 interface PaymentFormProps {
   booking: Booking;
   establishment: Establishment;
-  room: Room;
+  room: Room | null; // Peut être null pour le parking jour
 }
 
 // Composant interne pour le formulaire Stripe avec support TWINT

@@ -60,7 +60,7 @@ interface Booking {
   confirmationMethod?: string | null;
   room: {
     name: string;
-  };
+  } | null;
   establishment?: {
     name: string;
   };
@@ -149,7 +149,9 @@ export function BookingsTable({ bookings }: BookingsTableProps) {
           .toLowerCase()
           .includes(searchLower) ||
         booking.clientEmail.toLowerCase().includes(searchLower) ||
-        booking.room.name.toLowerCase().includes(searchLower);
+        (booking.room
+          ? booking.room.name.toLowerCase().includes(searchLower)
+          : false);
 
       if (statusFilter === "all") return matchesSearch;
 
@@ -172,8 +174,8 @@ export function BookingsTable({ bookings }: BookingsTableProps) {
           bValue = b.clientEmail;
           break;
         case "room":
-          aValue = a.room.name;
-          bValue = b.room.name;
+          aValue = a.room ? a.room.name : "Parking jour";
+          bValue = b.room ? b.room.name : "Parking jour";
           break;
         case "checkIn":
           aValue = new Date(a.checkInDate);
@@ -265,7 +267,7 @@ export function BookingsTable({ bookings }: BookingsTableProps) {
             <div class="grid">
               <div class="flex">
                 <span>Chambre :</span>
-                <span class="font-medium">${booking.room.name}</span>
+                <span class="font-medium">${booking.room ? booking.room.name : "Parking jour"}</span>
               </div>
               <div class="flex">
                 <span>Arrivée :</span>
@@ -441,7 +443,7 @@ export function BookingsTable({ bookings }: BookingsTableProps) {
         Nom: `${booking.clientFirstName} ${booking.clientLastName}`,
         Email: booking.clientEmail,
         Téléphone: booking.clientPhone || "-",
-        Chambre: booking.room.name,
+        Chambre: booking.room ? booking.room.name : "Parking jour",
         Arrivée: formatDate(booking.checkInDate),
         Départ: formatDate(booking.checkOutDate),
         Invités: booking.guests.toString(),
@@ -652,7 +654,9 @@ export function BookingsTable({ bookings }: BookingsTableProps) {
                     <TableCell className="text-muted-foreground">
                       {booking.clientEmail}
                     </TableCell>
-                    <TableCell>{booking.room.name}</TableCell>
+                    <TableCell>
+                      {booking.room ? booking.room.name : "Parking jour"}
+                    </TableCell>
                     <TableCell>
                       <div className="flex items-center gap-2">
                         <Calendar className="h-3 w-3 text-muted-foreground" />
@@ -747,7 +751,9 @@ export function BookingsTable({ bookings }: BookingsTableProps) {
                     <div className="flex justify-between">
                       <span className="text-muted-foreground">Chambre :</span>
                       <span className="font-medium">
-                        {selectedBooking.room.name}
+                        {selectedBooking.room
+                          ? selectedBooking.room.name
+                          : "Parking jour"}
                       </span>
                     </div>
                     <div className="flex justify-between">

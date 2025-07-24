@@ -40,7 +40,7 @@ interface Booking {
   bookingDate: Date;
   room: {
     name: string;
-  };
+  } | null;
 }
 
 interface Room {
@@ -177,7 +177,9 @@ export function DashboardCharts({
   // Données pour le graphique des chambres
   const roomsData = useMemo(() => {
     return rooms.map((room) => {
-      const roomBookings = bookings.filter((b) => b.room.name === room.name);
+      const roomBookings = bookings.filter(
+        (b) => b.room && b.room.name === room.name
+      );
       const totalRevenue = calculateNetRevenue(roomBookings);
 
       return {

@@ -36,7 +36,9 @@ export async function POST(request: NextRequest) {
         {
           clientName: `${bookingWithDetails.clientFirstName} ${bookingWithDetails.clientLastName}`,
           clientEmail: bookingWithDetails.clientEmail,
-          roomName: bookingWithDetails.room.name,
+          roomName: bookingWithDetails.room
+            ? bookingWithDetails.room.name
+            : "Parking jour",
           roomId: bookingWithDetails.roomId,
           amount: bookingWithDetails.amount,
           currency: bookingWithDetails.currency,
