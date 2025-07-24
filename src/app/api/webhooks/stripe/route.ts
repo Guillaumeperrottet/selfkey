@@ -7,15 +7,22 @@ import { stripe, stripeWebhookSecret } from "@/lib/stripe";
 const endpointSecret = stripeWebhookSecret!;
 
 export async function POST(request: NextRequest) {
+  console.log("🔗 Webhook Stripe reçu !");
   const body = await request.text();
-  const sig = request.headers.get("stripe-signature")!;
+  const signature = request.headers.get("stripe-signature");
+
+  if (!signature) {
+    console.error("❌ Pas de signature Stripe dans le webhook");
+    return NextResponse.json({ error: "No signature" }, { status: 400 });
+  }
 
   let event: Stripe.Event;
 
   try {
-    event = stripe.webhooks.constructEvent(body, sig, endpointSecret);
+    event = stripe.webhooks.constructEvent(body, signature, endpointSecret);
+    console.log("✅ Webhook vérifié, type d'événement:", event.type);
   } catch (err) {
-    console.error("Webhook signature verification failed:", err);
+    console.error("❌ Erreur de vérification du webhook:", err);
     return NextResponse.json({ error: "Invalid signature" }, { status: 400 });
   }
 
