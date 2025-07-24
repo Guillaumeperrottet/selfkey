@@ -97,7 +97,7 @@ export async function sendBookingConfirmation(
     }
 
     const { data, error } = await resend.emails.send({
-      from: `${hotelConfig.name} <no-reply@votrapp.com>`,
+      from: `${hotelConfig.name} <noreply@selfkey.ch>`,
       to: [booking.clientEmail],
       subject: `Confirmation de réservation - ${hotelConfig.name}`,
       html: htmlContent,
@@ -261,7 +261,7 @@ export async function sendDayParkingConfirmation(
     }
 
     const { data, error } = await resend.emails.send({
-      from: `${booking.establishmentName} <no-reply@votrapp.com>`,
+      from: `${booking.establishmentName} <noreply@selfkey.ch>`,
       to: [booking.clientEmail],
       subject: `🚗 Parking Jour Confirmé - ${booking.establishmentName}`,
       html: htmlContent,
