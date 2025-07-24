@@ -90,31 +90,12 @@ export function BookingsTable({ bookings }: BookingsTableProps) {
   const { printTable, print } = usePrint();
 
   const getBookingStatus = (booking: Booking) => {
-    const now = new Date();
     const today = new Date();
     today.setHours(0, 0, 0, 0);
     const checkOut = new Date(booking.checkOutDate);
     const checkIn = new Date(booking.checkInDate);
 
-    if (
-      checkOut.toDateString() === today.toDateString() &&
-      now.getHours() < 12
-    ) {
-      return {
-        status: "checkout",
-        label: "Départ aujourd'hui",
-        color: "bg-orange-100 text-orange-800",
-      };
-    } else if (
-      checkOut.toDateString() === today.toDateString() &&
-      now.getHours() >= 12
-    ) {
-      return {
-        status: "liberated",
-        label: "Chambre libérée",
-        color: "bg-green-100 text-green-800",
-      };
-    } else if (checkIn.toDateString() === today.toDateString()) {
+    if (checkIn.toDateString() === today.toDateString()) {
       return {
         status: "checkin",
         label: "Arrivée aujourd'hui",

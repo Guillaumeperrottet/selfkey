@@ -228,7 +228,7 @@ export async function POST(request: NextRequest, { params }: Props) {
       "CHF",
       establishment.stripeAccountId!,
       establishment.dayParkingCommissionRate || 5,
-      establishment.fixedFee || 0.5,
+      0, // Pas de frais fixes pour parking jour
       {
         // Stocker les données de réservation pour création après paiement
         booking_type: "day_parking",
