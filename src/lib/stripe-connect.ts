@@ -51,7 +51,8 @@ export async function createPaymentIntentWithCommission(
   currency: string,
   connectedAccountId: string,
   commissionRate: number,
-  fixedFee: number
+  fixedFee: number,
+  metadata?: Record<string, string>
 ) {
   try {
     // Vérifier que le compte connecté peut recevoir des charges
@@ -88,6 +89,7 @@ export async function createPaymentIntentWithCommission(
       metadata: {
         integration_type: "direct_charge",
         platform: "selfkey_hotels",
+        ...(metadata || {}),
       },
     });
 

@@ -82,7 +82,16 @@ async function handleAccountDeauthorized(data: { account: string }) {
 
 async function handlePaymentSucceeded(paymentIntent: Stripe.PaymentIntent) {
   try {
-    // Mettre à jour la réservation comme payée avec succès
+    console.log(`Payment succeeded for PaymentIntent: ${paymentIntent.id}`);
+    console.log("Metadata:", paymentIntent.metadata);
+
+    // Vérifier si c'est un parking jour (nouvelle logique avec métadonnées)
+    if (paymentIntent.metadata.booking_type === "day_parking") {
+      await createDayParkingBookingFromMetadata(paymentIntent);
+      return;
+    }
+
+    // Logique existante pour les réservations classiques
     await prisma.booking.updateMany({
       where: { stripePaymentIntentId: paymentIntent.id },
       data: {
@@ -90,7 +99,7 @@ async function handlePaymentSucceeded(paymentIntent: Stripe.PaymentIntent) {
       },
     });
 
-    console.log(`Payment succeeded for PaymentIntent: ${paymentIntent.id}`);
+    console.log(`Payment succeeded for existing booking: ${paymentIntent.id}`);
   } catch (error) {
     console.error("Error handling payment success:", error);
   }
@@ -117,5 +126,107 @@ async function handlePaymentFailed(paymentIntent: Stripe.PaymentIntent) {
     }
   } catch (error) {
     console.error("Error handling payment failure:", error);
+  }
+}
+
+async function createDayParkingBookingFromMetadata(
+  paymentIntent: Stripe.PaymentIntent
+) {
+  try {
+    const metadata = paymentIntent.metadata;
+
+    // Récupérer l'établissement
+    const establishment = await prisma.establishment.findUnique({
+      where: { id: metadata.establishment_id },
+    });
+
+    if (!establishment) {
+      throw new Error(`Establishment not found: ${metadata.establishment_id}`);
+    }
+
+    // Récupérer ou créer une place de parking
+    let room = await prisma.room.findFirst({
+      where: {
+        hotelSlug: establishment.slug,
+        isActive: true,
+      },
+    });
+
+    if (!room) {
+      room = await prisma.room.create({
+        data: {
+          hotelSlug: establishment.slug,
+          name: "Place de parking",
+          price: 0,
+          isActive: true,
+        },
+      });
+    }
+
+    // Créer la réservation parking jour
+    const booking = await prisma.booking.create({
+      data: {
+        hotelSlug: establishment.slug,
+        roomId: room.id,
+        clientFirstName: metadata.client_first_name,
+        clientLastName: metadata.client_last_name,
+        clientEmail: metadata.client_email,
+        clientPhone: metadata.client_phone,
+        clientVehicleNumber: metadata.client_vehicle_number || undefined,
+        clientBirthDate: metadata.client_birth_date
+          ? new Date(metadata.client_birth_date)
+          : new Date("1990-01-01"),
+        clientAddress: metadata.client_address || "Non renseigné",
+        clientPostalCode: metadata.client_postal_code || "0000",
+        clientCity: metadata.client_city || "Non renseigné",
+        clientCountry: metadata.client_country || "Suisse",
+        clientIdNumber: metadata.client_id_number || "Non renseigné",
+        bookingType: "day_parking",
+        dayParkingDuration: metadata.day_parking_duration,
+        dayParkingStartTime: metadata.day_parking_start_time,
+        dayParkingEndTime: metadata.day_parking_end_time,
+        amount: parseFloat(metadata.amount),
+        ownerAmount: parseFloat(metadata.amount), // Pour parking jour, tout va au propriétaire (commission gérée par Stripe Connect)
+        adults: parseInt(metadata.adults) || 1,
+        children: parseInt(metadata.children) || 0,
+        paymentStatus: "succeeded",
+        stripePaymentIntentId: paymentIntent.id,
+        checkInDate: new Date(), // Date actuelle pour parking jour
+        checkOutDate: new Date(Date.now() + 24 * 60 * 60 * 1000), // +24h par défaut
+      },
+    });
+
+    console.log(
+      `Day parking booking created: ${booking.id} for PaymentIntent: ${paymentIntent.id}`
+    );
+
+    // Envoyer l'email de confirmation si demandé
+    if (metadata.email_confirmation === "true") {
+      try {
+        console.log("📧 Envoi automatique de l'email de confirmation...");
+        
+        const confirmationResponse = await fetch(`${process.env.NEXTAUTH_URL || 'http://localhost:3000'}/api/bookings/${booking.id}/send-confirmation`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            method: 'email'
+          })
+        });
+
+        if (confirmationResponse.ok) {
+          console.log("✅ Email de confirmation envoyé automatiquement");
+        } else {
+          console.error("❌ Erreur lors de l'envoi automatique de l'email");
+        }
+      } catch (emailError) {
+        console.error("❌ Erreur lors de l'envoi de l'email de confirmation:", emailError);
+        // Ne pas faire échouer la création de la réservation si l'email échoue
+      }
+    }
+  } catch (error) {
+    console.error("Error creating day parking booking from metadata:", error);
+    throw error;
   }
 }

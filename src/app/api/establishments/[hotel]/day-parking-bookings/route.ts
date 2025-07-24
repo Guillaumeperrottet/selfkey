@@ -138,83 +138,51 @@ export async function POST(request: NextRequest, { params }: Props) {
       });
     }
 
-    // Calculer les commissions (utiliser le taux spécifique pour parking jour)
-    const platformCommission = Math.round(
-      (amount * establishment.dayParkingCommissionRate) / 100
-    ); // Pas de frais fixes pour parking jour, seulement commission spécifique
-    const ownerAmount = amount - platformCommission;
-
-    // Créer la réservation
-    const booking = await prisma.booking.create({
-      data: {
-        hotelSlug: hotel,
-        roomId: room.id,
-        // Informations client
-        clientFirstName,
-        clientLastName,
-        clientEmail,
-        clientPhone,
-        clientBirthDate: new Date(clientBirthDate),
-        clientAddress,
-        clientPostalCode,
-        clientCity,
-        clientCountry,
-        clientIdNumber,
-        clientVehicleNumber: clientVehicleNumber || "Non renseigné",
-        clientBirthPlace: "Non requis pour parking jour",
-        // Configuration parking jour
-        bookingType,
-        dayParkingDuration,
-        dayParkingStartTime: new Date(dayParkingStartTime),
-        dayParkingEndTime: new Date(dayParkingEndTime),
-        // Dates par défaut (utilisées pour compatibilité)
-        checkInDate: new Date(dayParkingStartTime),
-        checkOutDate: new Date(dayParkingEndTime),
-        // Montants
-        amount,
-        platformCommission,
-        ownerAmount,
-        guests: adults + children,
-        adults,
-        children,
-        // Options de prix (vide pour parking jour)
-        selectedPricingOptions: {},
-        pricingOptionsTotal: 0,
-        // Configuration de confirmation
-        emailConfirmation,
-      },
-    });
-
-    // Créer le Payment Intent Stripe avec commission spécifique parking jour
+    // Créer le PaymentIntent avec les données de réservation en metadata
     const paymentIntent = await createPaymentIntentWithCommission(
       amount,
-      "chf",
+      "CHF",
       establishment.stripeAccountId,
-      establishment.dayParkingCommissionRate,
-      0 // Pas de frais fixes pour parking jour
+      establishment.dayParkingCommissionRate || 5,
+      establishment.fixedFee || 0.5,
+      {
+        // Stocker les données de réservation pour création après paiement
+        booking_type: "day_parking",
+        establishment_id: establishment.id,
+        client_first_name: clientFirstName,
+        client_last_name: clientLastName,
+        client_email: clientEmail,
+        client_phone: clientPhone,
+        client_vehicle_number: clientVehicleNumber || "",
+        day_parking_duration: dayParkingDuration,
+        day_parking_start_time: dayParkingStartTime,
+        day_parking_end_time: dayParkingEndTime,
+        amount: amount.toString(),
+        adults: adults?.toString() || "1",
+        children: children?.toString() || "0",
+        client_birth_date: clientBirthDate || "",
+        client_address: clientAddress || "",
+        client_postal_code: clientPostalCode || "",
+        client_city: clientCity || "",
+        client_country: clientCountry || "",
+        client_id_number: clientIdNumber || "",
+        email_confirmation: emailConfirmation ? "true" : "false",
+      }
     );
 
-    // Mettre à jour la réservation avec l'ID du PaymentIntent
-    await prisma.booking.update({
-      where: { id: booking.id },
-      data: {
-        stripePaymentIntentId: paymentIntent.id,
-      },
-    });
-
+    // Retourner seulement le PaymentIntent - la réservation sera créée au webhook
     return NextResponse.json({
       success: true,
-      booking: {
-        id: booking.id,
-        amount: booking.amount,
-        dayParkingDuration: booking.dayParkingDuration,
-        dayParkingStartTime: booking.dayParkingStartTime,
-        dayParkingEndTime: booking.dayParkingEndTime,
-      },
       payment: {
         clientSecret: paymentIntent.client_secret,
         paymentIntentId: paymentIntent.id,
+        amount: amount,
+        dayParkingDuration: dayParkingDuration,
+        dayParkingStartTime: dayParkingStartTime,
+        dayParkingEndTime: dayParkingEndTime,
       },
+      message:
+        "PaymentIntent créé. La réservation sera confirmée après paiement.",
     });
   } catch (error) {
     console.error(
