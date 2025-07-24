@@ -29,6 +29,7 @@ export async function getEstablishmentFees(establishmentSlug: string) {
       where: { slug: establishmentSlug },
       select: {
         commissionRate: true,
+        dayParkingCommissionRate: true,
         fixedFee: true,
       },
     });
@@ -51,6 +52,43 @@ export async function getEstablishmentFees(establishmentSlug: string) {
     return {
       commissionRate: defaultPlatformConfig.commissionRate,
       fixedFee: defaultPlatformConfig.fixedFee,
+    };
+  }
+}
+
+/**
+ * Récupère les frais de commission spécifiques pour le parking jour
+ */
+export async function getDayParkingFees(
+  hotelSlug: string
+): Promise<{ commissionRate: number; fixedFee: number }> {
+  try {
+    const establishment = await prisma.establishment.findUnique({
+      where: { slug: hotelSlug },
+      select: {
+        dayParkingCommissionRate: true,
+        fixedFee: true,
+      },
+    });
+
+    if (!establishment) {
+      // Utiliser les frais par défaut pour parking jour
+      return {
+        commissionRate: 0.05, // 5% par défaut pour parking jour
+        fixedFee: 0, // Pas de frais fixes pour parking jour
+      };
+    }
+
+    return {
+      commissionRate: establishment.dayParkingCommissionRate / 100, // Convertir de % en décimal
+      fixedFee: 0, // Pas de frais fixes pour parking jour
+    };
+  } catch (error) {
+    console.error("Erreur récupération frais parking jour:", error);
+    // Utiliser les frais par défaut en cas d'erreur
+    return {
+      commissionRate: 0.05, // 5% par défaut
+      fixedFee: 0,
     };
   }
 }

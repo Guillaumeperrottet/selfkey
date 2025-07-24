@@ -8,8 +8,12 @@ import { StripeOnboarding } from "@/components/StripeOnboarding";
 import { RoomManagement } from "@/components/RoomManagement";
 import { AccessCodeManager } from "@/components/AccessCodeManager";
 import { SettingsManager } from "@/components/SettingsManager";
+import { FormCustomizer } from "@/components/FormCustomizer";
 import { PricingOptionsManager } from "@/components/PricingOptionsManager";
 import { ConfirmationManager } from "@/components/ConfirmationManager";
+import { DayParkingManager } from "@/components/DayParkingManager";
+import { DayParkingEmailManager } from "@/components/DayParkingEmailManager";
+import { DayParkingControlTable } from "@/components/DayParkingControlTable";
 import { BookingsTable } from "@/components/BookingsTable";
 import { DashboardCharts } from "@/components/DashboardCharts";
 import { ChartColorSelector } from "@/components/ChartColorSelector";
@@ -91,6 +95,7 @@ export function AdminDashboard({
   finalIsStripeConfigured,
 }: AdminDashboardProps) {
   const [activeTab, setActiveTab] = useState("overview");
+  const [enableDayParking, setEnableDayParking] = useState(false);
   const [chartColors, setChartColors] = useState<ChartColors>({
     chart1: "#3b82f6",
     chart2: "#10b981",
@@ -211,6 +216,28 @@ export function AdminDashboard({
     }
   }, [hotel]);
 
+  // Charger l'état du parking jour
+  useEffect(() => {
+    const loadDayParkingStatus = async () => {
+      try {
+        const response = await fetch(
+          `/api/admin/${hotel}/day-parking-settings`
+        );
+        if (response.ok) {
+          const data = await response.json();
+          setEnableDayParking(data.enableDayParking || false);
+        }
+      } catch (error) {
+        console.error(
+          "Erreur lors du chargement du statut parking jour:",
+          error
+        );
+      }
+    };
+
+    loadDayParkingStatus();
+  }, [hotel]);
+
   const handleColorsChange = (newColors: ChartColors) => {
     setChartColors(newColors);
     // Sauvegarder les couleurs dans localStorage
@@ -223,9 +250,9 @@ export function AdminDashboard({
         return (
           <div className="space-y-6">
             {finalIsStripeConfigured && dbRooms.length > 0 ? (
-              <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+              <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-4">
                 {/* Statistiques */}
-                <Card>
+                <Card className="stats-card">
                   <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                     <CardTitle className="text-sm font-medium">
                       Places disponibles
@@ -242,7 +269,7 @@ export function AdminDashboard({
                   </CardContent>
                 </Card>
 
-                <Card>
+                <Card className="stats-card">
                   <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                     <CardTitle className="text-sm font-medium">
                       Réservations aujourd&apos;hui
@@ -285,7 +312,7 @@ export function AdminDashboard({
                   </CardContent>
                 </Card>
 
-                <Card>
+                <Card className="stats-card">
                   <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                     <CardTitle className="text-sm font-medium">
                       Revenus nets du jour
@@ -331,7 +358,7 @@ export function AdminDashboard({
                   </CardContent>
                 </Card>
 
-                <Card>
+                <Card className="stats-card">
                   <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                     <CardTitle className="text-sm font-medium">
                       Taux d&apos;occupation
@@ -386,8 +413,8 @@ export function AdminDashboard({
 
             {/* Graphiques analytiques */}
             {finalIsStripeConfigured && dbRooms.length > 0 && (
-              <div className="mt-8">
-                <div className="mb-6 flex items-center justify-between">
+              <div className="mt-8 dashboard-container">
+                <div className="mb-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
                   <div>
                     <h2 className="text-xl font-semibold mb-2">
                       Analyses et statistiques
@@ -397,10 +424,12 @@ export function AdminDashboard({
                     </p>
                   </div>
                   {allBookings.length > 0 && (
-                    <ChartColorSelector
-                      onColorsChange={handleColorsChange}
-                      currentColors={chartColors}
-                    />
+                    <div className="flex-shrink-0">
+                      <ChartColorSelector
+                        onColorsChange={handleColorsChange}
+                        currentColors={chartColors}
+                      />
+                    </div>
                   )}
                 </div>
                 <DashboardCharts
@@ -437,6 +466,43 @@ export function AdminDashboard({
 
       case "pricing":
         return <PricingOptionsManager hotelSlug={hotel} />;
+
+      case "day-parking":
+        return <DayParkingManager hotelSlug={hotel} />;
+
+      case "day-parking-manager":
+        return <DayParkingManager hotelSlug={hotel} />;
+
+      case "day-parking-email":
+        return <DayParkingEmailManager hotelSlug={hotel} />;
+
+      case "day-parking-control":
+        return <DayParkingControlTable hotelSlug={hotel} />;
+
+      case "day-parking-stats":
+        return (
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <BarChart3 className="h-5 w-5" />
+                Statistiques Parking Jour
+              </CardTitle>
+              <CardDescription>
+                Consultez les statistiques et métriques de votre parking jour
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="text-center py-8 text-muted-foreground">
+                <BarChart3 className="h-12 w-12 mx-auto mb-4 opacity-50" />
+                <p>Les statistiques détaillées arrivent bientôt...</p>
+                <p className="text-sm mt-2">
+                  Cette section affichera les revenus, taux d&apos;occupation et
+                  tendances de votre parking jour.
+                </p>
+              </div>
+            </CardContent>
+          </Card>
+        );
 
       case "confirmations":
         return <ConfirmationManager hotelSlug={hotel} />;
@@ -503,6 +569,13 @@ export function AdminDashboard({
           </Card>
         );
 
+      case "form-customizer":
+        return (
+          <div className="max-w-4xl mx-auto">
+            <FormCustomizer hotelSlug={hotel} />
+          </div>
+        );
+
       default:
         return null;
     }
@@ -517,11 +590,12 @@ export function AdminDashboard({
         stripeAccountId={establishment.stripeAccountId || undefined}
         activeTab={activeTab}
         onTabChange={setActiveTab}
+        enableDayParking={enableDayParking}
       />
 
       {/* Main content */}
       <div className="lg:pl-72">
-        <div className="px-4 py-8 sm:px-6 lg:px-8">
+        <div className="px-4 py-8 sm:px-6 lg:px-8 admin-dashboard-content">
           {/* Header */}
           <div className="mb-8">
             <div className="flex items-center justify-between">

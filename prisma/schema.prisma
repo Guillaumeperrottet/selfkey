@@ -91,6 +91,7 @@ model Establishment {
   stripeOnboarded              Boolean             @default(false)
   commissionRate               Float               @default(0) // 0% par défaut
   fixedFee                     Float               @default(3.00) // 3.00 CHF par défaut
+  dayParkingCommissionRate     Float               @default(5.0) // 5% par défaut pour parking jour
   // Système de codes d'accès
   accessCodeType               String              @default("room") // "room", "general", "custom"
   generalAccessCode            String? // Code général pour tout l'établissement
@@ -111,6 +112,17 @@ model Establishment {
   // Informations de contact de l'hôtel
   hotelContactEmail            String? // Email de contact de l'hôtel
   hotelContactPhone            String? // Téléphone de contact de l'hôtel
+  // Configuration du formulaire de réservation personnalisable
+  formConfig                   Json?               @default("{}") // Configuration des champs du formulaire (JSON)
+  // Configuration du parking jour
+  enableDayParking             Boolean             @default(false) // Activer le parking jour
+  dayParkingTarif1h            Float?              @default(5.00) // Tarif 1h
+  dayParkingTarif2h            Float?              @default(8.00) // Tarif 2h
+  dayParkingTarif3h            Float?              @default(12.00) // Tarif 3h
+  dayParkingTarif4h            Float?              @default(15.00) // Tarif 4h
+  dayParkingTarifHalfDay       Float?              @default(20.00) // Tarif demi-journée
+  dayParkingTarifFullDay       Float?              @default(35.00) // Tarif journée complète
+  dayParkingEmailTemplate      String? // Template email spécifique au parking jour
   createdAt                    DateTime            @default(now())
   users                        UserEstablishment[]
   bookings                     Booking[]
@@ -168,10 +180,16 @@ model Booking {
   guests                 Int           @default(1) // Total des invités (pour compatibilité)
   adults                 Int           @default(1) // Nombre d'adultes (16 ans et +)
   children               Int           @default(0) // Nombre d'enfants (moins de 16 ans)
+  // Configuration du parking jour
+  bookingType            String        @default("night") // "night", "day" - Type de réservation
+  dayParkingDuration     String? // "1h", "2h", "3h", "4h", "half_day", "full_day"
+  dayParkingStartTime    DateTime? // Heure de début pour parking jour
+  dayParkingEndTime      DateTime? // Heure de fin calculée pour parking jour
   // Configuration de confirmation
   confirmationMethod     String? // "email" ou "whatsapp"
   confirmationSent       Boolean       @default(false)
   confirmationSentAt     DateTime?
+  emailConfirmation      Boolean       @default(true) // Client souhaite recevoir confirmation par email
   establishment          Establishment @relation(fields: [hotelSlug], references: [slug])
   room                   Room          @relation(fields: [roomId], references: [id])
 

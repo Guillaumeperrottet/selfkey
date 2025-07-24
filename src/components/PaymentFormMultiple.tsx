@@ -177,10 +177,11 @@ function CheckoutForm({ booking }: Pick<PaymentFormProps, "booking">) {
         </div>
         <div>
           <h2 className="text-lg font-semibold text-gray-900">
-            Informations de paiement
+            Informations de paiement / Payment Information
           </h2>
           <p className="text-sm text-gray-600">
-            Sélectionnez votre méthode de paiement préférée
+            Sélectionnez votre méthode de paiement préférée / Select your
+            preferred payment method
           </p>
         </div>
       </div>
@@ -206,11 +207,13 @@ function CheckoutForm({ booking }: Pick<PaymentFormProps, "booking">) {
                     />
                   </svg>
                   <span className="font-medium text-blue-800">
-                    Mode test actif
+                    Mode test actif / Test mode active
                   </span>
                 </div>
                 <p className="text-blue-700 mt-1">
                   Paiement initialisé pour la réservation {booking.id}
+                  <br />
+                  <em>Payment initialized for booking {booking.id}</em>
                 </p>
               </div>
             )}
@@ -275,7 +278,7 @@ function CheckoutForm({ booking }: Pick<PaymentFormProps, "booking">) {
                 />
               </svg>
               <p className="text-sm text-red-800 font-medium">
-                Erreur de paiement
+                Erreur de paiement / Payment Error
               </p>
             </div>
             <p className="text-sm text-red-700 mt-1">{error}</p>
@@ -309,7 +312,7 @@ function CheckoutForm({ booking }: Pick<PaymentFormProps, "booking">) {
                     d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
                   ></path>
                 </svg>
-                <span>Traitement du paiement...</span>
+                <span>Traitement du paiement... / Processing payment...</span>
               </>
             ) : (
               <>
@@ -327,7 +330,8 @@ function CheckoutForm({ booking }: Pick<PaymentFormProps, "booking">) {
                   />
                 </svg>
                 <span>
-                  Payer {booking.amount} {booking.currency}
+                  Payer {booking.amount} {booking.currency} / Pay{" "}
+                  {booking.amount} {booking.currency}
                 </span>
               </>
             )}

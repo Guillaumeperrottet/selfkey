@@ -48,12 +48,18 @@ export async function GET(request: NextRequest, { params }: Props) {
       }
     }
 
+    // Déterminer le taux de commission selon le type de réservation
+    const commissionRate =
+      booking.bookingType === "day"
+        ? booking.establishment.dayParkingCommissionRate
+        : booking.establishment.commissionRate;
+
     // Créer un nouveau PaymentIntent
     const paymentIntent = await createPaymentIntentWithCommission(
       booking.amount,
       booking.currency.toLowerCase(),
       booking.establishment.stripeAccountId,
-      booking.establishment.commissionRate,
+      commissionRate,
       booking.establishment.fixedFee
     );
 

@@ -22,6 +22,7 @@ import {
 } from "@/lib/availability";
 import { BookingSteps } from "./BookingSteps";
 import { toastUtils } from "@/lib/toast-utils";
+import { useFormConfig } from "@/hooks/useFormConfig";
 
 interface Room {
   id: string;
@@ -94,6 +95,9 @@ export function BookingForm({ hotelSlug, establishment }: BookingFormProps) {
     Record<string, string | string[]>
   >({});
   const [pricingOptionsTotal, setPricingOptionsTotal] = useState(0);
+
+  // Configuration du formulaire personnalisable
+  const { isFieldEnabled, isFieldRequired } = useFormConfig(hotelSlug);
 
   const handleSearchRooms = async () => {
     if (!checkOutDate) {
@@ -191,21 +195,93 @@ export function BookingForm({ hotelSlug, establishment }: BookingFormProps) {
       return;
     }
 
+    // Validation des champs obligatoires basée sur la configuration
+    const requiredFieldsValidation = [
+      {
+        value: clientFirstName.trim(),
+        field: "clientFirstName",
+        name: "Prénom",
+      },
+      { value: clientLastName.trim(), field: "clientLastName", name: "Nom" },
+      { value: clientEmail.trim(), field: "clientEmail", name: "Email" },
+      { value: clientPhone.trim(), field: "clientPhone", name: "Téléphone" },
+    ];
+
+    // Ajouter les champs conditionnels s'ils sont requis ET activés
     if (
-      !clientFirstName.trim() ||
-      !clientLastName.trim() ||
-      !clientEmail.trim() ||
-      !clientPhone.trim() ||
-      !clientBirthDate ||
-      !clientBirthPlace.trim() ||
-      !clientAddress.trim() ||
-      !clientPostalCode.trim() ||
-      !clientCity.trim() ||
-      !clientCountry.trim() ||
-      !clientIdNumber.trim() ||
-      !clientVehicleNumber.trim() ||
-      adults < 1
+      isFieldEnabled("clientBirthDate") &&
+      isFieldRequired("clientBirthDate")
     ) {
+      requiredFieldsValidation.push({
+        value: clientBirthDate,
+        field: "clientBirthDate",
+        name: "Date de naissance",
+      });
+    }
+    if (
+      isFieldEnabled("clientBirthPlace") &&
+      isFieldRequired("clientBirthPlace")
+    ) {
+      requiredFieldsValidation.push({
+        value: clientBirthPlace.trim(),
+        field: "clientBirthPlace",
+        name: "Lieu de naissance",
+      });
+    }
+    if (isFieldEnabled("clientAddress") && isFieldRequired("clientAddress")) {
+      requiredFieldsValidation.push({
+        value: clientAddress.trim(),
+        field: "clientAddress",
+        name: "Adresse",
+      });
+    }
+    if (
+      isFieldEnabled("clientPostalCode") &&
+      isFieldRequired("clientPostalCode")
+    ) {
+      requiredFieldsValidation.push({
+        value: clientPostalCode.trim(),
+        field: "clientPostalCode",
+        name: "Code postal",
+      });
+    }
+    if (isFieldEnabled("clientCity") && isFieldRequired("clientCity")) {
+      requiredFieldsValidation.push({
+        value: clientCity.trim(),
+        field: "clientCity",
+        name: "Localité",
+      });
+    }
+    if (isFieldEnabled("clientCountry") && isFieldRequired("clientCountry")) {
+      requiredFieldsValidation.push({
+        value: clientCountry.trim(),
+        field: "clientCountry",
+        name: "Pays",
+      });
+    }
+    if (isFieldEnabled("clientIdNumber") && isFieldRequired("clientIdNumber")) {
+      requiredFieldsValidation.push({
+        value: clientIdNumber.trim(),
+        field: "clientIdNumber",
+        name: "N° d'identification",
+      });
+    }
+    if (
+      isFieldEnabled("clientVehicleNumber") &&
+      isFieldRequired("clientVehicleNumber")
+    ) {
+      requiredFieldsValidation.push({
+        value: clientVehicleNumber.trim(),
+        field: "clientVehicleNumber",
+        name: "N° d'immatriculation",
+      });
+    }
+
+    // Vérifier que tous les champs obligatoires sont remplis
+    const missingFields = requiredFieldsValidation.filter(
+      (field) => !field.value
+    );
+    if (missingFields.length > 0 || adults < 1) {
       toastUtils.error("Veuillez remplir tous les champs obligatoires");
       return;
     }
@@ -455,13 +531,13 @@ export function BookingForm({ hotelSlug, establishment }: BookingFormProps) {
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <Calendar className="h-5 w-5" />
-            Dates de séjour
+            Dates de séjour / Stay Dates
           </CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
-              <Label htmlFor="checkIn">Date d&apos;arrivée</Label>
+              <Label htmlFor="checkIn">Check-in Date</Label>
               <Input
                 id="checkIn"
                 type="date"
@@ -491,7 +567,7 @@ export function BookingForm({ hotelSlug, establishment }: BookingFormProps) {
               />
             </div>
             <div>
-              <Label htmlFor="checkOut">Date de départ</Label>
+              <Label htmlFor="checkOut">Check-out Date</Label>
               <Input
                 id="checkOut"
                 type="date"
@@ -538,7 +614,8 @@ export function BookingForm({ hotelSlug, establishment }: BookingFormProps) {
             <div className="flex items-center gap-2 text-sm text-gray-600">
               <Clock className="h-4 w-4" />
               <span>
-                Durée du séjour : {duration} nuit{duration > 1 ? "s" : ""}
+                Durée du séjour / Stay Duration : {duration} nuit
+                {duration > 1 ? "s" : ""} / night{duration > 1 ? "s" : ""}
               </span>
             </div>
           )}
@@ -551,12 +628,24 @@ export function BookingForm({ hotelSlug, establishment }: BookingFormProps) {
                   Vous pouvez réserver jusqu&apos;à 1 an à l&apos;avance. Durée
                   maximale de séjour : {establishment.maxBookingDays} nuit
                   {establishment.maxBookingDays > 1 ? "s" : ""}.
+                  <br />
+                  <em>
+                    You can book up to 1 year in advance. Maximum stay:{" "}
+                    {establishment.maxBookingDays} night
+                    {establishment.maxBookingDays > 1 ? "s" : ""}.
+                  </em>
                 </>
               ) : (
                 <>
                   Les réservations dans le futur ne sont pas autorisées. Durée
                   maximale : {establishment.maxBookingDays} nuit
                   {establishment.maxBookingDays > 1 ? "s" : ""}.
+                  <br />
+                  <em>
+                    Future bookings are not allowed. Maximum stay:{" "}
+                    {establishment.maxBookingDays} night
+                    {establishment.maxBookingDays > 1 ? "s" : ""}.
+                  </em>
                 </>
               )}
             </div>
@@ -568,8 +657,8 @@ export function BookingForm({ hotelSlug, establishment }: BookingFormProps) {
             className="w-full"
           >
             {loading
-              ? "Recherche en cours..."
-              : "Rechercher les places disponibles"}
+              ? "Recherche en cours... / Searching..."
+              : "Rechercher les places disponibles / Search Available Rooms"}
           </Button>
         </CardContent>
       </Card>
@@ -580,7 +669,7 @@ export function BookingForm({ hotelSlug, establishment }: BookingFormProps) {
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <CalendarDays className="h-5 w-5" />
-              Chambres disponibles
+              Chambres disponibles / Available Rooms
               {duration > 0 && (
                 <Badge variant="secondary">
                   {duration} nuit{duration > 1 ? "s" : ""}
@@ -594,6 +683,8 @@ export function BookingForm({ hotelSlug, establishment }: BookingFormProps) {
                 <div className="text-4xl mb-2">😔</div>
                 <p className="text-gray-600">
                   Aucune chambre disponible pour ces dates
+                  <br />
+                  <em>No rooms available for these dates</em>
                 </p>
               </div>
             ) : (
@@ -639,35 +730,37 @@ export function BookingForm({ hotelSlug, establishment }: BookingFormProps) {
       {selectedRoom && (
         <Card>
           <CardHeader>
-            <CardTitle>Informations de réservation</CardTitle>
+            <CardTitle>
+              Informations de réservation / Booking Information
+            </CardTitle>
             <p className="text-sm text-gray-600">
               Veuillez remplir tous les champs obligatoires pour votre
-              réservation
+              réservation / Please fill in all required fields for your booking
             </p>
           </CardHeader>
           <CardContent className="space-y-6">
             {/* Résumé de la sélection */}
             <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
               <h4 className="font-medium text-blue-900 mb-2">
-                Résumé de votre réservation
+                Résumé de votre réservation / Booking Summary
               </h4>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
                 <div>
                   <p>
-                    <strong>Chambre :</strong> {selectedRoom.name}
+                    <strong>Chambre / Room :</strong> {selectedRoom.name}
                   </p>
                   <p>
-                    <strong>Durée :</strong> {duration} nuit
-                    {duration > 1 ? "s" : ""}
+                    <strong>Durée / Duration :</strong> {duration} nuit
+                    {duration > 1 ? "s" : ""} / night{duration > 1 ? "s" : ""}
                   </p>
                 </div>
                 <div>
                   <p>
-                    <strong>Du :</strong>{" "}
+                    <strong>Du / From :</strong>{" "}
                     {new Date(checkInDate).toLocaleDateString()}
                   </p>
                   <p>
-                    <strong>Au :</strong>{" "}
+                    <strong>Au / To :</strong>{" "}
                     {new Date(checkOutDate).toLocaleDateString()}
                   </p>
                 </div>
@@ -676,78 +769,88 @@ export function BookingForm({ hotelSlug, establishment }: BookingFormProps) {
 
             {/* Nombre d'invités */}
             <div>
-              <h4 className="font-medium text-lg mb-3">Nombre de personnes</h4>
+              <h4 className="font-medium text-lg mb-3">
+                Nombre de personnes / Number of Guests
+              </h4>
               <p className="text-sm text-gray-600 mb-3">
                 Adultes : 16 ans et plus • Enfants : moins de 16 ans
+                <br />
+                <em>Adults: 16 years and older • Children: under 16 years</em>
               </p>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
-                  <Label htmlFor="adults">Nombre d&apos;adultes *</Label>
+                  <Label htmlFor="adults">
+                    Nombre d&apos;adultes / Adults *
+                  </Label>
                   <Select
                     value={adults.toString()}
                     onValueChange={(value) => setAdults(parseInt(value))}
                   >
                     <SelectTrigger className="mt-1">
-                      <SelectValue placeholder="Sélectionner" />
+                      <SelectValue placeholder="Select" />
                     </SelectTrigger>
                     <SelectContent>
                       {[1, 2, 3, 4, 5, 6, 7, 8].map((num) => (
                         <SelectItem key={num} value={num.toString()}>
-                          {num} adulte{num > 1 ? "s" : ""}
+                          {num} adulte{num > 1 ? "s" : ""} / {num} adult
+                          {num > 1 ? "s" : ""}
                         </SelectItem>
                       ))}
                     </SelectContent>
                   </Select>
                 </div>
-                <div>
-                  <Label htmlFor="children">Nombre d&apos;enfants</Label>
-                  <Select
-                    value={children.toString()}
-                    onValueChange={(value) => setChildren(parseInt(value))}
-                  >
-                    <SelectTrigger className="mt-1">
-                      <SelectValue placeholder="Sélectionner" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {[0, 1, 2, 3, 4, 5, 6].map((num) => (
-                        <SelectItem key={num} value={num.toString()}>
-                          {num} enfant{num > 1 ? "s" : ""}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
+                {isFieldEnabled("children") && (
+                  <div>
+                    <Label htmlFor="children">
+                      Nombre d&apos;enfants / Children
+                    </Label>
+                    <Select
+                      value={children.toString()}
+                      onValueChange={(value) => setChildren(parseInt(value))}
+                    >
+                      <SelectTrigger className="mt-1">
+                        <SelectValue placeholder="Select" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {[0, 1, 2, 3, 4, 5, 6].map((num) => (
+                          <SelectItem key={num} value={num.toString()}>
+                            {num} enfant{num > 1 ? "s" : ""} / {num} child
+                            {num > 1 ? "ren" : ""}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                )}
               </div>
             </div>
 
             {/* Informations personnelles */}
             <div>
-              <h4 className="font-medium text-lg mb-3">
-                Informations personnelles
-              </h4>
+              <h4 className="font-medium text-lg mb-3">Personal Information</h4>
 
               {/* Nom et Prénom */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
                 <div>
-                  <Label htmlFor="clientLastName">Nom *</Label>
+                  <Label htmlFor="clientLastName">Last Name *</Label>
                   <Input
                     id="clientLastName"
                     type="text"
                     value={clientLastName}
                     onChange={(e) => setClientLastName(e.target.value)}
-                    placeholder="Nom de famille"
+                    placeholder="Last name"
                     className="mt-1"
                     required
                   />
                 </div>
                 <div>
-                  <Label htmlFor="clientFirstName">Prénom *</Label>
+                  <Label htmlFor="clientFirstName">First Name *</Label>
                   <Input
                     id="clientFirstName"
                     type="text"
                     value={clientFirstName}
                     onChange={(e) => setClientFirstName(e.target.value)}
-                    placeholder="Prénom"
+                    placeholder="First name"
                     className="mt-1"
                     required
                   />
@@ -755,31 +858,44 @@ export function BookingForm({ hotelSlug, establishment }: BookingFormProps) {
               </div>
 
               {/* Date et lieu de naissance */}
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-                <div>
-                  <Label htmlFor="clientBirthDate">Date de naissance *</Label>
-                  <Input
-                    id="clientBirthDate"
-                    type="date"
-                    value={clientBirthDate}
-                    onChange={(e) => setClientBirthDate(e.target.value)}
-                    className="mt-1"
-                    required
-                  />
+              {(isFieldEnabled("clientBirthDate") ||
+                isFieldEnabled("clientBirthPlace")) && (
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                  {isFieldEnabled("clientBirthDate") && (
+                    <div>
+                      <Label htmlFor="clientBirthDate">
+                        Date de naissance / Date of Birth{" "}
+                        {isFieldRequired("clientBirthDate") ? "*" : ""}
+                      </Label>
+                      <Input
+                        id="clientBirthDate"
+                        type="date"
+                        value={clientBirthDate}
+                        onChange={(e) => setClientBirthDate(e.target.value)}
+                        className="mt-1"
+                        required={isFieldRequired("clientBirthDate")}
+                      />
+                    </div>
+                  )}
+                  {isFieldEnabled("clientBirthPlace") && (
+                    <div>
+                      <Label htmlFor="clientBirthPlace">
+                        Lieu de naissance / Place of Birth{" "}
+                        {isFieldRequired("clientBirthPlace") ? "*" : ""}
+                      </Label>
+                      <Input
+                        id="clientBirthPlace"
+                        type="text"
+                        value={clientBirthPlace}
+                        onChange={(e) => setClientBirthPlace(e.target.value)}
+                        placeholder="Ville, Pays / City, Country"
+                        className="mt-1"
+                        required={isFieldRequired("clientBirthPlace")}
+                      />
+                    </div>
+                  )}
                 </div>
-                <div>
-                  <Label htmlFor="clientBirthPlace">Lieu de naissance *</Label>
-                  <Input
-                    id="clientBirthPlace"
-                    type="text"
-                    value={clientBirthPlace}
-                    onChange={(e) => setClientBirthPlace(e.target.value)}
-                    placeholder="Ville, Pays"
-                    className="mt-1"
-                    required
-                  />
-                </div>
-              </div>
+              )}
 
               {/* Email et Téléphone */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
@@ -790,13 +906,13 @@ export function BookingForm({ hotelSlug, establishment }: BookingFormProps) {
                     type="email"
                     value={clientEmail}
                     onChange={(e) => setClientEmail(e.target.value)}
-                    placeholder="votre@email.com"
+                    placeholder="your@email.com"
                     className="mt-1"
                     required
                   />
                 </div>
                 <div>
-                  <Label htmlFor="clientPhone">Téléphone mobile *</Label>
+                  <Label htmlFor="clientPhone">Mobile Phone *</Label>
                   <Input
                     id="clientPhone"
                     type="tel"
@@ -810,333 +926,394 @@ export function BookingForm({ hotelSlug, establishment }: BookingFormProps) {
               </div>
 
               {/* Adresse complète */}
-              <div className="mb-4">
-                <Label htmlFor="clientAddress">Adresse *</Label>
-                <Input
-                  id="clientAddress"
-                  type="text"
-                  value={clientAddress}
-                  onChange={(e) => setClientAddress(e.target.value)}
-                  placeholder="Rue et numéro"
-                  className="mt-1"
-                  required
-                />
-              </div>
+              {isFieldEnabled("clientAddress") && (
+                <div className="mb-4">
+                  <Label htmlFor="clientAddress">
+                    Address {isFieldRequired("clientAddress") ? "*" : ""}
+                  </Label>
+                  <Input
+                    id="clientAddress"
+                    type="text"
+                    value={clientAddress}
+                    onChange={(e) => setClientAddress(e.target.value)}
+                    placeholder="Rue et numéro / Street and number"
+                    className="mt-1"
+                    required={isFieldRequired("clientAddress")}
+                  />
+                </div>
+              )}
 
               {/* Code postal, Localité et Pays */}
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
-                <div>
-                  <Label htmlFor="clientPostalCode">Code postal *</Label>
-                  <Input
-                    id="clientPostalCode"
-                    type="text"
-                    value={clientPostalCode}
-                    onChange={(e) => setClientPostalCode(e.target.value)}
-                    placeholder="1234"
-                    className="mt-1"
-                    required
-                  />
+              {(isFieldEnabled("clientPostalCode") ||
+                isFieldEnabled("clientCity") ||
+                isFieldEnabled("clientCountry")) && (
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+                  {isFieldEnabled("clientPostalCode") && (
+                    <div>
+                      <Label htmlFor="clientPostalCode">
+                        Postal Code{" "}
+                        {isFieldRequired("clientPostalCode") ? "*" : ""}
+                      </Label>
+                      <Input
+                        id="clientPostalCode"
+                        type="text"
+                        value={clientPostalCode}
+                        onChange={(e) => setClientPostalCode(e.target.value)}
+                        placeholder="1234"
+                        className="mt-1"
+                        required={isFieldRequired("clientPostalCode")}
+                      />
+                    </div>
+                  )}
+                  {isFieldEnabled("clientCity") && (
+                    <div>
+                      <Label htmlFor="clientCity">
+                        Localité / City{" "}
+                        {isFieldRequired("clientCity") ? "*" : ""}
+                      </Label>
+                      <Input
+                        id="clientCity"
+                        type="text"
+                        value={clientCity}
+                        onChange={(e) => setClientCity(e.target.value)}
+                        placeholder="Ville / City"
+                        className="mt-1"
+                        required={isFieldRequired("clientCity")}
+                      />
+                    </div>
+                  )}
+                  {isFieldEnabled("clientCountry") && (
+                    <div>
+                      <Label htmlFor="clientCountry">
+                        Country {isFieldRequired("clientCountry") ? "*" : ""}
+                      </Label>
+                      <Select
+                        value={clientCountry}
+                        onValueChange={(value) => setClientCountry(value)}
+                      >
+                        <SelectTrigger className="mt-1">
+                          <SelectValue placeholder="Sélectionner un pays / Select a country" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="Afghanistan">
+                            Afghanistan
+                          </SelectItem>
+                          <SelectItem value="Afrique du Sud">
+                            Afrique du Sud
+                          </SelectItem>
+                          <SelectItem value="Albanie">Albanie</SelectItem>
+                          <SelectItem value="Algérie">Algérie</SelectItem>
+                          <SelectItem value="Allemagne">Allemagne</SelectItem>
+                          <SelectItem value="Andorre">Andorre</SelectItem>
+                          <SelectItem value="Angola">Angola</SelectItem>
+                          <SelectItem value="Antigua-et-Barbuda">
+                            Antigua-et-Barbuda
+                          </SelectItem>
+                          <SelectItem value="Arabie saoudite">
+                            Arabie saoudite
+                          </SelectItem>
+                          <SelectItem value="Argentine">Argentine</SelectItem>
+                          <SelectItem value="Arménie">Arménie</SelectItem>
+                          <SelectItem value="Australie">Australie</SelectItem>
+                          <SelectItem value="Autriche">Autriche</SelectItem>
+                          <SelectItem value="Azerbaïdjan">
+                            Azerbaïdjan
+                          </SelectItem>
+                          <SelectItem value="Bahamas">Bahamas</SelectItem>
+                          <SelectItem value="Bahreïn">Bahreïn</SelectItem>
+                          <SelectItem value="Bangladesh">Bangladesh</SelectItem>
+                          <SelectItem value="Barbade">Barbade</SelectItem>
+                          <SelectItem value="Belgique">Belgique</SelectItem>
+                          <SelectItem value="Belize">Belize</SelectItem>
+                          <SelectItem value="Bénin">Bénin</SelectItem>
+                          <SelectItem value="Bhoutan">Bhoutan</SelectItem>
+                          <SelectItem value="Biélorussie">
+                            Biélorussie
+                          </SelectItem>
+                          <SelectItem value="Birmanie">Birmanie</SelectItem>
+                          <SelectItem value="Bolivie">Bolivie</SelectItem>
+                          <SelectItem value="Bosnie-Herzégovine">
+                            Bosnie-Herzégovine
+                          </SelectItem>
+                          <SelectItem value="Botswana">Botswana</SelectItem>
+                          <SelectItem value="Brésil">Brésil</SelectItem>
+                          <SelectItem value="Brunei">Brunei</SelectItem>
+                          <SelectItem value="Bulgarie">Bulgarie</SelectItem>
+                          <SelectItem value="Burkina Faso">
+                            Burkina Faso
+                          </SelectItem>
+                          <SelectItem value="Burundi">Burundi</SelectItem>
+                          <SelectItem value="Cambodge">Cambodge</SelectItem>
+                          <SelectItem value="Cameroun">Cameroun</SelectItem>
+                          <SelectItem value="Canada">Canada</SelectItem>
+                          <SelectItem value="Cap-Vert">Cap-Vert</SelectItem>
+                          <SelectItem value="Chili">Chili</SelectItem>
+                          <SelectItem value="Chine">Chine</SelectItem>
+                          <SelectItem value="Chypre">Chypre</SelectItem>
+                          <SelectItem value="Colombie">Colombie</SelectItem>
+                          <SelectItem value="Comores">Comores</SelectItem>
+                          <SelectItem value="Congo">Congo</SelectItem>
+                          <SelectItem value="Congo démocratique">
+                            Congo démocratique
+                          </SelectItem>
+                          <SelectItem value="Corée du Nord">
+                            Corée du Nord
+                          </SelectItem>
+                          <SelectItem value="Corée du Sud">
+                            Corée du Sud
+                          </SelectItem>
+                          <SelectItem value="Costa Rica">Costa Rica</SelectItem>
+                          <SelectItem value="Côte d'Ivoire">
+                            Côte d&apos;Ivoire
+                          </SelectItem>
+                          <SelectItem value="Croatie">Croatie</SelectItem>
+                          <SelectItem value="Cuba">Cuba</SelectItem>
+                          <SelectItem value="Danemark">Danemark</SelectItem>
+                          <SelectItem value="Djibouti">Djibouti</SelectItem>
+                          <SelectItem value="Dominique">Dominique</SelectItem>
+                          <SelectItem value="Égypte">Égypte</SelectItem>
+                          <SelectItem value="Émirats arabes unis">
+                            Émirats arabes unis
+                          </SelectItem>
+                          <SelectItem value="Équateur">Équateur</SelectItem>
+                          <SelectItem value="Érythrée">Érythrée</SelectItem>
+                          <SelectItem value="Espagne">Espagne</SelectItem>
+                          <SelectItem value="Estonie">Estonie</SelectItem>
+                          <SelectItem value="États-Unis">États-Unis</SelectItem>
+                          <SelectItem value="Éthiopie">Éthiopie</SelectItem>
+                          <SelectItem value="Fidji">Fidji</SelectItem>
+                          <SelectItem value="Finlande">Finlande</SelectItem>
+                          <SelectItem value="France">France</SelectItem>
+                          <SelectItem value="Gabon">Gabon</SelectItem>
+                          <SelectItem value="Gambie">Gambie</SelectItem>
+                          <SelectItem value="Géorgie">Géorgie</SelectItem>
+                          <SelectItem value="Ghana">Ghana</SelectItem>
+                          <SelectItem value="Grèce">Grèce</SelectItem>
+                          <SelectItem value="Grenade">Grenade</SelectItem>
+                          <SelectItem value="Guatemala">Guatemala</SelectItem>
+                          <SelectItem value="Guinée">Guinée</SelectItem>
+                          <SelectItem value="Guinée-Bissau">
+                            Guinée-Bissau
+                          </SelectItem>
+                          <SelectItem value="Guinée équatoriale">
+                            Guinée équatoriale
+                          </SelectItem>
+                          <SelectItem value="Guyana">Guyana</SelectItem>
+                          <SelectItem value="Haïti">Haïti</SelectItem>
+                          <SelectItem value="Honduras">Honduras</SelectItem>
+                          <SelectItem value="Hongrie">Hongrie</SelectItem>
+                          <SelectItem value="Îles Marshall">
+                            Îles Marshall
+                          </SelectItem>
+                          <SelectItem value="Îles Salomon">
+                            Îles Salomon
+                          </SelectItem>
+                          <SelectItem value="Inde">Inde</SelectItem>
+                          <SelectItem value="Indonésie">Indonésie</SelectItem>
+                          <SelectItem value="Irak">Irak</SelectItem>
+                          <SelectItem value="Iran">Iran</SelectItem>
+                          <SelectItem value="Irlande">Irlande</SelectItem>
+                          <SelectItem value="Islande">Islande</SelectItem>
+                          <SelectItem value="Israël">Israël</SelectItem>
+                          <SelectItem value="Italie">Italie</SelectItem>
+                          <SelectItem value="Jamaïque">Jamaïque</SelectItem>
+                          <SelectItem value="Japon">Japon</SelectItem>
+                          <SelectItem value="Jordanie">Jordanie</SelectItem>
+                          <SelectItem value="Kazakhstan">Kazakhstan</SelectItem>
+                          <SelectItem value="Kenya">Kenya</SelectItem>
+                          <SelectItem value="Kirghizistan">
+                            Kirghizistan
+                          </SelectItem>
+                          <SelectItem value="Kiribati">Kiribati</SelectItem>
+                          <SelectItem value="Koweït">Koweït</SelectItem>
+                          <SelectItem value="Laos">Laos</SelectItem>
+                          <SelectItem value="Lesotho">Lesotho</SelectItem>
+                          <SelectItem value="Lettonie">Lettonie</SelectItem>
+                          <SelectItem value="Liban">Liban</SelectItem>
+                          <SelectItem value="Liberia">Liberia</SelectItem>
+                          <SelectItem value="Libye">Libye</SelectItem>
+                          <SelectItem value="Liechtenstein">
+                            Liechtenstein
+                          </SelectItem>
+                          <SelectItem value="Lituanie">Lituanie</SelectItem>
+                          <SelectItem value="Luxembourg">Luxembourg</SelectItem>
+                          <SelectItem value="Macédoine du Nord">
+                            Macédoine du Nord
+                          </SelectItem>
+                          <SelectItem value="Madagascar">Madagascar</SelectItem>
+                          <SelectItem value="Malaisie">Malaisie</SelectItem>
+                          <SelectItem value="Malawi">Malawi</SelectItem>
+                          <SelectItem value="Maldives">Maldives</SelectItem>
+                          <SelectItem value="Mali">Mali</SelectItem>
+                          <SelectItem value="Malte">Malte</SelectItem>
+                          <SelectItem value="Maroc">Maroc</SelectItem>
+                          <SelectItem value="Maurice">Maurice</SelectItem>
+                          <SelectItem value="Mauritanie">Mauritanie</SelectItem>
+                          <SelectItem value="Mexique">Mexique</SelectItem>
+                          <SelectItem value="Micronésie">Micronésie</SelectItem>
+                          <SelectItem value="Moldavie">Moldavie</SelectItem>
+                          <SelectItem value="Monaco">Monaco</SelectItem>
+                          <SelectItem value="Mongolie">Mongolie</SelectItem>
+                          <SelectItem value="Monténégro">Monténégro</SelectItem>
+                          <SelectItem value="Mozambique">Mozambique</SelectItem>
+                          <SelectItem value="Namibie">Namibie</SelectItem>
+                          <SelectItem value="Nauru">Nauru</SelectItem>
+                          <SelectItem value="Népal">Népal</SelectItem>
+                          <SelectItem value="Nicaragua">Nicaragua</SelectItem>
+                          <SelectItem value="Niger">Niger</SelectItem>
+                          <SelectItem value="Nigeria">Nigeria</SelectItem>
+                          <SelectItem value="Norvège">Norvège</SelectItem>
+                          <SelectItem value="Nouvelle-Zélande">
+                            Nouvelle-Zélande
+                          </SelectItem>
+                          <SelectItem value="Oman">Oman</SelectItem>
+                          <SelectItem value="Ouganda">Ouganda</SelectItem>
+                          <SelectItem value="Ouzbékistan">
+                            Ouzbékistan
+                          </SelectItem>
+                          <SelectItem value="Pakistan">Pakistan</SelectItem>
+                          <SelectItem value="Palaos">Palaos</SelectItem>
+                          <SelectItem value="Palestine">Palestine</SelectItem>
+                          <SelectItem value="Panama">Panama</SelectItem>
+                          <SelectItem value="Papouasie-Nouvelle-Guinée">
+                            Papouasie-Nouvelle-Guinée
+                          </SelectItem>
+                          <SelectItem value="Paraguay">Paraguay</SelectItem>
+                          <SelectItem value="Pays-Bas">Pays-Bas</SelectItem>
+                          <SelectItem value="Pérou">Pérou</SelectItem>
+                          <SelectItem value="Philippines">
+                            Philippines
+                          </SelectItem>
+                          <SelectItem value="Pologne">Pologne</SelectItem>
+                          <SelectItem value="Portugal">Portugal</SelectItem>
+                          <SelectItem value="Qatar">Qatar</SelectItem>
+                          <SelectItem value="République centrafricaine">
+                            République centrafricaine
+                          </SelectItem>
+                          <SelectItem value="République dominicaine">
+                            République dominicaine
+                          </SelectItem>
+                          <SelectItem value="République tchèque">
+                            République tchèque
+                          </SelectItem>
+                          <SelectItem value="Roumanie">Roumanie</SelectItem>
+                          <SelectItem value="Royaume-Uni">
+                            Royaume-Uni
+                          </SelectItem>
+                          <SelectItem value="Russie">Russie</SelectItem>
+                          <SelectItem value="Rwanda">Rwanda</SelectItem>
+                          <SelectItem value="Saint-Christophe-et-Niévès">
+                            Saint-Christophe-et-Niévès
+                          </SelectItem>
+                          <SelectItem value="Sainte-Lucie">
+                            Sainte-Lucie
+                          </SelectItem>
+                          <SelectItem value="Saint-Marin">
+                            Saint-Marin
+                          </SelectItem>
+                          <SelectItem value="Saint-Vincent-et-les-Grenadines">
+                            Saint-Vincent-et-les-Grenadines
+                          </SelectItem>
+                          <SelectItem value="Salvador">Salvador</SelectItem>
+                          <SelectItem value="Samoa">Samoa</SelectItem>
+                          <SelectItem value="São Tomé-et-Principe">
+                            São Tomé-et-Principe
+                          </SelectItem>
+                          <SelectItem value="Sénégal">Sénégal</SelectItem>
+                          <SelectItem value="Serbie">Serbie</SelectItem>
+                          <SelectItem value="Seychelles">Seychelles</SelectItem>
+                          <SelectItem value="Sierra Leone">
+                            Sierra Leone
+                          </SelectItem>
+                          <SelectItem value="Singapour">Singapour</SelectItem>
+                          <SelectItem value="Slovaquie">Slovaquie</SelectItem>
+                          <SelectItem value="Slovénie">Slovénie</SelectItem>
+                          <SelectItem value="Somalie">Somalie</SelectItem>
+                          <SelectItem value="Soudan">Soudan</SelectItem>
+                          <SelectItem value="Soudan du Sud">
+                            Soudan du Sud
+                          </SelectItem>
+                          <SelectItem value="Sri Lanka">Sri Lanka</SelectItem>
+                          <SelectItem value="Suède">Suède</SelectItem>
+                          <SelectItem value="Suisse">Suisse</SelectItem>
+                          <SelectItem value="Suriname">Suriname</SelectItem>
+                          <SelectItem value="Syrie">Syrie</SelectItem>
+                          <SelectItem value="Tadjikistan">
+                            Tadjikistan
+                          </SelectItem>
+                          <SelectItem value="Tanzanie">Tanzanie</SelectItem>
+                          <SelectItem value="Tchad">Tchad</SelectItem>
+                          <SelectItem value="Thaïlande">Thaïlande</SelectItem>
+                          <SelectItem value="Timor oriental">
+                            Timor oriental
+                          </SelectItem>
+                          <SelectItem value="Togo">Togo</SelectItem>
+                          <SelectItem value="Tonga">Tonga</SelectItem>
+                          <SelectItem value="Trinité-et-Tobago">
+                            Trinité-et-Tobago
+                          </SelectItem>
+                          <SelectItem value="Tunisie">Tunisie</SelectItem>
+                          <SelectItem value="Turkménistan">
+                            Turkménistan
+                          </SelectItem>
+                          <SelectItem value="Turquie">Turquie</SelectItem>
+                          <SelectItem value="Tuvalu">Tuvalu</SelectItem>
+                          <SelectItem value="Ukraine">Ukraine</SelectItem>
+                          <SelectItem value="Uruguay">Uruguay</SelectItem>
+                          <SelectItem value="Vanuatu">Vanuatu</SelectItem>
+                          <SelectItem value="Vatican">Vatican</SelectItem>
+                          <SelectItem value="Venezuela">Venezuela</SelectItem>
+                          <SelectItem value="Viêt Nam">Viêt Nam</SelectItem>
+                          <SelectItem value="Yémen">Yémen</SelectItem>
+                          <SelectItem value="Zambie">Zambie</SelectItem>
+                          <SelectItem value="Zimbabwe">Zimbabwe</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                  )}
                 </div>
-                <div>
-                  <Label htmlFor="clientCity">Localité *</Label>
-                  <Input
-                    id="clientCity"
-                    type="text"
-                    value={clientCity}
-                    onChange={(e) => setClientCity(e.target.value)}
-                    placeholder="Ville"
-                    className="mt-1"
-                    required
-                  />
-                </div>
-                <div>
-                  <Label htmlFor="clientCountry">Pays *</Label>
-                  <Select
-                    value={clientCountry}
-                    onValueChange={(value) => setClientCountry(value)}
-                  >
-                    <SelectTrigger className="mt-1">
-                      <SelectValue placeholder="Sélectionner un pays" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="Afghanistan">Afghanistan</SelectItem>
-                      <SelectItem value="Afrique du Sud">
-                        Afrique du Sud
-                      </SelectItem>
-                      <SelectItem value="Albanie">Albanie</SelectItem>
-                      <SelectItem value="Algérie">Algérie</SelectItem>
-                      <SelectItem value="Allemagne">Allemagne</SelectItem>
-                      <SelectItem value="Andorre">Andorre</SelectItem>
-                      <SelectItem value="Angola">Angola</SelectItem>
-                      <SelectItem value="Antigua-et-Barbuda">
-                        Antigua-et-Barbuda
-                      </SelectItem>
-                      <SelectItem value="Arabie saoudite">
-                        Arabie saoudite
-                      </SelectItem>
-                      <SelectItem value="Argentine">Argentine</SelectItem>
-                      <SelectItem value="Arménie">Arménie</SelectItem>
-                      <SelectItem value="Australie">Australie</SelectItem>
-                      <SelectItem value="Autriche">Autriche</SelectItem>
-                      <SelectItem value="Azerbaïdjan">Azerbaïdjan</SelectItem>
-                      <SelectItem value="Bahamas">Bahamas</SelectItem>
-                      <SelectItem value="Bahreïn">Bahreïn</SelectItem>
-                      <SelectItem value="Bangladesh">Bangladesh</SelectItem>
-                      <SelectItem value="Barbade">Barbade</SelectItem>
-                      <SelectItem value="Belgique">Belgique</SelectItem>
-                      <SelectItem value="Belize">Belize</SelectItem>
-                      <SelectItem value="Bénin">Bénin</SelectItem>
-                      <SelectItem value="Bhoutan">Bhoutan</SelectItem>
-                      <SelectItem value="Biélorussie">Biélorussie</SelectItem>
-                      <SelectItem value="Birmanie">Birmanie</SelectItem>
-                      <SelectItem value="Bolivie">Bolivie</SelectItem>
-                      <SelectItem value="Bosnie-Herzégovine">
-                        Bosnie-Herzégovine
-                      </SelectItem>
-                      <SelectItem value="Botswana">Botswana</SelectItem>
-                      <SelectItem value="Brésil">Brésil</SelectItem>
-                      <SelectItem value="Brunei">Brunei</SelectItem>
-                      <SelectItem value="Bulgarie">Bulgarie</SelectItem>
-                      <SelectItem value="Burkina Faso">Burkina Faso</SelectItem>
-                      <SelectItem value="Burundi">Burundi</SelectItem>
-                      <SelectItem value="Cambodge">Cambodge</SelectItem>
-                      <SelectItem value="Cameroun">Cameroun</SelectItem>
-                      <SelectItem value="Canada">Canada</SelectItem>
-                      <SelectItem value="Cap-Vert">Cap-Vert</SelectItem>
-                      <SelectItem value="Chili">Chili</SelectItem>
-                      <SelectItem value="Chine">Chine</SelectItem>
-                      <SelectItem value="Chypre">Chypre</SelectItem>
-                      <SelectItem value="Colombie">Colombie</SelectItem>
-                      <SelectItem value="Comores">Comores</SelectItem>
-                      <SelectItem value="Congo">Congo</SelectItem>
-                      <SelectItem value="Congo démocratique">
-                        Congo démocratique
-                      </SelectItem>
-                      <SelectItem value="Corée du Nord">
-                        Corée du Nord
-                      </SelectItem>
-                      <SelectItem value="Corée du Sud">Corée du Sud</SelectItem>
-                      <SelectItem value="Costa Rica">Costa Rica</SelectItem>
-                      <SelectItem value="Côte d'Ivoire">
-                        Côte d&apos;Ivoire
-                      </SelectItem>
-                      <SelectItem value="Croatie">Croatie</SelectItem>
-                      <SelectItem value="Cuba">Cuba</SelectItem>
-                      <SelectItem value="Danemark">Danemark</SelectItem>
-                      <SelectItem value="Djibouti">Djibouti</SelectItem>
-                      <SelectItem value="Dominique">Dominique</SelectItem>
-                      <SelectItem value="Égypte">Égypte</SelectItem>
-                      <SelectItem value="Émirats arabes unis">
-                        Émirats arabes unis
-                      </SelectItem>
-                      <SelectItem value="Équateur">Équateur</SelectItem>
-                      <SelectItem value="Érythrée">Érythrée</SelectItem>
-                      <SelectItem value="Espagne">Espagne</SelectItem>
-                      <SelectItem value="Estonie">Estonie</SelectItem>
-                      <SelectItem value="États-Unis">États-Unis</SelectItem>
-                      <SelectItem value="Éthiopie">Éthiopie</SelectItem>
-                      <SelectItem value="Fidji">Fidji</SelectItem>
-                      <SelectItem value="Finlande">Finlande</SelectItem>
-                      <SelectItem value="France">France</SelectItem>
-                      <SelectItem value="Gabon">Gabon</SelectItem>
-                      <SelectItem value="Gambie">Gambie</SelectItem>
-                      <SelectItem value="Géorgie">Géorgie</SelectItem>
-                      <SelectItem value="Ghana">Ghana</SelectItem>
-                      <SelectItem value="Grèce">Grèce</SelectItem>
-                      <SelectItem value="Grenade">Grenade</SelectItem>
-                      <SelectItem value="Guatemala">Guatemala</SelectItem>
-                      <SelectItem value="Guinée">Guinée</SelectItem>
-                      <SelectItem value="Guinée-Bissau">
-                        Guinée-Bissau
-                      </SelectItem>
-                      <SelectItem value="Guinée équatoriale">
-                        Guinée équatoriale
-                      </SelectItem>
-                      <SelectItem value="Guyana">Guyana</SelectItem>
-                      <SelectItem value="Haïti">Haïti</SelectItem>
-                      <SelectItem value="Honduras">Honduras</SelectItem>
-                      <SelectItem value="Hongrie">Hongrie</SelectItem>
-                      <SelectItem value="Îles Marshall">
-                        Îles Marshall
-                      </SelectItem>
-                      <SelectItem value="Îles Salomon">Îles Salomon</SelectItem>
-                      <SelectItem value="Inde">Inde</SelectItem>
-                      <SelectItem value="Indonésie">Indonésie</SelectItem>
-                      <SelectItem value="Irak">Irak</SelectItem>
-                      <SelectItem value="Iran">Iran</SelectItem>
-                      <SelectItem value="Irlande">Irlande</SelectItem>
-                      <SelectItem value="Islande">Islande</SelectItem>
-                      <SelectItem value="Israël">Israël</SelectItem>
-                      <SelectItem value="Italie">Italie</SelectItem>
-                      <SelectItem value="Jamaïque">Jamaïque</SelectItem>
-                      <SelectItem value="Japon">Japon</SelectItem>
-                      <SelectItem value="Jordanie">Jordanie</SelectItem>
-                      <SelectItem value="Kazakhstan">Kazakhstan</SelectItem>
-                      <SelectItem value="Kenya">Kenya</SelectItem>
-                      <SelectItem value="Kirghizistan">Kirghizistan</SelectItem>
-                      <SelectItem value="Kiribati">Kiribati</SelectItem>
-                      <SelectItem value="Koweït">Koweït</SelectItem>
-                      <SelectItem value="Laos">Laos</SelectItem>
-                      <SelectItem value="Lesotho">Lesotho</SelectItem>
-                      <SelectItem value="Lettonie">Lettonie</SelectItem>
-                      <SelectItem value="Liban">Liban</SelectItem>
-                      <SelectItem value="Liberia">Liberia</SelectItem>
-                      <SelectItem value="Libye">Libye</SelectItem>
-                      <SelectItem value="Liechtenstein">
-                        Liechtenstein
-                      </SelectItem>
-                      <SelectItem value="Lituanie">Lituanie</SelectItem>
-                      <SelectItem value="Luxembourg">Luxembourg</SelectItem>
-                      <SelectItem value="Macédoine du Nord">
-                        Macédoine du Nord
-                      </SelectItem>
-                      <SelectItem value="Madagascar">Madagascar</SelectItem>
-                      <SelectItem value="Malaisie">Malaisie</SelectItem>
-                      <SelectItem value="Malawi">Malawi</SelectItem>
-                      <SelectItem value="Maldives">Maldives</SelectItem>
-                      <SelectItem value="Mali">Mali</SelectItem>
-                      <SelectItem value="Malte">Malte</SelectItem>
-                      <SelectItem value="Maroc">Maroc</SelectItem>
-                      <SelectItem value="Maurice">Maurice</SelectItem>
-                      <SelectItem value="Mauritanie">Mauritanie</SelectItem>
-                      <SelectItem value="Mexique">Mexique</SelectItem>
-                      <SelectItem value="Micronésie">Micronésie</SelectItem>
-                      <SelectItem value="Moldavie">Moldavie</SelectItem>
-                      <SelectItem value="Monaco">Monaco</SelectItem>
-                      <SelectItem value="Mongolie">Mongolie</SelectItem>
-                      <SelectItem value="Monténégro">Monténégro</SelectItem>
-                      <SelectItem value="Mozambique">Mozambique</SelectItem>
-                      <SelectItem value="Namibie">Namibie</SelectItem>
-                      <SelectItem value="Nauru">Nauru</SelectItem>
-                      <SelectItem value="Népal">Népal</SelectItem>
-                      <SelectItem value="Nicaragua">Nicaragua</SelectItem>
-                      <SelectItem value="Niger">Niger</SelectItem>
-                      <SelectItem value="Nigeria">Nigeria</SelectItem>
-                      <SelectItem value="Norvège">Norvège</SelectItem>
-                      <SelectItem value="Nouvelle-Zélande">
-                        Nouvelle-Zélande
-                      </SelectItem>
-                      <SelectItem value="Oman">Oman</SelectItem>
-                      <SelectItem value="Ouganda">Ouganda</SelectItem>
-                      <SelectItem value="Ouzbékistan">Ouzbékistan</SelectItem>
-                      <SelectItem value="Pakistan">Pakistan</SelectItem>
-                      <SelectItem value="Palaos">Palaos</SelectItem>
-                      <SelectItem value="Palestine">Palestine</SelectItem>
-                      <SelectItem value="Panama">Panama</SelectItem>
-                      <SelectItem value="Papouasie-Nouvelle-Guinée">
-                        Papouasie-Nouvelle-Guinée
-                      </SelectItem>
-                      <SelectItem value="Paraguay">Paraguay</SelectItem>
-                      <SelectItem value="Pays-Bas">Pays-Bas</SelectItem>
-                      <SelectItem value="Pérou">Pérou</SelectItem>
-                      <SelectItem value="Philippines">Philippines</SelectItem>
-                      <SelectItem value="Pologne">Pologne</SelectItem>
-                      <SelectItem value="Portugal">Portugal</SelectItem>
-                      <SelectItem value="Qatar">Qatar</SelectItem>
-                      <SelectItem value="République centrafricaine">
-                        République centrafricaine
-                      </SelectItem>
-                      <SelectItem value="République dominicaine">
-                        République dominicaine
-                      </SelectItem>
-                      <SelectItem value="République tchèque">
-                        République tchèque
-                      </SelectItem>
-                      <SelectItem value="Roumanie">Roumanie</SelectItem>
-                      <SelectItem value="Royaume-Uni">Royaume-Uni</SelectItem>
-                      <SelectItem value="Russie">Russie</SelectItem>
-                      <SelectItem value="Rwanda">Rwanda</SelectItem>
-                      <SelectItem value="Saint-Christophe-et-Niévès">
-                        Saint-Christophe-et-Niévès
-                      </SelectItem>
-                      <SelectItem value="Sainte-Lucie">Sainte-Lucie</SelectItem>
-                      <SelectItem value="Saint-Marin">Saint-Marin</SelectItem>
-                      <SelectItem value="Saint-Vincent-et-les-Grenadines">
-                        Saint-Vincent-et-les-Grenadines
-                      </SelectItem>
-                      <SelectItem value="Salvador">Salvador</SelectItem>
-                      <SelectItem value="Samoa">Samoa</SelectItem>
-                      <SelectItem value="São Tomé-et-Principe">
-                        São Tomé-et-Principe
-                      </SelectItem>
-                      <SelectItem value="Sénégal">Sénégal</SelectItem>
-                      <SelectItem value="Serbie">Serbie</SelectItem>
-                      <SelectItem value="Seychelles">Seychelles</SelectItem>
-                      <SelectItem value="Sierra Leone">Sierra Leone</SelectItem>
-                      <SelectItem value="Singapour">Singapour</SelectItem>
-                      <SelectItem value="Slovaquie">Slovaquie</SelectItem>
-                      <SelectItem value="Slovénie">Slovénie</SelectItem>
-                      <SelectItem value="Somalie">Somalie</SelectItem>
-                      <SelectItem value="Soudan">Soudan</SelectItem>
-                      <SelectItem value="Soudan du Sud">
-                        Soudan du Sud
-                      </SelectItem>
-                      <SelectItem value="Sri Lanka">Sri Lanka</SelectItem>
-                      <SelectItem value="Suède">Suède</SelectItem>
-                      <SelectItem value="Suisse">Suisse</SelectItem>
-                      <SelectItem value="Suriname">Suriname</SelectItem>
-                      <SelectItem value="Syrie">Syrie</SelectItem>
-                      <SelectItem value="Tadjikistan">Tadjikistan</SelectItem>
-                      <SelectItem value="Tanzanie">Tanzanie</SelectItem>
-                      <SelectItem value="Tchad">Tchad</SelectItem>
-                      <SelectItem value="Thaïlande">Thaïlande</SelectItem>
-                      <SelectItem value="Timor oriental">
-                        Timor oriental
-                      </SelectItem>
-                      <SelectItem value="Togo">Togo</SelectItem>
-                      <SelectItem value="Tonga">Tonga</SelectItem>
-                      <SelectItem value="Trinité-et-Tobago">
-                        Trinité-et-Tobago
-                      </SelectItem>
-                      <SelectItem value="Tunisie">Tunisie</SelectItem>
-                      <SelectItem value="Turkménistan">Turkménistan</SelectItem>
-                      <SelectItem value="Turquie">Turquie</SelectItem>
-                      <SelectItem value="Tuvalu">Tuvalu</SelectItem>
-                      <SelectItem value="Ukraine">Ukraine</SelectItem>
-                      <SelectItem value="Uruguay">Uruguay</SelectItem>
-                      <SelectItem value="Vanuatu">Vanuatu</SelectItem>
-                      <SelectItem value="Vatican">Vatican</SelectItem>
-                      <SelectItem value="Venezuela">Venezuela</SelectItem>
-                      <SelectItem value="Viêt Nam">Viêt Nam</SelectItem>
-                      <SelectItem value="Yémen">Yémen</SelectItem>
-                      <SelectItem value="Zambie">Zambie</SelectItem>
-                      <SelectItem value="Zimbabwe">Zimbabwe</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-              </div>
+              )}
 
               {/* Documents et véhicule */}
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-                <div>
-                  <Label htmlFor="clientIdNumber">
-                    N° de permis ou de carte d&apos;identité *
-                  </Label>
-                  <Input
-                    id="clientIdNumber"
-                    type="text"
-                    value={clientIdNumber}
-                    onChange={(e) => setClientIdNumber(e.target.value)}
-                    placeholder="Numéro d'identification"
-                    className="mt-1"
-                    required
-                  />
+              {(isFieldEnabled("clientIdNumber") ||
+                isFieldEnabled("clientVehicleNumber")) && (
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                  {isFieldEnabled("clientIdNumber") && (
+                    <div>
+                      <Label htmlFor="clientIdNumber">
+                        N° de permis ou de carte d&apos;identité / ID or License
+                        Number {isFieldRequired("clientIdNumber") ? "*" : ""}
+                      </Label>
+                      <Input
+                        id="clientIdNumber"
+                        type="text"
+                        value={clientIdNumber}
+                        onChange={(e) => setClientIdNumber(e.target.value)}
+                        placeholder="Numéro d'identification / ID Number"
+                        className="mt-1"
+                        required={isFieldRequired("clientIdNumber")}
+                      />
+                    </div>
+                  )}
+                  {isFieldEnabled("clientVehicleNumber") && (
+                    <div>
+                      <Label htmlFor="clientVehicleNumber">
+                        N° d&apos;immatriculation du véhicule / License Plate{" "}
+                        {isFieldRequired("clientVehicleNumber") ? "*" : ""}
+                      </Label>
+                      <Input
+                        id="clientVehicleNumber"
+                        type="text"
+                        value={clientVehicleNumber}
+                        onChange={(e) => setClientVehicleNumber(e.target.value)}
+                        placeholder="Ex: FR 123456 / e.g.: FR 123456"
+                        className="mt-1"
+                        required={isFieldRequired("clientVehicleNumber")}
+                      />
+                    </div>
+                  )}
                 </div>
-                <div>
-                  <Label htmlFor="clientVehicleNumber">
-                    N° d&apos;immatriculation du véhicule *
-                  </Label>
-                  <Input
-                    id="clientVehicleNumber"
-                    type="text"
-                    value={clientVehicleNumber}
-                    onChange={(e) => setClientVehicleNumber(e.target.value)}
-                    placeholder="Ex: FR 123456"
-                    className="mt-1"
-                    required
-                  />
-                </div>
-              </div>
+              )}
             </div>
 
             {/* Options de prix personnalisées */}
@@ -1341,8 +1518,8 @@ export function BookingForm({ hotelSlug, establishment }: BookingFormProps) {
                 size="lg"
               >
                 {bookingInProgress
-                  ? "Création de la réservation..."
-                  : "Continuer vers le résumé"}
+                  ? "Création de la réservation... / Creating booking..."
+                  : "Continuer vers le résumé / Continue to Summary"}
               </Button>
             </div>
           </CardContent>

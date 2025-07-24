@@ -50,10 +50,12 @@ export default async function PaymentPage({ params, searchParams }: Props) {
         {/* Header */}
         <div className="text-center mb-8">
           <h1 className="text-2xl font-bold text-gray-900 mb-2">
-            Finaliser votre réservation
+            Finaliser votre réservation / Complete Your Booking
           </h1>
           <p className="text-gray-600">
             Paiement sécurisé par Stripe • Cartes • TWINT • Apple Pay
+            <br />
+            <em>Secure payment by Stripe • Cards • TWINT • Apple Pay</em>
           </p>
         </div>
 
@@ -71,19 +73,19 @@ export default async function PaymentPage({ params, searchParams }: Props) {
           <div className="lg:col-span-1">
             <div className="bg-white rounded-lg shadow-md p-6 sticky top-8">
               <h2 className="text-lg font-semibold text-gray-900 mb-4">
-                Résumé de votre réservation
+                Résumé de votre réservation / Booking Summary
               </h2>
               <div className="space-y-3">
                 <div className="flex justify-between">
-                  <span className="text-gray-600">Hôtel :</span>
+                  <span className="text-gray-600">Hôtel / Hotel :</span>
                   <span className="font-medium">{establishment.name}</span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-gray-600">Place :</span>
+                  <span className="text-gray-600">Place / Room :</span>
                   <span className="font-medium">{booking.room.name}</span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-gray-600">Client :</span>
+                  <span className="text-gray-600">Client / Guest :</span>
                   <span className="font-medium">{`${booking.clientFirstName} ${booking.clientLastName}`}</span>
                 </div>
                 <div className="flex justify-between">
