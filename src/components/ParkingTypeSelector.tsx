@@ -25,7 +25,9 @@ export function ParkingTypeSelector({
           <h1 className="text-3xl font-bold text-gray-900 mb-2">
             {establishmentName}
           </h1>
-          <p className="text-gray-600">Choisissez votre type de réservation</p>
+          <p className="text-gray-600">
+            Choisissez votre type de réservation / Choose your booking type
+          </p>
         </div>
 
         {/* Sélection du type de parking */}
@@ -37,23 +39,24 @@ export function ParkingTypeSelector({
                 <Moon className="w-8 h-8 text-blue-600" />
               </div>
               <CardTitle className="text-xl text-gray-900">
-                Parking Nuit
+                Parking Nuit / Night Parking
               </CardTitle>
             </CardHeader>
             <CardContent className="text-center space-y-4">
               <p className="text-gray-600 mb-4">
-                Réservation traditionnelle avec sélection de dates
-                d&apos;arrivée et de départ
+                Réservation pour la nuit / Overnight booking
               </p>
 
               <div className="space-y-2 text-sm text-gray-500">
                 <div className="flex items-center justify-center gap-2">
                   <Clock className="w-4 h-4" />
-                  <span>Séjour de plusieurs nuits</span>
+                  <span>Séjour de plusieurs nuits / Multi-night stay</span>
                 </div>
                 <div className="flex items-center justify-center gap-2">
                   <Car className="w-4 h-4" />
-                  <span>Parking inclus pendant le séjour</span>
+                  <span>
+                    Des contrôles sont effectués / Controls are performed
+                  </span>
                 </div>
               </div>
 
@@ -62,7 +65,7 @@ export function ParkingTypeSelector({
                 className="w-full mt-6"
                 size="lg"
               >
-                Continuer avec Parking Nuit
+                Continue
               </Button>
             </CardContent>
           </Card>
@@ -74,25 +77,14 @@ export function ParkingTypeSelector({
                 <Sun className="w-8 h-8 text-orange-600" />
               </div>
               <CardTitle className="text-xl text-gray-900">
-                Parking Jour
+                Parking Jour / Day Parking
               </CardTitle>
             </CardHeader>
             <CardContent className="text-center space-y-4">
               <p className="text-gray-600 mb-4">
-                Stationnement temporaire avec tarifs à l&apos;heure ou à la
-                journée
+                Stationnement à l&apos;heure ou à la journée / Hourly or daily
+                parking
               </p>
-
-              <div className="space-y-2 text-sm text-gray-500">
-                <div className="flex items-center justify-center gap-2">
-                  <Clock className="w-4 h-4" />
-                  <span>Durées flexibles (1h à journée complète)</span>
-                </div>
-                <div className="flex items-center justify-center gap-2">
-                  <Car className="w-4 h-4" />
-                  <span>Idéal pour visites courtes</span>
-                </div>
-              </div>
 
               <Button
                 onClick={() => handleSelect("day")}
@@ -100,7 +92,7 @@ export function ParkingTypeSelector({
                 variant="outline"
                 size="lg"
               >
-                Continuer avec Parking Jour
+                Continue
               </Button>
             </CardContent>
           </Card>
@@ -111,6 +103,8 @@ export function ParkingTypeSelector({
           <p className="text-sm text-gray-500">
             Vous pourrez modifier votre choix à l&apos;étape suivante si
             nécessaire
+            <br />
+            <em>You can change your choice at the next step if needed</em>
           </p>
         </div>
       </div>

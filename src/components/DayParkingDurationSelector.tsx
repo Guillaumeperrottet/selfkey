@@ -1,10 +1,8 @@
 "use client";
 
 import { useState } from "react";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import { Clock, ArrowLeft } from "lucide-react";
+import { Clock } from "lucide-react";
 
 interface DayParkingDurationSelectorProps {
   onSelect: (duration: string, price: number) => void;
@@ -23,15 +21,13 @@ interface DayParkingDurationSelectorProps {
 interface DurationOption {
   id: string;
   label: string;
+  labelEn: string;
   duration: string;
   price: number;
-  description: string;
-  popular?: boolean;
 }
 
 export function DayParkingDurationSelector({
   onSelect,
-  onBack,
   establishmentName,
   tariffs,
 }: DayParkingDurationSelectorProps) {
@@ -41,46 +37,44 @@ export function DayParkingDurationSelector({
     {
       id: "1h",
       label: "1 heure",
+      labelEn: "1 hour",
       duration: "1h",
       price: tariffs.tarif1h,
-      description: "Parfait pour une visite rapide",
     },
     {
       id: "2h",
       label: "2 heures",
+      labelEn: "2 hours",
       duration: "2h",
       price: tariffs.tarif2h,
-      description: "Idéal pour un rendez-vous",
     },
     {
       id: "3h",
       label: "3 heures",
+      labelEn: "3 hours",
       duration: "3h",
       price: tariffs.tarif3h,
-      description: "Pour une matinée ou après-midi",
     },
     {
       id: "4h",
       label: "4 heures",
+      labelEn: "4 hours",
       duration: "4h",
       price: tariffs.tarif4h,
-      description: "Demi-journée de travail",
     },
     {
       id: "half_day",
       label: "Demi-journée",
+      labelEn: "Half day",
       duration: "half_day",
       price: tariffs.tarifHalfDay,
-      description: "6 heures de stationnement",
-      popular: true,
     },
     {
       id: "full_day",
       label: "Journée complète",
+      labelEn: "Full day",
       duration: "full_day",
       price: tariffs.tarifFullDay,
-      description: "12 heures de stationnement",
-      popular: true,
     },
   ];
 
@@ -91,110 +85,114 @@ export function DayParkingDurationSelector({
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <div className="container mx-auto px-4 py-8 max-w-4xl">
+      <div className="container mx-auto px-4 py-8 max-w-2xl">
         {/* Header avec bouton retour */}
-        <div className="flex items-center mb-6">
-          <Button variant="outline" size="sm" onClick={onBack} className="mr-4">
-            <ArrowLeft className="w-4 h-4 mr-2" />
-            Retour
-          </Button>
+        <div className="flex items-center mb-8">
           <div>
             <h1 className="text-2xl font-bold text-gray-900">
               Parking Jour - {establishmentName}
             </h1>
             <p className="text-gray-600">
-              Choisissez la durée de votre stationnement
+              Choisissez la durée de votre stationnement / Choose your parking
+              duration
             </p>
           </div>
         </div>
 
         {/* Information sur l'heure de début */}
-        <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6">
+        <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-8">
           <div className="flex items-center gap-2 text-blue-800">
             <Clock className="w-5 h-5" />
             <span className="font-medium">
-              Début du stationnement : Maintenant
+              Début du stationnement : Maintenant / Parking starts: Now
             </span>
           </div>
           <p className="text-sm text-blue-600 mt-1">
             Votre temps de stationnement commence dès la confirmation du
             paiement
+            <br />
+            <em>Your parking time starts upon payment confirmation</em>
           </p>
         </div>
 
-        {/* Grille des options de durée */}
-        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
-          {durationOptions.map((option) => (
-            <Card
-              key={option.id}
-              className={`cursor-pointer hover:shadow-lg transition-all border-2 relative ${
-                selectedDuration === option.duration
-                  ? "border-blue-500 bg-blue-50"
-                  : "border-gray-200 hover:border-blue-300"
-              }`}
-              onClick={() => handleSelect(option.duration, option.price)}
-            >
-              {option.popular && (
-                <div className="absolute -top-2 left-1/2 transform -translate-x-1/2">
-                  <Badge className="bg-orange-500 text-white px-3 py-1">
-                    Populaire
-                  </Badge>
+        {/* Sélecteur simple */}
+        <div className="bg-white rounded-lg shadow-md p-6">
+          <h2 className="text-lg font-semibold text-gray-900 mb-6">
+            Sélectionnez votre durée / Select your duration
+          </h2>
+
+          <div className="space-y-3">
+            {durationOptions.map((option) => (
+              <div
+                key={option.id}
+                className={`cursor-pointer rounded-lg border-2 p-4 transition-all hover:shadow-md ${
+                  selectedDuration === option.duration
+                    ? "border-blue-500 bg-blue-50"
+                    : "border-gray-200 hover:border-blue-300"
+                }`}
+                onClick={() => handleSelect(option.duration, option.price)}
+              >
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-3">
+                    <div
+                      className={`w-4 h-4 rounded-full border-2 ${
+                        selectedDuration === option.duration
+                          ? "border-blue-500 bg-blue-500"
+                          : "border-gray-300"
+                      }`}
+                    >
+                      {selectedDuration === option.duration && (
+                        <div className="w-full h-full rounded-full bg-white scale-50"></div>
+                      )}
+                    </div>
+                    <div>
+                      <span className="font-medium text-gray-900">
+                        {option.label} / {option.labelEn}
+                      </span>
+                    </div>
+                  </div>
+                  <div className="text-right">
+                    <span className="text-xl font-bold text-blue-600">
+                      {option.price.toFixed(2)} CHF
+                    </span>
+                  </div>
                 </div>
-              )}
+              </div>
+            ))}
+          </div>
 
-              <CardHeader className="text-center pb-2">
-                <CardTitle className="text-lg text-gray-900">
-                  {option.label}
-                </CardTitle>
-                <div className="text-2xl font-bold text-blue-600">
-                  {option.price.toFixed(2)} CHF
-                </div>
-              </CardHeader>
-
-              <CardContent className="text-center">
-                <p className="text-sm text-gray-600 mb-4">
-                  {option.description}
-                </p>
-
-                <Button
-                  className={`w-full ${
-                    selectedDuration === option.duration
-                      ? "bg-blue-600 text-white"
-                      : "bg-gray-100 text-gray-800 hover:bg-blue-600 hover:text-white"
-                  }`}
-                  variant={
-                    selectedDuration === option.duration ? "default" : "outline"
+          {/* Bouton de continuation */}
+          {selectedDuration && (
+            <div className="mt-8 pt-6 border-t border-gray-200">
+              <div className="flex items-center justify-between mb-4">
+                <span className="text-gray-600">
+                  Durée sélectionnée / Selected duration:
+                </span>
+                <span className="font-medium">
+                  {
+                    durationOptions.find(
+                      (opt) => opt.duration === selectedDuration
+                    )?.label
+                  }{" "}
+                  /{" "}
+                  {
+                    durationOptions.find(
+                      (opt) => opt.duration === selectedDuration
+                    )?.labelEn
                   }
-                >
-                  {selectedDuration === option.duration
-                    ? "Sélectionné"
-                    : "Choisir"}
-                </Button>
-              </CardContent>
-            </Card>
-          ))}
-        </div>
-
-        {/* Bouton de continuation */}
-        {selectedDuration && (
-          <div className="mt-8 text-center">
-            <div className="bg-white rounded-lg p-6 shadow-md max-w-md mx-auto">
-              <h3 className="text-lg font-semibold text-gray-900 mb-2">
-                Durée sélectionnée
-              </h3>
-              <p className="text-gray-600 mb-4">
-                {
-                  durationOptions.find(
-                    (opt) => opt.duration === selectedDuration
-                  )?.label
-                }
-              </p>
-              <p className="text-2xl font-bold text-blue-600 mb-4">
-                {durationOptions
-                  .find((opt) => opt.duration === selectedDuration)
-                  ?.price.toFixed(2)}{" "}
-                CHF
-              </p>
+                </span>
+              </div>
+              <div className="flex items-center justify-between mb-6">
+                <span className="text-gray-600">
+                  Total à payer / Total to pay:
+                </span>
+                <span className="text-2xl font-bold text-blue-600">
+                  {durationOptions
+                    .find((opt) => opt.duration === selectedDuration)
+                    ?.price.toFixed(2)}{" "}
+                  CHF
+                </span>
+              </div>
               <Button
                 onClick={() => {
                   const option = durationOptions.find(
@@ -207,16 +205,18 @@ export function DayParkingDurationSelector({
                 size="lg"
                 className="w-full"
               >
-                Continuer vers le paiement
+                Continuer vers le paiement / Continue to payment
               </Button>
             </div>
-          </div>
-        )}
+          )}
+        </div>
 
         {/* Note informative */}
         <div className="mt-6 text-center">
           <p className="text-xs text-gray-500">
             Les tarifs incluent toutes les taxes. Aucun frais supplémentaire.
+            <br />
+            <em>Rates include all taxes. No additional fees.</em>
           </p>
         </div>
       </div>

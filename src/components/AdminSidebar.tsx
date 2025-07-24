@@ -74,6 +74,11 @@ const baseNavigation = [
     icon: DollarSign,
   },
   {
+    id: "form-customizer",
+    name: "Formulaire de réservation",
+    icon: Edit3,
+  },
+  {
     id: "confirmations",
     name: "Confirmations",
     icon: MessageSquare,
@@ -88,15 +93,11 @@ const baseNavigation = [
     name: "Export Excel",
     icon: FileSpreadsheet,
   },
+
   {
     id: "settings",
     name: "Paramètres",
     icon: Settings,
-  },
-  {
-    id: "form-customizer",
-    name: "Formulaire de réservation",
-    icon: Edit3,
   },
 ];
 

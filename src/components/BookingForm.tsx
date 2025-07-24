@@ -537,9 +537,7 @@ export function BookingForm({ hotelSlug, establishment }: BookingFormProps) {
         <CardContent className="space-y-4">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
-              <Label htmlFor="checkIn">
-                Date d&apos;arrivée / Check-in Date
-              </Label>
+              <Label htmlFor="checkIn">Check-in Date</Label>
               <Input
                 id="checkIn"
                 type="date"
@@ -569,7 +567,7 @@ export function BookingForm({ hotelSlug, establishment }: BookingFormProps) {
               />
             </div>
             <div>
-              <Label htmlFor="checkOut">Date de départ / Check-out Date</Label>
+              <Label htmlFor="checkOut">Check-out Date</Label>
               <Input
                 id="checkOut"
                 type="date"
@@ -789,7 +787,7 @@ export function BookingForm({ hotelSlug, establishment }: BookingFormProps) {
                     onValueChange={(value) => setAdults(parseInt(value))}
                   >
                     <SelectTrigger className="mt-1">
-                      <SelectValue placeholder="Sélectionner / Select" />
+                      <SelectValue placeholder="Select" />
                     </SelectTrigger>
                     <SelectContent>
                       {[1, 2, 3, 4, 5, 6, 7, 8].map((num) => (
@@ -811,7 +809,7 @@ export function BookingForm({ hotelSlug, establishment }: BookingFormProps) {
                       onValueChange={(value) => setChildren(parseInt(value))}
                     >
                       <SelectTrigger className="mt-1">
-                        <SelectValue placeholder="Sélectionner / Select" />
+                        <SelectValue placeholder="Select" />
                       </SelectTrigger>
                       <SelectContent>
                         {[0, 1, 2, 3, 4, 5, 6].map((num) => (
@@ -829,32 +827,30 @@ export function BookingForm({ hotelSlug, establishment }: BookingFormProps) {
 
             {/* Informations personnelles */}
             <div>
-              <h4 className="font-medium text-lg mb-3">
-                Informations personnelles / Personal Information
-              </h4>
+              <h4 className="font-medium text-lg mb-3">Personal Information</h4>
 
               {/* Nom et Prénom */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
                 <div>
-                  <Label htmlFor="clientLastName">Nom / Last Name *</Label>
+                  <Label htmlFor="clientLastName">Last Name *</Label>
                   <Input
                     id="clientLastName"
                     type="text"
                     value={clientLastName}
                     onChange={(e) => setClientLastName(e.target.value)}
-                    placeholder="Nom de famille / Last name"
+                    placeholder="Last name"
                     className="mt-1"
                     required
                   />
                 </div>
                 <div>
-                  <Label htmlFor="clientFirstName">Prénom / First Name *</Label>
+                  <Label htmlFor="clientFirstName">First Name *</Label>
                   <Input
                     id="clientFirstName"
                     type="text"
                     value={clientFirstName}
                     onChange={(e) => setClientFirstName(e.target.value)}
-                    placeholder="Prénom / First name"
+                    placeholder="First name"
                     className="mt-1"
                     required
                   />
@@ -904,21 +900,19 @@ export function BookingForm({ hotelSlug, establishment }: BookingFormProps) {
               {/* Email et Téléphone */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
                 <div>
-                  <Label htmlFor="clientEmail">Email / Email Address *</Label>
+                  <Label htmlFor="clientEmail">Email *</Label>
                   <Input
                     id="clientEmail"
                     type="email"
                     value={clientEmail}
                     onChange={(e) => setClientEmail(e.target.value)}
-                    placeholder="votre@email.com / your@email.com"
+                    placeholder="your@email.com"
                     className="mt-1"
                     required
                   />
                 </div>
                 <div>
-                  <Label htmlFor="clientPhone">
-                    Téléphone mobile / Mobile Phone *
-                  </Label>
+                  <Label htmlFor="clientPhone">Mobile Phone *</Label>
                   <Input
                     id="clientPhone"
                     type="tel"
@@ -935,8 +929,7 @@ export function BookingForm({ hotelSlug, establishment }: BookingFormProps) {
               {isFieldEnabled("clientAddress") && (
                 <div className="mb-4">
                   <Label htmlFor="clientAddress">
-                    Adresse / Address{" "}
-                    {isFieldRequired("clientAddress") ? "*" : ""}
+                    Address {isFieldRequired("clientAddress") ? "*" : ""}
                   </Label>
                   <Input
                     id="clientAddress"
@@ -958,7 +951,7 @@ export function BookingForm({ hotelSlug, establishment }: BookingFormProps) {
                   {isFieldEnabled("clientPostalCode") && (
                     <div>
                       <Label htmlFor="clientPostalCode">
-                        Code postal / Postal Code{" "}
+                        Postal Code{" "}
                         {isFieldRequired("clientPostalCode") ? "*" : ""}
                       </Label>
                       <Input
@@ -992,8 +985,7 @@ export function BookingForm({ hotelSlug, establishment }: BookingFormProps) {
                   {isFieldEnabled("clientCountry") && (
                     <div>
                       <Label htmlFor="clientCountry">
-                        Pays / Country{" "}
-                        {isFieldRequired("clientCountry") ? "*" : ""}
+                        Country {isFieldRequired("clientCountry") ? "*" : ""}
                       </Label>
                       <Select
                         value={clientCountry}
