@@ -84,7 +84,10 @@ async function handleAccountDeauthorized(data: { account: string }) {
 async function handlePaymentSucceeded(paymentIntent: Stripe.PaymentIntent) {
   try {
     console.log(`🎉 Payment succeeded for PaymentIntent: ${paymentIntent.id}`);
-    console.log("📋 Metadata:", JSON.stringify(paymentIntent.metadata, null, 2));
+    console.log(
+      "📋 Metadata:",
+      JSON.stringify(paymentIntent.metadata, null, 2)
+    );
     console.log("🔍 Booking type check:", paymentIntent.metadata.booking_type);
 
     // Vérifier si c'est un parking jour (nouvelle logique avec métadonnées)

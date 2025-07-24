@@ -32,6 +32,32 @@ export function ParkingTypeSelector({
 
         {/* Sélection du type de parking */}
         <div className="grid md:grid-cols-2 gap-6 max-w-4xl mx-auto">
+          {/* Parking Jour */}
+          <Card className="cursor-pointer hover:shadow-lg transition-shadow border-2 hover:border-orange-500">
+            <CardHeader className="text-center pb-4">
+              <div className="mx-auto w-16 h-16 bg-orange-100 rounded-full flex items-center justify-center mb-4">
+                <Sun className="w-8 h-8 text-orange-600" />
+              </div>
+              <CardTitle className="text-xl text-gray-900">
+                Parking Jour / Day Parking
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="text-center space-y-4">
+              <p className="text-gray-600 mb-4">
+                Stationnement à l&apos;heure ou à la journée / Hourly or daily
+                parking
+              </p>
+
+              <Button
+                onClick={() => handleSelect("day")}
+                className="w-full mt-6"
+                size="lg"
+              >
+                Continue
+              </Button>
+            </CardContent>
+          </Card>
+
           {/* Parking Nuit */}
           <Card className="cursor-pointer hover:shadow-lg transition-shadow border-2 hover:border-blue-500">
             <CardHeader className="text-center pb-4">
@@ -57,32 +83,6 @@ export function ParkingTypeSelector({
 
               <Button
                 onClick={() => handleSelect("night")}
-                className="w-full mt-6"
-                size="lg"
-              >
-                Continue
-              </Button>
-            </CardContent>
-          </Card>
-
-          {/* Parking Jour */}
-          <Card className="cursor-pointer hover:shadow-lg transition-shadow border-2 hover:border-orange-500">
-            <CardHeader className="text-center pb-4">
-              <div className="mx-auto w-16 h-16 bg-orange-100 rounded-full flex items-center justify-center mb-4">
-                <Sun className="w-8 h-8 text-orange-600" />
-              </div>
-              <CardTitle className="text-xl text-gray-900">
-                Parking Jour / Day Parking
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="text-center space-y-4">
-              <p className="text-gray-600 mb-4">
-                Stationnement à l&apos;heure ou à la journée / Hourly or daily
-                parking
-              </p>
-
-              <Button
-                onClick={() => handleSelect("day")}
                 className="w-full mt-6"
                 variant="outline"
                 size="lg"

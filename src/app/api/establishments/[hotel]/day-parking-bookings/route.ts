@@ -185,7 +185,7 @@ export async function POST(request: NextRequest, { params }: Props) {
           paymentStatus: "succeeded", // Marquer comme payé en mode dev
           adults: adults || 1,
           children: children || 0,
-          bookingType: "day",
+          bookingType: "day_parking",
           dayParkingDuration,
           dayParkingStartTime: new Date(dayParkingStartTime),
           dayParkingEndTime: new Date(dayParkingEndTime),
