@@ -25,12 +25,9 @@ import {
   useElements,
   PaymentElement,
 } from "@stripe/react-stripe-js";
-import { loadStripe } from "@stripe/stripe-js";
+import { loadStripe, Stripe } from "@stripe/stripe-js";
 
-// Initialiser Stripe
-const stripePromise = loadStripe(
-  process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY!
-);
+// Pas d'initialisation globale - on le fera dynamiquement
 
 interface ClassicBookingData {
   clientSecret: string;
@@ -145,6 +142,9 @@ export function ClassicBookingPaymentForm({
   );
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const [stripePromise, setStripePromise] =
+    useState<Promise<Stripe | null> | null>(null);
+  const [isInitializing, setIsInitializing] = useState(true);
 
   useEffect(() => {
     const loadBookingData = () => {
@@ -181,6 +181,35 @@ export function ClassicBookingPaymentForm({
     loadBookingData();
   }, [paymentIntentId, hotelSlug, router]);
 
+  // Initialisation dynamique de Stripe (comme DayParkingPaymentForm)
+  useEffect(() => {
+    const initializePayment = async () => {
+      try {
+        setIsInitializing(true);
+
+        // Récupérer la clé publique Stripe depuis l'API
+        const stripeResponse = await fetch("/api/stripe-config");
+        if (stripeResponse.ok) {
+          const { publishableKey } = await stripeResponse.json();
+          console.log(
+            "🔑 Clé publique Stripe récupérée:",
+            publishableKey.substring(0, 12) + "..."
+          );
+
+          const stripe = loadStripe(publishableKey);
+          setStripePromise(stripe);
+        }
+      } catch (error) {
+        console.error("❌ Error initializing payment:", error);
+        setError("Erreur d'initialisation du paiement");
+      } finally {
+        setIsInitializing(false);
+      }
+    };
+
+    initializePayment();
+  }, [paymentIntentId]);
+
   const handleGoBack = () => {
     router.push(`/${hotelSlug}`);
   };
@@ -194,12 +223,16 @@ export function ClassicBookingPaymentForm({
     });
   };
 
-  if (loading) {
+  if (loading || isInitializing) {
     return (
       <div className="flex justify-center items-center min-h-96">
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
-          <p>Chargement du paiement...</p>
+          <p>
+            {isInitializing
+              ? "Initialisation du paiement..."
+              : "Chargement du paiement..."}
+          </p>
         </div>
       </div>
     );
@@ -210,6 +243,17 @@ export function ClassicBookingPaymentForm({
       <Alert variant="destructive" className="max-w-2xl mx-auto">
         <AlertDescription>
           {error || "Données de réservation introuvables"}
+        </AlertDescription>
+      </Alert>
+    );
+  }
+
+  // Vérifier que Stripe est disponible
+  if (!stripePromise) {
+    return (
+      <Alert variant="destructive" className="max-w-2xl mx-auto">
+        <AlertDescription>
+          Erreur de configuration du paiement. Veuillez réessayer plus tard.
         </AlertDescription>
       </Alert>
     );
