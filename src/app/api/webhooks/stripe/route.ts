@@ -400,7 +400,7 @@ async function createClassicBookingFromMetadata(
         pricingOptionsTotal: parseFloat(metadata.pricing_options_total),
         paymentStatus: "succeeded",
         stripePaymentIntentId: paymentIntent.id,
-        bookingType: "night", // Type standard pour réservations d'hôtel
+        bookingType: "classic_booking", // Type payment-first pour réservations classiques
       },
     });
 
