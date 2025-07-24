@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import Stripe from "stripe";
 import { prisma } from "@/lib/prisma";
+import { sendDayParkingConfirmation } from "@/lib/email";
 import { stripe, stripeWebhookSecret } from "@/lib/stripe";
 
 const endpointSecret = stripeWebhookSecret!;
@@ -82,11 +83,13 @@ async function handleAccountDeauthorized(data: { account: string }) {
 
 async function handlePaymentSucceeded(paymentIntent: Stripe.PaymentIntent) {
   try {
-    console.log(`Payment succeeded for PaymentIntent: ${paymentIntent.id}`);
-    console.log("Metadata:", paymentIntent.metadata);
+    console.log(`🎉 Payment succeeded for PaymentIntent: ${paymentIntent.id}`);
+    console.log("📋 Metadata:", JSON.stringify(paymentIntent.metadata, null, 2));
+    console.log("🔍 Booking type check:", paymentIntent.metadata.booking_type);
 
     // Vérifier si c'est un parking jour (nouvelle logique avec métadonnées)
     if (paymentIntent.metadata.booking_type === "day_parking") {
+      console.log("🚗 Detected day parking booking, creating reservation...");
       await createDayParkingBookingFromMetadata(paymentIntent);
       return;
     }
@@ -133,16 +136,22 @@ async function createDayParkingBookingFromMetadata(
   paymentIntent: Stripe.PaymentIntent
 ) {
   try {
+    console.log("🚗 Creating day parking booking from metadata...");
     const metadata = paymentIntent.metadata;
+    console.log("📋 Metadata details:", JSON.stringify(metadata, null, 2));
 
     // Récupérer l'établissement
+    console.log("🏨 Looking for establishment:", metadata.establishment_id);
     const establishment = await prisma.establishment.findUnique({
       where: { id: metadata.establishment_id },
     });
 
     if (!establishment) {
+      console.error("❌ Establishment not found:", metadata.establishment_id);
       throw new Error(`Establishment not found: ${metadata.establishment_id}`);
     }
+
+    console.log("✅ Establishment found:", establishment.name);
 
     // Récupérer ou créer une place de parking
     let room = await prisma.room.findFirst({
@@ -203,26 +212,23 @@ async function createDayParkingBookingFromMetadata(
     // Envoyer l'email de confirmation si demandé
     if (metadata.email_confirmation === "true") {
       try {
-        console.log("📧 Envoi automatique de l'email de confirmation...");
+        console.log("📧 Envoi de l'email de confirmation...");
 
-        const confirmationResponse = await fetch(
-          `${process.env.NEXTAUTH_URL || "http://localhost:3000"}/api/bookings/${booking.id}/send-confirmation`,
-          {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-            },
-            body: JSON.stringify({
-              method: "email",
-            }),
-          }
-        );
+        const dayParkingBookingData = {
+          clientName: `${metadata.client_first_name} ${metadata.client_last_name}`,
+          clientEmail: metadata.client_email,
+          vehicleNumber: metadata.client_vehicle_number || "",
+          duration: metadata.day_parking_duration || "1h",
+          startTime: new Date(metadata.day_parking_start_time),
+          endTime: new Date(metadata.day_parking_end_time),
+          amount: parseFloat(metadata.amount),
+          currency: "CHF",
+          establishmentName: establishment.name,
+          bookingId: booking.id,
+        };
 
-        if (confirmationResponse.ok) {
-          console.log("✅ Email de confirmation envoyé automatiquement");
-        } else {
-          console.error("❌ Erreur lors de l'envoi automatique de l'email");
-        }
+        await sendDayParkingConfirmation(dayParkingBookingData);
+        console.log("✅ Email de confirmation envoyé automatiquement");
       } catch (emailError) {
         console.error(
           "❌ Erreur lors de l'envoi de l'email de confirmation:",

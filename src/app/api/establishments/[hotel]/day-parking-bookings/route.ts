@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { createPaymentIntentWithCommission } from "@/lib/stripe-connect";
+import { sendDayParkingConfirmation } from "@/lib/email";
 
 interface Props {
   params: Promise<{ hotel: string }>;
@@ -197,20 +198,29 @@ export async function POST(request: NextRequest, { params }: Props) {
         dayParkingBooking.id
       );
 
-      // En mode développement, envoyer l'email de confirmation directement
-      if (emailConfirmation) {
-        try {
-          console.log("📧 Envoi de l'email de confirmation en mode dev...");
+      // Envoie l'email de confirmation
+      try {
+        const dayParkingBookingData = {
+          clientName: `${clientFirstName} ${clientLastName}`,
+          clientEmail: clientEmail,
+          vehicleNumber: clientVehicleNumber || "",
+          duration: dayParkingDuration || "1h",
+          startTime: new Date(dayParkingStartTime),
+          endTime: new Date(dayParkingEndTime),
+          amount,
+          currency: "CHF",
+          establishmentName: establishment.name,
+          bookingId: dayParkingBooking.id,
+        };
 
-          // Ici vous pouvez ajouter l'envoi d'email
-          // Pour l'instant, on log juste qu'il devrait être envoyé
-          console.log(
-            "📧 Email de confirmation devrait être envoyé à:",
-            clientEmail
-          );
-        } catch (emailError) {
-          console.error("❌ Erreur envoi email en mode dev:", emailError);
-        }
+        await sendDayParkingConfirmation(dayParkingBookingData);
+        console.log(
+          "Email de confirmation envoyé pour la réservation:",
+          dayParkingBooking.id
+        );
+      } catch (emailError) {
+        console.error("Erreur lors de l'envoi de l'email:", emailError);
+        // On ne bloque pas la réservation même si l'email échoue
       }
 
       return NextResponse.json({
