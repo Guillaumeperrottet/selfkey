@@ -94,7 +94,18 @@ export function AdminDashboard({
   dbRooms,
   finalIsStripeConfigured,
 }: AdminDashboardProps) {
-  const [activeTab, setActiveTab] = useState("overview");
+  // Détecter l'ancre pour ouvrir le bon onglet au démarrage
+  const getInitialTab = () => {
+    if (typeof window !== "undefined") {
+      const hash = window.location.hash;
+      if (hash === "#parking-access") {
+        return "settings";
+      }
+    }
+    return "overview";
+  };
+
+  const [activeTab, setActiveTab] = useState(getInitialTab());
   const [enableDayParking, setEnableDayParking] = useState(false);
   const [chartColors, setChartColors] = useState<ChartColors>({
     chart1: "#3b82f6",
@@ -237,6 +248,22 @@ export function AdminDashboard({
 
     loadDayParkingStatus();
   }, [hotel]);
+
+  // Gérer le scroll automatique vers l'ancre (une seule fois au chargement)
+  useEffect(() => {
+    const hash = window.location.hash;
+    if (hash === "#parking-access") {
+      // Attendre que le contenu soit rendu
+      setTimeout(() => {
+        const element = document.querySelector(hash);
+        if (element) {
+          element.scrollIntoView({ behavior: "smooth", block: "start" });
+          // Nettoyer l'ancre après le scroll pour éviter les répétitions
+          window.history.replaceState(null, "", window.location.pathname);
+        }
+      }, 500);
+    }
+  }, []); // Exécuter seulement au montage du composant
 
   const handleColorsChange = (newColors: ChartColors) => {
     setChartColors(newColors);

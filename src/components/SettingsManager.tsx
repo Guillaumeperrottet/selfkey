@@ -16,6 +16,7 @@ import { Badge } from "@/components/ui/badge";
 import { Loader2, Save, Car, Settings2 } from "lucide-react";
 import { toastUtils } from "@/lib/toast-utils";
 import { DayParkingSetupModal } from "@/components/DayParkingSetupModal";
+import { ParkingControlAccess } from "@/components/ParkingControlAccess";
 
 interface SettingsManagerProps {
   hotelSlug: string;
@@ -430,29 +431,41 @@ export function SettingsManager({ hotelSlug }: SettingsManagerProps) {
           </div>
 
           {enableDayParking && (
-            <div className="p-4 border rounded-lg bg-green-50 space-y-2">
-              <div className="flex items-center gap-2">
-                <Settings2 className="h-4 w-4 text-green-600" />
-                <h5 className="font-medium text-green-800">
-                  Configuration active
-                </h5>
+            <div className="space-y-4">
+              <div className="p-4 border rounded-lg bg-green-50 space-y-2">
+                <div className="flex items-center gap-2">
+                  <Settings2 className="h-4 w-4 text-green-600" />
+                  <h5 className="font-medium text-green-800">
+                    Configuration active
+                  </h5>
+                </div>
+                <div className="text-sm text-green-700 space-y-1">
+                  <p>• Commission : 5%</p>
+                  <p>• Aucun frais fixe appliqué</p>
+                  <p>
+                    • Durées disponibles : 1h, 2h, 3h, 4h, demi-journée, journée
+                    complète
+                  </p>
+                  <p>
+                    • Section &quot;Parking Jour&quot; ajoutée à votre menu
+                    d&apos;administration
+                  </p>
+                </div>
               </div>
-              <div className="text-sm text-green-700 space-y-1">
-                <p>• Commission : 5%</p>
-                <p>• Aucun frais fixe appliqué</p>
-                <p>
-                  • Durées disponibles : 1h, 2h, 3h, 4h, demi-journée, journée
-                  complète
-                </p>
-                <p>
-                  • Section &quot;Parking Jour&quot; ajoutée à votre menu
-                  d&apos;administration
-                </p>
+
+              {/* Accès Contrôle Parking intégré */}
+              <div id="parking-access">
+                <ParkingControlAccess
+                  hotelSlug={hotelSlug}
+                  enableDayParking={enableDayParking}
+                />
               </div>
             </div>
           )}
         </CardContent>
       </Card>
+
+      {/* Section Accès Contrôle Parking supprimée car intégrée ci-dessus */}
 
       {/* Section Informations améliorée */}
       <Card>

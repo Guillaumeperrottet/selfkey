@@ -85,6 +85,7 @@ export async function POST(request: NextRequest, { params }: Props) {
         userEstablishment.establishment.hotelContactEmail || "contact@hotel.ch",
       hotelContactPhone:
         userEstablishment.establishment.hotelContactPhone || "+41 22 123 45 67",
+      extendParkingUrl: `${process.env.NEXT_PUBLIC_BASE_URL || "https://selfkey.ch"}/${hotel}/parking-jour`, // Ajouté pour le test
     };
 
     // Remplacer les variables dans le template

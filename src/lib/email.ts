@@ -1,5 +1,6 @@
 import { Resend } from "resend";
 import { HotelConfig } from "@/types/hotel";
+import { prisma } from "@/lib/prisma";
 import {
   getAccessCodeForBooking,
   generateAccessInstructions,
@@ -126,135 +127,186 @@ interface DayParkingBookingData {
   currency: string;
   establishmentName: string;
   bookingId: string;
+  hotelSlug: string; // Ajouté pour générer le lien d'extension
 }
 
 export async function sendDayParkingConfirmation(
   booking: DayParkingBookingData
 ) {
-  const formatTime = (date: Date) => {
-    return date.toLocaleString("fr-CH", {
-      weekday: "long",
-      year: "numeric",
-      month: "long",
-      day: "numeric",
-      hour: "2-digit",
-      minute: "2-digit",
+  try {
+    // Récupérer le template d'email personnalisé depuis la base de données
+    const establishment = await prisma.establishment.findUnique({
+      where: { slug: booking.hotelSlug },
+      select: {
+        dayParkingEmailTemplate: true,
+        name: true,
+        hotelContactEmail: true,
+        hotelContactPhone: true,
+      },
     });
-  };
 
-  const getDurationLabel = (duration: string) => {
-    const labels = {
-      "1h": "1 heure",
-      "2h": "2 heures",
-      "3h": "3 heures",
-      "4h": "4 heures",
-      half_day: "Demi-journée (6h)",
-      full_day: "Journée complète (12h)",
+    if (!establishment) {
+      throw new Error(`Établissement non trouvé: ${booking.hotelSlug}`);
+    }
+
+    // Template par défaut si aucun template personnalisé
+    const defaultTemplate = `Bonjour {clientFirstName} {clientLastName},
+
+Votre réservation de parking jour à {establishmentName} a été confirmée avec succès !
+
+Détails de votre parking :
+- Durée : {dayParkingDuration}
+- Heure de fin : {dayParkingEndTime}
+- Plaque d'immatriculation : {clientVehicleNumber}
+
+IMPORTANT : Votre stationnement commence dès maintenant. Veillez à libérer la place avant {dayParkingEndTime}.
+
+⏰ Besoin de plus de temps ?
+Réservez facilement une extension : {extendParkingUrl}
+
+Pour toute question, vous pouvez nous contacter :
+📧 Email : {hotelContactEmail}
+📞 Téléphone : {hotelContactPhone}
+
+Bon stationnement !
+
+Cordialement,
+L'équipe de {establishmentName}
+
+---
+
+Hello {clientFirstName} {clientLastName},
+
+Your day parking reservation at {establishmentName} has been successfully confirmed!
+
+Parking details:
+- Duration: {dayParkingDuration}
+- End time: {dayParkingEndTime}
+- License plate: {clientVehicleNumber}
+
+IMPORTANT: Your parking starts now. Please free the space before {dayParkingEndTime}.
+
+⏰ Need more time?
+Easily book an extension: {extendParkingUrl}
+
+For any questions, you can contact us:
+📧 Email: {hotelContactEmail}
+📞 Phone: {hotelContactPhone}
+
+Happy parking!
+
+Best regards,
+The {establishmentName} team
+
+---
+
+Guten Tag {clientFirstName} {clientLastName},
+
+Ihre Tagesparkplatz-Reservierung bei {establishmentName} wurde erfolgreich bestätigt!
+
+Parkplatz-Details:
+- Dauer: {dayParkingDuration}
+- Endzeit: {dayParkingEndTime}
+- Kennzeichen: {clientVehicleNumber}
+
+WICHTIG: Ihr Parkplatz beginnt jetzt. Bitte räumen Sie den Platz vor {dayParkingEndTime}.
+
+⏰ Mehr Zeit benötigt?
+Einfach eine Verlängerung buchen: {extendParkingUrl}
+
+Für Fragen können Sie uns kontaktieren:
+📧 E-Mail: {hotelContactEmail}
+📞 Telefon: {hotelContactPhone}
+
+Gutes Parken!
+
+Mit freundlichen Grüßen,
+Das {establishmentName} Team`;
+
+    const template = establishment.dayParkingEmailTemplate || defaultTemplate;
+
+    // Générer l'URL d'extension
+    const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || "https://selfkey.ch";
+    const extendParkingUrl = `${baseUrl}/${booking.hotelSlug}/parking-jour`;
+
+    // Formatage des dates
+    const formatTime = (date: Date) => {
+      return date.toLocaleString("fr-CH", {
+        weekday: "long",
+        year: "numeric",
+        month: "long",
+        day: "numeric",
+        hour: "2-digit",
+        minute: "2-digit",
+      });
     };
-    return labels[duration as keyof typeof labels] || duration;
-  };
 
-  const htmlContent = `
-    <!DOCTYPE html>
-    <html>
-    <head>
-      <meta charset="utf-8">
-      <title>Confirmation Parking Jour</title>
-      <style>
-        body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; }
-        .container { max-width: 600px; margin: 0 auto; padding: 20px; }
-        .header { background-color: #2563eb; color: white; padding: 20px; text-align: center; border-radius: 8px 8px 0 0; }
-        .content { padding: 20px; background-color: #f8fafc; }
-        .booking-details { background-color: white; padding: 20px; border-radius: 8px; margin: 15px 0; border: 1px solid #e2e8f0; }
-        .detail-row { display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid #f1f5f9; }
-        .detail-label { font-weight: 600; color: #475569; }
-        .detail-value { font-weight: 500; }
-        .highlight { background-color: #dbeafe; padding: 15px; border-radius: 8px; margin: 15px 0; border-left: 4px solid #2563eb; }
-        .footer { text-align: center; padding: 20px; font-size: 12px; color: #64748b; }
-        .total { font-size: 18px; font-weight: bold; color: #059669; }
-      </style>
-    </head>
-    <body>
-      <div class="container">
+    const getDurationLabel = (duration: string) => {
+      const labels = {
+        "1h": "1 heure",
+        "2h": "2 heures",
+        "3h": "3 heures",
+        "4h": "4 heures",
+        half_day: "Demi-journée (6h)",
+        full_day: "Journée complète (12h)",
+      };
+      return labels[duration as keyof typeof labels] || duration;
+    };
+
+    // Remplacer les variables dans le template
+    const personalizedContent = template
+      .replace(/{clientFirstName}/g, booking.clientName.split(" ")[0] || "")
+      .replace(
+        /{clientLastName}/g,
+        booking.clientName.split(" ").slice(1).join(" ") || ""
+      )
+      .replace(/{establishmentName}/g, booking.establishmentName)
+      .replace(/{clientVehicleNumber}/g, booking.vehicleNumber)
+      .replace(/{dayParkingDuration}/g, getDurationLabel(booking.duration))
+      .replace(/{dayParkingStartTime}/g, formatTime(booking.startTime))
+      .replace(/{dayParkingEndTime}/g, formatTime(booking.endTime))
+      .replace(/{amount}/g, booking.amount.toFixed(2))
+      .replace(/{currency}/g, booking.currency)
+      .replace(/{extendParkingUrl}/g, extendParkingUrl)
+      .replace(/{hotelContactEmail}/g, establishment.hotelContactEmail || "")
+      .replace(/{hotelContactPhone}/g, establishment.hotelContactPhone || "");
+
+    // Convertir le contenu en HTML simple
+    const htmlContent = `
+      <!DOCTYPE html>
+      <html>
+      <head>
+        <meta charset="utf-8">
+        <title>Confirmation Parking Jour</title>
+        <style>
+          body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto; padding: 20px; }
+          .header { background-color: #2563eb; color: white; padding: 20px; text-align: center; border-radius: 8px 8px 0 0; }
+          .content { padding: 20px; background-color: #f8fafc; white-space: pre-line; }
+          .footer { text-align: center; padding: 20px; font-size: 12px; color: #64748b; }
+        </style>
+      </head>
+      <body>
         <div class="header">
           <h1>🚗 Parking Jour Confirmé</h1>
           <p>Votre place de parking est réservée</p>
         </div>
-        
         <div class="content">
-          <p>Bonjour <strong>${booking.clientName}</strong>,</p>
-          
-          <p>Votre réservation de parking jour a été confirmée avec succès !</p>
-          
-          <div class="booking-details">
-            <h3 style="margin-top: 0; color: #1e40af;">Détails de votre réservation</h3>
-            
-            <div class="detail-row">
-              <span class="detail-label">Établissement :</span>
-              <span class="detail-value">${booking.establishmentName}</span>
-            </div>
-            
-            <div class="detail-row">
-              <span class="detail-label">Véhicule :</span>
-              <span class="detail-value">${booking.vehicleNumber}</span>
-            </div>
-            
-            <div class="detail-row">
-              <span class="detail-label">Durée :</span>
-              <span class="detail-value">${getDurationLabel(booking.duration)}</span>
-            </div>
-            
-            <div class="detail-row">
-              <span class="detail-label">Début :</span>
-              <span class="detail-value">${formatTime(booking.startTime)}</span>
-            </div>
-            
-            <div class="detail-row">
-              <span class="detail-label">Fin :</span>
-              <span class="detail-value">${formatTime(booking.endTime)}</span>
-            </div>
-            
-            <div class="detail-row" style="border-bottom: none; padding-top: 15px;">
-              <span class="detail-label">Total payé :</span>
-              <span class="detail-value total">${booking.amount.toFixed(2)} ${booking.currency}</span>
-            </div>
-          </div>
-          
-          <div class="highlight">
-            <strong>📍 Informations importantes :</strong>
-            <ul style="margin: 10px 0 0 0; padding-left: 20px;">
-              <li>Votre temps de stationnement a commencé dès la confirmation du paiement</li>
-              <li>Veuillez respecter les horaires indiqués ci-dessus</li>
-              <li>Gardez cette confirmation avec vous pendant votre stationnement</li>
-            </ul>
-          </div>
-          
-          <div style="background-color: white; padding: 15px; border-radius: 8px; border: 1px solid #e2e8f0;">
-            <p style="margin: 0; font-size: 14px; color: #475569;">
-              <strong>Numéro de réservation :</strong> 
-              <span style="font-family: monospace; background-color: #f1f5f9; padding: 2px 6px; border-radius: 4px;">
-                ${booking.bookingId.slice(-8).toUpperCase()}
-              </span>
-            </p>
-          </div>
+          ${personalizedContent}
         </div>
-        
         <div class="footer">
           <p>Cette confirmation a été générée automatiquement.</p>
-          <p>Merci d'avoir choisi nos services !</p>
+          <p>Numéro de réservation : ${booking.bookingId.slice(-8).toUpperCase()}</p>
         </div>
-      </div>
-    </body>
-    </html>
-  `;
+      </body>
+      </html>
+    `;
 
-  try {
-    // Si Resend n'est pas configuré, on simule l'envoi
+    // Envoyer l'email
     if (!resend) {
       console.log("📧 Email parking jour simulé (Resend non configuré):", {
         to: booking.clientEmail,
-        subject: `Parking Jour Confirmé - ${booking.establishmentName}`,
-        booking: booking,
+        subject: `🚗 Parking Jour Confirmé - ${booking.establishmentName}`,
+        content: personalizedContent.substring(0, 200) + "...",
       });
       return { id: "simulated-email-day-parking" };
     }

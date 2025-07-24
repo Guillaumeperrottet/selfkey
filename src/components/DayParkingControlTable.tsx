@@ -26,6 +26,7 @@ import {
   XCircle,
   AlertCircle,
   RefreshCw,
+  Settings,
 } from "lucide-react";
 import { toastUtils } from "@/lib/toast-utils";
 
@@ -161,6 +162,10 @@ export function DayParkingControlTable({
     window.print();
   };
 
+  const handleAccessSettings = () => {
+    window.location.href = `/admin/${hotelSlug}#parking-access`;
+  };
+
   return (
     <div className="space-y-6">
       {/* Header et contrôles */}
@@ -171,10 +176,20 @@ export function DayParkingControlTable({
               <Car className="w-5 h-5" />
               Contrôle Parking Jour
             </CardTitle>
-            <Button onClick={handlePrint} variant="outline" size="sm">
-              <Printer className="w-4 h-4 mr-2" />
-              Imprimer
-            </Button>
+            <div className="flex gap-2">
+              <Button
+                onClick={handleAccessSettings}
+                variant="outline"
+                size="sm"
+              >
+                <Settings className="w-4 h-4 mr-2" />
+                Accès Contrôle
+              </Button>
+              <Button onClick={handlePrint} variant="outline" size="sm">
+                <Printer className="w-4 h-4 mr-2" />
+                Imprimer
+              </Button>
+            </div>
           </div>
         </CardHeader>
         <CardContent>

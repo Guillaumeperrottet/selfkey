@@ -234,6 +234,7 @@ async function createDayParkingBookingFromMetadata(
           currency: "CHF",
           establishmentName: establishment.name,
           bookingId: booking.id,
+          hotelSlug: metadata.hotel_slug, // Ajouté pour le lien d'extension
         };
 
         await sendDayParkingConfirmation(dayParkingBookingData);

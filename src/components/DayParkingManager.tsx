@@ -5,7 +5,6 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Badge } from "@/components/ui/badge";
 import { Loader2, Save, Car, Clock } from "lucide-react";
 import { toastUtils } from "@/lib/toast-utils";
 
@@ -206,7 +205,6 @@ export function DayParkingManager({ hotelSlug }: DayParkingManagerProps) {
           </CardTitle>
           <p className="text-muted-foreground">
             Configurez les tarifs pour les différentes durées de parking jour.
-            Les tarifs doivent être croissants.
           </p>
         </CardHeader>
         <CardContent className="space-y-6">
@@ -220,12 +218,7 @@ export function DayParkingManager({ hotelSlug }: DayParkingManagerProps) {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               {/* 1 heure */}
               <div className="space-y-2">
-                <Label htmlFor="tarif1h">
-                  1 heure
-                  <Badge variant="outline" className="ml-2">
-                    Base
-                  </Badge>
-                </Label>
+                <Label htmlFor="tarif1h">1 heure</Label>
                 <div className="flex items-center">
                   <Input
                     id="tarif1h"
