@@ -1,48 +1,30 @@
 # SelfKey - Plateforme Digitale de Gestion Hôtelière et Touristique
 
-**Solution complète de réservation et de gestion des taxes de séjour pour simplifier l'administration touristique**
+**Solution complète de réservation et de gestion des taxes de séjour développée pour simplifier l'administration touristique du Canton de Fribourg**
 
 ---
 
 ## 🎯 Mission
 
-SelfKey est une plateforme digitale conçue pour moderniser et simplifier la gestion des établissements d'hébergement touristique. Notre solution propose un système intégré qui facilite la collecte et la déclaration des taxes de séjour, tout en offrant aux hôteliers des outils modernes de gestion.
+SelfKey est une plateforme digitale conçue pour moderniser et simplifier la gestion des établissements d'hébergement touristique. Notre solution répond directement aux besoins de l'État de Fribourg en proposant un système intégré qui facilite la collecte et la déclaration des taxes de séjour, tout en offrant aux hôteliers des outils modernes de gestion.
 
-**✨ Simplicité avant tout** : Mise en place en quelques minutes, utilisation intuitive dès le premier jour, aucune formation technique requise.
-
-## 🚀 Pourquoi SelfKey ?
-
-### ⚡ Rapidité de mise en place
-
-- **5 minutes** pour créer votre compte et configurer votre établissement
-- **10 minutes** pour être opérationnel et recevoir vos premières réservations
-- **Aucune installation** logicielle ou matérielle requise
-- **Paramétrage automatique** avec des valeurs par défaut optimales
-
-### 🎯 Simplicité d'utilisation
-
-- **Interface claire** : Tout est visible d'un coup d'œil
-- **Navigation intuitive** : Aucune formation technique nécessaire
-- **Processus guidé** : L'application vous accompagne à chaque étape
-- **Aide contextuelle** : Tooltips et guides intégrés partout
-
-## 🏛️ Bénéfices pour les Administrations Publiques
+## 🏛️ Bénéfices pour l'État de Fribourg
 
 ### 📊 Collecte Automatisée des Taxes de Séjour
 
-- **Export Excel automatique** : Génération des déclarations dans le format requis par les autorités
-- **Données standardisées** : Toutes les informations collectées selon les standards officiels
+- **Export Excel automatique** : Génération des déclarations dans le format exact requis par l'État
+- **Données standardisées** : Toutes les informations collectées selon les standards cantonaux
 - **Historique complet** : Traçabilité de tous les exports et déclarations
-- **Compatible avec les systèmes existants** : Fichiers directement utilisables par les administrations
+- **Compatible avec le système actuel** : Fichiers directement utilisables sur [fribourg.ch](https://fribourg.ch/fr/uft-ftv/checkin-fr-ts/)
 
 ### 🔍 Contrôle et Transparence
 
 - **Données temps réel** : Visibilité instantanée sur l'activité touristique
 - **Statistiques détaillées** : Revenus, taux d'occupation, flux touristiques
 - **Audit trail** : Toutes les transactions et déclarations sont traçables
-- **Conformité réglementaire** : Respect automatique de la législation en vigueur
+- **Conformité réglementaire** : Respect automatique de la législation fribourgeoise
 
-### 💰 Optimisation des Revenus
+### 💰 Optimisation des Revenus Cantonaux
 
 - **Réduction des erreurs** : Automatisation des calculs et déclarations
 - **Diminution de l'évasion** : Système intégré difficile à contourner
@@ -53,15 +35,13 @@ SelfKey est une plateforme digitale conçue pour moderniser et simplifier la ges
 
 ### 📋 Gestion des Réservations
 
-- **Interface intuitive** : Tableau de bord moderne et facile d'utilisation, accessible à tous
-- **Mise en route immédiate** : Opérationnel en moins de 5 minutes après inscription
+- **Interface intuitive** : Tableau de bord moderne et facile d'utilisation
 - **Réservations en temps réel** : Gestion instantanée des disponibilités
 - **Données clients complètes** : Collecte automatique des informations requises pour les taxes
 - **Codes QR personnalisés** : Facilitation de l'accès pour les clients
 
 ### 💳 Système de Paiement Intégré
 
-- **Configuration simplifiée** : Connexion Stripe en 2 clics, pas de développement requis
 - **Stripe Connect** : Paiements sécurisés avec conformité SCA
 - **Moyens de paiement variés** : Cartes bancaires, TWINT, Apple Pay, Google Pay
 - **Commissions transparentes** : Système de facturation clair et prévisible
@@ -119,13 +99,12 @@ SelfKey est une plateforme digitale conçue pour moderniser et simplifier la ges
 
 - **Interface responsive** : Utilisation sur ordinateur, tablette et smartphone
 - **Expérience utilisateur optimisée** : Navigation intuitive pour tous les âges
-- **Aucune installation** : Fonctionne directement dans le navigateur web
 - **Performance élevée** : Temps de chargement minimal
 - **Support multi-langues** : Adaptation aux besoins touristiques
 
 ## 🎯 Impact Économique Prévu
 
-### 📈 Pour les Administrations
+### 📈 Pour l'État de Fribourg
 
 - **Augmentation des revenus** : Meilleure collecte des taxes de séjour
 - **Réduction des coûts administratifs** : Automatisation des processus
@@ -143,20 +122,18 @@ SelfKey est une plateforme digitale conçue pour moderniser et simplifier la ges
 
 ### 🚀 Déploiement Rapide
 
-- **Mise en service immédiate** : Prêt à recevoir des réservations en 10 minutes
-- **Configuration zero** : Paramètres par défaut optimaux, personnalisation optionnelle
-- **Formation incluse** : Accompagnement des établissements (si souhaité)
+- **Formation incluse** : Accompagnement des établissements
 - **Migration assistée** : Transfert des données existantes
 - **Support technique** : Assistance continue
 - **Mises à jour automatiques** : Évolution constante de la plateforme
 
 ### 📋 Conformité Réglementaire
 
-- **Standards officiels** : Respect total de la législation en vigueur
+- **Standards fribourgeois** : Respect total de la législation cantonale
 - **Évolutivité** : Adaptation aux changements réglementaires
 - **Documentation complète** : Guides d'utilisation et procédures
 - **Audit ready** : Système prêt pour les contrôles administratifs
 
 ---
 
-**SelfKey représente l'avenir de la gestion hôtelière moderne : efficace, conforme et profitable pour tous les acteurs du secteur touristique.**
+**SelfKey représente l'avenir de la gestion hôtelière dans le Canton de Fribourg : efficace, moderne, conforme et profitable pour tous les acteurs du secteur touristique.**

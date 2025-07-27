@@ -204,9 +204,9 @@ export default function Home() {
               </CardHeader>
               <CardContent>
                 <CardDescription className="text-base">
-                  Configuration simple via QR code, tableau de bord intuitif et
-                  export Excel automatique pour vos déclarations de taxes de
-                  séjour.
+                  Prêt en 5 minutes ! Configuration simple via QR code, tableau
+                  de bord intuitif et export Excel automatique pour vos
+                  déclarations de taxes de séjour.
                 </CardDescription>
               </CardContent>
             </Card>
@@ -398,10 +398,11 @@ export default function Home() {
                   <Zap className="text-gray-700 dark:text-gray-300 w-8 h-8" />
                 </div>
                 <h3 className="font-semibold text-gray-900 dark:text-white mb-2">
-                  Installation rapide
+                  Installation ultra-rapide
                 </h3>
                 <p className="text-gray-600 dark:text-gray-400 text-sm">
-                  Configurez votre système en quelques minutes seulement
+                  Configurez votre système en 5 minutes, opérationnel en 10
+                  minutes
                 </p>
               </div>
 
@@ -410,10 +411,11 @@ export default function Home() {
                   <Star className="text-gray-700 dark:text-gray-300 w-8 h-8" />
                 </div>
                 <h3 className="font-semibold text-gray-900 dark:text-white mb-2">
-                  Facile à utiliser
+                  Très facile à utiliser
                 </h3>
                 <p className="text-gray-600 dark:text-gray-400 text-sm">
-                  Interface intuitive pour vous et vos clients
+                  Interface intuitive pour vous et vos clients, aucune formation
+                  requise
                 </p>
               </div>
             </div>
