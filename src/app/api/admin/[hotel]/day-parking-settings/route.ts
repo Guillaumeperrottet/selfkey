@@ -32,6 +32,7 @@ export async function GET(request: NextRequest, { params }: Props) {
         establishment: {
           select: {
             enableDayParking: true,
+            parkingOnlyMode: true,
             dayParkingTarif1h: true,
             dayParkingTarif2h: true,
             dayParkingTarif3h: true,
@@ -92,6 +93,7 @@ export async function POST(request: NextRequest, { params }: Props) {
     // Validation des données
     const {
       enableDayParking,
+      parkingOnlyMode,
       dayParkingTarif1h,
       dayParkingTarif2h,
       dayParkingTarif3h,
@@ -153,6 +155,7 @@ export async function POST(request: NextRequest, { params }: Props) {
       where: { slug: hotel },
       data: {
         enableDayParking,
+        parkingOnlyMode: enableDayParking ? parkingOnlyMode || false : false,
         dayParkingTarif1h: enableDayParking ? dayParkingTarif1h : null,
         dayParkingTarif2h: enableDayParking ? dayParkingTarif2h : null,
         dayParkingTarif3h: enableDayParking ? dayParkingTarif3h : null,
@@ -169,6 +172,7 @@ export async function POST(request: NextRequest, { params }: Props) {
       },
       select: {
         enableDayParking: true,
+        parkingOnlyMode: true,
         dayParkingTarif1h: true,
         dayParkingTarif2h: true,
         dayParkingTarif3h: true,

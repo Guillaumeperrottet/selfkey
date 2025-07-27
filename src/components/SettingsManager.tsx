@@ -36,6 +36,7 @@ export function SettingsManager({ hotelSlug }: SettingsManagerProps) {
 
   // États pour parking jour
   const [enableDayParking, setEnableDayParking] = useState<boolean>(false);
+  const [parkingOnlyMode, setParkingOnlyMode] = useState<boolean>(false);
   const [showDayParkingModal, setShowDayParkingModal] = useState(false);
   const [dayParkingLoading, setDayParkingLoading] = useState(false);
 
@@ -67,6 +68,7 @@ export function SettingsManager({ hotelSlug }: SettingsManagerProps) {
         if (dayParkingResponse.ok) {
           const dayParkingData = await dayParkingResponse.json();
           setEnableDayParking(dayParkingData.enableDayParking || false);
+          setParkingOnlyMode(dayParkingData.parkingOnlyMode || false);
         }
       } catch (error) {
         console.error("Error loading settings:", error);
@@ -122,6 +124,47 @@ export function SettingsManager({ hotelSlug }: SettingsManagerProps) {
       console.error("Error saving settings:", error);
     } finally {
       setIsSaving(false);
+    }
+  };
+
+  // Fonction pour sauvegarder le mode parking uniquement
+  const saveParkingOnlyMode = async (parkingOnlyModeValue: boolean) => {
+    try {
+      const response = await fetch(
+        `/api/admin/${hotelSlug}/day-parking-settings`,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            enableDayParking: enableDayParking,
+            parkingOnlyMode: parkingOnlyModeValue,
+            // Préserver les autres paramètres
+            dayParkingTarif1h: 5,
+            dayParkingTarif2h: 8,
+            dayParkingTarif3h: 12,
+            dayParkingTarif4h: 15,
+            dayParkingTarifHalfDay: 20,
+            dayParkingTarifFullDay: 30,
+          }),
+        }
+      );
+
+      if (response.ok) {
+        toastUtils.success(
+          parkingOnlyModeValue
+            ? "Mode parking uniquement activé - vos QR codes mènent directement au parking"
+            : "Mode parking uniquement désactivé - le choix chambre/parking est rétabli"
+        );
+      } else {
+        throw new Error("Erreur lors de la sauvegarde");
+      }
+    } catch (error) {
+      console.error("Error saving parking only mode:", error);
+      toastUtils.error(
+        "Erreur lors de la sauvegarde du mode parking uniquement"
+      );
+      // Remettre l'état précédent en cas d'erreur
+      setParkingOnlyMode(!parkingOnlyModeValue);
     }
   };
 
@@ -450,6 +493,48 @@ export function SettingsManager({ hotelSlug }: SettingsManagerProps) {
                     • Section &quot;Parking Jour&quot; ajoutée à votre menu
                     d&apos;administration
                   </p>
+                </div>
+              </div>
+
+              {/* Option Mode Parking Uniquement */}
+              <div className="p-4 border rounded-lg bg-orange-50 space-y-3">
+                <div className="flex items-center gap-2">
+                  <Car className="h-4 w-4 text-orange-600" />
+                  <h5 className="font-medium text-orange-800">
+                    Mode Parking Uniquement
+                  </h5>
+                </div>
+                <div className="text-sm text-orange-700 space-y-2">
+                  <p>
+                    Activez cette option si vous souhaitez que vos QR codes
+                    mènent directement au formulaire de parking sans proposer le
+                    choix entre réservation de chambre et parking.
+                  </p>
+                  <div className="flex items-center space-x-3">
+                    <Checkbox
+                      id="parkingOnlyMode"
+                      checked={parkingOnlyMode}
+                      onCheckedChange={(checked) => {
+                        const newValue = checked === true;
+                        setParkingOnlyMode(newValue);
+                        saveParkingOnlyMode(newValue);
+                      }}
+                    />
+                    <Label
+                      htmlFor="parkingOnlyMode"
+                      className="text-sm font-medium"
+                    >
+                      Mode parking uniquement - bypasser le choix
+                      chambre/parking
+                    </Label>
+                  </div>
+                  {parkingOnlyMode && (
+                    <div className="text-xs text-orange-600 bg-orange-100 p-2 rounded">
+                      ⚠️ Avec cette option activée, vos clients ne pourront plus
+                      réserver de chambres via le QR code et iront directement
+                      au formulaire de parking.
+                    </div>
+                  )}
                 </div>
               </div>
 
