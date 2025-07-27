@@ -30,7 +30,7 @@ export function SettingsManager({ hotelSlug }: SettingsManagerProps) {
   const [cutoffTime, setCutoffTime] = useState<string>("22:00");
   const [reopenTime, setReopenTime] = useState<string>("00:00");
   const [checkoutTime, setCheckoutTime] = useState<string>("12:00");
-  const [checkinTime, setCheckinTime] = useState<string>("15:00");
+  const [checkinTime, setCheckinTime] = useState<string>("12:05");
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
 
@@ -56,7 +56,7 @@ export function SettingsManager({ hotelSlug }: SettingsManagerProps) {
           setCutoffTime(data.cutoffTime || "22:00");
           setReopenTime(data.reopenTime || "00:00");
           setCheckoutTime(data.checkoutTime || "12:00");
-          setCheckinTime(data.checkinTime || "15:00");
+          setCheckinTime(data.checkinTime || "12:05");
         } else {
           toastUtils.error("Erreur lors du chargement des paramètres");
         }
