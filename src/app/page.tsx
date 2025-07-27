@@ -477,8 +477,8 @@ export default function Home() {
                 </CardHeader>
                 <CardContent>
                   <CardDescription className="text-base">
-                    Excellent pour les campings qui proposent des hébergements
-                    insolites, mobil-homes ou chalets avec accès autonome.
+                    Excellent pour les campings qui proposent des hébergements,
+                    mobil-homes ou chalets avec accès autonome.
                   </CardDescription>
                 </CardContent>
               </Card>
