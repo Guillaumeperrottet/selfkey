@@ -119,7 +119,7 @@ model Establishment {
   dayParkingEmailTemplate      String?
   formConfig                   Json?                @default("{}")
   checkoutTime                 String?              @default("12:00")
-  checkinTime                  String?              @default("15:00")
+  checkinTime                  String?              @default("12:05")
   users                        UserEstablishment[]
   bookings                     Booking[]
   excelExports                 ExcelExportHistory[]

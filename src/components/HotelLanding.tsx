@@ -10,6 +10,8 @@ interface Establishment {
   name: string;
   maxBookingDays: number;
   allowFutureBookings: boolean;
+  enableDayParking?: boolean;
+  parkingOnlyMode?: boolean;
 }
 
 interface DayParkingConfig {
@@ -67,6 +69,13 @@ export function HotelLanding({ hotelSlug, establishment }: HotelLandingProps) {
     loadDayParkingConfig();
   }, [hotelSlug]);
 
+  // Effet pour rediriger automatiquement vers le parking si le mode parking uniquement est activé
+  useEffect(() => {
+    if (establishment.parkingOnlyMode && currentStep === "choice" && !loading) {
+      setCurrentStep("day_duration");
+    }
+  }, [establishment.parkingOnlyMode, currentStep, loading]);
+
   const handleParkingTypeSelect = (type: "night" | "day") => {
     if (type === "night") {
       setCurrentStep("night_booking");
@@ -79,10 +88,6 @@ export function HotelLanding({ hotelSlug, establishment }: HotelLandingProps) {
     setSelectedDuration(duration);
     setSelectedPrice(price);
     setCurrentStep("day_form");
-  };
-
-  const handleBackToChoice = () => {
-    setCurrentStep("choice");
   };
 
   const handleBackToDuration = () => {
@@ -128,6 +133,17 @@ export function HotelLanding({ hotelSlug, establishment }: HotelLandingProps) {
   // Affichage selon l'étape du processus
   switch (currentStep) {
     case "choice":
+      // Si le mode parking uniquement est activé, rediriger vers la sélection de durée
+      if (establishment.parkingOnlyMode) {
+        return (
+          <DayParkingDurationSelector
+            onSelect={handleDurationSelect}
+            establishmentName={establishment.name}
+            tariffs={dayParkingConfig.tariffs!}
+          />
+        );
+      }
+
       return (
         <ParkingTypeSelector
           onSelect={handleParkingTypeSelect}
@@ -139,7 +155,6 @@ export function HotelLanding({ hotelSlug, establishment }: HotelLandingProps) {
       return (
         <DayParkingDurationSelector
           onSelect={handleDurationSelect}
-          onBack={handleBackToChoice}
           establishmentName={establishment.name}
           tariffs={dayParkingConfig.tariffs!}
         />

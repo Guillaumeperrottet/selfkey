@@ -5,7 +5,6 @@ import { Button } from "@/components/ui/button";
 
 interface DayParkingDurationSelectorProps {
   onSelect: (duration: string, price: number) => void;
-  onBack: () => void;
   establishmentName: string;
   tariffs: {
     tarif1h: number;
