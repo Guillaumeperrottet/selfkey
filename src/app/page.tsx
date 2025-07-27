@@ -24,7 +24,7 @@ import { Metadata } from "next";
 export const metadata: Metadata = {
   title: "SelfKey - Check-in automatique 24h/24 pour votre établissement",
   description:
-    "Automatisez vos check-ins avec SelfKey ! Solution suisse pour hôtels, campings, locations. QR code, paiement Stripe sécurisé, accès instantané. Aucun abonnement.",
+    "Automatisez vos check-ins avec SelfKey ! Solution suisse pour hôtels, campings, parkings, locations. QR code, paiement Stripe sécurisé, accès instantané. Aucun abonnement.",
   keywords: [
     "check-in automatique",
     "QR code hotel",
@@ -32,12 +32,14 @@ export const metadata: Metadata = {
     "location saisonnière automation",
     "Stripe Connect Suisse",
     "accès automatique chambre",
+    "parking automatisé",
+    "contrôle accès parking",
     "selfkey",
   ],
   openGraph: {
     title: "SelfKey - Check-in automatique 24h/24",
     description:
-      "Automatisez vos check-ins avec QR code et paiement sécurisé. Solution suisse sans abonnement pour hôtels, campings et locations.",
+      "Automatisez vos check-ins avec QR code et paiement sécurisé. Solution suisse sans abonnement pour hôtels, campings, parkings et locations.",
     images: [
       {
         url: "/logo.png",
@@ -50,7 +52,7 @@ export const metadata: Metadata = {
   twitter: {
     title: "SelfKey - Check-in automatique 24h/24",
     description:
-      "Automatisez vos check-ins avec QR code et paiement sécurisé. Solution suisse sans abonnement.",
+      "Automatisez vos check-ins avec QR code et paiement sécurisé. Solution suisse sans abonnement pour hôtels, campings et parkings.",
   },
 };
 
@@ -60,7 +62,7 @@ export default function Home() {
     "@type": "SoftwareApplication",
     name: "SelfKey",
     description:
-      "Solution suisse de check-in automatique 24h/24 pour hôtels, campings, et locations",
+      "Solution suisse de check-in automatique 24h/24 pour hôtels, campings, parkings et locations",
     url: "https://www.selfkey.ch",
     applicationCategory: "BusinessApplication",
     operatingSystem: "Web",
@@ -91,6 +93,7 @@ export default function Home() {
       "QR Code integration",
       "Gestion multi-établissements",
       "Codes d'accès automatiques",
+      "Contrôle parking automatisé",
     ],
   };
 
@@ -150,7 +153,8 @@ export default function Home() {
             </h1>
             <p className="text-xl text-gray-600 dark:text-gray-400 max-w-2xl mx-auto mb-8">
               Permettez à vos clients de s&apos;enregistrer automatiquement
-              24h/24, avec paiement sécurisé et accès instantané.
+              24h/24, avec paiement sécurisé et accès instantané. Parfait pour
+              les hôtels, campings, parkings et locations saisonnières.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <Button asChild size="lg" className="px-8">
@@ -174,7 +178,7 @@ export default function Home() {
             </p>
           </div>
 
-          <div className="grid md:grid-cols-3 gap-8">
+          <div className="grid md:grid-cols-3 lg:grid-cols-4 gap-8">
             <Card className="border-0 shadow-sm hover:shadow-md transition-shadow">
               <CardHeader>
                 <div className="w-12 h-12 bg-blue-100 dark:bg-blue-900 rounded-lg flex items-center justify-center mb-4">
@@ -219,6 +223,24 @@ export default function Home() {
                   Intégration Stripe Connect pour des paiements entièrement
                   sécurisés. Aucun accès accordé tant que le paiement n&apos;est
                   pas validé.
+                </CardDescription>
+              </CardContent>
+            </Card>
+
+            <Card className="border-0 shadow-sm hover:shadow-md transition-shadow">
+              <CardHeader>
+                <div className="w-12 h-12 bg-orange-100 dark:bg-orange-900 rounded-lg flex items-center justify-center mb-4">
+                  <span className="text-orange-600 dark:text-orange-400 text-2xl">
+                    🅿️
+                  </span>
+                </div>
+                <CardTitle className="text-xl">Gestion parking</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <CardDescription className="text-base">
+                  Contrôle d&apos;accès automatisé pour parkings avec codes à la
+                  journée, surveillance en temps réel et prolongation
+                  simplifiée.
                 </CardDescription>
               </CardContent>
             </Card>
@@ -437,9 +459,9 @@ export default function Home() {
                 </CardHeader>
                 <CardContent>
                   <CardDescription className="text-base">
-                    Parfait pour les parkings avec barrière à code, parkings
-                    privés ou espaces de stationnement sécurisés nécessitant un
-                    accès payant automatisé.
+                    Solution complète pour parkings avec barrières à code :
+                    réservations à la journée, contrôle d&apos;accès automatisé,
+                    surveillance en temps réel des places occupées.
                   </CardDescription>
                 </CardContent>
               </Card>
