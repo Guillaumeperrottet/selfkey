@@ -114,6 +114,7 @@ model Establishment {
   dayParkingTarifFullDay       Float?               @default(35.00)
   dayParkingTarifHalfDay       Float?               @default(20.00)
   enableDayParking             Boolean              @default(false)
+  parkingOnlyMode              Boolean              @default(false)
   dayParkingCommissionRate     Float                @default(5.0)
   dayParkingEmailTemplate      String?
   formConfig                   Json?                @default("{}")
