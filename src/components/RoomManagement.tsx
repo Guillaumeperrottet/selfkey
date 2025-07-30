@@ -6,7 +6,14 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Separator } from "@/components/ui/separator";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
 import {
   Dialog,
   DialogContent,
@@ -28,6 +35,10 @@ import {
   PowerOff,
   AlertTriangle,
   X,
+  Search,
+  ArrowUpDown,
+  ArrowUp,
+  ArrowDown,
 } from "lucide-react";
 import { useEstablishmentFees } from "@/hooks/useEstablishmentFees";
 import { calculateFees } from "@/lib/fee-calculator";
@@ -79,6 +90,13 @@ export function RoomManagement({ hotelSlug, currency }: Props) {
     name: "",
     price: "",
   });
+
+  // États pour la recherche et le tri
+  const [searchTerm, setSearchTerm] = useState("");
+  const [sortField, setSortField] = useState<
+    "name" | "price" | "status" | null
+  >(null);
+  const [sortDirection, setSortDirection] = useState<"asc" | "desc">("asc");
 
   const loadRooms = useCallback(async () => {
     try {
@@ -287,6 +305,50 @@ export function RoomManagement({ hotelSlug, currency }: Props) {
     );
   };
 
+  // Fonction de tri
+  const handleSort = (field: "name" | "price" | "status") => {
+    if (sortField === field) {
+      setSortDirection(sortDirection === "asc" ? "desc" : "asc");
+    } else {
+      setSortField(field);
+      setSortDirection("asc");
+    }
+  };
+
+  // Fonction pour obtenir l'icône de tri
+  const getSortIcon = (field: "name" | "price" | "status") => {
+    if (sortField !== field) {
+      return <ArrowUpDown className="h-4 w-4" />;
+    }
+    return sortDirection === "asc" ? (
+      <ArrowUp className="h-4 w-4" />
+    ) : (
+      <ArrowDown className="h-4 w-4" />
+    );
+  };
+
+  // Filtrage et tri des places
+  const filteredAndSortedRooms = rooms
+    .filter((room) =>
+      room.name.toLowerCase().includes(searchTerm.toLowerCase())
+    )
+    .sort((a, b) => {
+      if (!sortField) return 0;
+
+      const multiplier = sortDirection === "asc" ? 1 : -1;
+
+      switch (sortField) {
+        case "name":
+          return a.name.localeCompare(b.name) * multiplier;
+        case "price":
+          return (a.price - b.price) * multiplier;
+        case "status":
+          return (Number(a.isActive) - Number(b.isActive)) * multiplier;
+        default:
+          return 0;
+      }
+    });
+
   return (
     <div className="space-y-6">
       {/* En-tête */}
@@ -298,15 +360,34 @@ export function RoomManagement({ hotelSlug, currency }: Props) {
           <p className="text-sm text-muted-foreground">
             {rooms.length} place{rooms.length > 1 ? "s" : ""} configurée
             {rooms.length > 1 ? "s" : ""}
+            {searchTerm && (
+              <span className="ml-2">
+                • {filteredAndSortedRooms.length} résultat
+                {filteredAndSortedRooms.length > 1 ? "s" : ""} trouvé
+                {filteredAndSortedRooms.length > 1 ? "s" : ""}
+              </span>
+            )}
           </p>
         </div>
-        <Button
-          onClick={() => setShowAddForm(true)}
-          className="bg-primary hover:bg-primary/90"
-        >
-          <Plus className="h-4 w-4 mr-2" />
-          Ajouter une place
-        </Button>
+        <div className="flex items-center gap-3">
+          {/* Barre de recherche */}
+          <div className="relative">
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+            <Input
+              placeholder="Rechercher une place..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="pl-10 w-64"
+            />
+          </div>
+          <Button
+            onClick={() => setShowAddForm(true)}
+            className="bg-primary hover:bg-primary/90"
+          >
+            <Plus className="h-4 w-4 mr-2" />
+            Ajouter une place
+          </Button>
+        </div>
       </div>
 
       {/* Dialog de confirmation pour désactivation */}
@@ -535,187 +616,257 @@ export function RoomManagement({ hotelSlug, currency }: Props) {
 
       {/* Liste des places */}
       {rooms.length > 0 ? (
-        <div className="space-y-4">
-          {/* Légende des statuts */}
-          <Card className="bg-muted/30 border-muted">
-            <CardContent className="p-4">
-              <div className="flex items-center gap-6 text-xs text-muted-foreground">
-                <span className="font-medium">Statut des chambres :</span>
-                <div className="flex items-center gap-2">
-                  <div className="w-2 h-2 rounded-full bg-emerald-500 shadow-sm ring-2 ring-emerald-500/20"></div>
-                  <span>Active</span>
+        filteredAndSortedRooms.length > 0 ? (
+          <Card>
+            <CardHeader>
+              <div className="flex items-center justify-between">
+                <div>
+                  <CardTitle className="text-lg">Places configurées</CardTitle>
+                  <p className="text-sm text-muted-foreground mt-1">
+                    {filteredAndSortedRooms.length} place
+                    {filteredAndSortedRooms.length > 1 ? "s" : ""} affichée
+                    {filteredAndSortedRooms.length > 1 ? "s" : ""}
+                    {searchTerm && (
+                      <span className="text-muted-foreground/70">
+                        {" "}
+                        sur {rooms.length} au total
+                      </span>
+                    )}
+                  </p>
                 </div>
-                <div className="flex items-center gap-2">
-                  <div className="w-2 h-2 rounded-full bg-slate-400 shadow-sm ring-2 ring-slate-400/20"></div>
-                  <span>Désactivée</span>
+                <div className="flex items-center gap-4 text-xs text-muted-foreground">
+                  <div className="flex items-center gap-2">
+                    <div className="w-2 h-2 rounded-full bg-emerald-500 shadow-sm ring-2 ring-emerald-500/20"></div>
+                    <span>Active</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <div className="w-2 h-2 rounded-full bg-slate-400 shadow-sm ring-2 ring-slate-400/20"></div>
+                    <span>Désactivée</span>
+                  </div>
                 </div>
               </div>
+            </CardHeader>
+            <CardContent>
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead
+                      className="w-12 cursor-pointer hover:bg-muted/50 transition-colors"
+                      onClick={() => handleSort("status")}
+                    >
+                      <div className="flex items-center gap-1">
+                        Statut
+                        {getSortIcon("status")}
+                      </div>
+                    </TableHead>
+                    <TableHead
+                      className="cursor-pointer hover:bg-muted/50 transition-colors"
+                      onClick={() => handleSort("name")}
+                    >
+                      <div className="flex items-center gap-1">
+                        Nom de la place
+                        {getSortIcon("name")}
+                      </div>
+                    </TableHead>
+                    <TableHead
+                      className="text-right cursor-pointer hover:bg-muted/50 transition-colors"
+                      onClick={() => handleSort("price")}
+                    >
+                      <div className="flex items-center justify-end gap-1">
+                        Prix ({currency}){getSortIcon("price")}
+                      </div>
+                    </TableHead>
+                    {!feesLoading && (
+                      <TableHead className="text-right">Montant net</TableHead>
+                    )}
+                    <TableHead className="w-32 text-right">Actions</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {filteredAndSortedRooms.map((room) => (
+                    <TableRow
+                      key={room.id}
+                      className={`${!room.isActive ? "opacity-70" : ""}`}
+                    >
+                      {/* Statut */}
+                      <TableCell>
+                        <div className="flex items-center justify-center">
+                          <div className="relative">
+                            <div
+                              className={`w-3 h-3 rounded-full shadow-sm transition-all ${
+                                room.isActive
+                                  ? "bg-emerald-500 ring-2 ring-emerald-500/20 shadow-emerald-500/25"
+                                  : "bg-slate-400 ring-2 ring-slate-400/20 shadow-slate-400/25"
+                              }`}
+                            />
+                            {room.isActive && (
+                              <div className="absolute inset-0 w-3 h-3 rounded-full bg-emerald-500 animate-pulse opacity-75" />
+                            )}
+                          </div>
+                        </div>
+                      </TableCell>
+
+                      {/* Nom de la place */}
+                      <TableCell>
+                        <div className="flex items-center gap-3">
+                          <div className="p-2 bg-muted rounded-lg">
+                            <Bed className="h-4 w-4 text-muted-foreground" />
+                          </div>
+                          <div>
+                            <div className="font-semibold text-foreground">
+                              {room.name}
+                            </div>
+                            <div className="text-xs text-muted-foreground">
+                              {room.isActive ? "Active" : "Désactivée"}
+                            </div>
+                          </div>
+                        </div>
+                      </TableCell>
+
+                      {/* Prix */}
+                      <TableCell className="text-right">
+                        <div className="font-medium">
+                          {room.price.toFixed(2)} {currency}
+                        </div>
+                      </TableCell>
+
+                      {/* Montant net */}
+                      {!feesLoading && (
+                        <TableCell className="text-right">
+                          <Tooltip>
+                            <TooltipTrigger asChild>
+                              <div className="text-emerald-600 font-medium cursor-help">
+                                {(() => {
+                                  const calculation = calculateFees(
+                                    room.price,
+                                    commissionRate / 100,
+                                    fixedFee
+                                  );
+                                  return calculation.netAmount.toFixed(2);
+                                })()}{" "}
+                                {currency}
+                              </div>
+                            </TooltipTrigger>
+                            <TooltipContent>
+                              <div className="text-xs">
+                                <div className="font-medium mb-1">
+                                  Calcul des frais SelfKey :
+                                </div>
+                                <div>
+                                  Prix affiché: {room.price.toFixed(2)}{" "}
+                                  {currency}
+                                </div>
+                                {/* Commission - seulement si > 0 */}
+                                {commissionRate > 0 && (
+                                  <div>
+                                    Commission SelfKey ({commissionRate}%): -
+                                    {(
+                                      (room.price * commissionRate) /
+                                      100
+                                    ).toFixed(2)}{" "}
+                                    {currency}
+                                  </div>
+                                )}
+                                {/* Frais fixes - seulement si > 0 */}
+                                {fixedFee > 0 && (
+                                  <div>
+                                    Frais fixes SelfKey: -{fixedFee.toFixed(2)}{" "}
+                                    {currency}
+                                  </div>
+                                )}
+                                {/* Si aucun frais SelfKey, afficher un message contextuel */}
+                                {commissionRate === 0 && fixedFee === 0 && (
+                                  <div className="text-muted-foreground italic">
+                                    (Aucun frais SelfKey configuré)
+                                  </div>
+                                )}
+                                <div className="border-t pt-1 mt-1 font-medium text-emerald-600">
+                                  Montant net:{" "}
+                                  {(() => {
+                                    const calculation = calculateFees(
+                                      room.price,
+                                      commissionRate / 100,
+                                      fixedFee
+                                    );
+                                    return calculation.netAmount.toFixed(2);
+                                  })()}{" "}
+                                  {currency}
+                                </div>
+                              </div>
+                            </TooltipContent>
+                          </Tooltip>
+                        </TableCell>
+                      )}
+
+                      {/* Actions */}
+                      <TableCell>
+                        <div className="flex items-center justify-end gap-1">
+                          {/* Bouton d'activation/désactivation */}
+                          <Button
+                            variant={room.isActive ? "outline" : "default"}
+                            size="sm"
+                            onClick={() => handleToggleRequest(room)}
+                            className={
+                              room.isActive
+                                ? "text-muted-foreground hover:text-foreground border-muted hover:border-border"
+                                : "bg-emerald-600 hover:bg-emerald-700 text-white"
+                            }
+                          >
+                            {room.isActive ? (
+                              <PowerOff className="h-4 w-4" />
+                            ) : (
+                              <Power className="h-4 w-4" />
+                            )}
+                          </Button>
+
+                          {/* Bouton de modification */}
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => handleEdit(room)}
+                            className="text-muted-foreground hover:text-foreground border-muted hover:border-border"
+                          >
+                            <Edit className="h-4 w-4" />
+                          </Button>
+
+                          {/* Bouton de suppression définitive */}
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => handleDelete(room.id, room.name)}
+                            disabled={isLoading}
+                            className="text-red-600 hover:text-red-700 border-muted hover:border-red-500/50"
+                            title="Supprimer définitivement cette place"
+                          >
+                            <X className="h-4 w-4" />
+                          </Button>
+                        </div>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
             </CardContent>
           </Card>
-
-          {rooms.map((room) => (
-            <Card
-              key={room.id}
-              className={`transition-all hover:shadow-sm ${!room.isActive ? "opacity-70" : ""}`}
-            >
-              <CardContent className="p-6">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-4">
-                    <div className="flex items-center gap-3">
-                      {/* Icône de lit */}
-                      <div className="p-2 bg-muted rounded-lg">
-                        <Bed className="h-4 w-4 text-muted-foreground" />
-                      </div>
-
-                      {/* Pastille de statut brillante mais discrète */}
-                      <div className="relative">
-                        <div
-                          className={`w-3 h-3 rounded-full shadow-sm transition-all ${
-                            room.isActive
-                              ? "bg-emerald-500 ring-2 ring-emerald-500/20 shadow-emerald-500/25"
-                              : "bg-slate-400 ring-2 ring-slate-400/20 shadow-slate-400/25"
-                          }`}
-                        />
-                        {room.isActive && (
-                          <div className="absolute inset-0 w-3 h-3 rounded-full bg-emerald-500 animate-pulse opacity-75" />
-                        )}
-                      </div>
-                    </div>
-
-                    <div>
-                      <h3 className="font-semibold text-foreground">
-                        {room.name}
-                      </h3>
-                      <div className="flex items-center gap-3 text-sm text-muted-foreground">
-                        <div className="flex items-center gap-1">
-                          <span>
-                            {room.price} {currency}
-                          </span>
-                        </div>
-                        {!feesLoading && (
-                          <>
-                            <Separator orientation="vertical" className="h-4" />
-                            <Tooltip>
-                              <TooltipTrigger asChild>
-                                <div className="flex items-center gap-1 text-emerald-600 cursor-help">
-                                  <span className="font-medium">
-                                    Net:{" "}
-                                    {(() => {
-                                      const calculation = calculateFees(
-                                        room.price,
-                                        commissionRate / 100,
-                                        fixedFee
-                                      );
-                                      return calculation.netAmount.toFixed(2);
-                                    })()}{" "}
-                                    {currency}
-                                  </span>
-                                </div>
-                              </TooltipTrigger>
-                              <TooltipContent>
-                                <div className="text-xs">
-                                  <div className="font-medium mb-1">
-                                    Calcul des frais SelfKey :
-                                  </div>
-                                  <div>
-                                    Prix affiché: {room.price.toFixed(2)}{" "}
-                                    {currency}
-                                  </div>
-                                  {/* Commission - seulement si > 0 */}
-                                  {commissionRate > 0 && (
-                                    <div>
-                                      Commission SelfKey ({commissionRate}%): -
-                                      {(
-                                        (room.price * commissionRate) /
-                                        100
-                                      ).toFixed(2)}{" "}
-                                      {currency}
-                                    </div>
-                                  )}
-                                  {/* Frais fixes - seulement si > 0 */}
-                                  {fixedFee > 0 && (
-                                    <div>
-                                      Frais fixes SelfKey: -
-                                      {fixedFee.toFixed(2)} {currency}
-                                    </div>
-                                  )}
-                                  {/* Si aucun frais SelfKey, afficher un message contextuel */}
-                                  {commissionRate === 0 && fixedFee === 0 && (
-                                    <div className="text-muted-foreground italic">
-                                      (Aucun frais SelfKey configuré)
-                                    </div>
-                                  )}
-                                  <div className="border-t pt-1 mt-1 font-medium text-emerald-600">
-                                    Montant net:{" "}
-                                    {(() => {
-                                      const calculation = calculateFees(
-                                        room.price,
-                                        commissionRate / 100,
-                                        fixedFee
-                                      );
-                                      return calculation.netAmount.toFixed(2);
-                                    })()}{" "}
-                                    {currency}
-                                  </div>
-                                </div>
-                              </TooltipContent>
-                            </Tooltip>
-                          </>
-                        )}
-                        <Separator orientation="vertical" className="h-4" />
-                        <span className="text-xs">
-                          {room.isActive ? "Active" : "Désactivée"}
-                        </span>
-                      </div>
-                    </div>
-                  </div>
-
-                  <div className="flex items-center gap-2">
-                    {/* Bouton d'activation/désactivation */}
-                    <Button
-                      variant={room.isActive ? "outline" : "default"}
-                      size="sm"
-                      onClick={() => handleToggleRequest(room)}
-                      className={
-                        room.isActive
-                          ? "text-muted-foreground hover:text-foreground border-muted hover:border-border"
-                          : "bg-emerald-600 hover:bg-emerald-700 text-white"
-                      }
-                    >
-                      {room.isActive ? (
-                        <PowerOff className="h-4 w-4" />
-                      ) : (
-                        <Power className="h-4 w-4" />
-                      )}
-                    </Button>
-
-                    {/* Bouton de modification */}
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => handleEdit(room)}
-                      className="text-muted-foreground hover:text-foreground border-muted hover:border-border"
-                    >
-                      <Edit className="h-4 w-4" />
-                    </Button>
-
-                    {/* Bouton de suppression définitive */}
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => handleDelete(room.id, room.name)}
-                      disabled={isLoading}
-                      className="text-red-600 hover:text-red-700 border-muted hover:border-red-500/50"
-                      title="Supprimer définitivement cette place"
-                    >
-                      <X className="h-4 w-4" />
-                    </Button>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-          ))}
-        </div>
+        ) : (
+          <Card>
+            <CardContent className="flex flex-col items-center justify-center py-16">
+              <div className="rounded-full bg-muted p-6 mb-4">
+                <Search className="h-8 w-8 text-muted-foreground" />
+              </div>
+              <h3 className="text-lg font-semibold mb-2">
+                Aucun résultat trouvé
+              </h3>
+              <p className="text-sm text-muted-foreground mb-4">
+                Aucune place ne correspond à votre recherche &ldquo;{searchTerm}
+                &rdquo;
+              </p>
+              <Button variant="outline" onClick={() => setSearchTerm("")}>
+                Effacer la recherche
+              </Button>
+            </CardContent>
+          </Card>
+        )
       ) : (
         <Card>
           <CardContent className="flex flex-col items-center justify-center py-16">
