@@ -23,6 +23,10 @@ import {
 import { BookingSteps } from "./BookingSteps";
 import { toastUtils } from "@/lib/toast-utils";
 import { useFormConfig } from "@/hooks/useFormConfig";
+import {
+  getTouristTaxSettings,
+  calculateTouristTax,
+} from "@/lib/fee-calculator";
 
 interface Room {
   id: string;
@@ -95,6 +99,11 @@ export function BookingForm({ hotelSlug, establishment }: BookingFormProps) {
     Record<string, string | string[]>
   >({});
   const [pricingOptionsTotal, setPricingOptionsTotal] = useState(0);
+
+  // États pour la taxe de séjour
+  const [touristTaxEnabled, setTouristTaxEnabled] = useState(true);
+  const [touristTaxAmount, setTouristTaxAmount] = useState(3.0);
+  const [touristTaxTotal, setTouristTaxTotal] = useState(0);
 
   // Configuration du formulaire personnalisable
   const { isFieldEnabled, isFieldRequired } = useFormConfig(hotelSlug);
@@ -302,7 +311,8 @@ export function BookingForm({ hotelSlug, establishment }: BookingFormProps) {
         new Date(checkInDate),
         new Date(checkOutDate)
       );
-      const totalPrice = selectedRoom.price * duration + pricingOptionsTotal;
+      const totalPrice =
+        selectedRoom.price * duration + pricingOptionsTotal + touristTaxTotal;
 
       // Stocker les données de réservation temporairement dans sessionStorage
       const bookingData = {
@@ -330,6 +340,7 @@ export function BookingForm({ hotelSlug, establishment }: BookingFormProps) {
         currency: "CHF",
         selectedPricingOptions,
         pricingOptionsTotal,
+        touristTaxTotal,
         guests: adults + children,
       };
 
@@ -407,6 +418,27 @@ export function BookingForm({ hotelSlug, establishment }: BookingFormProps) {
     loadPricingOptions();
   }, [hotelSlug]);
 
+  // Charger les paramètres de taxe de séjour
+  useEffect(() => {
+    const loadTouristTaxSettings = async () => {
+      try {
+        const settings = await getTouristTaxSettings(hotelSlug);
+        setTouristTaxEnabled(settings.touristTaxEnabled);
+        setTouristTaxAmount(settings.touristTaxAmount);
+      } catch (error) {
+        console.error(
+          "Erreur lors du chargement des paramètres de taxe de séjour:",
+          error
+        );
+        // Utiliser les valeurs par défaut en cas d'erreur
+        setTouristTaxEnabled(true);
+        setTouristTaxAmount(3.0);
+      }
+    };
+
+    loadTouristTaxSettings();
+  }, [hotelSlug]);
+
   // Calculer le total des options de prix
   useEffect(() => {
     let total = 0;
@@ -432,6 +464,17 @@ export function BookingForm({ hotelSlug, establishment }: BookingFormProps) {
     });
     setPricingOptionsTotal(total);
   }, [selectedPricingOptions, pricingOptions]);
+
+  // Calculer la taxe de séjour quand le nombre d'invités ou les paramètres changent
+  useEffect(() => {
+    const totalGuests = adults + children;
+    const taxCalculation = calculateTouristTax(
+      totalGuests,
+      touristTaxAmount,
+      touristTaxEnabled
+    );
+    setTouristTaxTotal(taxCalculation.totalTax);
+  }, [adults, children, touristTaxEnabled, touristTaxAmount]);
 
   // Réinitialiser la date de départ si elle devient invalide après changement de date d'arrivée
   useEffect(() => {
@@ -690,7 +733,7 @@ export function BookingForm({ hotelSlug, establishment }: BookingFormProps) {
             ) : (
               <div className="space-y-3">
                 {availableRooms.map((room) => {
-                  const totalPrice = room.price * duration;
+                  const totalPrice = room.price * duration + touristTaxTotal;
                   const isSelected = selectedRoom?.id === room.id;
 
                   return (
@@ -823,6 +866,28 @@ export function BookingForm({ hotelSlug, establishment }: BookingFormProps) {
                   </div>
                 )}
               </div>
+              {/* Information sur la taxe de séjour */}
+              {touristTaxEnabled && (
+                <div className="mt-4 p-3 bg-blue-50 border border-blue-200 rounded-lg">
+                  <div className="flex items-start gap-2">
+                    <Info className="h-4 w-4 text-blue-600 mt-0.5 flex-shrink-0" />
+                    <div className="text-sm text-blue-800">
+                      <p>
+                        <strong>Taxe de séjour :</strong> Une taxe de{" "}
+                        {touristTaxAmount.toFixed(2)} CHF par personne sera
+                        automatiquement ajoutée à votre réservation.
+                      </p>
+                      <p className="mt-1 text-blue-600">
+                        <em>
+                          Tourist tax: A tax of {touristTaxAmount.toFixed(2)}{" "}
+                          CHF per person will be automatically added to your
+                          booking.
+                        </em>
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              )}
             </div>
 
             {/* Informations personnelles */}
@@ -1504,8 +1569,18 @@ export function BookingForm({ hotelSlug, establishment }: BookingFormProps) {
                         Options: +{pricingOptionsTotal} CHF
                       </div>
                     )}
+                    {touristTaxEnabled && touristTaxTotal > 0 && (
+                      <div className="text-sm text-gray-600">
+                        Taxe de séjour: +{touristTaxTotal.toFixed(2)} CHF (
+                        {adults + children} personnes ×{" "}
+                        {touristTaxAmount.toFixed(2)} CHF)
+                      </div>
+                    )}
                     <div className="font-semibold text-xl">
-                      {selectedRoom.price * duration + pricingOptionsTotal} CHF
+                      {selectedRoom.price * duration +
+                        pricingOptionsTotal +
+                        touristTaxTotal}{" "}
+                      CHF
                     </div>
                   </div>
                 </div>

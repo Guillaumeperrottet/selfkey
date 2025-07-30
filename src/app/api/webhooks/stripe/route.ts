@@ -399,6 +399,7 @@ async function createClassicBookingFromMetadata(
         ownerAmount: parseFloat(metadata.owner_amount),
         selectedPricingOptions: JSON.parse(metadata.selected_pricing_options),
         pricingOptionsTotal: parseFloat(metadata.pricing_options_total),
+        touristTaxTotal: parseFloat(metadata.tourist_tax_total || "0"),
         paymentStatus: "succeeded",
         stripePaymentIntentId: paymentIntent.id,
         bookingType: "classic_booking", // Type payment-first pour réservations classiques

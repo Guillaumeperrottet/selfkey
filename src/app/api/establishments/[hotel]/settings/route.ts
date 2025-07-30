@@ -20,6 +20,8 @@ export async function GET(
         reopenTime: true,
         checkoutTime: true,
         checkinTime: true,
+        touristTaxEnabled: true,
+        touristTaxAmount: true,
       },
     });
 
@@ -67,6 +69,8 @@ export async function PUT(
       reopenTime,
       checkoutTime,
       checkinTime,
+      touristTaxEnabled,
+      touristTaxAmount,
     } = body;
 
     // Validation
@@ -133,6 +137,16 @@ export async function PUT(
       }
     }
 
+    // Validation pour la taxe de séjour
+    if (touristTaxEnabled && (touristTaxAmount < 0 || touristTaxAmount > 100)) {
+      return NextResponse.json(
+        {
+          error: "Le montant de la taxe de séjour doit être entre 0 et 100 CHF",
+        },
+        { status: 400 }
+      );
+    }
+
     // Vérifier que l'établissement existe
     const establishment = await prisma.establishment.findUnique({
       where: { slug: hotel },
@@ -156,6 +170,8 @@ export async function PUT(
         reopenTime: enableCutoffTime && reopenTime ? reopenTime : null,
         checkoutTime: checkoutTime || null,
         checkinTime: checkinTime || null,
+        touristTaxEnabled: touristTaxEnabled ?? true,
+        touristTaxAmount: touristTaxAmount || 3.0,
       },
       select: {
         id: true,
@@ -167,6 +183,8 @@ export async function PUT(
         reopenTime: true,
         checkoutTime: true,
         checkinTime: true,
+        touristTaxEnabled: true,
+        touristTaxAmount: true,
       },
     });
 

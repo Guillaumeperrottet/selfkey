@@ -34,6 +34,10 @@ export function SettingsManager({ hotelSlug }: SettingsManagerProps) {
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
 
+  // États pour la taxe de séjour
+  const [touristTaxEnabled, setTouristTaxEnabled] = useState<boolean>(true);
+  const [touristTaxAmount, setTouristTaxAmount] = useState<number>(3.0);
+
   // États pour parking jour
   const [enableDayParking, setEnableDayParking] = useState<boolean>(false);
   const [parkingOnlyMode, setParkingOnlyMode] = useState<boolean>(false);
@@ -57,6 +61,8 @@ export function SettingsManager({ hotelSlug }: SettingsManagerProps) {
           setReopenTime(data.reopenTime || "00:00");
           setCheckoutTime(data.checkoutTime || "12:00");
           setCheckinTime(data.checkinTime || "12:05");
+          setTouristTaxEnabled(data.touristTaxEnabled ?? true);
+          setTouristTaxAmount(data.touristTaxAmount || 3.0);
         } else {
           toastUtils.error("Erreur lors du chargement des paramètres");
         }
@@ -87,6 +93,13 @@ export function SettingsManager({ hotelSlug }: SettingsManagerProps) {
       return;
     }
 
+    if (touristTaxAmount < 0 || touristTaxAmount > 100) {
+      toastUtils.warning(
+        "Le montant de la taxe de séjour doit être entre 0 et 100 CHF"
+      );
+      return;
+    }
+
     const loadingToast = toastUtils.loading("Sauvegarde des paramètres...");
     setIsSaving(true);
 
@@ -106,6 +119,8 @@ export function SettingsManager({ hotelSlug }: SettingsManagerProps) {
             reopenTime,
             checkoutTime,
             checkinTime,
+            touristTaxEnabled,
+            touristTaxAmount,
           }),
         }
       );
@@ -408,6 +423,77 @@ export function SettingsManager({ hotelSlug }: SettingsManagerProps) {
             </div>
           </div>
 
+          {/* Section Taxe de séjour */}
+          <div className="space-y-4 pt-4 border-t">
+            <h4 className="font-semibold text-sm text-foreground">
+              🏨 Taxe de séjour
+            </h4>
+
+            <div className="space-y-3">
+              <div className="flex items-center space-x-2">
+                <Checkbox
+                  id="touristTaxEnabled"
+                  checked={touristTaxEnabled}
+                  onCheckedChange={(checked) =>
+                    setTouristTaxEnabled(checked as boolean)
+                  }
+                />
+                <Label
+                  htmlFor="touristTaxEnabled"
+                  className="text-sm font-medium"
+                >
+                  Activer la taxe de séjour
+                </Label>
+              </div>
+
+              {touristTaxEnabled && (
+                <div className="ml-6 space-y-2">
+                  <Label htmlFor="touristTaxAmount">
+                    Montant par personne (CHF)
+                  </Label>
+                  <Input
+                    id="touristTaxAmount"
+                    type="number"
+                    value={touristTaxAmount}
+                    onChange={(e) =>
+                      setTouristTaxAmount(parseFloat(e.target.value) || 0)
+                    }
+                    className="w-32"
+                    min="0"
+                    max="100"
+                    step="0.50"
+                    placeholder="3.00"
+                  />
+                  <p className="text-xs text-muted-foreground">
+                    Ce montant sera automatiquement ajouté au prix total pour
+                    chaque personne
+                  </p>
+                </div>
+              )}
+
+              <div className="bg-blue-50 p-3 rounded-lg">
+                <p className="text-sm text-blue-800">
+                  {touristTaxEnabled ? (
+                    <>
+                      <strong>💰 Taxe de séjour active :</strong> Une taxe de{" "}
+                      <strong>
+                        {touristTaxAmount.toFixed(2)} CHF par personne
+                      </strong>{" "}
+                      sera automatiquement ajoutée à chaque réservation. Cette
+                      taxe apparaîtra clairement dans le récapitulatif de
+                      commande avant le paiement.
+                    </>
+                  ) : (
+                    <strong>
+                      ℹ️ Taxe de séjour désactivée : Aucune taxe supplémentaire
+                      ne sera appliquée aux réservations.
+                    </strong>
+                  )}
+                </p>
+              </div>
+            </div>
+          </div>
+
           <Button
             onClick={handleSave}
             disabled={isSaving}
@@ -603,7 +689,7 @@ export function SettingsManager({ hotelSlug }: SettingsManagerProps) {
                 <span className="text-primary font-medium min-w-fit">•</span>
                 <span>
                   <strong>Heure de check-in :</strong> Heure à partir de
-                  laquelle les clients peuvent arriver dans leurs chambres
+                  laquelle les places redeviennent disponibles
                 </span>
               </div>
               <div className="flex items-start gap-2">

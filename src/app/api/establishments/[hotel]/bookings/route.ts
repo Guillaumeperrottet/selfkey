@@ -5,6 +5,10 @@ import {
   checkRoomAvailability,
 } from "@/lib/availability";
 import { createPaymentIntentWithCommission } from "@/lib/stripe-connect";
+import {
+  getTouristTaxSettings,
+  calculateTouristTax,
+} from "@/lib/fee-calculator";
 
 export async function POST(
   request: NextRequest,
@@ -172,7 +176,17 @@ export async function POST(
       }
     }
 
-    const calculatedPrice = basePrice + validatedPricingOptionsTotal;
+    // Calculer la taxe de séjour
+    const touristTaxSettings = await getTouristTaxSettings(hotel);
+    const totalGuests = adults + children;
+    const touristTaxCalculation = calculateTouristTax(
+      totalGuests,
+      touristTaxSettings.touristTaxAmount,
+      touristTaxSettings.touristTaxEnabled
+    );
+
+    const calculatedPrice =
+      basePrice + validatedPricingOptionsTotal + touristTaxCalculation.totalTax;
 
     // Vérifier que le prix correspond
     if (expectedPrice !== calculatedPrice) {
@@ -254,6 +268,7 @@ export async function POST(
         owner_amount: ownerAmount.toString(),
         selected_pricing_options: JSON.stringify(selectedPricingOptions || {}),
         pricing_options_total: validatedPricingOptionsTotal.toString(),
+        tourist_tax_total: touristTaxCalculation.totalTax.toString(),
       }
     );
 
