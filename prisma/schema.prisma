@@ -120,6 +120,8 @@ model Establishment {
   formConfig                   Json?                @default("{}")
   checkoutTime                 String?              @default("12:00")
   checkinTime                  String?              @default("12:05")
+  touristTaxEnabled            Boolean              @default(true)
+  touristTaxAmount             Float                @default(3.00)
   users                        UserEstablishment[]
   bookings                     Booking[]
   excelExports                 ExcelExportHistory[]
@@ -174,6 +176,7 @@ model Booking {
   confirmationSentAt     DateTime?
   adults                 Int           @default(1)
   children               Int           @default(0)
+  touristTaxTotal        Float         @default(0)
   clientBirthPlace       String?
   clientVehicleNumber    String?
   paymentStatus          String        @default("pending")

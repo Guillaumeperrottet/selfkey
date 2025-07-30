@@ -150,3 +150,129 @@ export function formatPercentage(percentage: number): string {
     maximumFractionDigits: 1,
   }).format(percentage / 100);
 }
+
+/**
+ * Interface pour le calcul de la taxe de séjour
+ */
+export interface TouristTaxCalculation {
+  enabled: boolean;
+  taxPerPerson: number;
+  numberOfGuests: number;
+  totalTax: number;
+}
+
+/**
+ * Récupère les paramètres de taxe de séjour pour un établissement
+ */
+export async function getTouristTaxSettings(establishmentSlug: string) {
+  try {
+    const establishment = await prisma.establishment.findUnique({
+      where: { slug: establishmentSlug },
+      select: {
+        touristTaxEnabled: true,
+        touristTaxAmount: true,
+      },
+    });
+
+    if (!establishment) {
+      return {
+        touristTaxEnabled: true,
+        touristTaxAmount: 3.0,
+      };
+    }
+
+    return {
+      touristTaxEnabled: establishment.touristTaxEnabled,
+      touristTaxAmount: establishment.touristTaxAmount,
+    };
+  } catch (error) {
+    console.error("Erreur récupération paramètres taxe de séjour:", error);
+    return {
+      touristTaxEnabled: true,
+      touristTaxAmount: 3.0,
+    };
+  }
+}
+
+/**
+ * Calcule la taxe de séjour
+ */
+export function calculateTouristTax(
+  numberOfGuests: number,
+  taxPerPerson: number,
+  enabled: boolean = true
+): TouristTaxCalculation {
+  if (!enabled || numberOfGuests <= 0 || taxPerPerson <= 0) {
+    return {
+      enabled,
+      taxPerPerson,
+      numberOfGuests,
+      totalTax: 0,
+    };
+  }
+
+  return {
+    enabled,
+    taxPerPerson,
+    numberOfGuests,
+    totalTax: numberOfGuests * taxPerPerson,
+  };
+}
+
+/**
+ * Calcule la taxe de séjour pour un établissement spécifique
+ */
+export async function calculateEstablishmentTouristTax(
+  numberOfGuests: number,
+  establishmentSlug: string
+): Promise<TouristTaxCalculation> {
+  const settings = await getTouristTaxSettings(establishmentSlug);
+  return calculateTouristTax(
+    numberOfGuests,
+    settings.touristTaxAmount,
+    settings.touristTaxEnabled
+  );
+}
+
+/**
+ * Interface pour le calcul complet d'une réservation
+ */
+export interface CompleteBookingCalculation {
+  roomPrice: number;
+  pricingOptionsTotal: number;
+  touristTax: TouristTaxCalculation;
+  subtotal: number;
+  fees: FeeCalculation;
+  totalAmount: number;
+}
+
+/**
+ * Calcule le montant total d'une réservation avec tous les frais
+ */
+export async function calculateCompleteBooking(
+  roomPrice: number,
+  numberOfGuests: number,
+  establishmentSlug: string,
+  pricingOptionsTotal: number = 0
+): Promise<CompleteBookingCalculation> {
+  // Calculer la taxe de séjour
+  const touristTax = await calculateEstablishmentTouristTax(
+    numberOfGuests,
+    establishmentSlug
+  );
+
+  // Sous-total avant frais de plateforme
+  const subtotal = roomPrice + pricingOptionsTotal + touristTax.totalTax;
+
+  // Calculer les frais de plateforme sur le sous-total
+  const fees = await calculateEstablishmentFees(subtotal, establishmentSlug);
+
+  return {
+    roomPrice,
+    pricingOptionsTotal,
+    touristTax,
+    subtotal,
+    fees,
+    totalAmount: subtotal, // Le client paie le sous-total, les frais sont déduits du côté hôtelier
+  };
+}

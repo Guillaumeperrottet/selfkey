@@ -38,6 +38,7 @@ interface Booking {
   checkInDate: Date;
   checkOutDate: Date;
   bookingDate: Date;
+  touristTaxTotal?: number;
   room: {
     name: string;
   } | null;
@@ -146,6 +147,37 @@ export function DashboardCharts({
     },
   } satisfies ChartConfig;
 
+  // Configurations pour les graphiques de taxe de séjour
+  const touristTaxChartConfig = {
+    taxAmount: {
+      label: "Montant des taxes (CHF)",
+      color: chartColors.chart1,
+    },
+    taxBookings: {
+      label: "Nombre de réservations",
+      color: chartColors.chart2,
+    },
+  } satisfies ChartConfig;
+
+  const taxDistributionChartConfig = {
+    "1-10-CHF": {
+      label: "1-10 CHF",
+      color: chartColors.chart1,
+    },
+    "11-20-CHF": {
+      label: "11-20 CHF",
+      color: chartColors.chart2,
+    },
+    "21-30-CHF": {
+      label: "21-30 CHF",
+      color: chartColors.chart3,
+    },
+    "30-CHF": {
+      label: "30+ CHF",
+      color: chartColors.chart4,
+    },
+  } satisfies ChartConfig;
+
   // Données pour le graphique des réservations par mois
   const monthlyBookingsData = useMemo(() => {
     const last6Months = [];
@@ -246,6 +278,91 @@ export function DashboardCharts({
       "2 personnes": chartColors.chart2,
       "3-4 personnes": chartColors.chart3,
       "5+ personnes": chartColors.chart4,
+    };
+
+    return Object.entries(distribution).map(([key, value]) => ({
+      name: key,
+      value,
+      fill: colorMap[key as keyof typeof colorMap] || chartColors.chart1,
+    }));
+  }, [bookings, chartColors]);
+
+  // Données pour les statistiques de taxe de séjour
+  const touristTaxData = useMemo(() => {
+    // Statistiques globales
+    const bookingsWithTax = bookings.filter(
+      (booking) => booking.touristTaxTotal && booking.touristTaxTotal > 0
+    );
+    const totalTaxAmount = bookingsWithTax.reduce(
+      (sum, booking) => sum + (booking.touristTaxTotal || 0),
+      0
+    );
+    const totalTaxBookings = bookingsWithTax.length;
+
+    // Données mensuelles pour le graphique en aires
+    const last6Months = [];
+    const now = new Date();
+
+    for (let i = 5; i >= 0; i--) {
+      const month = new Date(now.getFullYear(), now.getMonth() - i, 1);
+      const monthName = month.toLocaleDateString("fr-FR", { month: "short" });
+
+      const monthBookings = bookingsWithTax.filter((booking) => {
+        const bookingDate = new Date(booking.bookingDate);
+        return (
+          bookingDate.getMonth() === month.getMonth() &&
+          bookingDate.getFullYear() === month.getFullYear()
+        );
+      });
+
+      const monthTaxAmount = monthBookings.reduce(
+        (sum, booking) => sum + (booking.touristTaxTotal || 0),
+        0
+      );
+
+      last6Months.push({
+        month: monthName,
+        taxAmount: monthTaxAmount,
+        taxBookings: monthBookings.length,
+      });
+    }
+
+    return {
+      totalTaxAmount,
+      totalTaxBookings,
+      monthlyData: last6Months,
+    };
+  }, [bookings]);
+
+  // Données pour la répartition des montants de taxe
+  const taxAmountDistribution = useMemo(() => {
+    const bookingsWithTax = bookings.filter(
+      (booking) => booking.touristTaxTotal && booking.touristTaxTotal > 0
+    );
+
+    const distribution = bookingsWithTax.reduce(
+      (acc, booking) => {
+        const taxAmount = booking.touristTaxTotal || 0;
+        const range =
+          taxAmount <= 10
+            ? "1-10 CHF"
+            : taxAmount <= 20
+              ? "11-20 CHF"
+              : taxAmount <= 30
+                ? "21-30 CHF"
+                : "30+ CHF";
+
+        acc[range] = (acc[range] || 0) + 1;
+        return acc;
+      },
+      {} as Record<string, number>
+    );
+
+    const colorMap = {
+      "1-10 CHF": chartColors.chart1,
+      "11-20 CHF": chartColors.chart2,
+      "21-30 CHF": chartColors.chart3,
+      "30+ CHF": chartColors.chart4,
     };
 
     return Object.entries(distribution).map(([key, value]) => ({
@@ -481,6 +598,129 @@ export function DashboardCharts({
                 </ChartContainer>
               </CardContent>
             </Card>
+
+            {/* Graphiques de la taxe de séjour */}
+            {touristTaxData.totalTaxBookings > 0 && (
+              <>
+                {/* Évolution des taxes de séjour */}
+                <Card className="w-full">
+                  <CardHeader>
+                    <CardTitle className="flex items-center gap-2">
+                      <Euro className="h-5 w-5" />
+                      Évolution des taxes de séjour
+                    </CardTitle>
+                    <CardDescription>
+                      Montants collectés par mois (derniers 6 mois)
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="flex items-center gap-4 mb-4 text-sm text-muted-foreground">
+                      <div>
+                        Total collecté:{" "}
+                        <span className="font-semibold text-foreground">
+                          {touristTaxData.totalTaxAmount.toFixed(2)} CHF
+                        </span>
+                      </div>
+                      <div>
+                        Réservations avec taxe:{" "}
+                        <span className="font-semibold text-foreground">
+                          {touristTaxData.totalTaxBookings}
+                        </span>
+                      </div>
+                    </div>
+                    <ChartContainer
+                      config={touristTaxChartConfig}
+                      className="min-h-[300px] w-full chart-container"
+                    >
+                      <AreaChart
+                        accessibilityLayer
+                        data={touristTaxData.monthlyData}
+                        width={undefined}
+                        height={undefined}
+                        margin={{
+                          top: 10,
+                          right: 10,
+                          left: 10,
+                          bottom: 10,
+                        }}
+                      >
+                        <CartesianGrid vertical={false} />
+                        <XAxis
+                          dataKey="month"
+                          tickLine={false}
+                          axisLine={false}
+                          tickMargin={8}
+                          fontSize={12}
+                        />
+                        <YAxis
+                          tickLine={false}
+                          axisLine={false}
+                          fontSize={12}
+                        />
+                        <ChartTooltip
+                          cursor={false}
+                          content={<ChartTooltipContent />}
+                        />
+                        <Area
+                          dataKey="taxAmount"
+                          type="natural"
+                          fill="var(--color-taxAmount)"
+                          fillOpacity={0.4}
+                          stroke="var(--color-taxAmount)"
+                          stackId="a"
+                        />
+                      </AreaChart>
+                    </ChartContainer>
+                  </CardContent>
+                </Card>
+
+                {/* Répartition des montants de taxe */}
+                <Card className="w-full">
+                  <CardHeader>
+                    <CardTitle className="flex items-center gap-2">
+                      <TrendingUp className="h-5 w-5" />
+                      Répartition des montants de taxe
+                    </CardTitle>
+                    <CardDescription>
+                      Distribution des montants de taxe par réservation
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <ChartContainer
+                      config={taxDistributionChartConfig}
+                      className="min-h-[300px] w-full chart-container"
+                    >
+                      <PieChart
+                        width={undefined}
+                        height={undefined}
+                        margin={{
+                          top: 5,
+                          right: 5,
+                          left: 5,
+                          bottom: 5,
+                        }}
+                      >
+                        <ChartTooltip
+                          cursor={false}
+                          content={<ChartTooltipContent hideLabel />}
+                        />
+                        <Pie
+                          data={taxAmountDistribution}
+                          dataKey="value"
+                          nameKey="name"
+                          innerRadius={60}
+                          strokeWidth={5}
+                        >
+                          {taxAmountDistribution.map((entry, index) => (
+                            <Cell key={`cell-${index}`} fill={entry.fill} />
+                          ))}
+                        </Pie>
+                      </PieChart>
+                    </ChartContainer>
+                  </CardContent>
+                </Card>
+              </>
+            )}
           </div>
         </div>
       )}

@@ -73,6 +73,7 @@ interface AdminDashboardProps {
     checkInDate: Date;
     checkOutDate: Date;
     bookingDate: Date;
+    touristTaxTotal?: number;
     room: {
       name: string;
     } | null;
