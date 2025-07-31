@@ -433,7 +433,7 @@ export default function EstablishmentsPage() {
               Mes établissements
             </h2>
             <p className="text-muted-foreground mt-1">
-              Gérez vos hôtels, chambres d&apos;hôtes et locations
+              Gérez vos établissements, chambres et parkings etc...
             </p>
           </div>
 
