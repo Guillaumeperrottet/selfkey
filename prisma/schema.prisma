@@ -261,7 +261,7 @@ model ExcelExportHistory {
   exportedAt        DateTime      @default(now())
   userId            String?
   establishment     Establishment @relation(fields: [establishmentSlug], references: [slug], onDelete: Cascade)
-  user              User?         @relation(fields: [userId], references: [id])
+  user              User?         @relation(fields: [userId], references: [id], onDelete: SetNull)
 
   @@map("excel_export_history")
 }

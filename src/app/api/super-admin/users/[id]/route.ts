@@ -41,10 +41,8 @@ export async function DELETE(
         where: { userId: userId },
       });
 
-      // Supprimer les historiques d'export Excel
-      await tx.excelExportHistory.deleteMany({
-        where: { userId: userId },
-      });
+      // Les historiques d'export Excel auront leur userId mis à null automatiquement
+      // grâce au onDelete: SetNull dans le schema
 
       // Les accounts et sessions seront supprimés automatiquement
       // grâce aux cascades onDelete définies dans le schema
