@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
@@ -27,6 +27,7 @@ import {
 import { toastUtils } from "@/lib/toast-utils";
 import { useTableSortAndFilter } from "@/hooks/useTableSortAndFilter";
 import { SortableHeader } from "@/components/ui/sortable-header";
+import { StatsCard } from "@/components/ui/modern-table";
 
 interface Establishment {
   id: string;
@@ -170,106 +171,113 @@ export function SuperAdminCommissions() {
   }
 
   return (
-    <Card>
-      <CardHeader>
-        <div className="flex items-center justify-between">
-          <div>
-            <CardTitle className="flex items-center gap-2">
-              <Settings className="w-5 h-5" />
-              Commissions & Frais
-            </CardTitle>
-            <p className="text-sm text-gray-600 mt-1">
-              Gestion des commissions et frais fixes par établissement
-            </p>
-          </div>
-          <Button onClick={fetchEstablishments} variant="outline" size="sm">
-            <RefreshCw className="w-4 h-4 mr-2" />
-            Actualiser
-          </Button>
+    <div className="space-y-6">
+      {/* En-tête avec recherche */}
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+        <div>
+          <h3 className="text-lg font-semibold text-gray-900 dark:text-white flex items-center gap-2">
+            <Settings className="w-5 h-5" />
+            Commissions & Frais
+          </h3>
+          <p className="text-sm text-gray-500 dark:text-gray-400">
+            Gestion des commissions et frais fixes par établissement
+          </p>
         </div>
-
-        {/* Barre de recherche */}
-        <div className="mt-4">
-          <div className="relative max-w-md">
+        <div className="flex items-center gap-3">
+          <div className="relative">
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
             <Input
               placeholder="Rechercher un établissement..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="pl-10"
+              className="pl-10 w-64 h-9 border-gray-300 focus:border-gray-500 focus:ring-gray-500 dark:border-gray-600 dark:focus:border-gray-400"
             />
           </div>
+          <Button
+            onClick={fetchEstablishments}
+            variant="outline"
+            size="sm"
+            className="h-9"
+          >
+            <RefreshCw className="w-4 h-4 mr-2" />
+            Actualiser
+          </Button>
         </div>
-      </CardHeader>
-      <CardContent>
-        {filteredAndSortedData.length === 0 ? (
-          <div className="text-center py-8">
-            <Building2 className="w-8 h-8 mx-auto mb-4 text-gray-400" />
-            <p className="text-gray-600">
-              {searchTerm
-                ? `Aucun établissement trouvé pour "${searchTerm}"`
-                : "Aucun établissement trouvé"}
-            </p>
-          </div>
-        ) : (
-          <div className="space-y-4">
-            {/* Statistiques rapides */}
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
-              <div className="text-center p-4 bg-blue-50 rounded-lg">
-                <div className="text-2xl font-bold text-blue-600">
-                  {establishments.length}
-                </div>
-                <div className="text-sm text-blue-800">
-                  Total établissements
-                </div>
-              </div>
-              <div className="text-center p-4 bg-orange-50 rounded-lg">
-                <div className="text-2xl font-bold text-orange-600">
-                  {establishments.length > 0
-                    ? (
-                        establishments.reduce(
-                          (sum, e) => sum + e.dayParkingCommissionRate,
-                          0
-                        ) / establishments.length
-                      ).toFixed(1)
-                    : 0}
-                  %
-                </div>
-                <div className="text-sm text-orange-800">
-                  Commission jour moy.
-                </div>
-              </div>
-              <div className="text-center p-4 bg-purple-50 rounded-lg">
-                <div className="text-2xl font-bold text-purple-600">
-                  {formatCurrency(
-                    establishments.length > 0
-                      ? establishments.reduce((sum, e) => sum + e.fixedFee, 0) /
-                          establishments.length
-                      : 0
-                  )}
-                </div>
-                <div className="text-sm text-purple-800">
-                  Frais fixe nuit moy.
-                </div>
-              </div>
-              <div className="text-center p-4 bg-teal-50 rounded-lg">
-                <div className="text-2xl font-bold text-teal-600">
-                  {formatCurrency(
-                    establishments.length > 0
-                      ? establishments.reduce(
-                          (sum, e) => sum + e.dayParkingFixedFee,
-                          0
-                        ) / establishments.length
-                      : 0
-                  )}
-                </div>
-                <div className="text-sm text-teal-800">
-                  Frais fixe jour moy.
-                </div>
-              </div>
-            </div>
+      </div>
 
-            {/* Table des établissements */}
+      {/* Contenu principal */}
+      {filteredAndSortedData.length === 0 ? (
+        <Card className="border-0 shadow-sm">
+          <CardContent className="p-12">
+            <div className="text-center">
+              <Building2 className="w-12 h-12 mx-auto mb-4 text-gray-400" />
+              <h3 className="text-lg font-medium text-gray-900 dark:text-gray-100 mb-2">
+                {searchTerm ? "Aucun résultat trouvé" : "Aucun établissement"}
+              </h3>
+              <p className="text-gray-500 dark:text-gray-400">
+                {searchTerm
+                  ? `Aucun établissement trouvé pour "${searchTerm}"`
+                  : "Aucun établissement disponible pour le moment"}
+              </p>
+            </div>
+          </CardContent>
+        </Card>
+      ) : (
+        <div className="space-y-4">
+          {/* Statistiques modernes */}
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+            <StatsCard
+              title="Total établissements"
+              value={establishments.length}
+              icon={<Building2 className="w-8 h-8" />}
+              variant="blue"
+            />
+
+            <StatsCard
+              title="Commission jour moy."
+              value={`${
+                establishments.length > 0
+                  ? (
+                      establishments.reduce(
+                        (sum, e) => sum + e.dayParkingCommissionRate,
+                        0
+                      ) / establishments.length
+                    ).toFixed(1)
+                  : 0
+              }%`}
+              icon={<Percent className="w-8 h-8" />}
+              variant="orange"
+            />
+
+            <StatsCard
+              title="Frais fixe nuit moy."
+              value={formatCurrency(
+                establishments.length > 0
+                  ? establishments.reduce((sum, e) => sum + e.fixedFee, 0) /
+                      establishments.length
+                  : 0
+              )}
+              icon={<DollarSign className="w-8 h-8" />}
+              variant="purple"
+            />
+
+            <StatsCard
+              title="Frais fixe jour moy."
+              value={formatCurrency(
+                establishments.length > 0
+                  ? establishments.reduce(
+                      (sum, e) => sum + e.dayParkingFixedFee,
+                      0
+                    ) / establishments.length
+                  : 0
+              )}
+              icon={<DollarSign className="w-8 h-8" />}
+              variant="teal"
+            />
+          </div>
+
+          {/* Table moderne des établissements */}
+          <Card className="border-0 shadow-sm">
             <div className="overflow-x-auto">
               <Table>
                 <TableHeader>
@@ -360,7 +368,7 @@ export function SuperAdminCommissions() {
                           }
                           className={
                             establishment.enableDayParking
-                              ? "bg-green-100 text-green-800"
+                              ? "bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-200"
                               : ""
                           }
                         >
@@ -379,7 +387,7 @@ export function SuperAdminCommissions() {
                           }
                           className={
                             !establishment.parkingOnlyMode
-                              ? "bg-blue-100 text-blue-800"
+                              ? "bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-200"
                               : ""
                           }
                         >
@@ -640,9 +648,9 @@ export function SuperAdminCommissions() {
                 </TableBody>
               </Table>
             </div>
-          </div>
-        )}
-      </CardContent>
-    </Card>
+          </Card>
+        </div>
+      )}
+    </div>
   );
 }

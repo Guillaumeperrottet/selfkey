@@ -28,6 +28,8 @@ import {
   Save,
   Building2,
   Search,
+  FileDown,
+  Calendar,
 } from "lucide-react";
 import { toastUtils } from "@/lib/toast-utils";
 import { useTableSortAndFilter } from "@/hooks/useTableSortAndFilter";
@@ -41,6 +43,10 @@ interface EstablishmentTax {
   touristTaxAmount: number;
   totalTaxCollected: number;
   totalPersons: number;
+  _count: {
+    excelExports: number;
+  };
+  lastExportDate?: string | null;
 }
 
 export function SuperAdminTouristTax() {
@@ -216,7 +222,7 @@ export function SuperAdminTouristTax() {
       <CardContent>
         <div className="space-y-4">
           {/* Statistiques globales */}
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+          <div className="grid grid-cols-1 md:grid-cols-6 gap-4 mb-6">
             <Card>
               <CardContent className="p-4">
                 <div className="flex items-center space-x-2">
@@ -287,6 +293,49 @@ export function SuperAdminTouristTax() {
                 </div>
               </CardContent>
             </Card>
+
+            <Card>
+              <CardContent className="p-4">
+                <div className="flex items-center space-x-2">
+                  <FileDown className="w-4 h-4 text-teal-600" />
+                  <div>
+                    <p className="text-sm font-medium text-gray-600">
+                      Total Exports
+                    </p>
+                    <p className="text-2xl font-bold text-teal-600">
+                      {filteredAndSortedData
+                        .reduce((sum, est) => sum + est._count.excelExports, 0)
+                        .toLocaleString()}
+                    </p>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardContent className="p-4">
+                <div className="flex items-center space-x-2">
+                  <Calendar className="w-4 h-4 text-indigo-600" />
+                  <div>
+                    <p className="text-sm font-medium text-gray-600">
+                      Dernier Export
+                    </p>
+                    <p className="text-lg font-bold text-indigo-600">
+                      {(() => {
+                        const lastExportDates = filteredAndSortedData
+                          .filter((est) => est.lastExportDate)
+                          .map((est) => new Date(est.lastExportDate!))
+                          .sort((a, b) => b.getTime() - a.getTime());
+
+                        return lastExportDates.length > 0
+                          ? lastExportDates[0].toLocaleDateString("fr-FR")
+                          : "Aucun";
+                      })()}
+                    </p>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
           </div>
 
           {/* Tableau des établissements */}
@@ -342,6 +391,26 @@ export function SuperAdminTouristTax() {
                       onSort={handleSort}
                     >
                       Personnes
+                    </SortableHeader>
+                  </TableHead>
+                  <TableHead className="text-center">
+                    <SortableHeader
+                      sortField="_count.excelExports"
+                      currentSortField={sortField}
+                      sortDirection={sortDirection}
+                      onSort={handleSort}
+                    >
+                      Exports
+                    </SortableHeader>
+                  </TableHead>
+                  <TableHead className="text-center">
+                    <SortableHeader
+                      sortField="lastExportDate"
+                      currentSortField={sortField}
+                      sortDirection={sortDirection}
+                      onSort={handleSort}
+                    >
+                      Dernier Export
                     </SortableHeader>
                   </TableHead>
                   <TableHead className="text-center">Actions</TableHead>
@@ -433,6 +502,30 @@ export function SuperAdminTouristTax() {
                       <span className="font-medium">
                         {establishment.totalPersons.toLocaleString()}
                       </span>
+                    </TableCell>
+
+                    <TableCell className="text-center">
+                      <div className="flex items-center justify-center gap-1">
+                        <FileDown className="w-3 h-3 text-gray-500" />
+                        <span className="font-medium">
+                          {establishment._count.excelExports}
+                        </span>
+                      </div>
+                    </TableCell>
+
+                    <TableCell className="text-center text-sm">
+                      {establishment.lastExportDate ? (
+                        <div className="flex items-center justify-center gap-1">
+                          <Calendar className="w-3 h-3 text-gray-500" />
+                          <span>
+                            {new Date(
+                              establishment.lastExportDate
+                            ).toLocaleDateString("fr-FR")}
+                          </span>
+                        </div>
+                      ) : (
+                        <span className="text-gray-400 italic">Aucun</span>
+                      )}
                     </TableCell>
 
                     <TableCell className="text-center">

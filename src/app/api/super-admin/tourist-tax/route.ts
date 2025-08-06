@@ -28,6 +28,20 @@ export async function GET(request: NextRequest) {
             children: true,
           },
         },
+        _count: {
+          select: {
+            excelExports: true,
+          },
+        },
+        excelExports: {
+          select: {
+            exportedAt: true,
+          },
+          orderBy: {
+            exportedAt: "desc",
+          },
+          take: 1,
+        },
       },
       orderBy: {
         name: "asc",
@@ -47,6 +61,12 @@ export async function GET(request: NextRequest) {
         0
       );
 
+      // Récupérer la date du dernier export
+      const lastExportDate =
+        establishment.excelExports.length > 0
+          ? establishment.excelExports[0].exportedAt.toISOString()
+          : null;
+
       return {
         id: establishment.id,
         name: establishment.name,
@@ -55,6 +75,10 @@ export async function GET(request: NextRequest) {
         touristTaxAmount: establishment.touristTaxAmount,
         totalTaxCollected,
         totalPersons,
+        _count: {
+          excelExports: establishment._count.excelExports,
+        },
+        lastExportDate,
       };
     });
 

@@ -52,9 +52,6 @@ interface User {
     };
     role: string;
   }[];
-  _count: {
-    excelExports: number;
-  };
 }
 
 export function SuperAdminUsers() {
@@ -326,16 +323,6 @@ export function SuperAdminUsers() {
                   </TableHead>
                   <TableHead className="text-center">
                     <SortableHeader
-                      sortField="_count.excelExports"
-                      currentSortField={sortField}
-                      sortDirection={sortDirection}
-                      onSort={handleSort}
-                    >
-                      Exports
-                    </SortableHeader>
-                  </TableHead>
-                  <TableHead className="text-center">
-                    <SortableHeader
                       sortField="createdAt"
                       currentSortField={sortField}
                       sortDirection={sortDirection}
@@ -385,12 +372,6 @@ export function SuperAdminUsers() {
                           <Badge variant="secondary">Aucun</Badge>
                         )}
                       </div>
-                    </TableCell>
-
-                    <TableCell className="text-center">
-                      <span className="font-medium">
-                        {user._count.excelExports}
-                      </span>
                     </TableCell>
 
                     <TableCell className="text-center text-sm">
