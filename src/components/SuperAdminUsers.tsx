@@ -34,6 +34,7 @@ import {
   Building2,
   Trash2,
   Search,
+  Eye,
 } from "lucide-react";
 import { toastUtils } from "@/lib/toast-utils";
 import { useTableSortAndFilter } from "@/hooks/useTableSortAndFilter";
@@ -382,15 +383,31 @@ export function SuperAdminUsers() {
                     </TableCell>
 
                     <TableCell className="text-center">
-                      <Button
-                        size="sm"
-                        variant="outline"
-                        onClick={() => handleDeleteClick(user)}
-                        className="text-red-600 hover:text-red-700 hover:bg-red-50"
-                        title="Supprimer l'utilisateur"
-                      >
-                        <Trash2 className="w-4 h-4" />
-                      </Button>
+                      <div className="flex gap-2 justify-center">
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          onClick={() =>
+                            window.open(
+                              `/super-admin/users/${user.id}`,
+                              "_blank"
+                            )
+                          }
+                          className="text-blue-600 hover:text-blue-700 hover:bg-blue-50"
+                          title="Vue détaillée de l'utilisateur"
+                        >
+                          <Eye className="w-4 h-4" />
+                        </Button>
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          onClick={() => handleDeleteClick(user)}
+                          className="text-red-600 hover:text-red-700 hover:bg-red-50"
+                          title="Supprimer l'utilisateur"
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </Button>
+                      </div>
                     </TableCell>
                   </TableRow>
                 ))}
