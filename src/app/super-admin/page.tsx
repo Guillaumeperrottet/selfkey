@@ -14,10 +14,19 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { ArrowLeft, Settings, Building2, Users, LogOut } from "lucide-react";
+import {
+  ArrowLeft,
+  Settings,
+  Building2,
+  Users,
+  LogOut,
+  Receipt,
+  Activity,
+} from "lucide-react";
 import { SuperAdminCommissions } from "@/components/SuperAdminCommissions";
 import { SuperAdminEstablishments } from "@/components/SuperAdminEstablishments";
 import { SuperAdminUsers } from "@/components/SuperAdminUsers";
+import { SuperAdminTouristTax } from "@/components/SuperAdminTouristTax";
 import { toastUtils } from "@/lib/toast-utils";
 
 export default function SuperAdminPage() {
@@ -179,15 +188,9 @@ export default function SuperAdminPage() {
               </div>
               <div className="flex gap-2">
                 <Button variant="outline" asChild size="sm">
-                  <Link href="/admin">
-                    <Building2 className="w-4 h-4 mr-2" />
-                    Dashboard Admin
-                  </Link>
-                </Button>
-                <Button variant="outline" asChild size="sm">
-                  <Link href="/">
-                    <ArrowLeft className="w-4 h-4 mr-2" />
-                    Accueil
+                  <Link href="/super-admin/monitoring">
+                    <Activity className="w-4 h-4 mr-2" />
+                    Monitoring Temps Réel
                   </Link>
                 </Button>
                 <Button variant="outline" onClick={handleLogout} size="sm">
@@ -201,7 +204,7 @@ export default function SuperAdminPage() {
 
         {/* Contenu principal */}
         <Tabs defaultValue="commissions" className="space-y-6">
-          <TabsList className="grid w-full grid-cols-3">
+          <TabsList className="grid w-full grid-cols-4">
             <TabsTrigger
               value="commissions"
               className="flex items-center gap-2"
@@ -216,6 +219,13 @@ export default function SuperAdminPage() {
               <Building2 className="w-4 h-4" />
               Établissements
             </TabsTrigger>
+            <TabsTrigger
+              value="tourist-tax"
+              className="flex items-center gap-2"
+            >
+              <Receipt className="w-4 h-4" />
+              Taxe de Séjour
+            </TabsTrigger>
             <TabsTrigger value="users" className="flex items-center gap-2">
               <Users className="w-4 h-4" />
               Utilisateurs
@@ -228,6 +238,10 @@ export default function SuperAdminPage() {
 
           <TabsContent value="establishments">
             <SuperAdminEstablishments />
+          </TabsContent>
+
+          <TabsContent value="tourist-tax">
+            <SuperAdminTouristTax />
           </TabsContent>
 
           <TabsContent value="users">

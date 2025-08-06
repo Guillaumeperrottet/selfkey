@@ -17,13 +17,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import {
-  RefreshCw,
-  DollarSign,
-  BarChart3,
-  ExternalLink,
-  Building2,
-} from "lucide-react";
+import { RefreshCw, DollarSign, BarChart3, Building2 } from "lucide-react";
 import { toastUtils } from "@/lib/toast-utils";
 
 interface Establishment {
@@ -33,10 +27,11 @@ interface Establishment {
   stripeOnboarded: boolean;
   totalBookings: number;
   totalRevenue: number;
-  lastBooking: string | null;
+  netRevenue: number;
+  totalCommissions: number;
+  averageBasket: number;
   nightBookings?: number;
   dayBookings?: number;
-  totalCommissions?: number;
 }
 
 export function SuperAdminEstablishments() {
@@ -67,11 +62,6 @@ export function SuperAdminEstablishments() {
       style: "currency",
       currency: "CHF",
     }).format(amount);
-  };
-
-  const formatDate = (dateString: string | null) => {
-    if (!dateString) return "Aucune";
-    return new Date(dateString).toLocaleDateString("fr-FR");
   };
 
   if (loading) {
@@ -107,18 +97,23 @@ export function SuperAdminEstablishments() {
       </CardHeader>
       <CardContent>
         <div className="space-y-4">
-          {/* Statistiques générales */}
+          {/* Statistiques financières */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
             <Card>
               <CardContent className="p-4">
                 <div className="flex items-center space-x-2">
-                  <Building2 className="w-4 h-4 text-blue-600" />
+                  <DollarSign className="w-4 h-4 text-blue-600" />
                   <div>
                     <p className="text-sm font-medium text-gray-600">
-                      Établissements
+                      Revenus Bruts Totaux
                     </p>
                     <p className="text-2xl font-bold">
-                      {establishments.length}
+                      {formatCurrency(
+                        establishments.reduce(
+                          (sum, est) => sum + est.totalRevenue,
+                          0
+                        )
+                      )}
                     </p>
                   </div>
                 </div>
@@ -131,12 +126,14 @@ export function SuperAdminEstablishments() {
                   <BarChart3 className="w-4 h-4 text-green-600" />
                   <div>
                     <p className="text-sm font-medium text-gray-600">
-                      Total Réservations
+                      Revenus Nets Établissements
                     </p>
                     <p className="text-2xl font-bold">
-                      {establishments.reduce(
-                        (sum, est) => sum + est.totalBookings,
-                        0
+                      {formatCurrency(
+                        establishments.reduce(
+                          (sum, est) => sum + est.netRevenue,
+                          0
+                        )
                       )}
                     </p>
                   </div>
@@ -147,15 +144,15 @@ export function SuperAdminEstablishments() {
             <Card>
               <CardContent className="p-4">
                 <div className="flex items-center space-x-2">
-                  <DollarSign className="w-4 h-4 text-green-600" />
+                  <DollarSign className="w-4 h-4 text-purple-600" />
                   <div>
                     <p className="text-sm font-medium text-gray-600">
-                      Revenus Totaux
+                      Commissions Totales
                     </p>
-                    <p className="text-xl font-bold">
+                    <p className="text-2xl font-bold">
                       {formatCurrency(
                         establishments.reduce(
-                          (sum, est) => sum + est.totalRevenue,
+                          (sum, est) => sum + est.totalCommissions,
                           0
                         )
                       )}
@@ -173,9 +170,10 @@ export function SuperAdminEstablishments() {
                 <TableRow>
                   <TableHead className="min-w-[200px]">Établissement</TableHead>
                   <TableHead className="text-center">Réservations</TableHead>
-                  <TableHead className="text-center">Revenus</TableHead>
-                  <TableHead className="text-center">Dernière Rés.</TableHead>
-                  <TableHead className="text-center">Actions</TableHead>
+                  <TableHead className="text-center">Revenus Bruts</TableHead>
+                  <TableHead className="text-center">Revenus Nets</TableHead>
+                  <TableHead className="text-center">Commissions</TableHead>
+                  <TableHead className="text-center">Panier Moyen</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -209,20 +207,16 @@ export function SuperAdminEstablishments() {
                       {formatCurrency(establishment.totalRevenue)}
                     </TableCell>
 
-                    <TableCell className="text-center text-sm">
-                      {formatDate(establishment.lastBooking)}
+                    <TableCell className="text-center font-medium text-green-600">
+                      {formatCurrency(establishment.netRevenue)}
                     </TableCell>
 
-                    <TableCell className="text-center">
-                      <Button size="sm" variant="outline" asChild>
-                        <a
-                          href={`/admin/${establishment.slug}`}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                        >
-                          <ExternalLink className="w-3 h-3" />
-                        </a>
-                      </Button>
+                    <TableCell className="text-center font-medium text-purple-600">
+                      {formatCurrency(establishment.totalCommissions)}
+                    </TableCell>
+
+                    <TableCell className="text-center font-medium text-orange-600">
+                      {formatCurrency(establishment.averageBasket)}
                     </TableCell>
                   </TableRow>
                 ))}

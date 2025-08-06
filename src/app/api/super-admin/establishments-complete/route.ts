@@ -84,8 +84,15 @@ export async function GET(request: NextRequest) {
           totalBookings: bookingCount,
           nightBookings,
           dayBookings,
-          totalRevenue: totalRevenueResult._sum.amount || 0,
-          totalCommissions: totalRevenueResult._sum.platformCommission || 0,
+          totalRevenue: totalRevenueResult._sum.amount || 0, // Revenus bruts
+          totalCommissions: totalRevenueResult._sum.platformCommission || 0, // Ce que vous touchez
+          netRevenue:
+            (totalRevenueResult._sum.amount || 0) -
+            (totalRevenueResult._sum.platformCommission || 0), // Ce que l'établissement touche
+          averageBasket:
+            bookingCount > 0
+              ? (totalRevenueResult._sum.amount || 0) / bookingCount
+              : 0, // Panier moyen
           lastBooking: lastBooking?.bookingDate?.toISOString() || null,
         };
       })

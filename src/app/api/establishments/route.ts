@@ -52,6 +52,9 @@ export async function POST(request: NextRequest) {
     }
 
     const { name, slug } = await request.json();
+    console.log(
+      `🏗️ API: Début création établissement: ${name} (${slug}) pour utilisateur ${session.user.id}`
+    );
 
     if (!name || !slug) {
       return NextResponse.json(
@@ -61,9 +64,13 @@ export async function POST(request: NextRequest) {
     }
 
     // Vérifier si le slug existe déjà et proposer des alternatives
+    console.log(`🔍 Vérification de la disponibilité du slug: ${slug}`);
     const slugValidation = await generateSlugSuggestions(name, slug);
 
     if (!slugValidation.isAvailable) {
+      console.log(
+        `❌ Slug ${slug} déjà utilisé, suggestions: ${slugValidation.suggestions.join(", ")}`
+      );
       return NextResponse.json(
         {
           error: "Ce slug est déjà utilisé par un autre établissement",
@@ -76,28 +83,50 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Créer l'établissement avec les frais par défaut
-    const establishment = await prisma.establishment.create({
-      data: {
-        name,
-        slug,
-        commissionRate: parseFloat(process.env.PLATFORM_COMMISSION_RATE || "0"),
-        fixedFee: parseFloat(process.env.PLATFORM_FIXED_FEE || "3.00"),
-      },
+    console.log(`✅ Slug ${slug} disponible, création en cours...`);
+
+    // Utiliser une transaction pour garantir la cohérence
+    const establishment = await prisma.$transaction(async (tx) => {
+      console.log(`📝 API: Création de l'établissement dans la transaction...`);
+
+      // Créer l'établissement avec les frais par défaut
+      const newEstablishment = await tx.establishment.create({
+        data: {
+          name,
+          slug,
+          commissionRate: parseFloat(
+            process.env.PLATFORM_COMMISSION_RATE || "0"
+          ),
+          fixedFee: parseFloat(process.env.PLATFORM_FIXED_FEE || "3.00"),
+        },
+      });
+
+      console.log(`✅ API: Établissement créé avec ID: ${newEstablishment.id}`);
+      console.log(`🔗 API: Création de la relation UserEstablishment...`);
+
+      // Associer l'utilisateur comme propriétaire
+      await tx.userEstablishment.create({
+        data: {
+          userId: session.user.id,
+          establishmentId: newEstablishment.id,
+          role: "owner",
+        },
+      });
+
+      console.log(`✅ API: Relation UserEstablishment créée avec succès`);
+      return newEstablishment;
     });
 
-    // Associer l'utilisateur comme propriétaire
-    await prisma.userEstablishment.create({
-      data: {
-        userId: session.user.id,
-        establishmentId: establishment.id,
-        role: "owner",
-      },
-    });
+    console.log(
+      `🎉 API: Établissement créé avec succès: ${establishment.name} (${establishment.slug}) pour l'utilisateur ${session.user.id}`
+    );
 
     return NextResponse.json(establishment, { status: 201 });
   } catch (error) {
-    console.error("Erreur lors de la création de l'établissement:", error);
+    console.error(
+      "❌ API: Erreur lors de la création de l'établissement:",
+      error
+    );
     return NextResponse.json({ error: "Erreur serveur" }, { status: 500 });
   }
 }

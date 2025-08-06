@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { Input } from "@/components/ui/input";
 import {
   Card,
   CardContent,
@@ -19,12 +20,21 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import {
   RefreshCw,
   Users,
   Mail,
   Calendar,
   Building2,
-  ExternalLink,
+  Trash2,
+  Search,
 } from "lucide-react";
 import { toastUtils } from "@/lib/toast-utils";
 
@@ -49,6 +59,11 @@ interface User {
 export function SuperAdminUsers() {
   const [users, setUsers] = useState<User[]>([]);
   const [loading, setLoading] = useState(true);
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [userToDelete, setUserToDelete] = useState<User | null>(null);
+  const [confirmationName, setConfirmationName] = useState("");
+  const [deleteLoading, setDeleteLoading] = useState(false);
+  const [diagnosticLoading, setDiagnosticLoading] = useState(false);
 
   useEffect(() => {
     fetchUsers();
@@ -70,12 +85,133 @@ export function SuperAdminUsers() {
     }
   };
 
+  const syncEstablishments = async () => {
+    try {
+      const response = await fetch("/api/super-admin/sync-establishments", {
+        method: "POST",
+      });
+
+      if (!response.ok) throw new Error("Erreur lors de la synchronisation");
+
+      const result = await response.json();
+      toastUtils.success(result.message);
+      fetchUsers();
+    } catch (error) {
+      console.error("Erreur:", error);
+      toastUtils.error("Impossible de synchroniser les établissements");
+    }
+  };
+
+  const runAdvancedDiagnostic = async () => {
+    try {
+      setDiagnosticLoading(true);
+      const response = await fetch("/api/super-admin/diagnostic-advanced");
+
+      if (!response.ok) throw new Error("Erreur lors du diagnostic");
+
+      const diagnostic = await response.json();
+
+      // Afficher les résultats dans la console pour debug
+      console.log("🔍 Diagnostic avancé:", diagnostic);
+
+      // Créer un message détaillé
+      const messages = [];
+      messages.push(`📊 Santé du système: ${diagnostic.summary.healthScore}%`);
+      messages.push(
+        `🏢 ${diagnostic.summary.totalEstablishments} établissements au total`
+      );
+      messages.push(
+        `👥 ${diagnostic.summary.totalUsers} utilisateurs au total`
+      );
+
+      if (diagnostic.summary.orphanedEstablishments > 0) {
+        messages.push(
+          `⚠️ ${diagnostic.summary.orphanedEstablishments} établissements orphelins`
+        );
+      }
+
+      if (diagnostic.details.orphanedWithBookings.length > 0) {
+        messages.push(
+          `🚨 ${diagnostic.details.orphanedWithBookings.length} établissements orphelins avec réservations`
+        );
+      }
+
+      // Afficher les suggestions
+      diagnostic.suggestions.forEach(
+        (suggestion: { priority: string; message: string }) => {
+          if (suggestion.priority === "critical") {
+            toastUtils.error(`🚨 ${suggestion.message}`);
+          } else if (suggestion.priority === "high") {
+            toastUtils.warning(`⚠️ ${suggestion.message}`);
+          } else {
+            toastUtils.info(`ℹ️ ${suggestion.message}`);
+          }
+        }
+      );
+
+      toastUtils.success(`Diagnostic terminé: ${messages.join(" | ")}`);
+    } catch (error) {
+      console.error("Erreur diagnostic:", error);
+      toastUtils.error("Impossible de lancer le diagnostic avancé");
+    } finally {
+      setDiagnosticLoading(false);
+    }
+  };
   const formatDate = (dateString: string) => {
     return new Date(dateString).toLocaleDateString("fr-FR", {
       year: "numeric",
       month: "short",
       day: "numeric",
     });
+  };
+
+  const handleDeleteClick = (user: User) => {
+    setUserToDelete(user);
+    setConfirmationName("");
+    setDeleteDialogOpen(true);
+  };
+
+  const handleDeleteConfirm = async () => {
+    if (!userToDelete || confirmationName !== userToDelete.name) {
+      toastUtils.error("Le nom saisi ne correspond pas");
+      return;
+    }
+
+    setDeleteLoading(true);
+    try {
+      const response = await fetch(
+        `/api/super-admin/users/${userToDelete.id}`,
+        {
+          method: "DELETE",
+        }
+      );
+
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.message || "Erreur lors de la suppression");
+      }
+
+      toastUtils.success("Utilisateur supprimé avec succès");
+      setDeleteDialogOpen(false);
+      setUserToDelete(null);
+      setConfirmationName("");
+      fetchUsers(); // Recharger la liste
+    } catch (error) {
+      console.error("Erreur suppression:", error);
+      toastUtils.error(
+        error instanceof Error
+          ? error.message
+          : "Impossible de supprimer l'utilisateur"
+      );
+    } finally {
+      setDeleteLoading(false);
+    }
+  };
+
+  const handleDeleteCancel = () => {
+    setDeleteDialogOpen(false);
+    setUserToDelete(null);
+    setConfirmationName("");
   };
 
   if (loading) {
@@ -105,6 +241,19 @@ export function SuperAdminUsers() {
             <Button onClick={fetchUsers} variant="outline" size="sm">
               <RefreshCw className="w-4 h-4 mr-2" />
               Actualiser
+            </Button>
+            <Button onClick={syncEstablishments} variant="outline" size="sm">
+              <Building2 className="w-4 h-4 mr-2" />
+              Synchroniser Établissements
+            </Button>
+            <Button
+              onClick={runAdvancedDiagnostic}
+              variant="outline"
+              size="sm"
+              disabled={diagnosticLoading}
+            >
+              <Search className="w-4 h-4 mr-2" />
+              {diagnosticLoading ? "Diagnostic..." : "Diagnostic Avancé"}
             </Button>
           </div>
         </div>
@@ -196,20 +345,19 @@ export function SuperAdminUsers() {
                     </TableCell>
 
                     <TableCell className="text-center">
-                      <div className="space-y-1">
+                      <div className="flex flex-wrap gap-1 justify-center">
                         {user.establishments.length > 0 ? (
                           user.establishments.map((userEst, index) => (
-                            <div
+                            <Badge
                               key={index}
-                              className="flex items-center justify-center"
+                              variant="outline"
+                              className="text-xs whitespace-nowrap"
                             >
-                              <Badge variant="outline" className="text-xs">
-                                {userEst.establishment.name}
-                                <span className="ml-1 text-gray-500">
-                                  ({userEst.role})
-                                </span>
-                              </Badge>
-                            </div>
+                              {userEst.establishment.name}
+                              <span className="ml-1 text-gray-500">
+                                ({userEst.role})
+                              </span>
+                            </Badge>
                           ))
                         ) : (
                           <Badge variant="secondary">Aucun</Badge>
@@ -231,25 +379,15 @@ export function SuperAdminUsers() {
                     </TableCell>
 
                     <TableCell className="text-center">
-                      <div className="flex gap-1 justify-center">
-                        {user.establishments.map((userEst, index) => (
-                          <Button
-                            key={index}
-                            size="sm"
-                            variant="outline"
-                            asChild
-                          >
-                            <a
-                              href={`/admin/${userEst.establishment.slug}`}
-                              target="_blank"
-                              rel="noopener noreferrer"
-                              title={`Dashboard ${userEst.establishment.name}`}
-                            >
-                              <ExternalLink className="w-3 h-3" />
-                            </a>
-                          </Button>
-                        ))}
-                      </div>
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        onClick={() => handleDeleteClick(user)}
+                        className="text-red-600 hover:text-red-700 hover:bg-red-50"
+                        title="Supprimer l'utilisateur"
+                      >
+                        <Trash2 className="w-4 h-4" />
+                      </Button>
                     </TableCell>
                   </TableRow>
                 ))}
@@ -264,6 +402,54 @@ export function SuperAdminUsers() {
           )}
         </div>
       </CardContent>
+
+      {/* Dialog de confirmation de suppression */}
+      <Dialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Supprimer l&apos;utilisateur</DialogTitle>
+            <DialogDescription>
+              Cette action est irréversible. L&apos;utilisateur{" "}
+              <strong>{userToDelete?.name || userToDelete?.email}</strong> sera
+              définitivement supprimé.
+            </DialogDescription>
+          </DialogHeader>
+
+          <div className="space-y-4">
+            <p className="text-sm text-gray-600">
+              Pour confirmer, tapez exactement le nom de l&apos;utilisateur :
+            </p>
+            <p className="text-sm font-medium bg-gray-100 p-2 rounded">
+              {userToDelete?.name || "Sans nom"}
+            </p>
+            <Input
+              placeholder="Tapez le nom ici..."
+              value={confirmationName}
+              onChange={(e) => setConfirmationName(e.target.value)}
+              className="font-medium"
+            />
+          </div>
+
+          <DialogFooter className="flex gap-2">
+            <Button
+              variant="outline"
+              onClick={handleDeleteCancel}
+              disabled={deleteLoading}
+            >
+              Annuler
+            </Button>
+            <Button
+              variant="destructive"
+              onClick={handleDeleteConfirm}
+              disabled={
+                deleteLoading || confirmationName !== (userToDelete?.name || "")
+              }
+            >
+              {deleteLoading ? "Suppression..." : "Supprimer définitivement"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </Card>
   );
 }

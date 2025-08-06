@@ -42,24 +42,52 @@ export async function createEstablishmentForUser(
   name: string,
   slug: string
 ) {
-  // Créer l'établissement avec les frais par défaut
-  const establishment = await prisma.establishment.create({
-    data: {
-      name,
-      slug,
-      commissionRate: parseFloat(process.env.PLATFORM_COMMISSION_RATE || "0"),
-      fixedFee: parseFloat(process.env.PLATFORM_FIXED_FEE || "3.00"),
-    },
-  });
+  console.log(
+    `🏗️ Début création établissement: ${name} (${slug}) pour utilisateur ${userId}`
+  );
 
-  // Associer l'utilisateur comme propriétaire
-  await prisma.userEstablishment.create({
-    data: {
-      userId,
-      establishmentId: establishment.id,
-      role: "owner",
-    },
-  });
+  try {
+    // Utiliser une transaction pour garantir la cohérence
+    const establishment = await prisma.$transaction(async (tx) => {
+      console.log(`📝 Création de l'établissement dans la transaction...`);
 
-  return establishment;
+      // Créer l'établissement avec les frais par défaut
+      const newEstablishment = await tx.establishment.create({
+        data: {
+          name,
+          slug,
+          commissionRate: parseFloat(
+            process.env.PLATFORM_COMMISSION_RATE || "0"
+          ),
+          fixedFee: parseFloat(process.env.PLATFORM_FIXED_FEE || "3.00"),
+        },
+      });
+
+      console.log(`✅ Établissement créé avec ID: ${newEstablishment.id}`);
+      console.log(`🔗 Création de la relation UserEstablishment...`);
+
+      // Associer l'utilisateur comme propriétaire
+      await tx.userEstablishment.create({
+        data: {
+          userId,
+          establishmentId: newEstablishment.id,
+          role: "owner",
+        },
+      });
+
+      console.log(`✅ Relation UserEstablishment créée avec succès`);
+      return newEstablishment;
+    });
+
+    console.log(
+      `🎉 Établissement créé avec succès: ${establishment.name} (${establishment.slug}) pour l'utilisateur ${userId}`
+    );
+    return establishment;
+  } catch (error) {
+    console.error(
+      `❌ Erreur lors de la création de l'établissement ${name}:`,
+      error
+    );
+    throw error;
+  }
 }
