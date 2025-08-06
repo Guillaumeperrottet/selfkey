@@ -30,16 +30,14 @@ interface Establishment {
   slug: string;
   name: string;
   enableDayParking: boolean;
-  parkingOnlyMode: boolean; // Mode parking uniquement (pas de nuitées)
   dayParkingCommissionRate: number;
   commissionRate: number; // Commission nuit
-  fixedFee: number; // Frais fixes nuit
-  dayParkingFixedFee: number; // Frais fixes jour
+  fixedFee: number; // Frais fixes
 }
 
 interface EditingState {
   id: string;
-  type: "nightCommission" | "dayCommission" | "fixedFee" | "dayFixedFee";
+  type: "nightCommission" | "dayCommission" | "fixedFee";
   value: number;
 }
 
@@ -69,7 +67,7 @@ export function SuperAdminCommissions() {
 
   const updateEstablishment = async (
     establishmentId: string,
-    type: "nightCommission" | "dayCommission" | "fixedFee" | "dayFixedFee",
+    type: "nightCommission" | "dayCommission" | "fixedFee",
     newValue: number
   ) => {
     try {
@@ -77,7 +75,6 @@ export function SuperAdminCommissions() {
         nightCommission: "commissionRate",
         dayCommission: "dayParkingCommissionRate",
         fixedFee: "fixedFee",
-        dayFixedFee: "dayParkingFixedFee",
       };
 
       const response = await fetch("/api/super-admin/establishments/update", {
@@ -114,7 +111,7 @@ export function SuperAdminCommissions() {
 
   const startEditing = (
     id: string,
-    type: "nightCommission" | "dayCommission" | "fixedFee" | "dayFixedFee",
+    type: "nightCommission" | "dayCommission" | "fixedFee",
     currentValue: number
   ) => {
     setEditing({ id, type, value: currentValue });
@@ -179,7 +176,7 @@ export function SuperAdminCommissions() {
         ) : (
           <div className="space-y-4">
             {/* Statistiques rapides */}
-            <div className="grid grid-cols-1 md:grid-cols-6 gap-4 mb-6">
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
               <div className="text-center p-4 bg-blue-50 rounded-lg">
                 <div className="text-2xl font-bold text-blue-600">
                   {establishments.length}
@@ -194,14 +191,6 @@ export function SuperAdminCommissions() {
                 </div>
                 <div className="text-sm text-green-800">
                   Parking jour activé
-                </div>
-              </div>
-              <div className="text-center p-4 bg-indigo-50 rounded-lg">
-                <div className="text-2xl font-bold text-indigo-600">
-                  {establishments.filter((e) => !e.parkingOnlyMode).length}
-                </div>
-                <div className="text-sm text-indigo-800">
-                  Parking nuit activé
                 </div>
               </div>
               <div className="text-center p-4 bg-orange-50 rounded-lg">
@@ -229,24 +218,7 @@ export function SuperAdminCommissions() {
                       : 0
                   )}
                 </div>
-                <div className="text-sm text-purple-800">
-                  Frais fixe nuit moy.
-                </div>
-              </div>
-              <div className="text-center p-4 bg-teal-50 rounded-lg">
-                <div className="text-2xl font-bold text-teal-600">
-                  {formatCurrency(
-                    establishments.length > 0
-                      ? establishments.reduce(
-                          (sum, e) => sum + e.dayParkingFixedFee,
-                          0
-                        ) / establishments.length
-                      : 0
-                  )}
-                </div>
-                <div className="text-sm text-teal-800">
-                  Frais fixe jour moy.
-                </div>
+                <div className="text-sm text-purple-800">Frais fixe moyen</div>
               </div>
             </div>
 
@@ -257,19 +229,13 @@ export function SuperAdminCommissions() {
                   <TableRow>
                     <TableHead>Établissement</TableHead>
                     <TableHead className="text-center">Parking Jour</TableHead>
-                    <TableHead className="text-center">Parking Nuit</TableHead>
                     <TableHead className="text-center">
                       Commission Nuit
                     </TableHead>
                     <TableHead className="text-center">
                       Commission Jour
                     </TableHead>
-                    <TableHead className="text-center">
-                      Frais Fixes Nuit
-                    </TableHead>
-                    <TableHead className="text-center">
-                      Frais Fixes Jour
-                    </TableHead>
+                    <TableHead className="text-center">Frais Fixes</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -305,83 +271,60 @@ export function SuperAdminCommissions() {
                         </Badge>
                       </TableCell>
 
-                      <TableCell className="text-center">
-                        <Badge
-                          variant={
-                            !establishment.parkingOnlyMode
-                              ? "default"
-                              : "secondary"
-                          }
-                          className={
-                            !establishment.parkingOnlyMode
-                              ? "bg-blue-100 text-blue-800"
-                              : ""
-                          }
-                        >
-                          {!establishment.parkingOnlyMode
-                            ? "Activé"
-                            : "Désactivé"}
-                        </Badge>
-                      </TableCell>
-
                       {/* Commission Nuit */}
                       <TableCell className="text-center">
-                        {!establishment.parkingOnlyMode ? (
-                          editing?.id === establishment.id &&
-                          editing.type === "nightCommission" ? (
-                            <div className="flex items-center gap-1">
-                              <Input
-                                type="number"
-                                value={editing.value}
-                                onChange={(e) =>
-                                  setEditing({
-                                    ...editing,
-                                    value: parseFloat(e.target.value) || 0,
-                                  })
-                                }
-                                className="w-20 h-8"
-                                step="0.1"
-                                min="0"
-                                max="100"
-                              />
-                              <Button
-                                size="sm"
-                                variant="ghost"
-                                onClick={saveEditing}
-                              >
-                                <Check className="w-4 h-4 text-green-600" />
-                              </Button>
-                              <Button
-                                size="sm"
-                                variant="ghost"
-                                onClick={cancelEditing}
-                              >
-                                <X className="w-4 h-4 text-red-600" />
-                              </Button>
-                            </div>
-                          ) : (
-                            <div className="flex items-center justify-center gap-1">
-                              <Percent className="w-3 h-3" />
-                              <span className="font-medium">
-                                {establishment.commissionRate.toFixed(1)}%
-                              </span>
-                              <Button
-                                size="sm"
-                                variant="ghost"
-                                onClick={() =>
-                                  startEditing(
-                                    establishment.id,
-                                    "nightCommission",
-                                    establishment.commissionRate
-                                  )
-                                }
-                              >
-                                <Edit className="w-3 h-3" />
-                              </Button>
-                            </div>
-                          )
+                        {editing?.id === establishment.id &&
+                        editing.type === "nightCommission" ? (
+                          <div className="flex items-center gap-1">
+                            <Input
+                              type="number"
+                              value={editing.value}
+                              onChange={(e) =>
+                                setEditing({
+                                  ...editing,
+                                  value: parseFloat(e.target.value) || 0,
+                                })
+                              }
+                              className="w-20 h-8"
+                              step="0.1"
+                              min="0"
+                              max="100"
+                            />
+                            <Button
+                              size="sm"
+                              variant="ghost"
+                              onClick={saveEditing}
+                            >
+                              <Check className="w-4 h-4 text-green-600" />
+                            </Button>
+                            <Button
+                              size="sm"
+                              variant="ghost"
+                              onClick={cancelEditing}
+                            >
+                              <X className="w-4 h-4 text-red-600" />
+                            </Button>
+                          </div>
                         ) : (
-                          <Badge variant="outline">Désactivé</Badge>
+                          <div className="flex items-center justify-center gap-1">
+                            <Percent className="w-3 h-3" />
+                            <span className="font-medium">
+                              {establishment.commissionRate.toFixed(1)}%
+                            </span>
+                            <Button
+                              size="sm"
+                              variant="ghost"
+                              onClick={() =>
+                                startEditing(
+                                  establishment.id,
+                                  "nightCommission",
+                                  establishment.commissionRate
+                                )
+                              }
+                            >
+                              <Edit className="w-3 h-3" />
+                            </Button>
+                          </div>
                         )}
                       </TableCell>
 
@@ -449,125 +392,59 @@ export function SuperAdminCommissions() {
                         )}
                       </TableCell>
 
-                      {/* Frais Fixes Nuit */}
+                      {/* Frais Fixes */}
                       <TableCell className="text-center">
-                        {!establishment.parkingOnlyMode ? (
-                          editing?.id === establishment.id &&
-                          editing.type === "fixedFee" ? (
-                            <div className="flex items-center gap-1">
-                              <Input
-                                type="number"
-                                value={editing.value}
-                                onChange={(e) =>
-                                  setEditing({
-                                    ...editing,
-                                    value: parseFloat(e.target.value) || 0,
-                                  })
-                                }
-                                className="w-20 h-8"
-                                step="0.1"
-                                min="0"
-                              />
-                              <Button
-                                size="sm"
-                                variant="ghost"
-                                onClick={saveEditing}
-                              >
-                                <Check className="w-4 h-4 text-green-600" />
-                              </Button>
-                              <Button
-                                size="sm"
-                                variant="ghost"
-                                onClick={cancelEditing}
-                              >
-                                <X className="w-4 h-4 text-red-600" />
-                              </Button>
-                            </div>
-                          ) : (
-                            <div className="flex items-center justify-center gap-1">
-                              <DollarSign className="w-3 h-3" />
-                              <span className="font-medium">
-                                {formatCurrency(establishment.fixedFee)}
-                              </span>
-                              <Button
-                                size="sm"
-                                variant="ghost"
-                                onClick={() =>
-                                  startEditing(
-                                    establishment.id,
-                                    "fixedFee",
-                                    establishment.fixedFee
-                                  )
-                                }
-                              >
-                                <Edit className="w-3 h-3" />
-                              </Button>
-                            </div>
-                          )
+                        {editing?.id === establishment.id &&
+                        editing.type === "fixedFee" ? (
+                          <div className="flex items-center gap-1">
+                            <Input
+                              type="number"
+                              value={editing.value}
+                              onChange={(e) =>
+                                setEditing({
+                                  ...editing,
+                                  value: parseFloat(e.target.value) || 0,
+                                })
+                              }
+                              className="w-20 h-8"
+                              step="0.1"
+                              min="0"
+                            />
+                            <Button
+                              size="sm"
+                              variant="ghost"
+                              onClick={saveEditing}
+                            >
+                              <Check className="w-4 h-4 text-green-600" />
+                            </Button>
+                            <Button
+                              size="sm"
+                              variant="ghost"
+                              onClick={cancelEditing}
+                            >
+                              <X className="w-4 h-4 text-red-600" />
+                            </Button>
+                          </div>
                         ) : (
-                          <Badge variant="outline">Désactivé</Badge>
-                        )}
-                      </TableCell>
-
-                      {/* Frais Fixes Jour */}
-                      <TableCell className="text-center">
-                        {establishment.enableDayParking ? (
-                          editing?.id === establishment.id &&
-                          editing.type === "dayFixedFee" ? (
-                            <div className="flex items-center gap-1">
-                              <Input
-                                type="number"
-                                value={editing.value}
-                                onChange={(e) =>
-                                  setEditing({
-                                    ...editing,
-                                    value: parseFloat(e.target.value) || 0,
-                                  })
-                                }
-                                className="w-20 h-8"
-                                step="0.1"
-                                min="0"
-                              />
-                              <Button
-                                size="sm"
-                                variant="ghost"
-                                onClick={saveEditing}
-                              >
-                                <Check className="w-4 h-4 text-green-600" />
-                              </Button>
-                              <Button
-                                size="sm"
-                                variant="ghost"
-                                onClick={cancelEditing}
-                              >
-                                <X className="w-4 h-4 text-red-600" />
-                              </Button>
-                            </div>
-                          ) : (
-                            <div className="flex items-center justify-center gap-1">
-                              <DollarSign className="w-3 h-3" />
-                              <span className="font-medium">
-                                {formatCurrency(
-                                  establishment.dayParkingFixedFee
-                                )}
-                              </span>
-                              <Button
-                                size="sm"
-                                variant="ghost"
-                                onClick={() =>
-                                  startEditing(
-                                    establishment.id,
-                                    "dayFixedFee",
-                                    establishment.dayParkingFixedFee
-                                  )
-                                }
-                              >
-                                <Edit className="w-3 h-3" />
-                              </Button>
-                            </div>
-                          )
-                        ) : (
-                          <Badge variant="outline">Désactivé</Badge>
+                          <div className="flex items-center justify-center gap-1">
+                            <DollarSign className="w-3 h-3" />
+                            <span className="font-medium">
+                              {formatCurrency(establishment.fixedFee)}
+                            </span>
+                            <Button
+                              size="sm"
+                              variant="ghost"
+                              onClick={() =>
+                                startEditing(
+                                  establishment.id,
+                                  "fixedFee",
+                                  establishment.fixedFee
+                                )
+                              }
+                            >
+                              <Edit className="w-3 h-3" />
+                            </Button>
+                          </div>
                         )}
                       </TableCell>
                     </TableRow>

@@ -16,6 +16,7 @@ export async function PATCH(request: NextRequest) {
       commissionRate,
       dayParkingCommissionRate,
       fixedFee,
+      dayParkingFixedFee,
     } = body;
 
     if (!establishmentId) {
@@ -30,6 +31,7 @@ export async function PATCH(request: NextRequest) {
       commissionRate?: number;
       dayParkingCommissionRate?: number;
       fixedFee?: number;
+      dayParkingFixedFee?: number;
     } = {};
 
     if (commissionRate !== undefined) {
@@ -65,6 +67,17 @@ export async function PATCH(request: NextRequest) {
       updateData.fixedFee = fee;
     }
 
+    if (dayParkingFixedFee !== undefined) {
+      const fee = parseFloat(dayParkingFixedFee);
+      if (isNaN(fee) || fee < 0) {
+        return Response.json(
+          { error: "Frais fixe parking jour invalide (doit être positif)" },
+          { status: 400 }
+        );
+      }
+      updateData.dayParkingFixedFee = fee;
+    }
+
     // Mettre à jour l'établissement
     const updatedEstablishment = await prisma.establishment.update({
       where: { id: establishmentId },
@@ -76,6 +89,7 @@ export async function PATCH(request: NextRequest) {
         commissionRate: true,
         dayParkingCommissionRate: true,
         fixedFee: true,
+        dayParkingFixedFee: true,
       },
     });
 

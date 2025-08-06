@@ -90,6 +90,7 @@ model Establishment {
   stripeOnboarded              Boolean              @default(false)
   commissionRate               Float                @default(0)
   fixedFee                     Float                @default(3.00)
+  dayParkingFixedFee           Float                @default(0.00)
   createdAt                    DateTime             @default(now())
   accessCodeType               String               @default("room")
   accessInstructions           String?
