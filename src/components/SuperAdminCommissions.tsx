@@ -22,8 +22,11 @@ import {
   Check,
   X,
   DollarSign,
+  Search,
 } from "lucide-react";
 import { toastUtils } from "@/lib/toast-utils";
+import { useTableSortAndFilter } from "@/hooks/useTableSortAndFilter";
+import { SortableHeader } from "@/components/ui/sortable-header";
 
 interface Establishment {
   id: string;
@@ -47,6 +50,21 @@ export function SuperAdminCommissions() {
   const [establishments, setEstablishments] = useState<Establishment[]>([]);
   const [loading, setLoading] = useState(true);
   const [editing, setEditing] = useState<EditingState | null>(null);
+
+  // Hook pour le tri et la recherche
+  const {
+    searchTerm,
+    setSearchTerm,
+    sortField,
+    sortDirection,
+    handleSort,
+    filteredAndSortedData,
+  } = useTableSortAndFilter({
+    data: establishments,
+    searchFields: ["name", "slug"],
+    defaultSortField: "name",
+    defaultSortDirection: "asc",
+  });
 
   const fetchEstablishments = async () => {
     try {
@@ -169,39 +187,40 @@ export function SuperAdminCommissions() {
             Actualiser
           </Button>
         </div>
+
+        {/* Barre de recherche */}
+        <div className="mt-4">
+          <div className="relative max-w-md">
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
+            <Input
+              placeholder="Rechercher un établissement..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="pl-10"
+            />
+          </div>
+        </div>
       </CardHeader>
       <CardContent>
-        {establishments.length === 0 ? (
+        {filteredAndSortedData.length === 0 ? (
           <div className="text-center py-8">
             <Building2 className="w-8 h-8 mx-auto mb-4 text-gray-400" />
-            <p className="text-gray-600">Aucun établissement trouvé</p>
+            <p className="text-gray-600">
+              {searchTerm
+                ? `Aucun établissement trouvé pour "${searchTerm}"`
+                : "Aucun établissement trouvé"}
+            </p>
           </div>
         ) : (
           <div className="space-y-4">
             {/* Statistiques rapides */}
-            <div className="grid grid-cols-1 md:grid-cols-6 gap-4 mb-6">
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
               <div className="text-center p-4 bg-blue-50 rounded-lg">
                 <div className="text-2xl font-bold text-blue-600">
                   {establishments.length}
                 </div>
                 <div className="text-sm text-blue-800">
                   Total établissements
-                </div>
-              </div>
-              <div className="text-center p-4 bg-green-50 rounded-lg">
-                <div className="text-2xl font-bold text-green-600">
-                  {establishments.filter((e) => e.enableDayParking).length}
-                </div>
-                <div className="text-sm text-green-800">
-                  Parking jour activé
-                </div>
-              </div>
-              <div className="text-center p-4 bg-indigo-50 rounded-lg">
-                <div className="text-2xl font-bold text-indigo-600">
-                  {establishments.filter((e) => !e.parkingOnlyMode).length}
-                </div>
-                <div className="text-sm text-indigo-800">
-                  Parking nuit activé
                 </div>
               </div>
               <div className="text-center p-4 bg-orange-50 rounded-lg">
@@ -255,25 +274,71 @@ export function SuperAdminCommissions() {
               <Table>
                 <TableHeader>
                   <TableRow>
-                    <TableHead>Établissement</TableHead>
-                    <TableHead className="text-center">Parking Jour</TableHead>
+                    <TableHead>
+                      <SortableHeader
+                        sortField="name"
+                        currentSortField={sortField}
+                        sortDirection={sortDirection}
+                        onSort={handleSort}
+                      >
+                        Établissement
+                      </SortableHeader>
+                    </TableHead>
+                    <TableHead className="text-center">
+                      <SortableHeader
+                        sortField="enableDayParking"
+                        currentSortField={sortField}
+                        sortDirection={sortDirection}
+                        onSort={handleSort}
+                      >
+                        Parking Jour
+                      </SortableHeader>
+                    </TableHead>
                     <TableHead className="text-center">Parking Nuit</TableHead>
                     <TableHead className="text-center">
-                      Commission Nuit
+                      <SortableHeader
+                        sortField="commissionRate"
+                        currentSortField={sortField}
+                        sortDirection={sortDirection}
+                        onSort={handleSort}
+                      >
+                        Commission Nuit
+                      </SortableHeader>
                     </TableHead>
                     <TableHead className="text-center">
-                      Commission Jour
+                      <SortableHeader
+                        sortField="dayParkingCommissionRate"
+                        currentSortField={sortField}
+                        sortDirection={sortDirection}
+                        onSort={handleSort}
+                      >
+                        Commission Jour
+                      </SortableHeader>
                     </TableHead>
                     <TableHead className="text-center">
-                      Frais Fixes Nuit
+                      <SortableHeader
+                        sortField="fixedFee"
+                        currentSortField={sortField}
+                        sortDirection={sortDirection}
+                        onSort={handleSort}
+                      >
+                        Frais Fixes Nuit
+                      </SortableHeader>
                     </TableHead>
                     <TableHead className="text-center">
-                      Frais Fixes Jour
+                      <SortableHeader
+                        sortField="dayParkingFixedFee"
+                        currentSortField={sortField}
+                        sortDirection={sortDirection}
+                        onSort={handleSort}
+                      >
+                        Frais Fixes Jour
+                      </SortableHeader>
                     </TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {establishments.map((establishment) => (
+                  {filteredAndSortedData.map((establishment) => (
                     <TableRow key={establishment.id}>
                       <TableCell>
                         <div className="space-y-1">

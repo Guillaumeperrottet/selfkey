@@ -27,8 +27,11 @@ import {
   ToggleRight,
   Save,
   Building2,
+  Search,
 } from "lucide-react";
 import { toastUtils } from "@/lib/toast-utils";
+import { useTableSortAndFilter } from "@/hooks/useTableSortAndFilter";
+import { SortableHeader } from "@/components/ui/sortable-header";
 
 interface EstablishmentTax {
   id: string;
@@ -45,6 +48,21 @@ export function SuperAdminTouristTax() {
   const [loading, setLoading] = useState(true);
   const [editingTax, setEditingTax] = useState<{ [key: string]: string }>({});
   const [saving, setSaving] = useState<{ [key: string]: boolean }>({});
+
+  // Hook pour le tri et la recherche
+  const {
+    searchTerm,
+    setSearchTerm,
+    sortField,
+    sortDirection,
+    handleSort,
+    filteredAndSortedData,
+  } = useTableSortAndFilter({
+    data: establishments,
+    searchFields: ["name", "slug"],
+    defaultSortField: "totalTaxCollected",
+    defaultSortDirection: "desc",
+  });
 
   useEffect(() => {
     fetchEstablishments();
@@ -152,17 +170,6 @@ export function SuperAdminTouristTax() {
     }).format(amount);
   };
 
-  const totalTaxCollected = establishments.reduce(
-    (sum, est) => sum + est.totalTaxCollected,
-    0
-  );
-  const totalPersons = establishments.reduce(
-    (sum, est) => sum + est.totalPersons,
-    0
-  );
-  const averageGlobalTax =
-    totalPersons > 0 ? totalTaxCollected / totalPersons : 0;
-
   if (loading) {
     return (
       <Card>
@@ -191,12 +198,57 @@ export function SuperAdminTouristTax() {
             Actualiser
           </Button>
         </div>
+
+        {/* Barre de recherche */}
+        <div className="mt-4">
+          <div className="relative max-w-md">
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
+            <Input
+              placeholder="Rechercher un établissement..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="pl-10"
+            />
+          </div>
+        </div>
       </CardHeader>
 
       <CardContent>
         <div className="space-y-4">
           {/* Statistiques globales */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+            <Card>
+              <CardContent className="p-4">
+                <div className="flex items-center space-x-2">
+                  <Building2 className="w-4 h-4 text-blue-600" />
+                  <div>
+                    <p className="text-sm font-medium text-gray-600">
+                      Total Établissements
+                    </p>
+                    <p className="text-2xl font-bold">
+                      {establishments.length}
+                    </p>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardContent className="p-4">
+                <div className="flex items-center space-x-2">
+                  <Search className="w-4 h-4 text-orange-600" />
+                  <div>
+                    <p className="text-sm font-medium text-gray-600">
+                      Résultats Affichés
+                    </p>
+                    <p className="text-2xl font-bold">
+                      {filteredAndSortedData.length}
+                    </p>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+
             <Card>
               <CardContent className="p-4">
                 <div className="flex items-center space-x-2">
@@ -206,7 +258,12 @@ export function SuperAdminTouristTax() {
                       Total Collecté
                     </p>
                     <p className="text-2xl font-bold text-green-600">
-                      {formatCurrency(totalTaxCollected)}
+                      {formatCurrency(
+                        filteredAndSortedData.reduce(
+                          (sum, est) => sum + est.totalTaxCollected,
+                          0
+                        )
+                      )}
                     </p>
                   </div>
                 </div>
@@ -216,29 +273,15 @@ export function SuperAdminTouristTax() {
             <Card>
               <CardContent className="p-4">
                 <div className="flex items-center space-x-2">
-                  <Receipt className="w-4 h-4 text-blue-600" />
+                  <Receipt className="w-4 h-4 text-purple-600" />
                   <div>
                     <p className="text-sm font-medium text-gray-600">
                       Total Personnes
                     </p>
-                    <p className="text-2xl font-bold text-blue-600">
-                      {totalPersons.toLocaleString()}
-                    </p>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-
-            <Card>
-              <CardContent className="p-4">
-                <div className="flex items-center space-x-2">
-                  <Building2 className="w-4 h-4 text-purple-600" />
-                  <div>
-                    <p className="text-sm font-medium text-gray-600">
-                      Taxe Moyenne/Personne
-                    </p>
                     <p className="text-2xl font-bold text-purple-600">
-                      {formatCurrency(averageGlobalTax)}
+                      {filteredAndSortedData
+                        .reduce((sum, est) => sum + est.totalPersons, 0)
+                        .toLocaleString()}
                     </p>
                   </div>
                 </div>
@@ -251,18 +294,61 @@ export function SuperAdminTouristTax() {
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead className="min-w-[200px]">Établissement</TableHead>
-                  <TableHead className="text-center">État</TableHead>
-                  <TableHead className="text-center">
-                    Montant/Personne/Nuit
+                  <TableHead className="min-w-[200px]">
+                    <SortableHeader
+                      sortField="name"
+                      currentSortField={sortField}
+                      sortDirection={sortDirection}
+                      onSort={handleSort}
+                    >
+                      Établissement
+                    </SortableHeader>
                   </TableHead>
-                  <TableHead className="text-center">Total Collecté</TableHead>
-                  <TableHead className="text-center">Personnes</TableHead>
+                  <TableHead className="text-center">
+                    <SortableHeader
+                      sortField="touristTaxEnabled"
+                      currentSortField={sortField}
+                      sortDirection={sortDirection}
+                      onSort={handleSort}
+                    >
+                      État
+                    </SortableHeader>
+                  </TableHead>
+                  <TableHead className="text-center">
+                    <SortableHeader
+                      sortField="touristTaxAmount"
+                      currentSortField={sortField}
+                      sortDirection={sortDirection}
+                      onSort={handleSort}
+                    >
+                      Montant/Personne/Nuit
+                    </SortableHeader>
+                  </TableHead>
+                  <TableHead className="text-center">
+                    <SortableHeader
+                      sortField="totalTaxCollected"
+                      currentSortField={sortField}
+                      sortDirection={sortDirection}
+                      onSort={handleSort}
+                    >
+                      Total Collecté
+                    </SortableHeader>
+                  </TableHead>
+                  <TableHead className="text-center">
+                    <SortableHeader
+                      sortField="totalPersons"
+                      currentSortField={sortField}
+                      sortDirection={sortDirection}
+                      onSort={handleSort}
+                    >
+                      Personnes
+                    </SortableHeader>
+                  </TableHead>
                   <TableHead className="text-center">Actions</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {establishments.map((establishment) => (
+                {filteredAndSortedData.map((establishment) => (
                   <TableRow key={establishment.id}>
                     <TableCell>
                       <div>
@@ -399,9 +485,11 @@ export function SuperAdminTouristTax() {
             </Table>
           </div>
 
-          {establishments.length === 0 && (
+          {filteredAndSortedData.length === 0 && (
             <div className="text-center py-8 text-gray-500">
-              Aucun établissement trouvé
+              {searchTerm
+                ? `Aucun établissement trouvé pour "${searchTerm}"`
+                : "Aucun établissement trouvé"}
             </div>
           )}
         </div>

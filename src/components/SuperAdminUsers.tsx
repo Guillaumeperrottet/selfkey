@@ -30,13 +30,14 @@ import {
 import {
   RefreshCw,
   Users,
-  Mail,
   Calendar,
   Building2,
   Trash2,
   Search,
 } from "lucide-react";
 import { toastUtils } from "@/lib/toast-utils";
+import { useTableSortAndFilter } from "@/hooks/useTableSortAndFilter";
+import { SortableHeader } from "@/components/ui/sortable-header";
 
 interface User {
   id: string;
@@ -64,6 +65,21 @@ export function SuperAdminUsers() {
   const [confirmationName, setConfirmationName] = useState("");
   const [deleteLoading, setDeleteLoading] = useState(false);
   const [diagnosticLoading, setDiagnosticLoading] = useState(false);
+
+  // Hook pour le tri et la recherche
+  const {
+    searchTerm,
+    setSearchTerm,
+    sortField,
+    sortDirection,
+    handleSort,
+    filteredAndSortedData,
+  } = useTableSortAndFilter({
+    data: users,
+    searchFields: ["name", "email", "establishments"],
+    defaultSortField: "createdAt",
+    defaultSortDirection: "desc",
+  });
 
   useEffect(() => {
     fetchUsers();
@@ -257,76 +273,82 @@ export function SuperAdminUsers() {
             </Button>
           </div>
         </div>
+
+        {/* Barre de recherche */}
+        <div className="mt-4">
+          <div className="relative max-w-md">
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
+            <Input
+              placeholder="Rechercher par nom, email ou établissement..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="pl-10"
+            />
+          </div>
+        </div>
       </CardHeader>
       <CardContent>
         <div className="space-y-4">
-          {/* Statistiques générales */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-            <Card>
-              <CardContent className="p-4">
-                <div className="flex items-center space-x-2">
-                  <Users className="w-4 h-4 text-blue-600" />
-                  <div>
-                    <p className="text-sm font-medium text-gray-600">
-                      Total Utilisateurs
-                    </p>
-                    <p className="text-2xl font-bold">{users.length}</p>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-
-            <Card>
-              <CardContent className="p-4">
-                <div className="flex items-center space-x-2">
-                  <Mail className="w-4 h-4 text-green-600" />
-                  <div>
-                    <p className="text-sm font-medium text-gray-600">
-                      Emails Vérifiés
-                    </p>
-                    <p className="text-2xl font-bold">
-                      {users.filter((user) => user.emailVerified).length}
-                    </p>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-
-            <Card>
-              <CardContent className="p-4">
-                <div className="flex items-center space-x-2">
-                  <Building2 className="w-4 h-4 text-purple-600" />
-                  <div>
-                    <p className="text-sm font-medium text-gray-600">
-                      Avec Établissements
-                    </p>
-                    <p className="text-2xl font-bold">
-                      {
-                        users.filter((user) => user.establishments.length > 0)
-                          .length
-                      }
-                    </p>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-          </div>
-
           {/* Tableau des utilisateurs */}
           <div className="border rounded-lg overflow-x-auto">
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead className="min-w-[250px]">Utilisateur</TableHead>
-                  <TableHead className="text-center">Email Vérifié</TableHead>
-                  <TableHead className="text-center">Établissements</TableHead>
-                  <TableHead className="text-center">Exports</TableHead>
-                  <TableHead className="text-center">Inscription</TableHead>
+                  <TableHead className="min-w-[250px]">
+                    <SortableHeader
+                      sortField="name"
+                      currentSortField={sortField}
+                      sortDirection={sortDirection}
+                      onSort={handleSort}
+                    >
+                      Utilisateur
+                    </SortableHeader>
+                  </TableHead>
+                  <TableHead className="text-center">
+                    <SortableHeader
+                      sortField="emailVerified"
+                      currentSortField={sortField}
+                      sortDirection={sortDirection}
+                      onSort={handleSort}
+                    >
+                      Email Vérifié
+                    </SortableHeader>
+                  </TableHead>
+                  <TableHead className="text-center">
+                    <SortableHeader
+                      sortField="establishments"
+                      currentSortField={sortField}
+                      sortDirection={sortDirection}
+                      onSort={handleSort}
+                    >
+                      Établissements
+                    </SortableHeader>
+                  </TableHead>
+                  <TableHead className="text-center">
+                    <SortableHeader
+                      sortField="_count.excelExports"
+                      currentSortField={sortField}
+                      sortDirection={sortDirection}
+                      onSort={handleSort}
+                    >
+                      Exports
+                    </SortableHeader>
+                  </TableHead>
+                  <TableHead className="text-center">
+                    <SortableHeader
+                      sortField="createdAt"
+                      currentSortField={sortField}
+                      sortDirection={sortDirection}
+                      onSort={handleSort}
+                    >
+                      Inscription
+                    </SortableHeader>
+                  </TableHead>
                   <TableHead className="text-center">Actions</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {users.map((user) => (
+                {filteredAndSortedData.map((user) => (
                   <TableRow key={user.id}>
                     <TableCell>
                       <div>
@@ -395,9 +417,11 @@ export function SuperAdminUsers() {
             </Table>
           </div>
 
-          {users.length === 0 && (
+          {filteredAndSortedData.length === 0 && (
             <div className="text-center py-8 text-gray-500">
-              Aucun utilisateur trouvé
+              {searchTerm
+                ? `Aucun utilisateur trouvé pour "${searchTerm}"`
+                : "Aucun utilisateur trouvé"}
             </div>
           )}
         </div>

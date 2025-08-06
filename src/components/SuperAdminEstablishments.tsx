@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import {
   Card,
   CardContent,
@@ -17,8 +18,16 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { RefreshCw, DollarSign, BarChart3, Building2 } from "lucide-react";
+import {
+  RefreshCw,
+  DollarSign,
+  BarChart3,
+  Building2,
+  Search,
+} from "lucide-react";
 import { toastUtils } from "@/lib/toast-utils";
+import { useTableSortAndFilter } from "@/hooks/useTableSortAndFilter";
+import { SortableHeader } from "@/components/ui/sortable-header";
 
 interface Establishment {
   id: string;
@@ -37,6 +46,21 @@ interface Establishment {
 export function SuperAdminEstablishments() {
   const [establishments, setEstablishments] = useState<Establishment[]>([]);
   const [loading, setLoading] = useState(true);
+
+  // Hook pour le tri et la recherche
+  const {
+    searchTerm,
+    setSearchTerm,
+    sortField,
+    sortDirection,
+    handleSort,
+    filteredAndSortedData,
+  } = useTableSortAndFilter({
+    data: establishments,
+    searchFields: ["name", "slug"],
+    defaultSortField: "totalRevenue",
+    defaultSortDirection: "desc",
+  });
 
   useEffect(() => {
     fetchEstablishments();
@@ -94,22 +118,67 @@ export function SuperAdminEstablishments() {
             </Button>
           </div>
         </div>
+
+        {/* Barre de recherche */}
+        <div className="mt-4">
+          <div className="relative max-w-md">
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
+            <Input
+              placeholder="Rechercher par nom ou slug..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="pl-10"
+            />
+          </div>
+        </div>
       </CardHeader>
       <CardContent>
         <div className="space-y-4">
           {/* Statistiques financières */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
             <Card>
               <CardContent className="p-4">
                 <div className="flex items-center space-x-2">
-                  <DollarSign className="w-4 h-4 text-blue-600" />
+                  <Building2 className="w-4 h-4 text-blue-600" />
+                  <div>
+                    <p className="text-sm font-medium text-gray-600">
+                      Total Établissements
+                    </p>
+                    <p className="text-2xl font-bold">
+                      {establishments.length}
+                    </p>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardContent className="p-4">
+                <div className="flex items-center space-x-2">
+                  <Search className="w-4 h-4 text-orange-600" />
+                  <div>
+                    <p className="text-sm font-medium text-gray-600">
+                      Résultats Affichés
+                    </p>
+                    <p className="text-2xl font-bold">
+                      {filteredAndSortedData.length}
+                    </p>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardContent className="p-4">
+                <div className="flex items-center space-x-2">
+                  <DollarSign className="w-4 h-4 text-green-600" />
                   <div>
                     <p className="text-sm font-medium text-gray-600">
                       Revenus Bruts Totaux
                     </p>
                     <p className="text-2xl font-bold">
                       {formatCurrency(
-                        establishments.reduce(
+                        filteredAndSortedData.reduce(
                           (sum, est) => sum + est.totalRevenue,
                           0
                         )
@@ -123,35 +192,14 @@ export function SuperAdminEstablishments() {
             <Card>
               <CardContent className="p-4">
                 <div className="flex items-center space-x-2">
-                  <BarChart3 className="w-4 h-4 text-green-600" />
-                  <div>
-                    <p className="text-sm font-medium text-gray-600">
-                      Revenus Nets Établissements
-                    </p>
-                    <p className="text-2xl font-bold">
-                      {formatCurrency(
-                        establishments.reduce(
-                          (sum, est) => sum + est.netRevenue,
-                          0
-                        )
-                      )}
-                    </p>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-
-            <Card>
-              <CardContent className="p-4">
-                <div className="flex items-center space-x-2">
-                  <DollarSign className="w-4 h-4 text-purple-600" />
+                  <BarChart3 className="w-4 h-4 text-purple-600" />
                   <div>
                     <p className="text-sm font-medium text-gray-600">
                       Commissions Totales
                     </p>
                     <p className="text-2xl font-bold">
                       {formatCurrency(
-                        establishments.reduce(
+                        filteredAndSortedData.reduce(
                           (sum, est) => sum + est.totalCommissions,
                           0
                         )
@@ -168,16 +216,70 @@ export function SuperAdminEstablishments() {
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead className="min-w-[200px]">Établissement</TableHead>
-                  <TableHead className="text-center">Réservations</TableHead>
-                  <TableHead className="text-center">Revenus Bruts</TableHead>
-                  <TableHead className="text-center">Revenus Nets</TableHead>
-                  <TableHead className="text-center">Commissions</TableHead>
-                  <TableHead className="text-center">Panier Moyen</TableHead>
+                  <TableHead className="min-w-[200px]">
+                    <SortableHeader
+                      sortField="name"
+                      currentSortField={sortField}
+                      sortDirection={sortDirection}
+                      onSort={handleSort}
+                    >
+                      Établissement
+                    </SortableHeader>
+                  </TableHead>
+                  <TableHead className="text-center">
+                    <SortableHeader
+                      sortField="totalBookings"
+                      currentSortField={sortField}
+                      sortDirection={sortDirection}
+                      onSort={handleSort}
+                    >
+                      Réservations
+                    </SortableHeader>
+                  </TableHead>
+                  <TableHead className="text-center">
+                    <SortableHeader
+                      sortField="totalRevenue"
+                      currentSortField={sortField}
+                      sortDirection={sortDirection}
+                      onSort={handleSort}
+                    >
+                      Revenus Bruts
+                    </SortableHeader>
+                  </TableHead>
+                  <TableHead className="text-center">
+                    <SortableHeader
+                      sortField="netRevenue"
+                      currentSortField={sortField}
+                      sortDirection={sortDirection}
+                      onSort={handleSort}
+                    >
+                      Revenus Nets
+                    </SortableHeader>
+                  </TableHead>
+                  <TableHead className="text-center">
+                    <SortableHeader
+                      sortField="totalCommissions"
+                      currentSortField={sortField}
+                      sortDirection={sortDirection}
+                      onSort={handleSort}
+                    >
+                      Commissions
+                    </SortableHeader>
+                  </TableHead>
+                  <TableHead className="text-center">
+                    <SortableHeader
+                      sortField="averageBasket"
+                      currentSortField={sortField}
+                      sortDirection={sortDirection}
+                      onSort={handleSort}
+                    >
+                      Panier Moyen
+                    </SortableHeader>
+                  </TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {establishments.map((establishment) => (
+                {filteredAndSortedData.map((establishment) => (
                   <TableRow key={establishment.id}>
                     <TableCell>
                       <div>
@@ -224,9 +326,11 @@ export function SuperAdminEstablishments() {
             </Table>
           </div>
 
-          {establishments.length === 0 && (
+          {filteredAndSortedData.length === 0 && (
             <div className="text-center py-8 text-gray-500">
-              Aucun établissement trouvé
+              {searchTerm
+                ? `Aucun établissement trouvé pour "${searchTerm}"`
+                : "Aucun établissement trouvé"}
             </div>
           )}
         </div>
