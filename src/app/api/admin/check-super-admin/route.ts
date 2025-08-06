@@ -55,3 +55,24 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({ isAuthenticated: false });
   }
 }
+
+export async function DELETE() {
+  try {
+    // Créer une réponse qui supprime le cookie de session
+    const response = NextResponse.json({
+      success: true,
+      message: "Déconnexion réussie",
+    });
+
+    // Supprimer le cookie de session
+    response.cookies.delete("super-admin-session");
+
+    return response;
+  } catch (error) {
+    console.error("Erreur lors de la déconnexion:", error);
+    return NextResponse.json(
+      { error: "Erreur lors de la déconnexion" },
+      { status: 500 }
+    );
+  }
+}

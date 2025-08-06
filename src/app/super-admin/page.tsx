@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { Button } from "@/components/ui/button";
@@ -77,6 +77,47 @@ export default function SuperAdminPage() {
     checkAuth();
   }, []);
 
+  // Fonction utilitaire pour la déconnexion automatique silencieuse
+  const performSilentLogout = useCallback(async () => {
+    if (isAuthenticated) {
+      try {
+        await fetch("/api/admin/check-super-admin", {
+          method: "DELETE",
+          headers: { "Content-Type": "application/json" },
+        });
+      } catch (error) {
+        console.error("Erreur lors de la déconnexion automatique:", error);
+      }
+    }
+  }, [isAuthenticated]);
+
+  // Déconnexion automatique quand on quitte la page
+  useEffect(() => {
+    const handleBeforeUnload = () => {
+      performSilentLogout();
+    };
+
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === "hidden") {
+        performSilentLogout();
+      }
+    };
+
+    // Déconnexion à la fermeture/navigation
+    window.addEventListener("beforeunload", handleBeforeUnload);
+
+    // Déconnexion quand on change d'onglet
+    document.addEventListener("visibilitychange", handleVisibilityChange);
+
+    // Déconnexion au démontage du composant
+    return () => {
+      window.removeEventListener("beforeunload", handleBeforeUnload);
+      document.removeEventListener("visibilitychange", handleVisibilityChange);
+
+      performSilentLogout();
+    };
+  }, [performSilentLogout]);
+
   const checkAuth = async () => {
     try {
       const response = await fetch("/api/admin/check-super-admin");
@@ -115,14 +156,22 @@ export default function SuperAdminPage() {
 
   const handleLogout = async () => {
     try {
-      // Supprimer le cookie côté client en définissant une date d'expiration passée
-      document.cookie =
-        "super-admin-session=; expires=Thu, 01 Jan 1970 00:00:00 GMT; path=/";
-      setIsAuthenticated(false);
-      toastUtils.success("Déconnexion réussie");
-    } catch {
-      toastUtils.error("Erreur lors de la déconnexion");
+      // Appeler l'API de déconnexion pour nettoyer la session
+      await fetch("/api/admin/check-super-admin", {
+        method: "DELETE",
+        headers: { "Content-Type": "application/json" },
+      });
+
+      toastUtils.success("Déconnexion réussie - Session fermée");
+    } catch (error) {
+      console.error("Erreur lors de la déconnexion:", error);
+      toastUtils.warning("Déconnexion forcée");
     }
+
+    // Forcer la déconnexion côté client
+    setIsAuthenticated(false);
+    setEmail("");
+    setPassword("");
   };
 
   // Interface de connexion
