@@ -1,11 +1,22 @@
 import { NextRequest, NextResponse } from "next/server";
 
-// Configuration du super admin
-const SUPER_ADMIN_EMAIL = "admin@selfkey.local";
-const SUPER_ADMIN_PASSWORD = "SuperAdmin2025!"; // Changez ce mot de passe !
+// Configuration du super admin depuis les variables d'environnement
+const SUPER_ADMIN_EMAIL = process.env.SUPER_ADMIN_EMAIL;
+const SUPER_ADMIN_PASSWORD = process.env.SUPER_ADMIN_PASSWORD;
 
 export async function POST(request: NextRequest) {
   try {
+    // Vérifier que les variables d'environnement sont définies
+    if (!SUPER_ADMIN_EMAIL || !SUPER_ADMIN_PASSWORD) {
+      console.error(
+        "Variables d'environnement SUPER_ADMIN_EMAIL et SUPER_ADMIN_PASSWORD non définies"
+      );
+      return NextResponse.json(
+        { error: "Configuration serveur manquante" },
+        { status: 500 }
+      );
+    }
+
     const { email, password } = await request.json();
 
     if (email === SUPER_ADMIN_EMAIL && password === SUPER_ADMIN_PASSWORD) {
