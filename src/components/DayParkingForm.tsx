@@ -219,9 +219,7 @@ export function DayParkingForm({
             Retour
           </Button>
           <div>
-            <h1 className="text-2xl font-bold text-gray-900">
-              Réservation Parking Jour
-            </h1>
+            <h1 className="text-2xl font-bold text-gray-900">Day Parking</h1>
             <p className="text-gray-600">{establishmentName}</p>
           </div>
         </div>

@@ -25,9 +25,7 @@ export function ParkingTypeSelector({
           <h1 className="text-3xl font-bold text-gray-900 mb-2">
             {establishmentName}
           </h1>
-          <p className="text-gray-600">
-            Choisissez votre type de réservation / Choose your booking type
-          </p>
+          <p className="text-gray-600">Choose your booking type</p>
         </div>
 
         {/* Sélection du type de parking */}
@@ -44,13 +42,13 @@ export function ParkingTypeSelector({
             </CardHeader>
             <CardContent className="text-center space-y-4">
               <p className="text-gray-600 mb-4">
-                Stationnement à l&apos;heure ou à la journée / Hourly or daily
-                parking
+                Stationnement / daily parking
               </p>
 
               <Button
                 onClick={() => handleSelect("day")}
-                className="w-full mt-6"
+                className="w-full mt-6
+                "
                 size="lg"
               >
                 Continue
@@ -84,23 +82,12 @@ export function ParkingTypeSelector({
               <Button
                 onClick={() => handleSelect("night")}
                 className="w-full mt-6"
-                variant="outline"
                 size="lg"
               >
                 Continue
               </Button>
             </CardContent>
           </Card>
-        </div>
-
-        {/* Information supplémentaire */}
-        <div className="mt-8 text-center">
-          <p className="text-sm text-gray-500">
-            Vous pourrez modifier votre choix à l&apos;étape suivante si
-            nécessaire
-            <br />
-            <em>You can change your choice at the next step if needed</em>
-          </p>
         </div>
       </div>
     </div>

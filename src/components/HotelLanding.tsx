@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { BookingForm } from "@/components/BookingForm";
+import { BookingFormModern } from "@/components/BookingFormModern";
 import { ParkingTypeSelector } from "@/components/ParkingTypeSelector";
 import { DayParkingDurationSelector } from "@/components/DayParkingDurationSelector";
 import { DayParkingForm } from "@/components/DayParkingForm";
@@ -121,10 +121,13 @@ export function HotelLanding({ hotelSlug, establishment }: HotelLandingProps) {
             <h1 className="text-3xl font-bold text-gray-900 mb-2">
               {establishment.name}
             </h1>
-            <p className="text-gray-600">Réservation en ligne</p>
+            <p className="text-gray-600">Night Parking</p>
           </div>
 
-          <BookingForm hotelSlug={hotelSlug} establishment={establishment} />
+          <BookingFormModern
+            hotelSlug={hotelSlug}
+            establishment={establishment}
+          />
         </div>
       </div>
     );
