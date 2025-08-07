@@ -18,7 +18,6 @@ interface RoomSelectorProps {
   hotelSlug: string;
   checkInDate: string;
   checkOutDate: string;
-  touristTaxTotal: number;
   onRoomSelected: (room: Room) => void;
   onBack: () => void;
 }
@@ -27,7 +26,6 @@ export function RoomSelector({
   hotelSlug,
   checkInDate,
   checkOutDate,
-  touristTaxTotal,
   onRoomSelected,
   onBack,
 }: RoomSelectorProps) {
@@ -140,7 +138,6 @@ export function RoomSelector({
         ) : (
           <div className="space-y-2">
             {availableRooms.map((room) => {
-              const totalPrice = room.price * duration + touristTaxTotal;
               const isSelected = selectedRoom?.id === room.id;
 
               return (
@@ -170,16 +167,13 @@ export function RoomSelector({
                         <h3 className="font-medium text-base text-gray-900">
                           {room.name}
                         </h3>
-                        <p className="text-xs text-gray-500">
-                          {room.price} CHF / night
-                        </p>
                       </div>
                     </div>
                     <div className="text-right">
-                      <div className="text-lg font-semibold text-gray-900">
-                        {totalPrice.toFixed(2)} CHF
+                      <div className="text-base font-medium text-gray-900">
+                        {room.price} CHF
                       </div>
-                      <div className="text-xs text-gray-400">total</div>
+                      <div className="text-xs text-gray-400">per night</div>
                     </div>
                   </div>
                 </div>

@@ -3,6 +3,7 @@ import { prisma } from "@/lib/prisma";
 import {
   validateBookingDates,
   checkRoomAvailability,
+  calculateStayDuration,
 } from "@/lib/availability";
 import { createPaymentIntentWithCommission } from "@/lib/stripe-connect";
 import {
@@ -176,11 +177,17 @@ export async function POST(
       }
     }
 
-    // Calculer la taxe de séjour
+    // Calculer le nombre de nuits
+    const numberOfNights = calculateStayDuration(
+      checkInDateObj,
+      checkOutDateObj
+    );
+
+    // Calculer la taxe de séjour (uniquement pour les adultes)
     const touristTaxSettings = await getTouristTaxSettings(hotel);
-    const totalGuests = adults + children;
     const touristTaxCalculation = calculateTouristTax(
-      totalGuests,
+      adults, // Seulement les adultes (16+)
+      numberOfNights, // Nombre de nuits
       touristTaxSettings.touristTaxAmount,
       touristTaxSettings.touristTaxEnabled
     );

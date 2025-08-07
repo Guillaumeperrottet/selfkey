@@ -88,7 +88,6 @@ export function DateSelector({
       await new Promise((resolve) => setTimeout(resolve, 300));
 
       toastUtils.dismiss(loadingToast);
-      toastUtils.success("Dates validées ! Recherche des chambres...");
 
       onDatesConfirmed(checkInDate, checkOutDate);
     } catch {
@@ -191,9 +190,9 @@ export function DateSelector({
           </div>
         )}
 
-        <div className="flex gap-3 p-3 bg-blue-50 border border-blue-200 rounded-lg">
-          <Info className="h-4 w-4 text-blue-600 mt-0.5 flex-shrink-0" />
-          <div className="text-sm">
+        <div className="flex gap-2 text-xs text-gray-500 bg-gray-50 p-2 rounded-md">
+          <Info className="h-3 w-3 text-gray-400 mt-0.5 flex-shrink-0" />
+          <div>
             {establishment.allowFutureBookings ? (
               <>
                 Vous pouvez réserver jusqu&apos;à 1 an à l&apos;avance. Durée

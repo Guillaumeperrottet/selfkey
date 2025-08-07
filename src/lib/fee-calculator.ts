@@ -157,7 +157,8 @@ export function formatPercentage(percentage: number): string {
 export interface TouristTaxCalculation {
   enabled: boolean;
   taxPerPerson: number;
-  numberOfGuests: number;
+  numberOfAdults: number;
+  numberOfNights: number;
   totalTax: number;
 }
 
@@ -195,18 +196,25 @@ export async function getTouristTaxSettings(establishmentSlug: string) {
 }
 
 /**
- * Calcule la taxe de séjour
+ * Calcule la taxe de séjour (uniquement pour les adultes 16+)
  */
 export function calculateTouristTax(
-  numberOfGuests: number,
+  numberOfAdults: number,
+  numberOfNights: number,
   taxPerPerson: number,
   enabled: boolean = true
 ): TouristTaxCalculation {
-  if (!enabled || numberOfGuests <= 0 || taxPerPerson <= 0) {
+  if (
+    !enabled ||
+    numberOfAdults <= 0 ||
+    numberOfNights <= 0 ||
+    taxPerPerson <= 0
+  ) {
     return {
       enabled,
       taxPerPerson,
-      numberOfGuests,
+      numberOfAdults,
+      numberOfNights,
       totalTax: 0,
     };
   }
@@ -214,21 +222,24 @@ export function calculateTouristTax(
   return {
     enabled,
     taxPerPerson,
-    numberOfGuests,
-    totalTax: numberOfGuests * taxPerPerson,
+    numberOfAdults,
+    numberOfNights,
+    totalTax: numberOfAdults * numberOfNights * taxPerPerson,
   };
 }
 
 /**
- * Calcule la taxe de séjour pour un établissement spécifique
+ * Calcule la taxe de séjour pour un établissement spécifique (uniquement pour les adultes)
  */
 export async function calculateEstablishmentTouristTax(
-  numberOfGuests: number,
+  numberOfAdults: number,
+  numberOfNights: number,
   establishmentSlug: string
 ): Promise<TouristTaxCalculation> {
   const settings = await getTouristTaxSettings(establishmentSlug);
   return calculateTouristTax(
-    numberOfGuests,
+    numberOfAdults,
+    numberOfNights,
     settings.touristTaxAmount,
     settings.touristTaxEnabled
   );
@@ -251,13 +262,15 @@ export interface CompleteBookingCalculation {
  */
 export async function calculateCompleteBooking(
   roomPrice: number,
-  numberOfGuests: number,
+  numberOfAdults: number,
+  numberOfNights: number,
   establishmentSlug: string,
   pricingOptionsTotal: number = 0
 ): Promise<CompleteBookingCalculation> {
-  // Calculer la taxe de séjour
+  // Calculer la taxe de séjour (uniquement pour les adultes)
   const touristTax = await calculateEstablishmentTouristTax(
-    numberOfGuests,
+    numberOfAdults,
+    numberOfNights,
     establishmentSlug
   );
 

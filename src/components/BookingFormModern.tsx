@@ -132,7 +132,6 @@ export function BookingFormModern({
           hotelSlug={hotelSlug}
           checkInDate={checkInDate}
           checkOutDate={checkOutDate}
-          touristTaxTotal={0} // Sera calculé dans RoomSelector
           onRoomSelected={handleRoomSelected}
           onBack={handleBackToDates}
         />

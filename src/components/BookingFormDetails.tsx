@@ -14,7 +14,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Checkbox } from "@/components/ui/checkbox";
-import { Info } from "lucide-react";
+import { DatePicker } from "@/components/ui/date-picker";
 import { toastUtils } from "@/lib/toast-utils";
 import { calculateStayDuration } from "@/lib/availability";
 import { useFormConfig } from "@/hooks/useFormConfig";
@@ -103,15 +103,31 @@ export function BookingFormDetails({
     initialData?.clientPhone || ""
   );
 
-  // Variables pour les autres champs (à implémenter selon les besoins)
-  const clientBirthDate = initialData?.clientBirthDate || "";
-  const clientAddress = initialData?.clientAddress || "";
-  const clientPostalCode = initialData?.clientPostalCode || "";
-  const clientCity = initialData?.clientCity || "";
-  const clientCountry = initialData?.clientCountry || "Suisse";
-  const clientBirthPlace = initialData?.clientBirthPlace || "";
-  const clientIdNumber = initialData?.clientIdNumber || "";
-  const clientVehicleNumber = initialData?.clientVehicleNumber || "";
+  // États pour les champs détaillés du client
+  const [clientBirthDate, setClientBirthDate] = useState(
+    initialData?.clientBirthDate
+      ? new Date(initialData.clientBirthDate)
+      : undefined
+  );
+  const [clientAddress, setClientAddress] = useState(
+    initialData?.clientAddress || ""
+  );
+  const [clientPostalCode, setClientPostalCode] = useState(
+    initialData?.clientPostalCode || ""
+  );
+  const [clientCity, setClientCity] = useState(initialData?.clientCity || "");
+  const [clientCountry, setClientCountry] = useState(
+    initialData?.clientCountry || "Suisse"
+  );
+  const [clientBirthPlace, setClientBirthPlace] = useState(
+    initialData?.clientBirthPlace || ""
+  );
+  const [clientIdNumber, setClientIdNumber] = useState(
+    initialData?.clientIdNumber || ""
+  );
+  const [clientVehicleNumber, setClientVehicleNumber] = useState(
+    initialData?.clientVehicleNumber || ""
+  );
 
   // États pour les options de prix
   const [pricingOptions, setPricingOptions] = useState<PricingOption[]>([]);
@@ -218,16 +234,16 @@ export function BookingFormDetails({
     setPricingOptionsTotal(total);
   }, [selectedPricingOptions, pricingOptions]);
 
-  // Calculer la taxe de séjour
+  // Calculer la taxe de séjour (uniquement pour les adultes)
   useEffect(() => {
-    const totalGuests = adults + children;
     const taxCalculation = calculateTouristTax(
-      totalGuests,
+      adults, // Seulement les adultes (16+)
+      duration, // Nombre de nuits
       touristTaxAmount,
       touristTaxEnabled
     );
     setTouristTaxTotal(taxCalculation.totalTax);
-  }, [adults, children, touristTaxEnabled, touristTaxAmount]);
+  }, [adults, duration, touristTaxEnabled, touristTaxAmount]);
 
   const handlePricingOptionChange = (
     optionId: string,
@@ -245,11 +261,15 @@ export function BookingFormDetails({
       {
         value: clientFirstName.trim(),
         field: "clientFirstName",
-        name: "Prénom",
+        name: "First name",
       },
-      { value: clientLastName.trim(), field: "clientLastName", name: "Nom" },
+      {
+        value: clientLastName.trim(),
+        field: "clientLastName",
+        name: "Last name",
+      },
       { value: clientEmail.trim(), field: "clientEmail", name: "Email" },
-      { value: clientPhone.trim(), field: "clientPhone", name: "Téléphone" },
+      { value: clientPhone.trim(), field: "clientPhone", name: "Phone" },
     ];
 
     // Ajouter les champs conditionnels s'ils sont requis ET activés
@@ -258,33 +278,88 @@ export function BookingFormDetails({
       isFieldRequired("clientBirthDate")
     ) {
       requiredFieldsValidation.push({
-        value: clientBirthDate,
+        value: clientBirthDate ? "valid" : "",
         field: "clientBirthDate",
-        name: "Date de naissance",
+        name: "Date of birth",
       });
     }
-
-    // Continuer avec les autres champs...
-    // (Je vais simplifier pour le moment, vous pourrez ajouter tous les autres champs)
+    if (
+      isFieldEnabled("clientBirthPlace") &&
+      isFieldRequired("clientBirthPlace")
+    ) {
+      requiredFieldsValidation.push({
+        value: clientBirthPlace.trim(),
+        field: "clientBirthPlace",
+        name: "Place of birth",
+      });
+    }
+    if (isFieldEnabled("clientAddress") && isFieldRequired("clientAddress")) {
+      requiredFieldsValidation.push({
+        value: clientAddress.trim(),
+        field: "clientAddress",
+        name: "Address",
+      });
+    }
+    if (
+      isFieldEnabled("clientPostalCode") &&
+      isFieldRequired("clientPostalCode")
+    ) {
+      requiredFieldsValidation.push({
+        value: clientPostalCode.trim(),
+        field: "clientPostalCode",
+        name: "Postal code",
+      });
+    }
+    if (isFieldEnabled("clientCity") && isFieldRequired("clientCity")) {
+      requiredFieldsValidation.push({
+        value: clientCity.trim(),
+        field: "clientCity",
+        name: "City",
+      });
+    }
+    if (isFieldEnabled("clientCountry") && isFieldRequired("clientCountry")) {
+      requiredFieldsValidation.push({
+        value: clientCountry.trim(),
+        field: "clientCountry",
+        name: "Country",
+      });
+    }
+    if (isFieldEnabled("clientIdNumber") && isFieldRequired("clientIdNumber")) {
+      requiredFieldsValidation.push({
+        value: clientIdNumber.trim(),
+        field: "clientIdNumber",
+        name: "ID number",
+      });
+    }
+    if (
+      isFieldEnabled("clientVehicleNumber") &&
+      isFieldRequired("clientVehicleNumber")
+    ) {
+      requiredFieldsValidation.push({
+        value: clientVehicleNumber.trim(),
+        field: "clientVehicleNumber",
+        name: "License plate",
+      });
+    }
 
     // Vérifier que tous les champs obligatoires sont remplis
     const missingFields = requiredFieldsValidation.filter(
       (field) => !field.value
     );
     if (missingFields.length > 0 || adults < 1) {
-      toastUtils.error("Veuillez remplir tous les champs obligatoires");
+      toastUtils.error("Please fill in all required fields");
       return;
     }
 
     // Validation email
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(clientEmail)) {
-      toastUtils.error("Veuillez saisir une adresse email valide");
+      toastUtils.error("Please enter a valid email address");
       return;
     }
 
     setBookingInProgress(true);
-    const loadingToast = toastUtils.loading("Création de la réservation...");
+    const loadingToast = toastUtils.loading("Creating your booking...");
 
     try {
       const totalPrice =
@@ -303,7 +378,7 @@ export function BookingFormDetails({
         clientLastName: clientLastName.trim(),
         clientEmail: clientEmail.trim(),
         clientPhone: clientPhone.trim(),
-        clientBirthDate,
+        clientBirthDate: clientBirthDate?.toISOString().split("T")[0] || "",
         clientBirthPlace: clientBirthPlace.trim(),
         clientAddress: clientAddress.trim(),
         clientPostalCode: clientPostalCode.trim(),
@@ -330,9 +405,7 @@ export function BookingFormDetails({
     } catch (err) {
       toastUtils.dismiss(loadingToast);
       toastUtils.error(
-        err instanceof Error
-          ? err.message
-          : "Erreur lors de la création de la réservation"
+        err instanceof Error ? err.message : "Error creating booking"
       );
     } finally {
       setBookingInProgress(false);
@@ -343,334 +416,572 @@ export function BookingFormDetails({
     selectedRoom.price * duration + pricingOptionsTotal + touristTaxTotal;
 
   return (
-    <Card>
-      <CardHeader>
+    <Card className="max-w-4xl mx-auto border border-gray-200 shadow-sm">
+      <CardHeader className="border-b border-gray-200 bg-white">
         <div className="flex items-center justify-between">
-          <CardTitle>
-            Informations de réservation / Booking Information
-          </CardTitle>
-          <Button variant="outline" onClick={onBack}>
-            Changer de chambre
+          <div>
+            <CardTitle className="text-xl font-medium text-gray-900">
+              Complete Your Booking
+            </CardTitle>
+          </div>
+          <Button
+            variant="outline"
+            onClick={onBack}
+            className="text-gray-700 border-gray-300 hover:bg-gray-50"
+          >
+            ← Change Room
           </Button>
         </div>
-        <p className="text-sm text-gray-600">
-          Veuillez remplir tous les champs obligatoires pour votre réservation
-        </p>
       </CardHeader>
-      <CardContent className="space-y-6">
-        {/* Résumé de la sélection */}
-        <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
-          <h4 className="font-medium text-blue-900 mb-2">
-            Résumé de votre réservation / Booking Summary
-          </h4>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
-            <div>
-              <p>
-                <strong>Chambre :</strong> {selectedRoom.name}
-              </p>
-              <p>
-                <strong>Durée :</strong> {duration} nuit
-                {duration > 1 ? "s" : ""}
-              </p>
-            </div>
-            <div>
-              <p>
-                <strong>Du :</strong>{" "}
-                {new Date(checkInDate).toLocaleDateString()}
-              </p>
-              <p>
-                <strong>Au :</strong>{" "}
-                {new Date(checkOutDate).toLocaleDateString()}
-              </p>
-            </div>
-          </div>
-        </div>
 
-        {/* Nombre d'invités */}
-        <div>
-          <h4 className="font-medium text-lg mb-3">
-            Nombre de personnes / Number of Guests
-          </h4>
-          <p className="text-sm text-gray-600 mb-3">
-            Adultes : 16 ans et plus • Enfants : moins de 16 ans
-            <br />
-            <em>Adults: 16 years and older • Children: under 16 years</em>
-          </p>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <CardContent className="p-6">
+        <div className="space-y-8">
+          {/* Section invités */}
+          <div className="space-y-4">
             <div>
-              <Label htmlFor="adults">Nombre d&apos;adultes / Adults *</Label>
-              <Select
-                value={adults.toString()}
-                onValueChange={(value) => setAdults(parseInt(value))}
-              >
-                <SelectTrigger className="mt-1">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  {[1, 2, 3, 4, 5, 6].map((num) => (
-                    <SelectItem key={num} value={num.toString()}>
-                      {num} adulte{num > 1 ? "s" : ""}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+              <h4 className="font-medium text-gray-900 mb-1">
+                Guest Information
+              </h4>
+              <p className="text-sm text-gray-600">
+                Adults (16+) and children (16-)
+              </p>
             </div>
-            {isFieldEnabled("children") && (
-              <div>
-                <Label htmlFor="children">
-                  Nombre d&apos;enfants / Children
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label
+                  htmlFor="adults"
+                  className="text-sm font-medium text-gray-700"
+                >
+                  Adults *
                 </Label>
                 <Select
-                  value={children.toString()}
-                  onValueChange={(value) => setChildren(parseInt(value))}
+                  value={adults.toString()}
+                  onValueChange={(value) => setAdults(parseInt(value))}
                 >
-                  <SelectTrigger className="mt-1">
+                  <SelectTrigger className="h-10">
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
-                    {[0, 1, 2, 3, 4].map((num) => (
+                    {[1, 2, 3, 4, 5, 6].map((num) => (
                       <SelectItem key={num} value={num.toString()}>
-                        {num} enfant{num > 1 ? "s" : ""}
+                        {num} adult{num > 1 ? "s" : ""}
                       </SelectItem>
                     ))}
                   </SelectContent>
                 </Select>
               </div>
+
+              {isFieldEnabled("children") && (
+                <div className="space-y-2">
+                  <Label
+                    htmlFor="children"
+                    className="text-sm font-medium text-gray-700"
+                  >
+                    Children
+                  </Label>
+                  <Select
+                    value={children.toString()}
+                    onValueChange={(value) => setChildren(parseInt(value))}
+                  >
+                    <SelectTrigger className="h-10">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {[0, 1, 2, 3, 4].map((num) => (
+                        <SelectItem key={num} value={num.toString()}>
+                          {num} child{num > 1 ? "ren" : ""}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+              )}
+            </div>
+
+            {/* Information taxe de séjour discrète */}
+            {touristTaxEnabled && (
+              <div className="text-xs text-gray-500 mt-2">
+                ℹ️ Tourist tax: {touristTaxAmount.toFixed(2)} CHF per adult per
+                night (applied at checkout)
+              </div>
             )}
           </div>
 
-          {/* Information sur la taxe de séjour */}
-          {touristTaxEnabled && (
-            <div className="mt-4 p-3 bg-blue-50 border border-blue-200 rounded-lg">
-              <div className="flex items-start gap-2">
-                <Info className="h-4 w-4 text-blue-600 mt-0.5 flex-shrink-0" />
-                <div className="text-sm text-blue-800">
-                  <strong>Taxe de séjour :</strong>{" "}
-                  {touristTaxAmount.toFixed(2)} CHF par personne et par nuit.
-                  <br />
-                  Total pour {adults + children} personne
-                  {adults + children > 1 ? "s" : ""} :{" "}
-                  {touristTaxTotal.toFixed(2)} CHF
+          {/* Section informations personnelles */}
+          <div className="space-y-4">
+            <div>
+              <h4 className="font-medium text-gray-900 mb-1">
+                Personal Information
+              </h4>
+              <p className="text-sm text-gray-600">
+                Required for your booking confirmation
+              </p>
+            </div>
+
+            <div className="space-y-4">
+              {/* Nom et Prénom */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label
+                    htmlFor="clientLastName"
+                    className="text-sm font-medium text-gray-700"
+                  >
+                    Last Name *
+                  </Label>
+                  <Input
+                    id="clientLastName"
+                    type="text"
+                    value={clientLastName}
+                    onChange={(e) => setClientLastName(e.target.value)}
+                    placeholder="Your last name"
+                    className="h-10"
+                    required
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label
+                    htmlFor="clientFirstName"
+                    className="text-sm font-medium text-gray-700"
+                  >
+                    First Name *
+                  </Label>
+                  <Input
+                    id="clientFirstName"
+                    type="text"
+                    value={clientFirstName}
+                    onChange={(e) => setClientFirstName(e.target.value)}
+                    placeholder="Your first name"
+                    className="h-10"
+                    required
+                  />
                 </div>
               </div>
-            </div>
-          )}
-        </div>
 
-        {/* Informations personnelles */}
-        <div>
-          <h4 className="font-medium text-lg mb-3">
-            Informations personnelles
-          </h4>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-            <div>
-              <Label htmlFor="clientLastName">Nom / Last Name *</Label>
-              <Input
-                id="clientLastName"
-                type="text"
-                value={clientLastName}
-                onChange={(e) => setClientLastName(e.target.value)}
-                placeholder="Nom"
-                className="mt-1"
-                required
-              />
-            </div>
-            <div>
-              <Label htmlFor="clientFirstName">Prénom / First Name *</Label>
-              <Input
-                id="clientFirstName"
-                type="text"
-                value={clientFirstName}
-                onChange={(e) => setClientFirstName(e.target.value)}
-                placeholder="Prénom"
-                className="mt-1"
-                required
-              />
-            </div>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-            <div>
-              <Label htmlFor="clientEmail">Email *</Label>
-              <Input
-                id="clientEmail"
-                type="email"
-                value={clientEmail}
-                onChange={(e) => setClientEmail(e.target.value)}
-                placeholder="votre@email.com"
-                className="mt-1"
-                required
-              />
-            </div>
-            <div>
-              <Label htmlFor="clientPhone">Téléphone / Mobile Phone *</Label>
-              <Input
-                id="clientPhone"
-                type="tel"
-                value={clientPhone}
-                onChange={(e) => setClientPhone(e.target.value)}
-                placeholder="+41 79 123 45 67"
-                className="mt-1"
-                required
-              />
-            </div>
-          </div>
-
-          {/* Autres champs selon la configuration */}
-          {/* Simplifié pour l'exemple - vous pouvez ajouter tous les autres champs ici */}
-        </div>
-
-        {/* Options de prix personnalisées */}
-        {pricingOptions.filter((option) => option.isActive).length > 0 && (
-          <div className="space-y-4">
-            <h4 className="font-medium text-lg mb-3">
-              Options supplémentaires
-            </h4>
-            {pricingOptions
-              .filter((option) => option.isActive)
-              .sort((a, b) => a.displayOrder - b.displayOrder)
-              .map((option) => (
-                <div key={option.id} className="space-y-2">
-                  <Label className="text-sm font-medium">
-                    {option.name}
-                    {option.isRequired && (
-                      <span className="text-red-500 ml-1">*</span>
-                    )}
+              {/* Email et Téléphone */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label
+                    htmlFor="clientEmail"
+                    className="text-sm font-medium text-gray-700"
+                  >
+                    Email Address *
                   </Label>
+                  <Input
+                    id="clientEmail"
+                    type="email"
+                    value={clientEmail}
+                    onChange={(e) => setClientEmail(e.target.value)}
+                    placeholder="your@email.com"
+                    className="h-10"
+                    required
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label
+                    htmlFor="clientPhone"
+                    className="text-sm font-medium text-gray-700"
+                  >
+                    Phone Number *
+                  </Label>
+                  <Input
+                    id="clientPhone"
+                    type="tel"
+                    value={clientPhone}
+                    onChange={(e) => setClientPhone(e.target.value)}
+                    placeholder="+41 79 123 45 67"
+                    className="h-10"
+                    required
+                  />
+                </div>
+              </div>
 
-                  {option.type === "select" && (
-                    <Select
-                      value={
-                        (selectedPricingOptions[option.id] as string) || ""
-                      }
-                      onValueChange={(value) =>
-                        handlePricingOptionChange(option.id, value)
-                      }
-                    >
-                      <SelectTrigger className="w-full">
-                        <SelectValue placeholder="Choisir une option" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {option.values
-                          .sort((a, b) => a.displayOrder - b.displayOrder)
-                          .map((value) => (
-                            <SelectItem key={value.id} value={value.id}>
-                              <span className="flex justify-between w-full">
-                                <span>{value.label}</span>
-                                <span className="ml-2">
-                                  {value.priceModifier !== 0 &&
-                                    `${value.priceModifier > 0 ? "+" : ""}${value.priceModifier} CHF`}
-                                </span>
-                              </span>
-                            </SelectItem>
-                          ))}
-                      </SelectContent>
-                    </Select>
-                  )}
-
-                  {option.type === "checkbox" && (
+              {/* Champs conditionnels - Date et lieu de naissance */}
+              {(isFieldEnabled("clientBirthDate") ||
+                isFieldEnabled("clientBirthPlace")) && (
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  {isFieldEnabled("clientBirthDate") && (
                     <div className="space-y-2">
-                      {option.values
-                        .sort((a, b) => a.displayOrder - b.displayOrder)
-                        .map((value) => (
-                          <div
-                            key={value.id}
-                            className="flex items-center space-x-2"
-                          >
-                            <Checkbox
-                              id={`${option.id}-${value.id}`}
-                              checked={
-                                Array.isArray(
-                                  selectedPricingOptions[option.id]
-                                ) &&
-                                (
-                                  selectedPricingOptions[option.id] as string[]
-                                ).includes(value.id)
-                              }
-                              onCheckedChange={(checked) => {
-                                const currentValues =
-                                  (selectedPricingOptions[
-                                    option.id
-                                  ] as string[]) || [];
-                                const newValues = checked
-                                  ? [...currentValues, value.id]
-                                  : currentValues.filter((v) => v !== value.id);
-
-                                if (
-                                  newValues.length === 0 &&
-                                  option.isRequired
-                                ) {
-                                  return;
-                                }
-
-                                handlePricingOptionChange(option.id, newValues);
-                              }}
-                            />
-                            <Label
-                              htmlFor={`${option.id}-${value.id}`}
-                              className="text-sm font-normal flex-1 cursor-pointer"
-                            >
-                              <span className="flex justify-between">
-                                <span>{value.label}</span>
-                                <span className="ml-2">
-                                  {value.priceModifier !== 0 &&
-                                    `${value.priceModifier > 0 ? "+" : ""}${value.priceModifier} CHF`}
-                                </span>
-                              </span>
-                            </Label>
-                          </div>
-                        ))}
+                      <Label
+                        htmlFor="clientBirthDate"
+                        className="text-sm font-medium text-gray-700"
+                      >
+                        Date of Birth{" "}
+                        {isFieldRequired("clientBirthDate") ? "*" : ""}
+                      </Label>
+                      <DatePicker
+                        date={clientBirthDate}
+                        onDateChange={setClientBirthDate}
+                        placeholder="Select your birth date"
+                        className="w-full"
+                      />
+                    </div>
+                  )}
+                  {isFieldEnabled("clientBirthPlace") && (
+                    <div className="space-y-2">
+                      <Label
+                        htmlFor="clientBirthPlace"
+                        className="text-sm font-medium text-gray-700"
+                      >
+                        Place of Birth{" "}
+                        {isFieldRequired("clientBirthPlace") ? "*" : ""}
+                      </Label>
+                      <Input
+                        id="clientBirthPlace"
+                        type="text"
+                        value={clientBirthPlace}
+                        onChange={(e) => setClientBirthPlace(e.target.value)}
+                        placeholder="City, Country"
+                        className="h-10"
+                        required={isFieldRequired("clientBirthPlace")}
+                      />
                     </div>
                   )}
                 </div>
-              ))}
-          </div>
-        )}
+              )}
 
-        {/* Récapitulatif final */}
-        <div className="pt-4 border-t">
-          <div className="flex justify-between items-center mb-4">
-            <div>
-              <h4 className="font-medium">{selectedRoom.name}</h4>
-              <p className="text-sm text-gray-600">
-                Du {new Date(checkInDate).toLocaleDateString()} au{" "}
-                {new Date(checkOutDate).toLocaleDateString()}
-              </p>
+              {/* Adresse complète */}
+              {isFieldEnabled("clientAddress") && (
+                <div className="space-y-2">
+                  <Label
+                    htmlFor="clientAddress"
+                    className="text-sm font-medium text-gray-700"
+                  >
+                    Address {isFieldRequired("clientAddress") ? "*" : ""}
+                  </Label>
+                  <Input
+                    id="clientAddress"
+                    type="text"
+                    value={clientAddress}
+                    onChange={(e) => setClientAddress(e.target.value)}
+                    placeholder="Street and number"
+                    className="h-10"
+                    required={isFieldRequired("clientAddress")}
+                  />
+                </div>
+              )}
+
+              {/* Code postal, Localité et Pays */}
+              {(isFieldEnabled("clientPostalCode") ||
+                isFieldEnabled("clientCity") ||
+                isFieldEnabled("clientCountry")) && (
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  {isFieldEnabled("clientPostalCode") && (
+                    <div className="space-y-2">
+                      <Label
+                        htmlFor="clientPostalCode"
+                        className="text-sm font-medium text-gray-700"
+                      >
+                        Postal Code{" "}
+                        {isFieldRequired("clientPostalCode") ? "*" : ""}
+                      </Label>
+                      <Input
+                        id="clientPostalCode"
+                        type="text"
+                        value={clientPostalCode}
+                        onChange={(e) => setClientPostalCode(e.target.value)}
+                        placeholder="1234"
+                        className="h-10"
+                        required={isFieldRequired("clientPostalCode")}
+                      />
+                    </div>
+                  )}
+                  {isFieldEnabled("clientCity") && (
+                    <div className="space-y-2">
+                      <Label
+                        htmlFor="clientCity"
+                        className="text-sm font-medium text-gray-700"
+                      >
+                        City {isFieldRequired("clientCity") ? "*" : ""}
+                      </Label>
+                      <Input
+                        id="clientCity"
+                        type="text"
+                        value={clientCity}
+                        onChange={(e) => setClientCity(e.target.value)}
+                        placeholder="Your city"
+                        className="h-10"
+                        required={isFieldRequired("clientCity")}
+                      />
+                    </div>
+                  )}
+                  {isFieldEnabled("clientCountry") && (
+                    <div className="space-y-2">
+                      <Label
+                        htmlFor="clientCountry"
+                        className="text-sm font-medium text-gray-700"
+                      >
+                        Country {isFieldRequired("clientCountry") ? "*" : ""}
+                      </Label>
+                      <Select
+                        value={clientCountry}
+                        onValueChange={(value) => setClientCountry(value)}
+                      >
+                        <SelectTrigger className="h-10">
+                          <SelectValue placeholder="Select country" />
+                        </SelectTrigger>
+                        <SelectContent className="max-h-60">
+                          <SelectItem value="Suisse">Switzerland</SelectItem>
+                          <SelectItem value="France">France</SelectItem>
+                          <SelectItem value="Allemagne">Germany</SelectItem>
+                          <SelectItem value="Italie">Italy</SelectItem>
+                          <SelectItem value="Autriche">Austria</SelectItem>
+                          <SelectItem value="Belgique">Belgium</SelectItem>
+                          <SelectItem value="Pays-Bas">Netherlands</SelectItem>
+                          <SelectItem value="Espagne">Spain</SelectItem>
+                          <SelectItem value="Portugal">Portugal</SelectItem>
+                          <SelectItem value="Royaume-Uni">
+                            United Kingdom
+                          </SelectItem>
+                          <SelectItem value="États-Unis">
+                            United States
+                          </SelectItem>
+                          <SelectItem value="Canada">Canada</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                  )}
+                </div>
+              )}
+
+              {/* Documents et véhicule */}
+              {(isFieldEnabled("clientIdNumber") ||
+                isFieldEnabled("clientVehicleNumber")) && (
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  {isFieldEnabled("clientIdNumber") && (
+                    <div className="space-y-2">
+                      <Label
+                        htmlFor="clientIdNumber"
+                        className="text-sm font-medium text-gray-700"
+                      >
+                        ID or License Number{" "}
+                        {isFieldRequired("clientIdNumber") ? "*" : ""}
+                      </Label>
+                      <Input
+                        id="clientIdNumber"
+                        type="text"
+                        value={clientIdNumber}
+                        onChange={(e) => setClientIdNumber(e.target.value)}
+                        placeholder="ID Number"
+                        className="h-10"
+                        required={isFieldRequired("clientIdNumber")}
+                      />
+                    </div>
+                  )}
+                  {isFieldEnabled("clientVehicleNumber") && (
+                    <div className="space-y-2">
+                      <Label
+                        htmlFor="clientVehicleNumber"
+                        className="text-sm font-medium text-gray-700"
+                      >
+                        License Plate{" "}
+                        {isFieldRequired("clientVehicleNumber") ? "*" : ""}
+                      </Label>
+                      <Input
+                        id="clientVehicleNumber"
+                        type="text"
+                        value={clientVehicleNumber}
+                        onChange={(e) => setClientVehicleNumber(e.target.value)}
+                        placeholder="FR 123456"
+                        className="h-10"
+                        required={isFieldRequired("clientVehicleNumber")}
+                      />
+                    </div>
+                  )}
+                </div>
+              )}
             </div>
-            <div className="text-right">
-              <div className="space-y-1">
-                <div className="text-sm text-gray-600">
-                  {duration} nuit{duration > 1 ? "s" : ""} ×{" "}
-                  {selectedRoom.price} CHF
-                </div>
-                {pricingOptionsTotal > 0 && (
-                  <div className="text-sm text-gray-600">
-                    Options: +{pricingOptionsTotal} CHF
-                  </div>
-                )}
-                {touristTaxEnabled && touristTaxTotal > 0 && (
-                  <div className="text-sm text-gray-600">
-                    Taxe de séjour: +{touristTaxTotal.toFixed(2)} CHF
-                  </div>
-                )}
-                <div className="font-semibold text-xl">
-                  {totalPrice.toFixed(2)} CHF
-                </div>
+          </div>
+
+          {/* Section options de prix */}
+          {pricingOptions.filter((option) => option.isActive).length > 0 && (
+            <div className="space-y-4">
+              <div>
+                <h4 className="font-medium text-gray-900 mb-1">
+                  Additional Options
+                </h4>
+                <p className="text-sm text-gray-600">Enhance your experience</p>
+              </div>
+
+              <div className="space-y-4">
+                {pricingOptions
+                  .filter((option) => option.isActive)
+                  .sort((a, b) => a.displayOrder - b.displayOrder)
+                  .map((option) => (
+                    <div
+                      key={option.id}
+                      className="space-y-3 p-4 border border-gray-200 rounded-lg"
+                    >
+                      <Label className="text-sm font-medium text-gray-900 flex items-center gap-2">
+                        {option.name}
+                        {option.isRequired && (
+                          <span className="text-red-500 text-xs">*</span>
+                        )}
+                      </Label>
+
+                      {option.type === "select" && (
+                        <Select
+                          value={
+                            (selectedPricingOptions[option.id] as string) || ""
+                          }
+                          onValueChange={(value) =>
+                            handlePricingOptionChange(option.id, value)
+                          }
+                        >
+                          <SelectTrigger className="h-10">
+                            <SelectValue placeholder="Choose an option" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {option.values
+                              .sort((a, b) => a.displayOrder - b.displayOrder)
+                              .map((value) => (
+                                <SelectItem key={value.id} value={value.id}>
+                                  <div className="flex justify-between w-full">
+                                    <span>{value.label}</span>
+                                    {value.priceModifier !== 0 && (
+                                      <span className="ml-2 text-gray-600 font-medium">
+                                        {value.priceModifier > 0 ? "+" : ""}
+                                        {value.priceModifier} CHF
+                                      </span>
+                                    )}
+                                  </div>
+                                </SelectItem>
+                              ))}
+                          </SelectContent>
+                        </Select>
+                      )}
+
+                      {option.type === "checkbox" && (
+                        <div className="space-y-3">
+                          {option.values
+                            .sort((a, b) => a.displayOrder - b.displayOrder)
+                            .map((value) => (
+                              <div
+                                key={value.id}
+                                className="flex items-center space-x-3 p-3 border border-gray-100 rounded-md"
+                              >
+                                <Checkbox
+                                  id={`${option.id}-${value.id}`}
+                                  checked={
+                                    Array.isArray(
+                                      selectedPricingOptions[option.id]
+                                    ) &&
+                                    (
+                                      selectedPricingOptions[
+                                        option.id
+                                      ] as string[]
+                                    ).includes(value.id)
+                                  }
+                                  onCheckedChange={(checked) => {
+                                    const currentValues =
+                                      (selectedPricingOptions[
+                                        option.id
+                                      ] as string[]) || [];
+                                    const newValues = checked
+                                      ? [...currentValues, value.id]
+                                      : currentValues.filter(
+                                          (v) => v !== value.id
+                                        );
+
+                                    if (
+                                      newValues.length === 0 &&
+                                      option.isRequired
+                                    ) {
+                                      return;
+                                    }
+
+                                    handlePricingOptionChange(
+                                      option.id,
+                                      newValues
+                                    );
+                                  }}
+                                />
+                                <Label
+                                  htmlFor={`${option.id}-${value.id}`}
+                                  className="flex-1 cursor-pointer flex justify-between items-center"
+                                >
+                                  <span className="text-sm font-medium">
+                                    {value.label}
+                                  </span>
+                                  {value.priceModifier !== 0 && (
+                                    <span className="text-gray-600 font-medium">
+                                      {value.priceModifier > 0 ? "+" : ""}
+                                      {value.priceModifier} CHF
+                                    </span>
+                                  )}
+                                </Label>
+                              </div>
+                            ))}
+                        </div>
+                      )}
+                    </div>
+                  ))}
               </div>
             </div>
-          </div>
+          )}
 
-          <Button
-            onClick={handleConfirmBooking}
-            disabled={bookingInProgress}
-            className="w-full"
-            size="lg"
-          >
-            {bookingInProgress
-              ? "Création de la réservation... / Creating booking..."
-              : "Continuer vers le résumé / Continue to Summary"}
-          </Button>
+          {/* Récapitulatif final */}
+          <div className="bg-gray-50 border border-gray-200 rounded-lg p-6">
+            <div className="flex justify-between items-start mb-4">
+              <div className="space-y-1">
+                <h4 className="font-medium text-gray-900">
+                  {selectedRoom.name}
+                </h4>
+                <p className="text-sm text-gray-600">
+                  {new Date(checkInDate).toLocaleDateString()} →{" "}
+                  {new Date(checkOutDate).toLocaleDateString()}
+                </p>
+              </div>
+              <div className="text-right">
+                <div className="text-2xl font-medium text-gray-900">
+                  {totalPrice.toFixed(2)} CHF
+                </div>
+                <div className="text-sm text-gray-600">Total amount</div>
+              </div>
+            </div>
+
+            {/* Détail des prix */}
+            <div className="space-y-1 text-sm text-gray-600 mb-6 pb-4 border-b border-gray-200">
+              <div className="flex justify-between">
+                <span>
+                  {duration} night{duration > 1 ? "s" : ""} ×{" "}
+                  {selectedRoom.price} CHF
+                </span>
+                <span>{selectedRoom.price * duration} CHF</span>
+              </div>
+              {pricingOptionsTotal > 0 && (
+                <div className="flex justify-between">
+                  <span>Additional options</span>
+                  <span>+{pricingOptionsTotal} CHF</span>
+                </div>
+              )}
+              {touristTaxEnabled && touristTaxTotal > 0 && (
+                <div className="flex justify-between">
+                  <span>
+                    Tourist tax ({adults} adult{adults > 1 ? "s" : ""} ×{" "}
+                    {duration} night{duration > 1 ? "s" : ""})
+                  </span>
+                  <span>+{touristTaxTotal.toFixed(2)} CHF</span>
+                </div>
+              )}
+            </div>
+
+            <Button
+              onClick={handleConfirmBooking}
+              disabled={bookingInProgress}
+              className="w-full h-11"
+              size="lg"
+            >
+              {bookingInProgress ? (
+                <div className="flex items-center gap-2">
+                  <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
+                  Creating your booking...
+                </div>
+              ) : (
+                "Complete Booking"
+              )}
+            </Button>
+          </div>
         </div>
       </CardContent>
     </Card>
