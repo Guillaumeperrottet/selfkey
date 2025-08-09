@@ -137,3 +137,115 @@ export async function DELETE(
     );
   }
 }
+
+export async function PUT(
+  request: NextRequest,
+  { params }: { params: Promise<{ hotel: string }> }
+) {
+  try {
+    // Vérifier l'authentification
+    const session = await auth.api.getSession({
+      headers: await headers(),
+    });
+
+    if (!session?.user) {
+      return NextResponse.json({ error: "Non autorisé" }, { status: 401 });
+    }
+
+    const { hotel: currentSlug } = await params;
+    const { name, slug: newSlug } = await request.json();
+
+    if (!currentSlug) {
+      return NextResponse.json(
+        { error: "Slug d'établissement requis" },
+        { status: 400 }
+      );
+    }
+
+    if (!name || !newSlug) {
+      return NextResponse.json(
+        { error: "Nom et slug requis" },
+        { status: 400 }
+      );
+    }
+
+    // Vérifier que l'établissement appartient à l'utilisateur
+    const establishment = await prisma.establishment.findFirst({
+      where: {
+        slug: currentSlug,
+        users: {
+          some: {
+            userId: session.user.id,
+          },
+        },
+      },
+    });
+
+    if (!establishment) {
+      return NextResponse.json(
+        { error: "Établissement non trouvé ou non autorisé" },
+        { status: 404 }
+      );
+    }
+
+    // Si le slug a changé, vérifier qu'il est disponible
+    if (newSlug !== currentSlug) {
+      const existingEstablishment = await prisma.establishment.findUnique({
+        where: { slug: newSlug },
+      });
+
+      if (existingEstablishment) {
+        // Générer des suggestions alternatives
+        const baseName = name
+          .toLowerCase()
+          .normalize("NFD")
+          .replace(/[\u0300-\u036f]/g, "")
+          .replace(/[^a-z0-9]+/g, "-")
+          .replace(/(^-|-$)/g, "");
+
+        const suggestions = [];
+        for (let i = 1; i <= 3; i++) {
+          const suggestion = `${baseName}-${i}`;
+          const exists = await prisma.establishment.findUnique({
+            where: { slug: suggestion },
+          });
+          if (!exists) {
+            suggestions.push(suggestion);
+          }
+        }
+
+        return NextResponse.json(
+          {
+            error: "Ce slug est déjà utilisé par un autre établissement",
+            suggestions,
+          },
+          { status: 400 }
+        );
+      }
+    }
+
+    // Mettre à jour l'établissement
+    const updatedEstablishment = await prisma.establishment.update({
+      where: { id: establishment.id },
+      data: {
+        name,
+        slug: newSlug,
+      },
+    });
+
+    return NextResponse.json({
+      message: "Établissement modifié avec succès",
+      establishment: {
+        id: updatedEstablishment.id,
+        name: updatedEstablishment.name,
+        slug: updatedEstablishment.slug,
+      },
+    });
+  } catch (error) {
+    console.error("Erreur lors de la modification de l'établissement:", error);
+    return NextResponse.json(
+      { error: "Erreur lors de la modification de l'établissement" },
+      { status: 500 }
+    );
+  }
+}

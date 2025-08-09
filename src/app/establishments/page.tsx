@@ -36,6 +36,7 @@ import {
   AlertCircle,
   LogOut,
   Trash2,
+  Edit,
 } from "lucide-react";
 import Image from "next/image";
 import { toastUtils } from "@/lib/toast-utils";
@@ -64,9 +65,27 @@ export default function EstablishmentsPage() {
   const [loading, setLoading] = useState(true);
   const [showCreateForm, setShowCreateForm] = useState(false);
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
+  const [showEditDialog, setShowEditDialog] = useState(false);
   const [establishmentToDelete, setEstablishmentToDelete] =
     useState<Establishment | null>(null);
+  const [establishmentToEdit, setEstablishmentToEdit] =
+    useState<Establishment | null>(null);
   const [deleteConfirmationName, setDeleteConfirmationName] = useState("");
+  const [editEstablishment, setEditEstablishment] = useState({
+    name: "",
+    slug: "",
+  });
+  const [editSlugValidation, setEditSlugValidation] = useState<{
+    isChecking: boolean;
+    isAvailable: boolean;
+    suggestions: string[];
+    message: string;
+  }>({
+    isChecking: false,
+    isAvailable: true,
+    suggestions: [],
+    message: "",
+  });
   const [newEstablishment, setNewEstablishment] = useState({
     name: "",
     slug: "",
@@ -323,6 +342,138 @@ export default function EstablishmentsPage() {
     setEstablishmentToDelete(establishment);
     setDeleteConfirmationName("");
     setShowDeleteDialog(true);
+  };
+
+  const openEditDialog = (establishment: Establishment) => {
+    setEstablishmentToEdit(establishment);
+    setEditEstablishment({
+      name: establishment.name,
+      slug: establishment.slug,
+    });
+    setEditSlugValidation({
+      isChecking: false,
+      isAvailable: true,
+      suggestions: [],
+      message: "",
+    });
+    setShowEditDialog(true);
+  };
+
+  const validateEditSlug = async (
+    name: string,
+    slug: string,
+    originalSlug: string
+  ) => {
+    // Si le slug n'a pas changé, pas besoin de validation
+    if (slug === originalSlug) {
+      setEditSlugValidation({
+        isChecking: false,
+        isAvailable: true,
+        suggestions: [],
+        message: "",
+      });
+      return;
+    }
+
+    if (!slug.trim()) {
+      setEditSlugValidation({
+        isChecking: false,
+        isAvailable: false,
+        suggestions: [],
+        message: "Le slug est requis",
+      });
+      return;
+    }
+
+    setEditSlugValidation((prev) => ({ ...prev, isChecking: true }));
+
+    try {
+      const response = await fetch("/api/establishments/validate-slug", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ name, slug }),
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        setEditSlugValidation({
+          isChecking: false,
+          isAvailable: data.isAvailable,
+          suggestions: data.suggestions || [],
+          message: data.message,
+        });
+      }
+    } catch (error) {
+      console.error("Erreur lors de la validation du slug:", error);
+      setEditSlugValidation({
+        isChecking: false,
+        isAvailable: false,
+        suggestions: [],
+        message: "Erreur lors de la validation",
+      });
+    }
+  };
+
+  const handleEditEstablishment = async (e: React.FormEvent) => {
+    e.preventDefault();
+
+    if (!establishmentToEdit) return;
+
+    const loadingToast = toastUtils.loading(
+      "Modification de l'établissement..."
+    );
+
+    try {
+      const response = await fetch(
+        `/api/establishments/${establishmentToEdit.slug}`,
+        {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(editEstablishment),
+        }
+      );
+
+      toastUtils.dismiss(loadingToast);
+
+      if (response.ok) {
+        toastUtils.crud.updated(`Établissement "${editEstablishment.name}"`);
+        setShowEditDialog(false);
+        setEstablishmentToEdit(null);
+        setEditEstablishment({ name: "", slug: "" });
+        setEditSlugValidation({
+          isChecking: false,
+          isAvailable: true,
+          suggestions: [],
+          message: "",
+        });
+        fetchEstablishments();
+      } else {
+        const error = await response.json();
+
+        // Si l'erreur contient des suggestions, les afficher
+        if (error.suggestions && error.suggestions.length > 0) {
+          setEditSlugValidation({
+            isChecking: false,
+            isAvailable: false,
+            suggestions: error.suggestions,
+            message:
+              error.suggestion ||
+              "Ce slug est déjà pris. Voici quelques suggestions :",
+          });
+          toastUtils.warning(
+            "Le slug choisi n'est pas disponible. Consultez les suggestions ci-dessous."
+          );
+        } else {
+          toastUtils.error(error.error || "Erreur lors de la modification");
+        }
+      }
+    } catch (error) {
+      toastUtils.dismiss(loadingToast);
+      toastUtils.error("Erreur lors de la modification");
+      console.error("Erreur:", error);
+    }
   };
 
   if (loading) {
@@ -614,6 +765,207 @@ export default function EstablishmentsPage() {
               </form>
             </DialogContent>
           </Dialog>
+
+          {/* Dialog de modification d'établissement */}
+          <Dialog open={showEditDialog} onOpenChange={setShowEditDialog}>
+            <DialogContent>
+              <DialogHeader>
+                <DialogTitle>Modifier l&apos;établissement</DialogTitle>
+                <DialogDescription>
+                  Modifiez le nom et l&apos;URL de votre établissement.
+                  Attention : changer l&apos;URL peut affecter les liens
+                  existants.
+                </DialogDescription>
+              </DialogHeader>
+
+              <form onSubmit={handleEditEstablishment} className="space-y-4">
+                <div className="space-y-2">
+                  <Label htmlFor="edit-name">Nom de l&apos;établissement</Label>
+                  <Input
+                    id="edit-name"
+                    type="text"
+                    value={editEstablishment.name}
+                    onChange={(e) => {
+                      const name = e.target.value;
+                      const newSlug = generateSlug(name);
+                      setEditEstablishment({
+                        name,
+                        slug: newSlug,
+                      });
+
+                      // Valider le slug en temps réel si il y a du contenu et si il a changé
+                      if (newSlug && establishmentToEdit) {
+                        validateEditSlug(
+                          name,
+                          newSlug,
+                          establishmentToEdit.slug
+                        );
+                      }
+                    }}
+                    required
+                    placeholder="Mon Hôtel"
+                  />
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="edit-slug">Slug (URL)</Label>
+                  <Input
+                    id="edit-slug"
+                    type="text"
+                    value={editEstablishment.slug}
+                    onChange={(e) => {
+                      const newSlug = e.target.value;
+                      setEditEstablishment({
+                        ...editEstablishment,
+                        slug: newSlug,
+                      });
+
+                      // Valider le slug modifié manuellement
+                      if (newSlug && establishmentToEdit) {
+                        validateEditSlug(
+                          editEstablishment.name,
+                          newSlug,
+                          establishmentToEdit.slug
+                        );
+                      }
+                    }}
+                    required
+                    placeholder="mon-hotel"
+                    className={
+                      !editSlugValidation.isAvailable &&
+                      editEstablishment.slug &&
+                      editEstablishment.slug !== establishmentToEdit?.slug
+                        ? "border-red-500"
+                        : editSlugValidation.isAvailable &&
+                            editEstablishment.slug &&
+                            editEstablishment.slug !== establishmentToEdit?.slug
+                          ? "border-green-500"
+                          : ""
+                    }
+                  />
+
+                  {/* Indicateur de validation pour l'édition */}
+                  {editSlugValidation.isChecking && (
+                    <p className="text-xs text-blue-600">
+                      ⏳ Vérification du slug...
+                    </p>
+                  )}
+
+                  {!editSlugValidation.isChecking &&
+                    editEstablishment.slug &&
+                    editEstablishment.slug !== establishmentToEdit?.slug && (
+                      <>
+                        {editSlugValidation.isAvailable ? (
+                          <p className="text-xs text-green-600">
+                            ✅ Ce slug est disponible !
+                          </p>
+                        ) : (
+                          <div className="space-y-2">
+                            <p className="text-xs text-red-600">
+                              ❌ {editSlugValidation.message}
+                            </p>
+                            {editSlugValidation.suggestions.length > 0 && (
+                              <div className="space-y-1">
+                                <p className="text-xs text-muted-foreground">
+                                  Suggestions :
+                                </p>
+                                <div className="flex flex-wrap gap-1">
+                                  {editSlugValidation.suggestions
+                                    .slice(0, 3)
+                                    .map((suggestion, index) => (
+                                      <Button
+                                        key={index}
+                                        type="button"
+                                        variant="outline"
+                                        size="sm"
+                                        className="text-xs h-6 px-2"
+                                        onClick={() => {
+                                          setEditEstablishment({
+                                            ...editEstablishment,
+                                            slug: suggestion,
+                                          });
+                                          if (establishmentToEdit) {
+                                            validateEditSlug(
+                                              editEstablishment.name,
+                                              suggestion,
+                                              establishmentToEdit.slug
+                                            );
+                                          }
+                                        }}
+                                      >
+                                        {suggestion}
+                                      </Button>
+                                    ))}
+                                </div>
+                              </div>
+                            )}
+                          </div>
+                        )}
+                      </>
+                    )}
+
+                  {/* URL d'exemple */}
+                  {editEstablishment.slug && (
+                    <p className="text-xs text-muted-foreground">
+                      URL d&apos;accès :{" "}
+                      <code className="bg-muted px-1 py-0.5 rounded">
+                        {process.env.NODE_ENV === "production"
+                          ? `https://yourdomain.com/${editEstablishment.slug}`
+                          : `http://localhost:3000/${editEstablishment.slug}`}
+                      </code>
+                    </p>
+                  )}
+
+                  {/* Message d'information rassurant */}
+                  <div className="bg-blue-50 border border-blue-200 rounded-md p-3 mt-2">
+                    <p className="text-xs text-blue-700">
+                      💡 <strong>Info :</strong> Le slug peut être différent du
+                      nom de votre établissement sans aucun problème. Vos
+                      clients verront toujours le vrai nom (&quot;
+                      {editEstablishment.name || "Mon Hôtel"}&quot;) sur la page
+                      de réservation, seule l&apos;adresse web utilise le slug.
+                    </p>
+                  </div>
+                </div>
+
+                <div className="flex space-x-3 pt-4">
+                  <Button
+                    type="button"
+                    variant="outline"
+                    className="flex-1"
+                    onClick={() => {
+                      setShowEditDialog(false);
+                      setEstablishmentToEdit(null);
+                      setEditEstablishment({ name: "", slug: "" });
+                      setEditSlugValidation({
+                        isChecking: false,
+                        isAvailable: true,
+                        suggestions: [],
+                        message: "",
+                      });
+                    }}
+                  >
+                    Annuler
+                  </Button>
+                  <Button
+                    type="submit"
+                    className="flex-1"
+                    disabled={
+                      editSlugValidation.isChecking ||
+                      (!editSlugValidation.isAvailable &&
+                        editEstablishment.slug !== establishmentToEdit?.slug) ||
+                      !editEstablishment.name ||
+                      !editEstablishment.slug
+                    }
+                  >
+                    {editSlugValidation.isChecking
+                      ? "Vérification..."
+                      : "Modifier"}
+                  </Button>
+                </div>
+              </form>
+            </DialogContent>
+          </Dialog>
         </div>
 
         {/* Liste des établissements */}
@@ -670,6 +1022,15 @@ export default function EstablishmentsPage() {
                           ? "Configuré"
                           : "À configurer"}
                       </Badge>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => openEditDialog(establishment)}
+                        className="h-8 w-8 p-0 text-muted-foreground hover:text-foreground hover:bg-muted/50"
+                        title="Modifier le nom de l'établissement"
+                      >
+                        <Edit className="h-4 w-4" />
+                      </Button>
                       <Button
                         variant="ghost"
                         size="sm"
