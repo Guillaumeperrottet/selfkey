@@ -97,9 +97,7 @@ export function RoomSelector({
         <CardContent className="flex items-center justify-center p-8">
           <div className="text-center">
             <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto mb-4"></div>
-            <p className="text-gray-600">
-              Recherche des chambres disponibles...
-            </p>
+            <p className="text-gray-600">Recherche des places disponibles...</p>
           </div>
         </CardContent>
       </Card>
@@ -112,7 +110,7 @@ export function RoomSelector({
         <div className="flex items-center justify-between">
           <CardTitle className="flex items-center gap-2">
             <CalendarDays className="h-5 w-5" />
-            Available Rooms
+            Available Places
             {duration > 0 && (
               <Badge variant="secondary">
                 {duration} night{duration > 1 ? "s" : ""}
@@ -129,7 +127,7 @@ export function RoomSelector({
           <div className="text-center py-8">
             <div className="text-4xl mb-2">😔</div>
             <p className="text-gray-600 mb-4">
-              No rooms available for these dates
+              No place available for these dates
             </p>
             <Button variant="outline" onClick={onBack}>
               Choose different dates
