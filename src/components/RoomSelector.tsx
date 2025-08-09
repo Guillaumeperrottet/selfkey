@@ -40,45 +40,58 @@ export function RoomSelector({
 
   // Rechercher les chambres disponibles au montage du composant
   useEffect(() => {
-    const searchRooms = async () => {
-      setLoading(true);
-      const loadingToast = toastUtils.loading("Recherche de disponibilités...");
+    // Protection contre les valeurs vides ou invalides
+    if (!hotelSlug || !checkInDate || !checkOutDate) {
+      return;
+    }
 
-      try {
-        const response = await fetch(
-          `/api/establishments/${hotelSlug}/availability?checkInDate=${checkInDate}&checkOutDate=${checkOutDate}`
+    // Debounce pour éviter les appels trop rapides
+    const timeoutId = setTimeout(() => {
+      const searchRooms = async () => {
+        setLoading(true);
+        const loadingToast = toastUtils.loading(
+          "Recherche de disponibilités..."
         );
 
-        toastUtils.dismiss(loadingToast);
-
-        if (!response.ok) {
-          throw new Error(
-            "Erreur lors de la recherche des chambres disponibles"
+        try {
+          const response = await fetch(
+            `/api/establishments/${hotelSlug}/availability?checkInDate=${checkInDate}&checkOutDate=${checkOutDate}`
           );
+
+          toastUtils.dismiss(loadingToast);
+
+          if (!response.ok) {
+            throw new Error(
+              "Erreur lors de la recherche des chambres disponibles"
+            );
+          }
+
+          const data = await response.json();
+          console.log("DEBUG: API response:", data);
+          setAvailableRooms(data.availableRooms || []);
+
+          // Afficher le message informatif si aucune chambre n'est disponible
+          if (data.message) {
+            console.log("DEBUG: Setting info message:", data.message);
+            toastUtils.info(data.message);
+          }
+        } catch (err) {
+          toastUtils.dismiss(loadingToast);
+          toastUtils.error(
+            err instanceof Error
+              ? err.message
+              : "Erreur lors de la recherche des chambres"
+          );
+        } finally {
+          setLoading(false);
         }
+      };
 
-        const data = await response.json();
-        console.log("DEBUG: API response:", data);
-        setAvailableRooms(data.availableRooms || []);
+      searchRooms();
+    }, 100); // Délai de 100ms
 
-        // Afficher le message informatif si aucune chambre n'est disponible
-        if (data.message) {
-          console.log("DEBUG: Setting info message:", data.message);
-          toastUtils.info(data.message);
-        }
-      } catch (err) {
-        toastUtils.dismiss(loadingToast);
-        toastUtils.error(
-          err instanceof Error
-            ? err.message
-            : "Erreur lors de la recherche des chambres"
-        );
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    searchRooms();
+    // Cleanup function pour annuler le timeout si les dépendances changent
+    return () => clearTimeout(timeoutId);
   }, [hotelSlug, checkInDate, checkOutDate]);
 
   const handleRoomSelect = (room: Room) => {

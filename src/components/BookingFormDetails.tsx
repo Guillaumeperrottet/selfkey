@@ -921,66 +921,109 @@ export function BookingFormDetails({
           )}
 
           {/* Récapitulatif final */}
-          <div className="bg-gray-50 border border-gray-200 rounded-lg p-6">
-            <div className="flex justify-between items-start mb-4">
-              <div className="space-y-1">
-                <h4 className="font-medium text-gray-900">
-                  {selectedRoom.name}
-                </h4>
-                <p className="text-sm text-gray-600">
-                  {new Date(checkInDate).toLocaleDateString()} →{" "}
-                  {new Date(checkOutDate).toLocaleDateString()}
-                </p>
-              </div>
-              <div className="text-right">
-                <div className="text-2xl font-medium text-gray-900">
-                  {totalPrice.toFixed(2)} CHF
+          <div className="bg-white border border-gray-200 rounded-lg shadow-sm">
+            {/* En-tête avec informations de réservation */}
+            <div className="p-4 border-b border-gray-200">
+              <div className="flex items-start justify-between">
+                <div>
+                  <h4 className="font-semibold text-lg text-gray-900">
+                    {selectedRoom.name}
+                  </h4>
+                  <p className="text-gray-600 mt-1">
+                    {new Date(checkInDate).toLocaleDateString("fr-CH", {
+                      weekday: "short",
+                      day: "numeric",
+                      month: "short",
+                    })}{" "}
+                    →{" "}
+                    {new Date(checkOutDate).toLocaleDateString("fr-CH", {
+                      weekday: "short",
+                      day: "numeric",
+                      month: "short",
+                    })}
+                  </p>
+                  <p className="text-sm text-gray-500">
+                    {duration} night{duration > 1 ? "s" : ""} •{" "}
+                    {adults + children} guest{adults + children > 1 ? "s" : ""}
+                  </p>
                 </div>
-                <div className="text-sm text-gray-600">Total amount</div>
               </div>
             </div>
 
             {/* Détail des prix */}
-            <div className="space-y-1 text-sm text-gray-600 mb-6 pb-4 border-b border-gray-200">
-              <div className="flex justify-between">
-                <span>
-                  {duration} night{duration > 1 ? "s" : ""} ×{" "}
-                  {selectedRoom.price} CHF
+            <div className="p-4 space-y-3">
+              <h5 className="font-medium text-gray-900 mb-3">
+                Price breakdown
+              </h5>
+
+              {/* Prix de base */}
+              <div className="flex justify-between items-center">
+                <span className="text-gray-700">
+                  {selectedRoom.price} CHF × {duration} night
+                  {duration > 1 ? "s" : ""}
                 </span>
-                <span>{selectedRoom.price * duration} CHF</span>
+                <span className="font-medium text-gray-900">
+                  {selectedRoom.price * duration} CHF
+                </span>
               </div>
+
+              {/* Options supplémentaires */}
               {pricingOptionsTotal > 0 && (
-                <div className="flex justify-between">
-                  <span>Additional options</span>
-                  <span>+{pricingOptionsTotal} CHF</span>
+                <div className="flex justify-between items-center">
+                  <span className="text-gray-700">Additional options</span>
+                  <span className="font-medium text-gray-900">
+                    +{pricingOptionsTotal} CHF
+                  </span>
                 </div>
               )}
+
+              {/* Taxe de séjour */}
               {touristTaxEnabled && touristTaxTotal > 0 && (
-                <div className="flex justify-between">
-                  <span>
-                    Tourist tax ({adults} adult{adults > 1 ? "s" : ""} ×{" "}
-                    {duration} night{duration > 1 ? "s" : ""})
+                <div className="flex justify-between items-center">
+                  <div>
+                    <span className="text-gray-700">Tourist tax</span>
+                    <div className="text-xs text-gray-500">
+                      {adults} adult{adults > 1 ? "s" : ""} • {duration} night
+                      {duration > 1 ? "s" : ""}
+                    </div>
+                  </div>
+                  <span className="font-medium text-gray-900">
+                    +{touristTaxTotal.toFixed(2)} CHF
                   </span>
-                  <span>+{touristTaxTotal.toFixed(2)} CHF</span>
                 </div>
               )}
             </div>
 
-            <Button
-              onClick={handleConfirmBooking}
-              disabled={bookingInProgress}
-              className="w-full h-11"
-              size="lg"
-            >
-              {bookingInProgress ? (
-                <div className="flex items-center gap-2">
-                  <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
-                  Creating your booking...
-                </div>
-              ) : (
-                "Complete Booking"
-              )}
-            </Button>
+            {/* Total final */}
+            <div className="p-4 border-t border-gray-200 bg-gray-50">
+              <div className="flex justify-between items-center">
+                <span className="font-semibold text-lg text-gray-900">
+                  Total
+                </span>
+                <span className="font-bold text-2xl text-gray-900">
+                  {totalPrice.toFixed(2)} CHF
+                </span>
+              </div>
+            </div>
+
+            {/* Bouton de confirmation */}
+            <div className="p-4">
+              <Button
+                onClick={handleConfirmBooking}
+                disabled={bookingInProgress}
+                className="w-full h-12 text-lg font-semibold"
+                size="lg"
+              >
+                {bookingInProgress ? (
+                  <div className="flex items-center gap-2">
+                    <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
+                    Processing...
+                  </div>
+                ) : (
+                  "Complete Booking"
+                )}
+              </Button>
+            </div>
           </div>
         </div>
       </CardContent>
