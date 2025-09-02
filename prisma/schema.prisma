@@ -8,17 +8,19 @@ datasource db {
 }
 
 model User {
-  id             String               @id @default(cuid())
-  name           String?
-  email          String               @unique
-  image          String?
-  createdAt      DateTime             @default(now())
-  updatedAt      DateTime             @updatedAt
-  emailVerified  Boolean?             @default(false)
-  establishments UserEstablishment[]
-  accounts       Account[]
-  excelExports   ExcelExportHistory[]
-  sessions       Session[]
+  id                    String               @id @default(cuid())
+  name                  String?
+  email                 String               @unique
+  image                 String?
+  createdAt             DateTime             @default(now())
+  updatedAt             DateTime             @updatedAt
+  emailVerified         Boolean?             @default(false)
+  establishments        UserEstablishment[]
+  accounts              Account[]
+  excelExports          ExcelExportHistory[]
+  sessions              Session[]
+  transfersInitiated    EstablishmentTransfer[] @relation("TransferFrom")
+  transfersReceived     EstablishmentTransfer[] @relation("TransferTo")
 
   @@map("user")
 }
@@ -130,6 +132,7 @@ model Establishment {
   integrations                 Integration[]
   pricingOptions               PricingOption[]
   rooms                        Room[]
+  transfers                    EstablishmentTransfer[]
 
   @@map("establishments")
 }
@@ -267,4 +270,19 @@ model ExcelExportHistory {
   user              User?         @relation(fields: [userId], references: [id], onDelete: SetNull)
 
   @@map("excel_export_history")
+}
+
+model EstablishmentTransfer {
+  id              String        @id @default(cuid())
+  establishmentId String
+  fromUserId      String
+  toUserEmail     String
+  toUserId        String
+  transferredAt   DateTime      @default(now())
+  
+  establishment   Establishment @relation(fields: [establishmentId], references: [id], onDelete: Cascade)
+  fromUser        User          @relation("TransferFrom", fields: [fromUserId], references: [id])
+  toUser          User          @relation("TransferTo", fields: [toUserId], references: [id])
+
+  @@map("establishment_transfers")
 }

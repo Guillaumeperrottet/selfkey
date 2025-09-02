@@ -37,9 +37,12 @@ import {
   LogOut,
   Trash2,
   Edit,
+  UserPlus,
 } from "lucide-react";
 import Image from "next/image";
 import { toastUtils } from "@/lib/toast-utils";
+import { EstablishmentTransfer } from "@/components/EstablishmentTransfer";
+import { EstablishmentTransferHistory } from "@/components/EstablishmentTransferHistory";
 
 interface User {
   id: string;
@@ -66,9 +69,12 @@ export default function EstablishmentsPage() {
   const [showCreateForm, setShowCreateForm] = useState(false);
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const [showEditDialog, setShowEditDialog] = useState(false);
+  const [showTransferDialog, setShowTransferDialog] = useState(false);
   const [establishmentToDelete, setEstablishmentToDelete] =
     useState<Establishment | null>(null);
   const [establishmentToEdit, setEstablishmentToEdit] =
+    useState<Establishment | null>(null);
+  const [establishmentToTransfer, setEstablishmentToTransfer] =
     useState<Establishment | null>(null);
   const [deleteConfirmationName, setDeleteConfirmationName] = useState("");
   const [editEstablishment, setEditEstablishment] = useState({
@@ -1056,36 +1062,53 @@ export default function EstablishmentsPage() {
                     </div>
                   </div>
 
-                  <div className="flex space-x-3">
-                    <Button
-                      asChild
-                      className="flex-1"
-                      size="sm"
-                      data-tutorial={index === 0 ? "manage-button" : undefined}
-                    >
-                      <Link
-                        href={`/admin/${establishment.slug}`}
-                        className="flex items-center gap-2"
+                  <div className="space-y-2">
+                    <div className="flex space-x-3">
+                      <Button
+                        asChild
+                        className="flex-1"
+                        size="sm"
+                        data-tutorial={
+                          index === 0 ? "manage-button" : undefined
+                        }
                       >
-                        <Settings className="h-4 w-4" />
-                        Gérer
-                      </Link>
-                    </Button>
+                        <Link
+                          href={`/admin/${establishment.slug}`}
+                          className="flex items-center gap-2"
+                        >
+                          <Settings className="h-4 w-4" />
+                          Gérer
+                        </Link>
+                      </Button>
+                      <Button
+                        asChild
+                        variant="outline"
+                        className="flex-1"
+                        size="sm"
+                        data-tutorial={index === 0 ? "view-button" : undefined}
+                      >
+                        <Link
+                          href={`/${establishment.slug}`}
+                          target="_blank"
+                          className="flex items-center gap-2"
+                        >
+                          <ExternalLink className="h-4 w-4" />
+                          Voir la page de réservation
+                        </Link>
+                      </Button>
+                    </div>
+
                     <Button
-                      asChild
                       variant="outline"
-                      className="flex-1"
                       size="sm"
-                      data-tutorial={index === 0 ? "view-button" : undefined}
+                      className="w-full"
+                      onClick={() => {
+                        setEstablishmentToTransfer(establishment);
+                        setShowTransferDialog(true);
+                      }}
                     >
-                      <Link
-                        href={`/${establishment.slug}`}
-                        target="_blank"
-                        className="flex items-center gap-2"
-                      >
-                        <ExternalLink className="h-4 w-4" />
-                        Voir la page de réservation
-                      </Link>
+                      <UserPlus className="h-4 w-4 mr-2" />
+                      Transférer l&apos;établissement
                     </Button>
                   </div>
                 </CardContent>
@@ -1198,6 +1221,39 @@ export default function EstablishmentsPage() {
                   Supprimer définitivement
                 </Button>
               </div>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
+
+      {/* Dialogue de transfert d'établissement */}
+      <Dialog open={showTransferDialog} onOpenChange={setShowTransferDialog}>
+        <DialogContent className="max-w-2xl">
+          <DialogHeader>
+            <DialogTitle>Transférer l&apos;établissement</DialogTitle>
+            <DialogDescription>
+              Transférer la propriété de l&apos;établissement vers un autre
+              utilisateur
+            </DialogDescription>
+          </DialogHeader>
+
+          {establishmentToTransfer && (
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <EstablishmentTransfer
+                establishmentSlug={establishmentToTransfer.slug}
+                establishmentName={establishmentToTransfer.name}
+                onTransferComplete={() => {
+                  setShowTransferDialog(false);
+                  setEstablishmentToTransfer(null);
+                  // Recharger la liste des établissements pour refléter le transfert
+                  window.location.reload();
+                }}
+              />
+
+              <EstablishmentTransferHistory
+                establishmentSlug={establishmentToTransfer.slug}
+                className="h-fit"
+              />
             </div>
           )}
         </DialogContent>

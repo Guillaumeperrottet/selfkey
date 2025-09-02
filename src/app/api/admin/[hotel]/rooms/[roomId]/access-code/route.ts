@@ -7,8 +7,42 @@ export async function PUT(
 ) {
   try {
     const { accessCode } = await request.json();
-    const { roomId } = await params;
+    const { hotel, roomId } = await params;
 
+    console.log(
+      `Tentative de mise à jour du code d'accès pour la chambre ${roomId} de l'hôtel ${hotel}`
+    );
+
+    // Vérifier d'abord que la chambre existe et appartient au bon hôtel
+    const existingRoom = await prisma.room.findFirst({
+      where: {
+        id: roomId,
+        hotelSlug: hotel,
+      },
+    });
+
+    if (!existingRoom) {
+      console.log(`Chambre non trouvée: ID=${roomId}, Hotel=${hotel}`);
+
+      // Cherchons toutes les chambres de cet hôtel pour diagnostiquer
+      const allRooms = await prisma.room.findMany({
+        where: { hotelSlug: hotel },
+        select: { id: true, name: true },
+      });
+
+      console.log(`Chambres existantes pour ${hotel}:`, allRooms);
+
+      return NextResponse.json(
+        { error: "Chambre non trouvée" },
+        { status: 404 }
+      );
+    }
+
+    console.log(
+      `Chambre trouvée: ${existingRoom.name}, mise à jour du code d'accès`
+    );
+
+    // Mettre à jour le code d'accès
     const room = await prisma.room.update({
       where: { id: roomId },
       data: { accessCode },
