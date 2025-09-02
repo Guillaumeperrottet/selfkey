@@ -71,6 +71,9 @@ export function RoomManagement({ hotelSlug, currency }: Props) {
   const [isLoading, setIsLoading] = useState(false);
   const [showAddForm, setShowAddForm] = useState(false);
   const [editingRoom, setEditingRoom] = useState<Room | null>(null);
+  const [establishmentSettings, setEstablishmentSettings] = useState<{
+    enableDogOption?: boolean;
+  }>({});
 
   // Hook pour récupérer les frais de l'établissement
   const {
@@ -113,9 +116,25 @@ export function RoomManagement({ hotelSlug, currency }: Props) {
     }
   }, [hotelSlug]);
 
+  const loadEstablishmentSettings = useCallback(async () => {
+    try {
+      const response = await fetch(`/api/establishments/${hotelSlug}/settings`);
+      const data = await response.json();
+
+      if (data.success) {
+        setEstablishmentSettings({
+          enableDogOption: data.settings.enableDogOption,
+        });
+      }
+    } catch (error) {
+      console.error("Erreur chargement paramètres établissement:", error);
+    }
+  }, [hotelSlug]);
+
   useEffect(() => {
     loadRooms();
-  }, [loadRooms]);
+    loadEstablishmentSettings();
+  }, [loadRooms, loadEstablishmentSettings]);
 
   const resetForm = () => {
     setFormData({ name: "", price: "", allowDogs: false });
@@ -518,27 +537,49 @@ export function RoomManagement({ hotelSlug, currency }: Props) {
                 </div>
 
                 <div className="space-y-2">
-                  <div className="flex items-center space-x-2">
-                    <input
-                      id="allowDogs"
-                      type="checkbox"
-                      checked={formData.allowDogs}
-                      onChange={(e) =>
-                        setFormData((prev) => ({
-                          ...prev,
-                          allowDogs: e.target.checked,
-                        }))
-                      }
-                      className="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
-                    />
-                    <Label htmlFor="allowDogs">
-                      🐕 Cette place autorise les chiens
-                    </Label>
-                  </div>
-                  <p className="text-xs text-muted-foreground">
-                    Si activé, cette place sera proposée aux clients qui
-                    voyagent avec un chien
-                  </p>
+                  {establishmentSettings.enableDogOption ? (
+                    <>
+                      <div className="flex items-center space-x-2">
+                        <input
+                          id="allowDogs"
+                          type="checkbox"
+                          checked={formData.allowDogs}
+                          onChange={(e) =>
+                            setFormData((prev) => ({
+                              ...prev,
+                              allowDogs: e.target.checked,
+                            }))
+                          }
+                          className="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                        />
+                        <Label htmlFor="allowDogs">
+                          🐕 Cette place autorise les chiens
+                        </Label>
+                      </div>
+                      <p className="text-xs text-muted-foreground">
+                        Si activé, cette place sera proposée aux clients qui
+                        voyagent avec un chien
+                      </p>
+                    </>
+                  ) : (
+                    <div className="bg-gray-50 border border-gray-200 rounded-lg p-3">
+                      <div className="flex items-center space-x-2 text-gray-500">
+                        <input
+                          type="checkbox"
+                          disabled
+                          className="h-4 w-4 rounded border-gray-300 cursor-not-allowed opacity-50"
+                        />
+                        <Label className="text-sm opacity-50 cursor-not-allowed">
+                          🐕 Option chien désactivée
+                        </Label>
+                      </div>
+                      <p className="text-xs text-gray-500 mt-1">
+                        L&apos;option chien n&apos;est pas activée pour cet
+                        établissement. Allez dans les paramètres pour
+                        l&apos;activer.
+                      </p>
+                    </div>
+                  )}
                 </div>
               </div>
 
