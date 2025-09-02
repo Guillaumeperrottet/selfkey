@@ -8,7 +8,15 @@ import { Label } from "@/components/ui/label";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Switch } from "@/components/ui/switch";
 import { Textarea } from "@/components/ui/textarea";
-import { Mail, Settings, Copy, MessageSquare, Users } from "lucide-react";
+import {
+  Mail,
+  Settings,
+  Copy,
+  MessageSquare,
+  Users,
+  Plus,
+  X,
+} from "lucide-react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 interface ConfirmationSettings {
@@ -83,6 +91,46 @@ export function ConfirmationManager({ hotelSlug }: ConfirmationManagerProps) {
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
+  const [newEmailAddress, setNewEmailAddress] = useState("");
+
+  // Validation d'email
+  const isValidEmail = (email: string) => {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return emailRegex.test(email);
+  };
+
+  // Ajouter une nouvelle adresse email
+  const addEmailAddress = () => {
+    const email = newEmailAddress.trim();
+    if (!email) return;
+
+    if (!isValidEmail(email)) {
+      setError("Adresse email invalide");
+      setTimeout(() => setError(""), 3000);
+      return;
+    }
+
+    if (settings.emailCopyAddresses.includes(email)) {
+      setError("Cette adresse email est déjà configurée");
+      setTimeout(() => setError(""), 3000);
+      return;
+    }
+
+    updateSettings({
+      emailCopyAddresses: [...settings.emailCopyAddresses, email],
+    });
+    setNewEmailAddress("");
+  };
+
+  // Supprimer une adresse email
+  const removeEmailAddress = (index: number) => {
+    const newAddresses = settings.emailCopyAddresses.filter(
+      (_, i) => i !== index
+    );
+    updateSettings({
+      emailCopyAddresses: newAddresses,
+    });
+  };
 
   // Debounce pour la sauvegarde automatique
   useEffect(() => {
@@ -464,28 +512,35 @@ export function ConfirmationManager({ hotelSlug }: ConfirmationManagerProps) {
                   </p>
                 </div>
 
-                <div className="space-y-3">
+                <div className="space-y-4">
                   <Label className="text-sm font-medium">
-                    Adresses email (une par ligne)
+                    Ajouter une adresse email
                   </Label>
-                  <Textarea
-                    rows={5}
-                    placeholder={`admin@hotel.com\nreception@hotel.com\nmanager@hotel.com`}
-                    value={settings.emailCopyAddresses.join("\n")}
-                    onChange={(e) => {
-                      const addresses = e.target.value
-                        .split("\n")
-                        .map((addr) => addr.trim())
-                        .filter((addr) => addr.length > 0);
-                      updateSettings({
-                        emailCopyAddresses: addresses,
-                      });
-                    }}
-                    className="font-mono text-sm"
-                  />
+                  <div className="flex gap-2">
+                    <Input
+                      type="email"
+                      placeholder="admin@hotel.com"
+                      value={newEmailAddress}
+                      onChange={(e) => setNewEmailAddress(e.target.value)}
+                      onKeyPress={(e) => {
+                        if (e.key === "Enter") {
+                          e.preventDefault();
+                          addEmailAddress();
+                        }
+                      }}
+                      className="flex-1"
+                    />
+                    <Button
+                      onClick={addEmailAddress}
+                      disabled={!newEmailAddress.trim()}
+                      className="px-3"
+                    >
+                      <Plus className="h-4 w-4" />
+                    </Button>
+                  </div>
                   <p className="text-xs text-gray-500">
-                    Entrez une adresse email par ligne. Les adresses invalides
-                    seront ignorées.
+                    Entrez une adresse email valide et cliquez sur + pour
+                    l&apos;ajouter
                   </p>
                 </div>
 
@@ -499,22 +554,15 @@ export function ConfirmationManager({ hotelSlug }: ConfirmationManagerProps) {
                       {settings.emailCopyAddresses.map((email, index) => (
                         <span
                           key={index}
-                          className="inline-flex items-center px-2 py-1 rounded-md text-xs font-medium bg-blue-100 text-blue-800"
+                          className="inline-flex items-center px-3 py-1 rounded-md text-sm bg-blue-100 text-blue-800 border border-blue-200"
                         >
                           {email}
                           <button
-                            onClick={() => {
-                              const newAddresses =
-                                settings.emailCopyAddresses.filter(
-                                  (_, i) => i !== index
-                                );
-                              updateSettings({
-                                emailCopyAddresses: newAddresses,
-                              });
-                            }}
-                            className="ml-1 text-blue-600 hover:text-blue-800"
+                            onClick={() => removeEmailAddress(index)}
+                            className="ml-2 text-blue-600 hover:text-red-600 transition-colors"
+                            title="Supprimer cette adresse"
                           >
-                            ×
+                            <X className="h-3 w-3" />
                           </button>
                         </span>
                       ))}
