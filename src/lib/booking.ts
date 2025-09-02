@@ -47,6 +47,7 @@ export async function createBooking(
         currency: "CHF",
         platformCommission,
         ownerAmount,
+        hasDog: bookingData.hasDog || false,
       },
     });
     return booking;
@@ -129,6 +130,7 @@ export async function createBooking(
       currency: "CHF",
       platformCommission,
       ownerAmount,
+      hasDog: bookingData.hasDog || false,
     },
   });
 

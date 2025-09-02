@@ -15,6 +15,7 @@ export async function GET(request: NextRequest, context: Context) {
 
     const checkInDate = searchParams.get("checkInDate");
     const checkOutDate = searchParams.get("checkOutDate");
+    const hasDog = searchParams.get("hasDog") === "true";
 
     if (!checkInDate || !checkOutDate) {
       return NextResponse.json(
@@ -48,7 +49,12 @@ export async function GET(request: NextRequest, context: Context) {
     }
 
     // Obtenir les chambres disponibles
-    const availableRooms = await getAvailableRooms(hotel, checkIn, checkOut);
+    const availableRooms = await getAvailableRooms(
+      hotel,
+      checkIn,
+      checkOut,
+      hasDog
+    );
 
     console.log("DEBUG: Available rooms count:", availableRooms.length);
     console.log("DEBUG: Available rooms:", availableRooms);

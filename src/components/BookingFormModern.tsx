@@ -16,6 +16,7 @@ interface Establishment {
   name: string;
   maxBookingDays: number;
   allowFutureBookings: boolean;
+  enableDogOption?: boolean;
 }
 
 interface BookingFormModernProps {
@@ -32,6 +33,7 @@ export function BookingFormModern({
   const [currentStep, setCurrentStep] = useState<BookingStep>("dates");
   const [checkInDate, setCheckInDate] = useState("");
   const [checkOutDate, setCheckOutDate] = useState("");
+  const [hasDog, setHasDog] = useState(false);
   const [selectedRoom, setSelectedRoom] = useState<Room | null>(null);
 
   // Charger les données sauvegardées si l'utilisateur revient
@@ -78,9 +80,14 @@ export function BookingFormModern({
     loadSavedData();
   }, [hotelSlug]);
 
-  const handleDatesConfirmed = (checkIn: string, checkOut: string) => {
+  const handleDatesConfirmed = (
+    checkIn: string,
+    checkOut: string,
+    withDog?: boolean
+  ) => {
     setCheckInDate(checkIn);
     setCheckOutDate(checkOut);
+    setHasDog(withDog || false);
     setCurrentStep("rooms");
   };
 
@@ -124,6 +131,7 @@ export function BookingFormModern({
           onDatesConfirmed={handleDatesConfirmed}
           initialCheckInDate={checkInDate}
           initialCheckOutDate={checkOutDate}
+          initialHasDog={hasDog}
         />
       )}
 
@@ -132,6 +140,7 @@ export function BookingFormModern({
           hotelSlug={hotelSlug}
           checkInDate={checkInDate}
           checkOutDate={checkOutDate}
+          hasDog={hasDog}
           onRoomSelected={handleRoomSelected}
           onBack={handleBackToDates}
         />
@@ -147,6 +156,7 @@ export function BookingFormModern({
             selectedRoom={selectedRoom}
             checkInDate={checkInDate}
             checkOutDate={checkOutDate}
+            hasDog={hasDog}
             onBack={handleBackToRooms}
           />
         )}

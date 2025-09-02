@@ -3,6 +3,7 @@ import { prisma } from "./prisma";
 export interface CreateRoomData {
   name: string;
   price: number;
+  allowDogs?: boolean;
 }
 
 export async function createRoom(hotelSlug: string, roomData: CreateRoomData) {
@@ -21,6 +22,7 @@ export async function createRoom(hotelSlug: string, roomData: CreateRoomData) {
       hotelSlug,
       name: roomData.name.trim(),
       price: roomData.price,
+      allowDogs: roomData.allowDogs ?? false,
       isActive: true,
     },
   });
@@ -32,7 +34,11 @@ export async function updateRoom(
   roomId: string,
   roomData: Partial<CreateRoomData>
 ) {
-  const updateData: Partial<{ name: string; price: number }> = {};
+  const updateData: Partial<{
+    name: string;
+    price: number;
+    allowDogs: boolean;
+  }> = {};
 
   if (roomData.name !== undefined) {
     updateData.name = roomData.name.trim();
@@ -40,6 +46,10 @@ export async function updateRoom(
 
   if (roomData.price !== undefined) {
     updateData.price = roomData.price;
+  }
+
+  if (roomData.allowDogs !== undefined) {
+    updateData.allowDogs = roomData.allowDogs;
   }
 
   const room = await prisma.room.update({

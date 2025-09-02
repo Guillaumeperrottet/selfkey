@@ -12,6 +12,7 @@ interface Establishment {
   allowFutureBookings: boolean;
   enableDayParking?: boolean;
   parkingOnlyMode?: boolean;
+  enableDogOption?: boolean;
 }
 
 interface DayParkingConfig {

@@ -123,6 +123,7 @@ model Establishment {
   checkinTime                  String?              @default("12:05")
   touristTaxEnabled            Boolean              @default(true)
   touristTaxAmount             Float                @default(3.00)
+  enableDogOption              Boolean              @default(false)
   users                        UserEstablishment[]
   bookings                     Booking[]
   excelExports                 ExcelExportHistory[]
@@ -141,6 +142,7 @@ model Room {
   isActive      Boolean       @default(true)
   createdAt     DateTime      @default(now())
   accessCode    String?
+  allowDogs     Boolean       @default(false)
   bookings      Booking[]
   establishment Establishment @relation(fields: [hotelSlug], references: [slug], onDelete: Cascade)
 
@@ -186,6 +188,7 @@ model Booking {
   dayParkingEndTime      DateTime?
   dayParkingStartTime    DateTime?
   emailConfirmation      Boolean       @default(true)
+  hasDog                 Boolean       @default(false)
   establishment          Establishment @relation(fields: [hotelSlug], references: [slug])
   room                   Room?         @relation(fields: [roomId], references: [id])
 

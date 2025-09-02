@@ -12,6 +12,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
+import { Switch } from "@/components/ui/switch";
 import { Badge } from "@/components/ui/badge";
 import { Loader2, Save, Car, Settings2 } from "lucide-react";
 import { toastUtils } from "@/lib/toast-utils";
@@ -44,6 +45,9 @@ export function SettingsManager({ hotelSlug }: SettingsManagerProps) {
   const [showDayParkingModal, setShowDayParkingModal] = useState(false);
   const [dayParkingLoading, setDayParkingLoading] = useState(false);
 
+  // État pour l'option chien
+  const [enableDogOption, setEnableDogOption] = useState<boolean>(false);
+
   // Load current settings
   useEffect(() => {
     const loadSettings = async () => {
@@ -63,6 +67,7 @@ export function SettingsManager({ hotelSlug }: SettingsManagerProps) {
           setCheckinTime(data.checkinTime || "12:05");
           setTouristTaxEnabled(data.touristTaxEnabled ?? true);
           setTouristTaxAmount(data.touristTaxAmount || 3.0);
+          setEnableDogOption(data.enableDogOption || false);
         } else {
           toastUtils.error("Erreur lors du chargement des paramètres");
         }
@@ -121,6 +126,7 @@ export function SettingsManager({ hotelSlug }: SettingsManagerProps) {
             checkinTime,
             touristTaxEnabled,
             touristTaxAmount,
+            enableDogOption,
           }),
         }
       );
@@ -487,6 +493,50 @@ export function SettingsManager({ hotelSlug }: SettingsManagerProps) {
                     <strong>
                       ℹ️ Taxe de séjour désactivée : Aucune taxe supplémentaire
                       ne sera appliquée aux réservations.
+                    </strong>
+                  )}
+                </p>
+              </div>
+            </div>
+          </div>
+
+          {/* Section Option Chien */}
+          <div className="space-y-4 pt-4 border-t">
+            <h4 className="font-semibold text-sm text-foreground">
+              🐕 Gestion des chiens
+            </h4>
+
+            <div className="space-y-3">
+              <div className="flex items-center space-x-2">
+                <Switch
+                  id="enableDogOption"
+                  checked={enableDogOption}
+                  onCheckedChange={setEnableDogOption}
+                />
+                <Label
+                  htmlFor="enableDogOption"
+                  className="text-sm font-medium"
+                >
+                  Permettre aux clients d&apos;indiquer s&apos;ils voyagent avec
+                  un chien
+                </Label>
+              </div>
+
+              <div className="bg-amber-50 p-3 rounded-lg">
+                <p className="text-sm text-amber-800">
+                  {enableDogOption ? (
+                    <>
+                      <strong>🐕 Option chien activée :</strong> Les clients
+                      pourront cocher &quot;Avec chien&quot; lors du choix des
+                      dates. Seules les places autorisant les chiens leur seront
+                      proposées. Configurez quelles places acceptent les chiens
+                      dans la section &quot;Gestion des places&quot;.
+                    </>
+                  ) : (
+                    <strong>
+                      ℹ️ Option chien désactivée : Les clients ne verront pas
+                      d&apos;option relative aux chiens lors de leur
+                      réservation.
                     </strong>
                   )}
                 </p>

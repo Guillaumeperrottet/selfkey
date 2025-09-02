@@ -49,6 +49,7 @@ interface Room {
   name: string;
   price: number;
   isActive: boolean;
+  allowDogs: boolean;
   createdAt: string;
 }
 
@@ -89,6 +90,7 @@ export function RoomManagement({ hotelSlug, currency }: Props) {
   const [formData, setFormData] = useState({
     name: "",
     price: "",
+    allowDogs: false,
   });
 
   // États pour la recherche et le tri
@@ -116,7 +118,7 @@ export function RoomManagement({ hotelSlug, currency }: Props) {
   }, [loadRooms]);
 
   const resetForm = () => {
-    setFormData({ name: "", price: "" });
+    setFormData({ name: "", price: "", allowDogs: false });
     setShowAddForm(false);
     setEditingRoom(null);
   };
@@ -265,6 +267,7 @@ export function RoomManagement({ hotelSlug, currency }: Props) {
     setFormData({
       name: room.name,
       price: room.price.toString(),
+      allowDogs: room.allowDogs || false,
     });
     setShowAddForm(true);
   };
@@ -513,6 +516,30 @@ export function RoomManagement({ hotelSlug, currency }: Props) {
                     required
                   />
                 </div>
+
+                <div className="space-y-2">
+                  <div className="flex items-center space-x-2">
+                    <input
+                      id="allowDogs"
+                      type="checkbox"
+                      checked={formData.allowDogs}
+                      onChange={(e) =>
+                        setFormData((prev) => ({
+                          ...prev,
+                          allowDogs: e.target.checked,
+                        }))
+                      }
+                      className="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                    />
+                    <Label htmlFor="allowDogs">
+                      🐕 Cette place autorise les chiens
+                    </Label>
+                  </div>
+                  <p className="text-xs text-muted-foreground">
+                    Si activé, cette place sera proposée aux clients qui
+                    voyagent avec un chien
+                  </p>
+                </div>
               </div>
 
               {/* Aperçu en temps réel des frais */}
@@ -676,6 +703,7 @@ export function RoomManagement({ hotelSlug, currency }: Props) {
                         Prix ({currency}){getSortIcon("price")}
                       </div>
                     </TableHead>
+                    <TableHead className="text-center">🐕 Chiens</TableHead>
                     {!feesLoading && (
                       <TableHead className="text-right">Montant net</TableHead>
                     )}
@@ -727,6 +755,19 @@ export function RoomManagement({ hotelSlug, currency }: Props) {
                       <TableCell className="text-right">
                         <div className="font-medium">
                           {room.price.toFixed(2)} {currency}
+                        </div>
+                      </TableCell>
+
+                      {/* Chiens autorisés */}
+                      <TableCell className="text-center">
+                        <div className="flex items-center justify-center">
+                          {room.allowDogs ? (
+                            <span className="text-green-600 font-medium">
+                              🐕 Oui
+                            </span>
+                          ) : (
+                            <span className="text-gray-400">❌ Non</span>
+                          )}
                         </div>
                       </TableCell>
 

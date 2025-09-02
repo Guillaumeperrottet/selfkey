@@ -140,7 +140,8 @@ export function validateBookingDates(
 export async function getAvailableRooms(
   hotelSlug: string,
   checkInDate?: Date,
-  checkOutDate?: Date
+  checkOutDate?: Date,
+  hasDog?: boolean
 ): Promise<AvailableRoom[]> {
   // Si pas de dates spécifiées, utiliser la logique actuelle (aujourd'hui)
   if (!checkInDate || !checkOutDate) {
@@ -152,6 +153,7 @@ export async function getAvailableRooms(
     where: {
       hotelSlug,
       isActive: true,
+      ...(hasDog ? { allowDogs: true } : {}),
     },
   });
 

@@ -18,6 +18,7 @@ interface RoomSelectorProps {
   hotelSlug: string;
   checkInDate: string;
   checkOutDate: string;
+  hasDog?: boolean;
   onRoomSelected: (room: Room) => void;
   onBack: () => void;
 }
@@ -26,6 +27,7 @@ export function RoomSelector({
   hotelSlug,
   checkInDate,
   checkOutDate,
+  hasDog,
   onRoomSelected,
   onBack,
 }: RoomSelectorProps) {
@@ -55,7 +57,7 @@ export function RoomSelector({
 
         try {
           const response = await fetch(
-            `/api/establishments/${hotelSlug}/availability?checkInDate=${checkInDate}&checkOutDate=${checkOutDate}`
+            `/api/establishments/${hotelSlug}/availability?checkInDate=${checkInDate}&checkOutDate=${checkOutDate}${hasDog ? "&hasDog=true" : ""}`
           );
 
           toastUtils.dismiss(loadingToast);
@@ -92,7 +94,7 @@ export function RoomSelector({
 
     // Cleanup function pour annuler le timeout si les dépendances changent
     return () => clearTimeout(timeoutId);
-  }, [hotelSlug, checkInDate, checkOutDate]);
+  }, [hotelSlug, checkInDate, checkOutDate, hasDog]);
 
   const handleRoomSelect = (room: Room) => {
     setSelectedRoom(room);

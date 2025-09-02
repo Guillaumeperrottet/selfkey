@@ -43,6 +43,7 @@ export interface BookingData {
   amount: number;
   checkInDate: Date;
   checkOutDate: Date;
+  hasDog?: boolean;
 }
 
 export interface StripeAccount {

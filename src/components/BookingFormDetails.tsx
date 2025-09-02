@@ -53,6 +53,7 @@ interface BookingFormDetailsProps {
   selectedRoom: Room;
   checkInDate: string;
   checkOutDate: string;
+  hasDog?: boolean;
   onBack: () => void;
   initialData?: {
     adults?: number;
@@ -70,6 +71,7 @@ interface BookingFormDetailsProps {
     clientIdNumber?: string;
     clientVehicleNumber?: string;
     selectedPricingOptions?: Record<string, string | string[]>;
+    hasDog?: boolean;
   };
 }
 
@@ -79,6 +81,7 @@ export function BookingFormDetails({
   selectedRoom,
   checkInDate,
   checkOutDate,
+  hasDog,
   onBack,
   initialData,
 }: BookingFormDetailsProps) {
@@ -392,6 +395,7 @@ export function BookingFormDetails({
         pricingOptionsTotal,
         touristTaxTotal,
         guests: adults + children,
+        hasDog: hasDog || initialData?.hasDog || false,
       };
 
       const tempBookingId = `temp_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;

@@ -16,13 +16,19 @@ interface Establishment {
   name: string;
   maxBookingDays: number;
   allowFutureBookings: boolean;
+  enableDogOption?: boolean;
 }
 
 interface DateSelectorProps {
   establishment: Establishment;
-  onDatesConfirmed: (checkInDate: string, checkOutDate: string) => void;
+  onDatesConfirmed: (
+    checkInDate: string,
+    checkOutDate: string,
+    hasDog?: boolean
+  ) => void;
   initialCheckInDate?: string;
   initialCheckOutDate?: string;
+  initialHasDog?: boolean;
 }
 
 export function DateSelector({
@@ -30,11 +36,13 @@ export function DateSelector({
   onDatesConfirmed,
   initialCheckInDate,
   initialCheckOutDate,
+  initialHasDog,
 }: DateSelectorProps) {
   const today = new Date().toISOString().split("T")[0];
 
   const [checkInDate, setCheckInDate] = useState(initialCheckInDate || today);
   const [checkOutDate, setCheckOutDate] = useState(initialCheckOutDate || "");
+  const [hasDog, setHasDog] = useState(initialHasDog || false);
   const [loading, setLoading] = useState(false);
 
   const duration =
@@ -89,7 +97,7 @@ export function DateSelector({
 
       toastUtils.dismiss(loadingToast);
 
-      onDatesConfirmed(checkInDate, checkOutDate);
+      onDatesConfirmed(checkInDate, checkOutDate, hasDog);
     } catch {
       toastUtils.dismiss(loadingToast);
       toastUtils.error("Erreur lors de la validation des dates");
@@ -179,6 +187,22 @@ export function DateSelector({
             />
           </div>
         </div>
+
+        {/* Option chien - seulement si activée pour l'établissement */}
+        {establishment.enableDogOption && (
+          <div className="flex items-center space-x-2 mt-4">
+            <input
+              id="hasDog"
+              type="checkbox"
+              checked={hasDog}
+              onChange={(e) => setHasDog(e.target.checked)}
+              className="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+            />
+            <Label htmlFor="hasDog" className="text-sm text-gray-600">
+              🐕 Avec chien / With dog
+            </Label>
+          </div>
+        )}
 
         {duration > 0 && (
           <div className="flex items-center gap-2 text-sm text-gray-600">

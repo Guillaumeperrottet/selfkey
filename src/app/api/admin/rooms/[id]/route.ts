@@ -10,11 +10,12 @@ interface Params {
 interface UpdateRoomData {
   name?: string;
   price?: number;
+  allowDogs?: boolean;
 }
 
 export async function PUT(request: NextRequest, { params }: Params) {
   try {
-    const { name, price } = await request.json();
+    const { name, price, allowDogs } = await request.json();
     const { id: roomId } = await params;
 
     const updateData: UpdateRoomData = {};
@@ -38,6 +39,10 @@ export async function PUT(request: NextRequest, { params }: Params) {
         );
       }
       updateData.price = numPrice;
+    }
+
+    if (allowDogs !== undefined) {
+      updateData.allowDogs = allowDogs;
     }
 
     const room = await updateRoom(roomId, updateData);

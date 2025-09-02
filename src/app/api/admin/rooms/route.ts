@@ -3,7 +3,7 @@ import { createRoom, getRoomsForHotel } from "@/lib/room-management";
 
 export async function POST(request: NextRequest) {
   try {
-    const { hotelSlug, name, price } = await request.json();
+    const { hotelSlug, name, price, allowDogs } = await request.json();
 
     if (!hotelSlug || !name || !price) {
       return NextResponse.json(
@@ -32,6 +32,7 @@ export async function POST(request: NextRequest) {
     const room = await createRoom(hotelSlug, {
       name: name.trim(),
       price: numPrice,
+      allowDogs: allowDogs ?? false,
     });
 
     return NextResponse.json({

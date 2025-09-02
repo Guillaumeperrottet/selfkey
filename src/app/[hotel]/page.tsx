@@ -26,6 +26,7 @@ export default async function HotelPage({ params }: Props) {
       allowFutureBookings: true,
       enableDayParking: true,
       parkingOnlyMode: true,
+      enableDogOption: true,
     },
   });
 
@@ -77,6 +78,7 @@ export default async function HotelPage({ params }: Props) {
         allowFutureBookings: establishment.allowFutureBookings,
         enableDayParking: establishment.enableDayParking,
         parkingOnlyMode: establishment.parkingOnlyMode,
+        enableDogOption: establishment.enableDogOption,
       }}
     />
   );
