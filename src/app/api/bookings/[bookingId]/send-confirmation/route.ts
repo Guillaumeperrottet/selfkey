@@ -55,6 +55,8 @@ interface BookingWithDetails {
     accessInstructions: string | null;
     hotelContactEmail: string | null;
     hotelContactPhone: string | null;
+    enableEmailCopyOnConfirmation: boolean;
+    emailCopyAddresses: string[];
   };
 }
 
@@ -109,6 +111,8 @@ export async function POST(request: Request, { params }: Props) {
             accessInstructions: true,
             hotelContactEmail: true,
             hotelContactPhone: true,
+            enableEmailCopyOnConfirmation: true,
+            emailCopyAddresses: true,
           },
         },
       },
@@ -327,12 +331,26 @@ async function sendEmailConfirmation(
 
     // Fonction d'envoi avec retry automatique
     const sendEmailWithRetry = async () => {
+      // Préparer les adresses en copie si activées
+      let bccAddresses: string[] = [];
+      if (
+        booking.establishment.enableEmailCopyOnConfirmation &&
+        booking.establishment.emailCopyAddresses &&
+        booking.establishment.emailCopyAddresses.length > 0
+      ) {
+        bccAddresses = booking.establishment.emailCopyAddresses;
+        console.log(
+          `📧 Envoi avec copie à ${bccAddresses.length} adresse(s): ${bccAddresses.join(", ")}`
+        );
+      }
+
       const result = await sendEmail({
         to: destinationEmail,
         from:
           booking.establishment.confirmationEmailFrom || `noreply@resend.dev`,
         subject: `Confirmation de réservation - ${booking.establishment.name}`,
         html: htmlContent,
+        bcc: bccAddresses.length > 0 ? bccAddresses : undefined,
       });
 
       if (!result.success) {
@@ -358,11 +376,22 @@ async function sendEmailConfirmation(
 
       try {
         const fallbackSend = async () => {
+          // Préparer les adresses en copie si activées
+          let bccAddresses: string[] = [];
+          if (
+            booking.establishment.enableEmailCopyOnConfirmation &&
+            booking.establishment.emailCopyAddresses &&
+            booking.establishment.emailCopyAddresses.length > 0
+          ) {
+            bccAddresses = booking.establishment.emailCopyAddresses;
+          }
+
           const fallbackResult = await sendEmail({
             to: "delivered@resend.dev",
             from: "noreply@resend.dev",
             subject: `Confirmation de réservation - ${booking.establishment.name}`,
             html: htmlContent,
+            bcc: bccAddresses.length > 0 ? bccAddresses : undefined,
           });
 
           if (!fallbackResult.success) {

@@ -8,19 +8,19 @@ datasource db {
 }
 
 model User {
-  id                    String               @id @default(cuid())
-  name                  String?
-  email                 String               @unique
-  image                 String?
-  createdAt             DateTime             @default(now())
-  updatedAt             DateTime             @updatedAt
-  emailVerified         Boolean?             @default(false)
-  establishments        UserEstablishment[]
-  accounts              Account[]
-  excelExports          ExcelExportHistory[]
-  sessions              Session[]
-  transfersInitiated    EstablishmentTransfer[] @relation("TransferFrom")
-  transfersReceived     EstablishmentTransfer[] @relation("TransferTo")
+  id                 String                  @id @default(cuid())
+  name               String?
+  email              String                  @unique
+  image              String?
+  createdAt          DateTime                @default(now())
+  updatedAt          DateTime                @updatedAt
+  emailVerified      Boolean?                @default(false)
+  establishments     UserEstablishment[]
+  accounts           Account[]
+  transfersInitiated EstablishmentTransfer[] @relation("TransferFrom")
+  transfersReceived  EstablishmentTransfer[] @relation("TransferTo")
+  excelExports       ExcelExportHistory[]
+  sessions           Session[]
 
   @@map("user")
 }
@@ -85,54 +85,56 @@ model UserEstablishment {
 }
 
 model Establishment {
-  id                           String               @id @default(cuid())
-  slug                         String               @unique
-  name                         String
-  stripeAccountId              String?
-  stripeOnboarded              Boolean              @default(false)
-  commissionRate               Float                @default(0)
-  fixedFee                     Float                @default(3.00)
-  dayParkingFixedFee           Float                @default(0.00)
-  createdAt                    DateTime             @default(now())
-  accessCodeType               String               @default("room")
-  accessInstructions           String?
-  generalAccessCode            String?
-  maxBookingDays               Int                  @default(4)
-  confirmationEmailEnabled     Boolean              @default(true)
-  confirmationEmailFrom        String?
-  confirmationEmailTemplate    String?
-  confirmationWhatsappEnabled  Boolean              @default(false)
-  confirmationWhatsappFrom     String?
-  confirmationWhatsappTemplate String?
-  allowFutureBookings          Boolean              @default(false)
-  cutoffTime                   String?              @default("22:00")
-  enableCutoffTime             Boolean              @default(false)
-  reopenTime                   String?              @default("00:00")
-  hotelContactEmail            String?
-  hotelContactPhone            String?
-  dayParkingTarif1h            Float?               @default(5.00)
-  dayParkingTarif2h            Float?               @default(8.00)
-  dayParkingTarif3h            Float?               @default(12.00)
-  dayParkingTarif4h            Float?               @default(15.00)
-  dayParkingTarifFullDay       Float?               @default(35.00)
-  dayParkingTarifHalfDay       Float?               @default(20.00)
-  enableDayParking             Boolean              @default(false)
-  parkingOnlyMode              Boolean              @default(false)
-  dayParkingCommissionRate     Float                @default(5.0)
-  dayParkingEmailTemplate      String?
-  formConfig                   Json?                @default("{}")
-  checkoutTime                 String?              @default("12:00")
-  checkinTime                  String?              @default("12:05")
-  touristTaxEnabled            Boolean              @default(true)
-  touristTaxAmount             Float                @default(3.00)
-  enableDogOption              Boolean              @default(false)
-  users                        UserEstablishment[]
-  bookings                     Booking[]
-  excelExports                 ExcelExportHistory[]
-  integrations                 Integration[]
-  pricingOptions               PricingOption[]
-  rooms                        Room[]
-  transfers                    EstablishmentTransfer[]
+  id                            String                  @id @default(cuid())
+  slug                          String                  @unique
+  name                          String
+  stripeAccountId               String?
+  stripeOnboarded               Boolean                 @default(false)
+  commissionRate                Float                   @default(0)
+  fixedFee                      Float                   @default(3.00)
+  createdAt                     DateTime                @default(now())
+  accessCodeType                String                  @default("room")
+  accessInstructions            String?
+  generalAccessCode             String?
+  maxBookingDays                Int                     @default(4)
+  confirmationEmailEnabled      Boolean                 @default(true)
+  confirmationEmailFrom         String?
+  confirmationEmailTemplate     String?
+  confirmationWhatsappEnabled   Boolean                 @default(false)
+  confirmationWhatsappFrom      String?
+  confirmationWhatsappTemplate  String?
+  allowFutureBookings           Boolean                 @default(false)
+  cutoffTime                    String?                 @default("22:00")
+  enableCutoffTime              Boolean                 @default(false)
+  reopenTime                    String?                 @default("00:00")
+  hotelContactEmail             String?
+  hotelContactPhone             String?
+  dayParkingTarif1h             Float?                  @default(5.00)
+  dayParkingTarif2h             Float?                  @default(8.00)
+  dayParkingTarif3h             Float?                  @default(12.00)
+  dayParkingTarif4h             Float?                  @default(15.00)
+  dayParkingTarifFullDay        Float?                  @default(35.00)
+  dayParkingTarifHalfDay        Float?                  @default(20.00)
+  enableDayParking              Boolean                 @default(false)
+  dayParkingCommissionRate      Float                   @default(5.0)
+  dayParkingEmailTemplate       String?
+  formConfig                    Json?                   @default("{}")
+  checkinTime                   String?                 @default("12:05")
+  checkoutTime                  String?                 @default("12:00")
+  parkingOnlyMode               Boolean                 @default(false)
+  touristTaxAmount              Float                   @default(3.00)
+  touristTaxEnabled             Boolean                 @default(true)
+  dayParkingFixedFee            Float                   @default(0.00)
+  enableDogOption               Boolean                 @default(false)
+  enableEmailCopyOnConfirmation Boolean                 @default(false)
+  emailCopyAddresses            String[]
+  users                         UserEstablishment[]
+  bookings                      Booking[]
+  transfers                     EstablishmentTransfer[]
+  excelExports                  ExcelExportHistory[]
+  integrations                  Integration[]
+  pricingOptions                PricingOption[]
+  rooms                         Room[]
 
   @@map("establishments")
 }
@@ -182,7 +184,6 @@ model Booking {
   confirmationSentAt     DateTime?
   adults                 Int           @default(1)
   children               Int           @default(0)
-  touristTaxTotal        Float         @default(0)
   clientBirthPlace       String?
   clientVehicleNumber    String?
   paymentStatus          String        @default("pending")
@@ -191,6 +192,7 @@ model Booking {
   dayParkingEndTime      DateTime?
   dayParkingStartTime    DateTime?
   emailConfirmation      Boolean       @default(true)
+  touristTaxTotal        Float         @default(0)
   hasDog                 Boolean       @default(false)
   establishment          Establishment @relation(fields: [hotelSlug], references: [slug])
   room                   Room?         @relation(fields: [roomId], references: [id])
@@ -267,7 +269,7 @@ model ExcelExportHistory {
   exportedAt        DateTime      @default(now())
   userId            String?
   establishment     Establishment @relation(fields: [establishmentSlug], references: [slug], onDelete: Cascade)
-  user              User?         @relation(fields: [userId], references: [id], onDelete: SetNull)
+  user              User?         @relation(fields: [userId], references: [id])
 
   @@map("excel_export_history")
 }
@@ -279,7 +281,6 @@ model EstablishmentTransfer {
   toUserEmail     String
   toUserId        String
   transferredAt   DateTime      @default(now())
-  
   establishment   Establishment @relation(fields: [establishmentId], references: [id], onDelete: Cascade)
   fromUser        User          @relation("TransferFrom", fields: [fromUserId], references: [id])
   toUser          User          @relation("TransferTo", fields: [toUserId], references: [id])

@@ -8,9 +8,8 @@ import { Label } from "@/components/ui/label";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Switch } from "@/components/ui/switch";
 import { Textarea } from "@/components/ui/textarea";
-import { Mail, Settings, Save, Copy, MessageSquare, Send } from "lucide-react";
+import { Mail, Settings, Copy, MessageSquare, Users } from "lucide-react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { toastUtils } from "@/lib/toast-utils";
 
 interface ConfirmationSettings {
   confirmationEmailEnabled: boolean;
@@ -18,6 +17,8 @@ interface ConfirmationSettings {
   confirmationEmailTemplate: string;
   hotelContactEmail: string;
   hotelContactPhone: string;
+  enableEmailCopyOnConfirmation: boolean;
+  emailCopyAddresses: string[];
 }
 
 interface ConfirmationManagerProps {
@@ -75,13 +76,54 @@ export function ConfirmationManager({ hotelSlug }: ConfirmationManagerProps) {
     confirmationEmailTemplate: defaultEmailTemplate,
     hotelContactEmail: "",
     hotelContactPhone: "",
+    enableEmailCopyOnConfirmation: false,
+    emailCopyAddresses: [],
   });
   const [loading, setLoading] = useState(true);
-  const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
-  const [testEmail, setTestEmail] = useState("");
-  const [sendingTest, setSendingTest] = useState(false);
+  const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
+
+  // Debounce pour la sauvegarde automatique
+  useEffect(() => {
+    if (!hasUnsavedChanges || loading) return;
+
+    const timeoutId = setTimeout(async () => {
+      setError("");
+
+      try {
+        const response = await fetch(
+          `/api/admin/${hotelSlug}/confirmation-settings`,
+          {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify(settings),
+          }
+        );
+
+        if (response.ok) {
+          setHasUnsavedChanges(false);
+          setSuccess("Sauvegardé automatiquement");
+          setTimeout(() => setSuccess(""), 2000);
+        } else {
+          const data = await response.json();
+          setError(data.error || "Erreur lors de la sauvegarde");
+        }
+      } catch {
+        setError("Erreur lors de la sauvegarde");
+      }
+    }, 1500);
+
+    return () => clearTimeout(timeoutId);
+  }, [settings, hasUnsavedChanges, loading, hotelSlug]);
+
+  // Fonction pour mettre à jour les settings avec notification de changement
+  const updateSettings = (newSettings: Partial<ConfirmationSettings>) => {
+    setSettings((prev) => ({ ...prev, ...newSettings }));
+    setHasUnsavedChanges(true);
+  };
 
   useEffect(() => {
     const loadSettings = async () => {
@@ -99,7 +141,12 @@ export function ConfirmationManager({ hotelSlug }: ConfirmationManagerProps) {
               data.confirmationEmailTemplate ?? defaultEmailTemplate,
             hotelContactEmail: data.hotelContactEmail ?? "",
             hotelContactPhone: data.hotelContactPhone ?? "",
+            enableEmailCopyOnConfirmation:
+              data.enableEmailCopyOnConfirmation ?? false,
+            emailCopyAddresses: data.emailCopyAddresses ?? [],
           });
+          // Marquer comme sauvegardé au chargement
+          setHasUnsavedChanges(false);
         }
       } catch {
         setError("Erreur lors du chargement des paramètres");
@@ -111,44 +158,13 @@ export function ConfirmationManager({ hotelSlug }: ConfirmationManagerProps) {
     loadSettings();
   }, [hotelSlug]);
 
-  const handleSave = async () => {
-    setSaving(true);
-    const loadingToast = toastUtils.loading("Sauvegarde des paramètres...");
-
-    try {
-      const response = await fetch(
-        `/api/admin/${hotelSlug}/confirmation-settings`,
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify(settings),
-        }
-      );
-
-      toastUtils.dismiss(loadingToast);
-
-      if (response.ok) {
-        toastUtils.success("Paramètres sauvegardés avec succès !");
-      } else {
-        const data = await response.json();
-        toastUtils.error(data.error || "Erreur lors de la sauvegarde");
-      }
-    } catch (error) {
-      toastUtils.dismiss(loadingToast);
-      toastUtils.error("Erreur lors de la sauvegarde");
-      console.error("Erreur sauvegarde:", error);
-    } finally {
-      setSaving(false);
-    }
-  };
-
   const resetToDefault = () => {
-    setSettings((prev) => ({
-      ...prev,
+    const newSettings = {
+      ...settings,
       confirmationEmailTemplate: defaultEmailTemplate,
-    }));
+    };
+    setSettings(newSettings);
+    setHasUnsavedChanges(true);
   };
 
   const availableVariables = [
@@ -160,10 +176,7 @@ export function ConfirmationManager({ hotelSlug }: ConfirmationManagerProps) {
     { key: "checkOutDate", label: "Date de départ" },
     { key: "accessCode", label: "Code d'accès" },
     { key: "accessInstructions", label: "Instructions d'accès" },
-    {
-      key: "hotelContactEmail",
-      label: "Email de contact de l'établissement",
-    },
+    { key: "hotelContactEmail", label: "Email de contact de l'établissement" },
     {
       key: "hotelContactPhone",
       label: "Téléphone de contact de l'établissement",
@@ -174,61 +187,6 @@ export function ConfirmationManager({ hotelSlug }: ConfirmationManagerProps) {
     navigator.clipboard.writeText(text);
     setSuccess("Variable copiée !");
     setTimeout(() => setSuccess(""), 2000);
-  };
-
-  // Fonction pour envoyer un email de test
-  const handleTestEmail = async () => {
-    if (!testEmail.trim()) {
-      toastUtils.error("Veuillez entrer une adresse email");
-      return;
-    }
-
-    if (!testEmail.includes("@")) {
-      toastUtils.error("Veuillez entrer une adresse email valide");
-      return;
-    }
-
-    setSendingTest(true);
-    const loadingToast = toastUtils.loading("Envoi de l'email de test...");
-
-    try {
-      const response = await fetch(
-        `/api/admin/${hotelSlug}/test-confirmation-email`,
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            testEmail: testEmail.trim(),
-            settings: settings,
-          }),
-        }
-      );
-
-      toastUtils.dismiss(loadingToast);
-
-      if (response.ok) {
-        const data = await response.json();
-        let successMessage = `Email de test envoyé avec succès à ${testEmail} !`;
-        if (data.resendId) {
-          successMessage += ` (ID: ${data.resendId})`;
-        }
-        toastUtils.success(successMessage);
-        setTestEmail("");
-      } else {
-        const data = await response.json();
-        toastUtils.error(
-          data.error || "Erreur lors de l'envoi de l'email de test"
-        );
-      }
-    } catch (error) {
-      toastUtils.dismiss(loadingToast);
-      toastUtils.error("Erreur lors de l'envoi de l'email de test");
-      console.error("Erreur test email:", error);
-    } finally {
-      setSendingTest(false);
-    }
   };
 
   if (loading) {
@@ -254,24 +212,13 @@ export function ConfirmationManager({ hotelSlug }: ConfirmationManagerProps) {
               Configuration des confirmations automatiques par email
             </p>
           </div>
-          <div className="flex items-center gap-6">
-            <div className="flex items-center gap-2">
-              <div
-                className={`w-2 h-2 rounded-full ${
-                  settings.confirmationEmailEnabled
-                    ? "bg-green-500"
-                    : "bg-gray-300"
-                }`}
-              ></div>
-              <span className="text-xs font-medium">
-                Email{" "}
-                {settings.confirmationEmailEnabled ? "activé" : "désactivé"}
-              </span>
-            </div>
-            <Button onClick={handleSave} disabled={saving} size="sm">
-              <Save className="h-3 w-3 mr-1" />
-              {saving ? "Sauvegarde..." : "Sauvegarder"}
-            </Button>
+          <div className="flex items-center gap-2">
+            <div
+              className={`w-2 h-2 rounded-full ${settings.confirmationEmailEnabled ? "bg-green-500" : "bg-gray-300"}`}
+            ></div>
+            <span className="text-xs font-medium">
+              Email {settings.confirmationEmailEnabled ? "activé" : "désactivé"}
+            </span>
           </div>
         </div>
       </div>
@@ -293,7 +240,7 @@ export function ConfirmationManager({ hotelSlug }: ConfirmationManagerProps) {
 
       {/* Interface avec onglets */}
       <Tabs defaultValue="contact" className="w-full">
-        <TabsList className="grid w-full grid-cols-4">
+        <TabsList className="grid w-full grid-cols-3">
           <TabsTrigger value="contact" className="flex items-center gap-2">
             <MessageSquare className="h-4 w-4" />
             Contact
@@ -302,13 +249,9 @@ export function ConfirmationManager({ hotelSlug }: ConfirmationManagerProps) {
             <Mail className="h-4 w-4" />
             Email
           </TabsTrigger>
-          <TabsTrigger value="test" className="flex items-center gap-2">
-            <Send className="h-4 w-4" />
-            Test
-          </TabsTrigger>
-          <TabsTrigger value="variables" className="flex items-center gap-2">
-            <Copy className="h-4 w-4" />
-            Variables
+          <TabsTrigger value="copy" className="flex items-center gap-2">
+            <Users className="h-4 w-4" />
+            Copie
           </TabsTrigger>
         </TabsList>
 
@@ -340,10 +283,9 @@ export function ConfirmationManager({ hotelSlug }: ConfirmationManagerProps) {
                     placeholder="contact@votre-hotel.com"
                     value={settings.hotelContactEmail}
                     onChange={(e) =>
-                      setSettings((prev) => ({
-                        ...prev,
+                      updateSettings({
                         hotelContactEmail: e.target.value,
-                      }))
+                      })
                     }
                     className="mt-1"
                   />
@@ -364,10 +306,9 @@ export function ConfirmationManager({ hotelSlug }: ConfirmationManagerProps) {
                     placeholder="+41 XX XXX XX XX"
                     value={settings.hotelContactPhone}
                     onChange={(e) =>
-                      setSettings((prev) => ({
-                        ...prev,
+                      updateSettings({
                         hotelContactPhone: e.target.value,
-                      }))
+                      })
                     }
                     className="mt-1"
                   />
@@ -393,10 +334,9 @@ export function ConfirmationManager({ hotelSlug }: ConfirmationManagerProps) {
                     <Switch
                       checked={settings.confirmationEmailEnabled}
                       onCheckedChange={(checked) =>
-                        setSettings((prev) => ({
-                          ...prev,
+                        updateSettings({
                           confirmationEmailEnabled: checked,
-                        }))
+                        })
                       }
                       className="ml-auto"
                     />
@@ -411,12 +351,14 @@ export function ConfirmationManager({ hotelSlug }: ConfirmationManagerProps) {
                           Adresse d&apos;envoi
                         </span>
                       </div>
-                      <p className="text-sm text-gray-900 font-mono mb-1">
-                        {settings.confirmationEmailFrom}
-                      </p>
-                      <p className="text-xs text-gray-500">
-                        Adresse technique utilisée pour l&apos;envoi (non
-                        modifiable)
+                      <Input
+                        type="email"
+                        value={settings.confirmationEmailFrom}
+                        readOnly
+                        className="bg-white"
+                      />
+                      <p className="text-xs text-gray-500 mt-1">
+                        Adresse technique utilisée pour l&apos;envoi
                       </p>
                     </div>
 
@@ -440,10 +382,9 @@ export function ConfirmationManager({ hotelSlug }: ConfirmationManagerProps) {
                         placeholder="Votre template email..."
                         value={settings.confirmationEmailTemplate}
                         onChange={(e) =>
-                          setSettings((prev) => ({
-                            ...prev,
+                          updateSettings({
                             confirmationEmailTemplate: e.target.value,
-                          }))
+                          })
                         }
                         className="font-mono text-sm"
                       />
@@ -486,205 +427,124 @@ export function ConfirmationManager({ hotelSlug }: ConfirmationManagerProps) {
           </div>
         </TabsContent>
 
-        {/* Onglet Test */}
-        <TabsContent value="test" className="space-y-4">
+        {/* Onglet Copie */}
+        <TabsContent value="copy" className="space-y-4">
           <Card>
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
-                <Send className="h-5 w-5" />
-                Test d&apos;envoi d&apos;email
+                <Users className="h-5 w-5" />
+                Copie des confirmations
+                <Switch
+                  checked={settings.enableEmailCopyOnConfirmation}
+                  onCheckedChange={(checked) =>
+                    updateSettings({
+                      enableEmailCopyOnConfirmation: checked,
+                    })
+                  }
+                  className="ml-auto"
+                />
               </CardTitle>
               <p className="text-sm text-gray-600">
-                Envoyez-vous un email de test pour voir le rendu final de vos
-                confirmations
+                Recevez une copie des emails de confirmation envoyés aux clients
               </p>
             </CardHeader>
-            <CardContent className="space-y-6">
-              {/* Status de la configuration */}
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <div className="bg-gray-50 p-4 rounded-lg">
+            {settings.enableEmailCopyOnConfirmation && (
+              <CardContent className="space-y-4">
+                <div className="bg-blue-50 p-4 rounded-lg border border-blue-200">
                   <div className="flex items-center gap-2 mb-2">
-                    <div
-                      className={`w-3 h-3 rounded-full ${settings.confirmationEmailEnabled ? "bg-green-500" : "bg-red-500"}`}
-                    ></div>
-                    <span className="text-sm font-medium">Email</span>
+                    <Mail className="h-4 w-4 text-blue-600" />
+                    <span className="text-sm font-medium text-blue-800">
+                      Fonctionnement
+                    </span>
                   </div>
-                  <span className="text-xs text-gray-600">
-                    {settings.confirmationEmailEnabled ? "Activé" : "Désactivé"}
-                  </span>
+                  <p className="text-sm text-blue-700">
+                    À chaque confirmation de réservation envoyée au client, une
+                    copie sera automatiquement envoyée aux adresses configurées
+                    ci-dessous.
+                  </p>
                 </div>
-                <div className="bg-gray-50 p-4 rounded-lg">
+
+                <div className="space-y-3">
+                  <Label className="text-sm font-medium">
+                    Adresses email (une par ligne)
+                  </Label>
+                  <Textarea
+                    rows={5}
+                    placeholder={`admin@hotel.com\nreception@hotel.com\nmanager@hotel.com`}
+                    value={settings.emailCopyAddresses.join("\n")}
+                    onChange={(e) => {
+                      const addresses = e.target.value
+                        .split("\n")
+                        .map((addr) => addr.trim())
+                        .filter((addr) => addr.length > 0);
+                      updateSettings({
+                        emailCopyAddresses: addresses,
+                      });
+                    }}
+                    className="font-mono text-sm"
+                  />
+                  <p className="text-xs text-gray-500">
+                    Entrez une adresse email par ligne. Les adresses invalides
+                    seront ignorées.
+                  </p>
+                </div>
+
+                {settings.emailCopyAddresses.length > 0 && (
+                  <div className="bg-gray-50 p-3 rounded-lg">
+                    <div className="text-sm font-medium text-gray-700 mb-2">
+                      Adresses configurées ({settings.emailCopyAddresses.length}
+                      ) :
+                    </div>
+                    <div className="flex flex-wrap gap-2">
+                      {settings.emailCopyAddresses.map((email, index) => (
+                        <span
+                          key={index}
+                          className="inline-flex items-center px-2 py-1 rounded-md text-xs font-medium bg-blue-100 text-blue-800"
+                        >
+                          {email}
+                          <button
+                            onClick={() => {
+                              const newAddresses =
+                                settings.emailCopyAddresses.filter(
+                                  (_, i) => i !== index
+                                );
+                              updateSettings({
+                                emailCopyAddresses: newAddresses,
+                              });
+                            }}
+                            className="ml-1 text-blue-600 hover:text-blue-800"
+                          >
+                            ×
+                          </button>
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                <div className="bg-yellow-50 p-4 rounded-lg border border-yellow-200">
                   <div className="flex items-center gap-2 mb-2">
-                    <div
-                      className={`w-3 h-3 rounded-full ${settings.hotelContactEmail ? "bg-green-500" : "bg-yellow-500"}`}
-                    ></div>
-                    <span className="text-sm font-medium">Contact</span>
+                    <span className="text-yellow-600">⚠️</span>
+                    <span className="text-sm font-medium text-yellow-800">
+                      Important
+                    </span>
                   </div>
-                  <span className="text-xs text-gray-600">
-                    {settings.hotelContactEmail ? "Configuré" : "À compléter"}
-                  </span>
+                  <ul className="text-sm text-yellow-700 space-y-1">
+                    <li>
+                      • Les copies sont envoyées uniquement pour les
+                      confirmations de réservations de nuit
+                    </li>
+                    <li>
+                      • Assurez-vous que les adresses email sont correctes
+                    </li>
+                    <li>
+                      • Les copies contiennent toutes les informations clients
+                      (données sensibles)
+                    </li>
+                  </ul>
                 </div>
-                <div className="bg-gray-50 p-4 rounded-lg">
-                  <div className="flex items-center gap-2 mb-2">
-                    <div
-                      className={`w-3 h-3 rounded-full ${settings.confirmationEmailTemplate ? "bg-green-500" : "bg-red-500"}`}
-                    ></div>
-                    <span className="text-sm font-medium">Template</span>
-                  </div>
-                  <span className="text-xs text-gray-600">
-                    {settings.confirmationEmailTemplate
-                      ? "Configuré"
-                      : "Manquant"}
-                  </span>
-                </div>
-              </div>
-
-              {/* Section d'envoi de test */}
-              <div className="border rounded-lg p-6">
-                <div className="flex items-center gap-3 mb-4">
-                  <div className="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center">
-                    <Send className="h-5 w-5 text-blue-600" />
-                  </div>
-                  <div>
-                    <h3 className="font-semibold text-gray-900">
-                      Envoyer un email de test
-                    </h3>
-                    <p className="text-sm text-gray-600">
-                      Testez votre configuration avec des données d&apos;exemple
-                    </p>
-                  </div>
-                </div>
-
-                <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-4">
-                  <h4 className="font-medium text-blue-900 mb-2">
-                    🧪 Données de test utilisées :
-                  </h4>
-                  <div className="text-sm text-blue-800 space-y-1">
-                    <div>
-                      • <strong>Client :</strong> Jean Dupont
-                    </div>
-                    <div>
-                      • <strong>Établissement :</strong>{" "}
-                      {settings.hotelContactEmail
-                        ? settings.hotelContactEmail.split("@")[1] ||
-                          "Votre hôtel"
-                        : "Votre hôtel"}
-                    </div>
-                    <div>
-                      • <strong>Chambre :</strong> Chambre Standard
-                    </div>
-                    <div>
-                      • <strong>Dates :</strong> 15-17 juillet 2025
-                    </div>
-                    <div>
-                      • <strong>Code d&apos;accès :</strong> 1234
-                    </div>
-                  </div>
-                </div>
-
-                <div className="space-y-4">
-                  <div>
-                    <Label htmlFor="test-email" className="text-sm font-medium">
-                      📧 Adresse email de test
-                    </Label>
-                    <Input
-                      id="test-email"
-                      type="email"
-                      placeholder="votre-email@exemple.com"
-                      value={testEmail}
-                      onChange={(e) => setTestEmail(e.target.value)}
-                      onKeyDown={(e) => {
-                        if (e.key === "Enter") {
-                          e.preventDefault();
-                          handleTestEmail();
-                        }
-                      }}
-                      className="mt-1"
-                    />
-                    <p className="text-xs text-gray-500 mt-1">
-                      L&apos;email de test sera envoyé à cette adresse
-                    </p>
-                  </div>
-
-                  <div className="flex gap-3">
-                    <Button
-                      onClick={handleTestEmail}
-                      disabled={
-                        sendingTest ||
-                        !settings.confirmationEmailEnabled ||
-                        !testEmail.trim()
-                      }
-                      className="bg-blue-600 hover:bg-blue-700 flex-1"
-                      size="lg"
-                    >
-                      <Send className="h-4 w-4 mr-2" />
-                      {sendingTest
-                        ? "Envoi en cours..."
-                        : "Envoyer l'email de test"}
-                    </Button>
-                  </div>
-
-                  {/* Messages d'état */}
-                  {!settings.confirmationEmailEnabled && (
-                    <div className="bg-amber-50 border border-amber-200 rounded-lg p-3">
-                      <p className="text-sm text-amber-800">
-                        ⚠️ Les emails de confirmation sont désactivés.
-                        Activez-les dans l&apos;onglet <strong>Email</strong>{" "}
-                        pour pouvoir tester.
-                      </p>
-                    </div>
-                  )}
-
-                  {!settings.hotelContactEmail && (
-                    <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-3">
-                      <p className="text-sm text-yellow-800">
-                        💡 Pensez à configurer vos informations de contact dans
-                        l&apos;onglet <strong>Contact</strong> pour un email
-                        plus réaliste.
-                      </p>
-                    </div>
-                  )}
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-        </TabsContent>
-
-        {/* Onglet Variables */}
-        <TabsContent value="variables" className="space-y-4">
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Copy className="h-5 w-5" />
-                Variables disponibles pour personnaliser vos messages
-              </CardTitle>
-              <p className="text-sm text-gray-600">
-                Cliquez sur une variable pour la copier, puis collez-la dans
-                votre template email
-              </p>
-            </CardHeader>
-            <CardContent>
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                {availableVariables.map((variable) => (
-                  <div
-                    key={variable.key}
-                    className="bg-white p-4 rounded border hover:shadow-md transition-shadow cursor-pointer border-l-4 border-l-blue-500"
-                    onClick={() => copyToClipboard(`{${variable.key}}`)}
-                  >
-                    <div className="font-mono text-lg text-blue-600 mb-2 font-bold">
-                      {`{${variable.key}}`}
-                    </div>
-                    <div className="text-sm text-slate-600 mb-3">
-                      {variable.label}
-                    </div>
-                    <div className="flex items-center gap-2 text-xs text-gray-500">
-                      <Copy className="h-3 w-3" />
-                      Cliquer pour copier
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </CardContent>
+              </CardContent>
+            )}
           </Card>
         </TabsContent>
       </Tabs>

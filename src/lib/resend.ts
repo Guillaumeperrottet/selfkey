@@ -7,6 +7,7 @@ export interface EmailData {
   from: string;
   subject: string;
   html: string;
+  bcc?: string[];
 }
 
 export async function sendEmail(
@@ -22,6 +23,7 @@ export async function sendEmail(
       to: data.to,
       subject: data.subject,
       html: data.html,
+      bcc: data.bcc,
     });
 
     if (result.error) {

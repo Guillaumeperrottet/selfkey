@@ -39,6 +39,8 @@ export async function GET(request: Request, { params }: Props) {
             confirmationWhatsappTemplate: true,
             hotelContactEmail: true,
             hotelContactPhone: true,
+            enableEmailCopyOnConfirmation: true,
+            emailCopyAddresses: true,
           },
         },
       },
@@ -96,6 +98,8 @@ export async function POST(request: Request, { params }: Props) {
       confirmationWhatsappTemplate,
       hotelContactEmail,
       hotelContactPhone,
+      enableEmailCopyOnConfirmation,
+      emailCopyAddresses,
     } = body;
 
     // Valider que si l'email est activé, une adresse d'envoi est fournie
@@ -114,6 +118,31 @@ export async function POST(request: Request, { params }: Props) {
       );
     }
 
+    // Validation pour les adresses de copie email
+    let validatedEmailCopyAddresses: string[] = [];
+    if (enableEmailCopyOnConfirmation && emailCopyAddresses) {
+      validatedEmailCopyAddresses = Array.isArray(emailCopyAddresses)
+        ? emailCopyAddresses
+            .filter((email) => email?.trim())
+            .map((email) => email.trim())
+        : [];
+
+      // Validation des adresses email
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      const invalidEmails = validatedEmailCopyAddresses.filter(
+        (email) => !emailRegex.test(email)
+      );
+
+      if (invalidEmails.length > 0) {
+        return NextResponse.json(
+          {
+            error: `Adresses email invalides : ${invalidEmails.join(", ")}`,
+          },
+          { status: 400 }
+        );
+      }
+    }
+
     // Mettre à jour les paramètres
     const updatedEstablishment = await prisma.establishment.update({
       where: { slug: hotel },
@@ -127,6 +156,8 @@ export async function POST(request: Request, { params }: Props) {
           confirmationWhatsappTemplate?.trim() || null,
         hotelContactEmail: hotelContactEmail?.trim() || null,
         hotelContactPhone: hotelContactPhone?.trim() || null,
+        enableEmailCopyOnConfirmation: Boolean(enableEmailCopyOnConfirmation),
+        emailCopyAddresses: validatedEmailCopyAddresses,
       },
     });
 
