@@ -1228,7 +1228,7 @@ export default function EstablishmentsPage() {
 
       {/* Dialogue de transfert d'établissement */}
       <Dialog open={showTransferDialog} onOpenChange={setShowTransferDialog}>
-        <DialogContent className="max-w-2xl">
+        <DialogContent className="max-w-4xl w-[85vw] max-h-[85vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle>Transférer l&apos;établissement</DialogTitle>
             <DialogDescription>
