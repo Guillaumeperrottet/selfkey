@@ -15,7 +15,6 @@ interface TemplateData {
   checkInDate: string;
   checkOutDate: string;
   accessCode: string;
-  accessInstructions: string;
   hotelContactEmail: string;
   hotelContactPhone: string;
 }
@@ -183,8 +182,10 @@ export async function POST(request: Request, { params }: Props) {
           booking.establishment.generalAccessCode || "Code général non défini";
         break;
       case "custom":
-        // Instructions personnalisées uniquement
-        accessCode = "Voir instructions ci-dessous";
+        // Instructions personnalisées complètes
+        accessCode =
+          booking.establishment.accessInstructions ||
+          "Instructions non configurées";
         break;
       default:
         // Fallback : essayer code chambre puis général
@@ -221,10 +222,6 @@ export async function POST(request: Request, { params }: Props) {
           }) || "Non défini"
         : booking.checkOutDate.toLocaleDateString("fr-FR"),
       accessCode,
-      accessInstructions: isBookingDayParking
-        ? `Votre véhicule : ${booking.clientVehicleNumber}\n${booking.establishment.accessInstructions || "Garez-vous dans les places disponibles"}`
-        : booking.establishment.accessInstructions ||
-          "Contactez-nous pour plus d'informations",
       hotelContactEmail:
         booking.establishment.hotelContactEmail || "Non renseigné",
       hotelContactPhone:
@@ -258,6 +255,17 @@ export async function POST(request: Request, { params }: Props) {
   }
 }
 
+// Fonction pour traiter les placeholders d'images
+function processImagePlaceholders(content: string): string {
+  // Remplacer les placeholders [IMAGE: filename] par de vrais tags img
+  return content.replace(/\[IMAGE: ([^\]]+)\]/g, (match, filename) => {
+    // Pour l'instant, on retourne un placeholder HTML
+    // En production, cela pourrait récupérer l'URL réelle depuis une base de données d'images
+    return `<img src="#" alt="${filename}" style="width: 300px; height: auto; margin: 10px 0; border: 1px solid #ddd;" />
+             <p style="font-size: 12px; color: #666;">Image: ${filename}</p>`;
+  });
+}
+
 async function sendEmailConfirmation(
   booking: BookingWithDetails,
   templateData: TemplateData
@@ -268,7 +276,10 @@ async function sendEmailConfirmation(
     getDefaultEmailTemplate();
 
   // Remplacer les variables dans le template
-  const emailContent = replaceTemplateVariables(template, templateData);
+  let emailContent = replaceTemplateVariables(template, templateData);
+
+  // Traiter les placeholders d'images
+  emailContent = processImagePlaceholders(emailContent);
 
   // Créer le contenu HTML pour l'email
   const htmlContent = `
@@ -467,8 +478,6 @@ Détails de votre réservation :
 - Départ : {checkOutDate}
 - Code d'accès : {accessCode}
 
-{accessInstructions}
-
 Contactez-nous pour plus d'informations
 
 Pour toute question, vous pouvez nous contacter :
@@ -492,8 +501,6 @@ Details Ihrer Buchung:
 - Abreise: {checkOutDate}
 - Zugangscode: {accessCode}
 
-{accessInstructions}
-
 Bei Fragen können Sie uns gerne kontaktieren:
 📧 E-Mail: {hotelContactEmail}
 📞 Telefon: {hotelContactPhone}
@@ -516,8 +523,6 @@ Votre réservation à {establishmentName} est confirmée ✅
 🏠 Chambre : {roomName}
 🔑 Code d'accès : {accessCode}
 
-{accessInstructions}
-
 💬 Contact :
 📧 {hotelContactEmail}
 📞 {hotelContactPhone}
@@ -536,8 +541,6 @@ Ihre Buchung im {establishmentName} ist bestätigt ✅
 📅 Abreise: {checkOutDate}
 🏠 Zimmer: {roomName}
 🔑 Zugangscode: {accessCode}
-
-{accessInstructions}
 
 💬 Kontakt:
 📧 {hotelContactEmail}

@@ -31,8 +31,6 @@ Détails de votre parking :
 - Plaque d'immatriculation : {clientVehicleNumber}
 - Code d'accès : {accessCode}
 
-{accessInstructions}
-
 IMPORTANT : Votre stationnement commence dès maintenant. Veillez à libérer la place avant {dayParkingEndTime}.
 
 Pour toute question, vous pouvez nous contacter :
@@ -57,8 +55,6 @@ Details Ihres Parkplatzes:
 - Endzeit: {dayParkingEndTime}
 - Kennzeichen: {clientVehicleNumber}
 - Zugangscode: {accessCode}
-
-{accessInstructions}
 
 WICHTIG: Ihr Parkplatz beginnt jetzt. Bitte räumen Sie den Platz vor {dayParkingEndTime}.
 
@@ -298,7 +294,6 @@ export function DayParkingEmailManager({
                 <Badge variant="outline">{"{dayParkingEndTime}"}</Badge>
                 <Badge variant="outline">{"{clientVehicleNumber}"}</Badge>
                 <Badge variant="outline">{"{accessCode}"}</Badge>
-                <Badge variant="outline">{"{accessInstructions}"}</Badge>
                 <Badge variant="outline">{"{hotelContactEmail}"}</Badge>
                 <Badge variant="outline">{"{hotelContactPhone}"}</Badge>
               </div>
@@ -434,9 +429,7 @@ export function DayParkingEmailManager({
                 établissement
               </li>
               <li>
-                • <code>{"{accessCode}"}</code> et{" "}
-                <code>{"{accessInstructions}"}</code> : Code et instructions
-                d&apos;accès
+                • <code>{"{accessCode}"}</code> : Code d&apos;accès
               </li>
               <li>
                 • <code>{"{hotelContactEmail}"}</code> et{" "}

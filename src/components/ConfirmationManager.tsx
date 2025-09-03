@@ -16,8 +16,10 @@ import {
   Users,
   Plus,
   X,
+  ImageIcon,
 } from "lucide-react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { ImageUploader } from "@/components/ImageUploader";
 
 interface ConfirmationSettings {
   confirmationEmailEnabled: boolean;
@@ -43,8 +45,6 @@ Détails de votre réservation :
 - Départ : {checkOutDate}
 - Code d'accès : {accessCode}
 
-{accessInstructions}
-
 Pour toute question, vous pouvez nous contacter :
 📧 Email : {hotelContactEmail}
 📞 Téléphone : {hotelContactPhone}
@@ -65,8 +65,6 @@ Details Ihrer Reservierung:
 - Ankunft: {checkInDate}
 - Abreise: {checkOutDate}
 - Zugangscode: {accessCode}
-
-{accessInstructions}
 
 Bei Fragen können Sie uns gerne kontaktieren:
 📧 E-Mail: {hotelContactEmail}
@@ -223,7 +221,6 @@ export function ConfirmationManager({ hotelSlug }: ConfirmationManagerProps) {
     { key: "checkInDate", label: "Date d'arrivée" },
     { key: "checkOutDate", label: "Date de départ" },
     { key: "accessCode", label: "Code d'accès" },
-    { key: "accessInstructions", label: "Instructions d'accès" },
     { key: "hotelContactEmail", label: "Email de contact de l'établissement" },
     {
       key: "hotelContactPhone",
@@ -231,9 +228,37 @@ export function ConfirmationManager({ hotelSlug }: ConfirmationManagerProps) {
     },
   ];
 
+  const imageExamples = [
+    {
+      html: '<img src="https://votre-site.com/logo.png" alt="Logo" style="width: 150px; height: auto; margin: 20px 0;" />',
+      label: "Logo de l'établissement",
+    },
+    {
+      html: '<img src="https://votre-site.com/plan.jpg" alt="Plan d\'accès" style="width: 100%; max-width: 400px; height: auto; margin: 10px 0;" />',
+      label: "Plan d'accès",
+    },
+    {
+      html: '<img src="https://votre-site.com/qr-code.png" alt="QR Code WiFi" style="width: 200px; height: auto; margin: 15px 0;" />',
+      label: "QR Code WiFi",
+    },
+  ];
+
   const copyToClipboard = (text: string) => {
     navigator.clipboard.writeText(text);
     setSuccess("Variable copiée !");
+    setTimeout(() => setSuccess(""), 2000);
+  };
+
+  const insertImageInTemplate = (imageHtml: string) => {
+    // Insérer l'image à la fin du template actuel
+    const currentTemplate = settings.confirmationEmailTemplate;
+    const newTemplate = currentTemplate + "\n\n" + imageHtml;
+
+    updateSettings({
+      confirmationEmailTemplate: newTemplate,
+    });
+
+    setSuccess("Image ajoutée au template !");
     setTimeout(() => setSuccess(""), 2000);
   };
 
@@ -425,6 +450,7 @@ export function ConfirmationManager({ hotelSlug }: ConfirmationManagerProps) {
                           Réinitialiser
                         </Button>
                       </div>
+
                       <Textarea
                         rows={20}
                         placeholder="Votre template email..."
@@ -442,33 +468,76 @@ export function ConfirmationManager({ hotelSlug }: ConfirmationManagerProps) {
               </Card>
             </div>
 
-            {/* Variables disponibles à côté */}
+            {/* Variables et Images disponibles à côté */}
             <div>
               <Card className="bg-slate-50 border-slate-200 h-fit">
                 <CardHeader className="pb-3">
                   <CardTitle className="text-base flex items-center gap-2 text-slate-700">
                     <Copy className="h-4 w-4" />
-                    Variables
+                    Variables & Images
                   </CardTitle>
                   <p className="text-xs text-gray-600">Cliquez pour copier</p>
                 </CardHeader>
                 <CardContent>
-                  <div className="space-y-2">
-                    {availableVariables.map((variable) => (
-                      <div
-                        key={variable.key}
-                        className="bg-white p-2 rounded border hover:shadow-sm transition-shadow cursor-pointer"
-                        onClick={() => copyToClipboard(`{${variable.key}}`)}
-                      >
-                        <div className="font-mono text-xs text-blue-600 mb-1">
-                          {`{${variable.key}}`}
+                  <Tabs defaultValue="variables" className="w-full">
+                    <TabsList className="grid w-full grid-cols-2 mb-3">
+                      <TabsTrigger value="variables" className="text-xs">
+                        <Copy className="h-3 w-3 mr-1" />
+                        Variables
+                      </TabsTrigger>
+                      <TabsTrigger value="images" className="text-xs">
+                        <ImageIcon className="h-3 w-3 mr-1" />
+                        Images
+                      </TabsTrigger>
+                    </TabsList>
+
+                    <TabsContent value="variables" className="space-y-2 mt-0">
+                      {availableVariables.map((variable) => (
+                        <div
+                          key={variable.key}
+                          className="bg-white p-2 rounded border hover:shadow-sm transition-shadow cursor-pointer"
+                          onClick={() => copyToClipboard(`{${variable.key}}`)}
+                        >
+                          <div className="font-mono text-xs text-blue-600 mb-1">
+                            {`{${variable.key}}`}
+                          </div>
+                          <div className="text-xs text-slate-600">
+                            {variable.label}
+                          </div>
                         </div>
-                        <div className="text-xs text-slate-600">
-                          {variable.label}
+                      ))}
+                    </TabsContent>
+
+                    <TabsContent value="images" className="space-y-2 mt-0">
+                      <div className="mb-3 p-3 bg-gradient-to-r from-green-50 to-blue-50 rounded-lg border border-green-200">
+                        <div className="text-xs text-gray-700 space-y-1">
+                          <div className="font-medium text-green-700">
+                            🖼️ Drag & Drop :
+                          </div>
+                          <div>
+                            • <strong>Glissez-déposez</strong> vos images
+                            directement ici
+                          </div>
+                          <div>
+                            • <strong>Insertion automatique</strong> dans le
+                            template
+                          </div>
+                          <div>
+                            • <strong>Formats supportés :</strong> JPG, PNG,
+                            GIF, WebP
+                          </div>
                         </div>
                       </div>
-                    ))}
-                  </div>
+
+                      <ImageUploader onImageUploaded={insertImageInTemplate} />
+
+                      <div className="mt-3 p-2 bg-amber-50 rounded text-xs text-amber-700">
+                        <strong>💡 Astuce :</strong> L&apos;image sera
+                        automatiquement ajoutée à la fin de votre template. Vous
+                        pourrez ensuite la déplacer où vous voulez.
+                      </div>
+                    </TabsContent>
+                  </Tabs>
                 </CardContent>
               </Card>
             </div>

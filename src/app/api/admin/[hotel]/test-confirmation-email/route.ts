@@ -48,30 +48,23 @@ export async function POST(request: NextRequest, { params }: Params) {
       );
     }
 
-    // Déterminer le code d'accès et les instructions selon la configuration
+    // Déterminer le code d'accès selon la configuration
     let accessCode = "1234"; // Par défaut pour les tests
-    let accessInstructions = "Instructions d'accès par défaut";
 
     switch (establishment.accessCodeType) {
       case "room":
         accessCode = "1234"; // Code d'exemple pour une chambre
-        accessInstructions =
-          "Utilisez le code 1234 pour accéder à votre chambre. L'entrée se trouve à droite du bâtiment principal.";
         break;
       case "general":
         accessCode = establishment.generalAccessCode || "5678";
-        accessInstructions = `Utilisez le code général ${accessCode} pour accéder à l'établissement.`;
         break;
       case "custom":
-        accessCode = "Voir instructions ci-dessous";
-        accessInstructions =
+        accessCode =
           establishment.accessInstructions ||
           "Instructions personnalisées non configurées";
         break;
       default:
         accessCode = "1234";
-        accessInstructions =
-          "Utilisez le code fourni pour accéder à votre hébergement.";
     }
 
     // Données d'exemple pour remplacer les variables
@@ -83,7 +76,6 @@ export async function POST(request: NextRequest, { params }: Params) {
       checkInDate: "15 juillet 2025",
       checkOutDate: "17 juillet 2025",
       accessCode,
-      accessInstructions,
       hotelContactEmail: settings.hotelContactEmail || "contact@hotel.ch",
       hotelContactPhone: settings.hotelContactPhone || "+41 XX XXX XX XX",
     };
@@ -94,6 +86,15 @@ export async function POST(request: NextRequest, { params }: Params) {
       const regex = new RegExp(`\\{${key}\\}`, "g");
       emailContent = emailContent.replace(regex, value);
     });
+
+    // Traiter les placeholders d'images
+    emailContent = emailContent.replace(
+      /\[IMAGE: ([^\]]+)\]/g,
+      (match, filename) => {
+        return `<img src="#" alt="${filename}" style="width: 300px; height: auto; margin: 10px 0; border: 1px solid #ddd;" />
+               <p style="font-size: 12px; color: #666;">Image: ${filename}</p>`;
+      }
+    );
 
     // Convertir le texte en HTML simple (remplacer les retours à la ligne par <br>)
     const htmlContent = emailContent

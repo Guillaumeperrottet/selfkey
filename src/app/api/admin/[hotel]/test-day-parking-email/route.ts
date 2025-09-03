@@ -78,9 +78,6 @@ export async function POST(request: NextRequest, { params }: Props) {
       dayParkingEndTime: "13:00",
       clientVehicleNumber: "GE 123456",
       accessCode: "1234",
-      accessInstructions:
-        userEstablishment.establishment.accessInstructions ||
-        "Utilisez le code d'accès pour entrer.",
       hotelContactEmail:
         userEstablishment.establishment.hotelContactEmail || "contact@hotel.ch",
       hotelContactPhone:
