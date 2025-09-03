@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 
 interface ImageUploaderProps {
   onImageUploaded: (imageHtml: string, url: string) => void;
+  establishmentSlug: string;
 }
 
 interface UploadedImage {
@@ -17,7 +18,10 @@ interface UploadedImage {
   fileName: string;
 }
 
-export function ImageUploader({ onImageUploaded }: ImageUploaderProps) {
+export function ImageUploader({
+  onImageUploaded,
+  establishmentSlug,
+}: ImageUploaderProps) {
   const [isDragging, setIsDragging] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
   const [uploadedImages, setUploadedImages] = useState<UploadedImage[]>([]);
@@ -36,37 +40,39 @@ export function ImageUploader({ onImageUploaded }: ImageUploaderProps) {
 
   const uploadFile = useCallback(
     async (file: File) => {
-      // Pour l'instant, on va créer une URL locale et simuler l'upload
-      // En production, cela fera appel à l'API Cloudinary
+      const formData = new FormData();
+      formData.append("image", file);
+      formData.append("establishment", establishmentSlug);
 
-      return new Promise<UploadedImage>((resolve) => {
-        const reader = new FileReader();
-        reader.onload = (e) => {
-          const img = new Image();
-          img.onload = () => {
-            const imageData: UploadedImage = {
-              url: e.target?.result as string,
-              width: img.width,
-              height: img.height,
-              format: file.type.split("/")[1] || "unknown",
-              bytes: file.size,
-              fileName: file.name,
-            };
-
-            setUploadedImages((prev) => [...prev, imageData]);
-
-            // Générer un placeholder lisible pour le template
-            const imageHtml = `[IMAGE: ${file.name}]`;
-
-            onImageUploaded(imageHtml, imageData.url);
-            resolve(imageData);
-          };
-          img.src = e.target?.result as string;
-        };
-        reader.readAsDataURL(file);
+      const response = await fetch("/api/upload/image", {
+        method: "POST",
+        body: formData,
       });
+
+      if (!response.ok) {
+        throw new Error("Erreur lors de l'upload");
+      }
+
+      const result = await response.json();
+
+      const imageData: UploadedImage = {
+        url: result.url,
+        width: result.width,
+        height: result.height,
+        format: result.format,
+        bytes: result.bytes,
+        fileName: result.fileName,
+      };
+
+      setUploadedImages((prev) => [...prev, imageData]);
+
+      // Générer un placeholder lisible pour le template
+      const imageHtml = `[IMAGE: ${file.name}]`;
+
+      onImageUploaded(imageHtml, imageData.url);
+      return imageData;
     },
-    [onImageUploaded]
+    [onImageUploaded, establishmentSlug]
   );
 
   const handleDrop = useCallback(

@@ -135,6 +135,7 @@ model Establishment {
   integrations                  Integration[]
   pricingOptions                PricingOption[]
   rooms                         Room[]
+  emailImages                   EmailImage[]
 
   @@map("establishments")
 }
@@ -286,4 +287,17 @@ model EstablishmentTransfer {
   toUser          User          @relation("TransferTo", fields: [toUserId], references: [id])
 
   @@map("establishment_transfers")
+}
+
+model EmailImage {
+  id              String        @id @default(cuid())
+  fileName        String
+  originalName    String
+  cloudinaryUrl   String
+  cloudinaryId    String
+  establishmentId String
+  createdAt       DateTime      @default(now())
+  establishment   Establishment @relation(fields: [establishmentId], references: [id], onDelete: Cascade)
+
+  @@map("email_images")
 }

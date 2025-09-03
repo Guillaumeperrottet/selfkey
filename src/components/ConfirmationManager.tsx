@@ -568,7 +568,10 @@ export function ConfirmationManager({ hotelSlug }: ConfirmationManagerProps) {
                         </div>
                       </div>
 
-                      <ImageUploader onImageUploaded={insertImageInTemplate} />
+                      <ImageUploader
+                        onImageUploaded={insertImageInTemplate}
+                        establishmentSlug={hotelSlug}
+                      />
 
                       <div className="mt-3 p-2 bg-amber-50 rounded text-xs text-amber-700">
                         <strong>💡 Astuce :</strong> L&apos;image sera

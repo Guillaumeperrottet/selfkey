@@ -2,6 +2,7 @@ import { prisma } from "@/lib/prisma";
 import { NextResponse } from "next/server";
 import { sendEmail } from "@/lib/resend";
 import { isRateLimited } from "@/lib/rate-limiter";
+import { replaceImagePlaceholders } from "@/lib/image-utils";
 
 interface Props {
   params: Promise<{ bookingId: string }>;
@@ -256,14 +257,11 @@ export async function POST(request: Request, { params }: Props) {
 }
 
 // Fonction pour traiter les placeholders d'images
-function processImagePlaceholders(content: string): string {
-  // Remplacer les placeholders [IMAGE: filename] par de vrais tags img
-  return content.replace(/\[IMAGE: ([^\]]+)\]/g, (match, filename) => {
-    // Pour l'instant, on retourne un placeholder HTML
-    // En production, cela pourrait récupérer l'URL réelle depuis une base de données d'images
-    return `<img src="#" alt="${filename}" style="width: 300px; height: auto; margin: 10px 0; border: 1px solid #ddd;" />
-             <p style="font-size: 12px; color: #666;">Image: ${filename}</p>`;
-  });
+async function processImagePlaceholders(
+  content: string,
+  establishmentId: string
+): Promise<string> {
+  return await replaceImagePlaceholders(content, establishmentId);
 }
 
 async function sendEmailConfirmation(
@@ -279,7 +277,10 @@ async function sendEmailConfirmation(
   let emailContent = replaceTemplateVariables(template, templateData);
 
   // Traiter les placeholders d'images
-  emailContent = processImagePlaceholders(emailContent);
+  emailContent = await processImagePlaceholders(
+    emailContent,
+    booking.establishment.id
+  );
 
   // Créer le contenu HTML pour l'email
   const htmlContent = `

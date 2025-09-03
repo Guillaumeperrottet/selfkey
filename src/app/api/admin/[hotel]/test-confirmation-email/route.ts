@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { sendEmail } from "@/lib/resend";
 import { prisma } from "@/lib/prisma";
+import { replaceImagePlaceholders } from "@/lib/image-utils";
 
 interface Params {
   params: Promise<{
@@ -37,6 +38,7 @@ export async function POST(request: NextRequest, { params }: Params) {
     const establishment = await prisma.establishment.findUnique({
       where: { slug: hotel },
       select: {
+        id: true,
         accessCodeType: true,
         generalAccessCode: true,
         accessInstructions: true,
@@ -90,12 +92,9 @@ export async function POST(request: NextRequest, { params }: Params) {
     });
 
     // Traiter les placeholders d'images
-    emailContent = emailContent.replace(
-      /\[IMAGE: ([^\]]+)\]/g,
-      (match, filename) => {
-        return `<img src="#" alt="${filename}" style="width: 300px; height: auto; margin: 10px 0; border: 1px solid #ddd;" />
-               <p style="font-size: 12px; color: #666;">Image: ${filename}</p>`;
-      }
+    emailContent = await replaceImagePlaceholders(
+      emailContent,
+      establishment.id
     );
 
     // Convertir le texte en HTML simple (remplacer les retours à la ligne par <br>)
