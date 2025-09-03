@@ -1,5 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
-import { v2 as cloudinary } from "cloudinary";
+import {
+  v2 as cloudinary,
+  UploadApiResponse,
+  UploadApiErrorResponse,
+} from "cloudinary";
 import { auth } from "@/lib/auth";
 import { headers } from "next/headers";
 
@@ -9,15 +13,6 @@ cloudinary.config({
   api_key: process.env.CLOUDINARY_API_KEY,
   api_secret: process.env.CLOUDINARY_API_SECRET,
 });
-
-interface CloudinaryResult {
-  secure_url: string;
-  width: number;
-  height: number;
-  format: string;
-  bytes: number;
-  public_id: string;
-}
 
 export async function POST(request: NextRequest) {
   try {
@@ -62,7 +57,7 @@ export async function POST(request: NextRequest) {
     const buffer = Buffer.from(bytes);
 
     // Upload vers Cloudinary
-    const uploadResult = await new Promise<CloudinaryResult>(
+    const uploadResult = await new Promise<UploadApiResponse>(
       (resolve, reject) => {
         cloudinary.uploader
           .upload_stream(
@@ -74,7 +69,10 @@ export async function POST(request: NextRequest) {
                 { quality: "auto:good" }, // Optimisation automatique
               ],
             },
-            (error: Error | null, result: CloudinaryResult | null) => {
+            (
+              error: UploadApiErrorResponse | undefined,
+              result: UploadApiResponse | undefined
+            ) => {
               if (error) reject(error);
               else if (result) resolve(result);
               else reject(new Error("Upload failed"));
