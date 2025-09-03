@@ -201,7 +201,14 @@ export function ConfirmationManager({ hotelSlug }: ConfirmationManagerProps) {
       );
 
       if (response.ok) {
-        setSuccess(`Email de test envoyé avec succès à ${testEmail}`);
+        let successMessage = `Email de test envoyé avec succès à ${testEmail}`;
+        if (
+          settings.enableEmailCopyOnConfirmation &&
+          settings.emailCopyAddresses.length > 0
+        ) {
+          successMessage += ` et en copie à ${settings.emailCopyAddresses.length} adresse(s) supplémentaire(s)`;
+        }
+        setSuccess(successMessage);
         setTimeout(() => setSuccess(""), 5000);
       } else {
         const data = await response.json();
@@ -739,6 +746,15 @@ export function ConfirmationManager({ hotelSlug }: ConfirmationManagerProps) {
                   d&apos;exemple. Il vous permet de vérifier l&apos;apparence
                   finale avant l&apos;envoi aux clients.
                 </p>
+                {settings.enableEmailCopyOnConfirmation &&
+                  settings.emailCopyAddresses.length > 0 && (
+                    <p className="text-sm text-blue-700 mt-2">
+                      <strong>📋 Copies incluses :</strong> L&apos;email de test
+                      sera également envoyé en copie aux{" "}
+                      {settings.emailCopyAddresses.length} adresse(s)
+                      configurée(s) dans l&apos;onglet &quot;Copie&quot;.
+                    </p>
+                  )}
               </div>
 
               <div className="space-y-4">

@@ -15,6 +15,8 @@ interface TestEmailRequest {
     confirmationEmailFrom: string;
     hotelContactEmail: string;
     hotelContactPhone: string;
+    enableEmailCopyOnConfirmation: boolean;
+    emailCopyAddresses: string[];
   };
 }
 
@@ -101,11 +103,25 @@ export async function POST(request: NextRequest, { params }: Params) {
       .replace(/\n/g, "<br>")
       .replace(/\t/g, "&nbsp;&nbsp;&nbsp;&nbsp;");
 
+    // Préparer les adresses en copie si activées
+    let bccAddresses: string[] = [];
+    if (
+      settings.enableEmailCopyOnConfirmation &&
+      settings.emailCopyAddresses &&
+      settings.emailCopyAddresses.length > 0
+    ) {
+      bccAddresses = settings.emailCopyAddresses;
+      console.log(
+        `📧 Email de test envoyé avec copie à ${bccAddresses.length} adresse(s): ${bccAddresses.join(", ")}`
+      );
+    }
+
     // Envoyer l'email via Resend
     const emailResult = await sendEmail({
       to: testEmail,
       from: settings.confirmationEmailFrom,
       subject: `Confirmation de réservation - Test (${hotel})`,
+      bcc: bccAddresses.length > 0 ? bccAddresses : undefined,
       html: `
         <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
           <div style="background-color: #f8f9fa; padding: 15px; border-radius: 8px; margin-bottom: 20px;">
