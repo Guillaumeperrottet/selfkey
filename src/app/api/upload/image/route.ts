@@ -74,9 +74,9 @@ export async function POST(request: NextRequest) {
                 { quality: "auto:good" }, // Optimisation automatique
               ],
             },
-            (error: any, result: any) => {
+            (error: Error | null, result: CloudinaryResult | null) => {
               if (error) reject(error);
-              else if (result) resolve(result as CloudinaryResult);
+              else if (result) resolve(result);
               else reject(new Error("Upload failed"));
             }
           )

@@ -278,21 +278,6 @@ export function ConfirmationManager({ hotelSlug }: ConfirmationManagerProps) {
     },
   ];
 
-  const imageExamples = [
-    {
-      html: '<img src="https://votre-site.com/logo.png" alt="Logo" style="width: 150px; height: auto; margin: 20px 0;" />',
-      label: "Logo de l'établissement",
-    },
-    {
-      html: '<img src="https://votre-site.com/plan.jpg" alt="Plan d\'accès" style="width: 100%; max-width: 400px; height: auto; margin: 10px 0;" />',
-      label: "Plan d'accès",
-    },
-    {
-      html: '<img src="https://votre-site.com/qr-code.png" alt="QR Code WiFi" style="width: 200px; height: auto; margin: 15px 0;" />',
-      label: "QR Code WiFi",
-    },
-  ];
-
   const copyToClipboard = (text: string) => {
     navigator.clipboard.writeText(text);
     setSuccess("Variable copiée !");
