@@ -18,10 +18,7 @@ import { DatePicker } from "@/components/ui/date-picker";
 import { toastUtils } from "@/lib/toast-utils";
 import { calculateStayDuration } from "@/lib/availability";
 import { useFormConfig } from "@/hooks/useFormConfig";
-import {
-  getTouristTaxSettings,
-  calculateTouristTax,
-} from "@/lib/fee-calculator";
+import { calculateTouristTax } from "@/lib/fee-calculator";
 
 interface Room {
   id: string;
@@ -197,9 +194,22 @@ export function BookingFormDetails({
   useEffect(() => {
     const loadTouristTaxSettings = async () => {
       try {
-        const settings = await getTouristTaxSettings(hotelSlug);
-        setTouristTaxEnabled(settings.touristTaxEnabled);
-        setTouristTaxAmount(settings.touristTaxAmount);
+        const response = await fetch(
+          `/api/establishments/${hotelSlug}/tourist-tax-settings`
+        );
+        const settings = await response.json();
+
+        if (response.ok) {
+          setTouristTaxEnabled(settings.touristTaxEnabled);
+          setTouristTaxAmount(settings.touristTaxAmount);
+        } else {
+          console.error(
+            "Erreur récupération paramètres taxe de séjour:",
+            settings.error
+          );
+          setTouristTaxEnabled(true);
+          setTouristTaxAmount(3.0);
+        }
       } catch (error) {
         console.error(
           "Erreur lors du chargement des paramètres de taxe de séjour:",
