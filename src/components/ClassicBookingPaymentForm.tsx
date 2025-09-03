@@ -55,6 +55,8 @@ interface ClassicBookingData {
   };
   selectedPricingOptions: Record<string, string | string[]>;
   pricingOptionsTotal: number;
+  touristTaxTotal?: number;
+  touristTaxPerPersonPerNight?: number;
   paymentIntentId: string;
   hotelSlug: string;
 }
@@ -457,6 +459,29 @@ export function ClassicBookingPaymentForm({
                       </div>
                     </div>
                   )}
+
+                  {/* Taxe de séjour */}
+                  {bookingData.touristTaxTotal &&
+                    bookingData.touristTaxTotal > 0 && (
+                      <div className="flex justify-between items-center">
+                        <div>
+                          <span className="text-sm text-gray-600">
+                            Taxe de séjour
+                          </span>
+                          <div className="text-xs text-gray-500">
+                            {bookingData.adults} adulte
+                            {bookingData.adults > 1 ? "s" : ""} • {duration}{" "}
+                            nuit{duration > 1 ? "s" : ""}
+                            {bookingData.touristTaxPerPersonPerNight &&
+                              ` • ${bookingData.touristTaxPerPersonPerNight.toFixed(2)} ${bookingData.currency}/pers./nuit`}
+                          </div>
+                        </div>
+                        <span className="font-medium">
+                          +{bookingData.touristTaxTotal.toFixed(2)}{" "}
+                          {bookingData.currency}
+                        </span>
+                      </div>
+                    )}
 
                   <Separator />
 

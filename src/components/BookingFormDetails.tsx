@@ -404,6 +404,7 @@ export function BookingFormDetails({
         selectedPricingOptions,
         pricingOptionsTotal,
         touristTaxTotal,
+        touristTaxPerPersonPerNight: touristTaxAmount,
         guests: adults + children,
         hasDog: hasDog || initialData?.hasDog || false,
       };

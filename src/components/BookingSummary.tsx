@@ -36,7 +36,6 @@ import {
   FileText,
   ChevronRight,
   Clock,
-  Euro,
   Car,
   ArrowLeft,
 } from "lucide-react";
@@ -72,6 +71,8 @@ interface BookingData {
   currency: string;
   selectedPricingOptions: Record<string, string | string[]>;
   pricingOptionsTotal: number;
+  touristTaxTotal?: number;
+  touristTaxPerPersonPerNight?: number;
   guests: number;
   adults: number;
   children: number;
@@ -104,6 +105,11 @@ export function BookingSummary({ bookingId }: BookingSummaryProps) {
   const [error, setError] = useState("");
   const [processingPayment, setProcessingPayment] = useState(false);
   const [pricingOptions, setPricingOptions] = useState<PricingOption[]>([]);
+  const [touristTaxSettings, setTouristTaxSettings] = useState<{
+    enabled: boolean;
+    amount: number;
+    total: number;
+  }>({ enabled: false, amount: 0, total: 0 });
 
   // Liste des pays avec codes ISO
   const countries = [
@@ -153,6 +159,28 @@ export function BookingSummary({ bookingId }: BookingSummaryProps) {
             setPricingOptions(pricingData.pricingOptions || []);
           }
 
+          // Charger les paramètres de taxe de séjour
+          const touristTaxResponse = await fetch(
+            `/api/establishments/${data.hotelSlug}/tourist-tax-settings`
+          );
+          if (touristTaxResponse.ok) {
+            const touristTaxData = await touristTaxResponse.json();
+            const duration = Math.ceil(
+              (new Date(data.checkOutDate).getTime() -
+                new Date(data.checkInDate).getTime()) /
+                (1000 * 60 * 60 * 24)
+            );
+            const taxTotal = touristTaxData.touristTaxEnabled
+              ? data.adults * duration * touristTaxData.touristTaxAmount
+              : 0;
+
+            setTouristTaxSettings({
+              enabled: touristTaxData.touristTaxEnabled,
+              amount: touristTaxData.touristTaxAmount,
+              total: taxTotal,
+            });
+          }
+
           // Initialiser les valeurs d'édition
           setEditValues({
             clientFirstName: data.clientFirstName,
@@ -183,6 +211,28 @@ export function BookingSummary({ bookingId }: BookingSummaryProps) {
           if (pricingResponse.ok) {
             const pricingData = await pricingResponse.json();
             setPricingOptions(pricingData.pricingOptions || []);
+          }
+
+          // Charger les paramètres de taxe de séjour
+          const touristTaxResponse = await fetch(
+            `/api/establishments/${data.hotelSlug}/tourist-tax-settings`
+          );
+          if (touristTaxResponse.ok) {
+            const touristTaxData = await touristTaxResponse.json();
+            const duration = Math.ceil(
+              (new Date(data.checkOutDate).getTime() -
+                new Date(data.checkInDate).getTime()) /
+                (1000 * 60 * 60 * 24)
+            );
+            const taxTotal = touristTaxData.touristTaxEnabled
+              ? data.adults * duration * touristTaxData.touristTaxAmount
+              : 0;
+
+            setTouristTaxSettings({
+              enabled: touristTaxData.touristTaxEnabled,
+              amount: touristTaxData.touristTaxAmount,
+              total: taxTotal,
+            });
           }
 
           // Initialiser les valeurs d'édition
@@ -364,6 +414,8 @@ export function BookingSummary({ bookingId }: BookingSummaryProps) {
             establishment: booking.establishment,
             selectedPricingOptions: booking.selectedPricingOptions,
             pricingOptionsTotal: booking.pricingOptionsTotal,
+            touristTaxTotal: booking.touristTaxTotal,
+            touristTaxPerPersonPerNight: booking.touristTaxPerPersonPerNight,
             // Métadonnées supplémentaires
             paymentIntentId: data.paymentIntentId,
             hotelSlug: booking.hotelSlug,
@@ -836,7 +888,6 @@ export function BookingSummary({ bookingId }: BookingSummaryProps) {
           <Card className="lg:sticky lg:top-4">
             <CardHeader className="pb-2">
               <CardTitle className="flex items-center gap-2 text-base">
-                <Euro className="h-5 w-5" />
                 Récapitulatif
               </CardTitle>
             </CardHeader>
@@ -872,6 +923,26 @@ export function BookingSummary({ bookingId }: BookingSummaryProps) {
                         )
                       )}
                     </div>
+                  </div>
+                )}
+
+                {/* Taxe de séjour */}
+                {touristTaxSettings.enabled && touristTaxSettings.total > 0 && (
+                  <div className="flex justify-between items-center">
+                    <div>
+                      <span className="text-sm text-gray-600">
+                        Taxe de séjour
+                      </span>
+                      <div className="text-xs text-gray-500">
+                        {booking.adults} adulte{booking.adults > 1 ? "s" : ""} •{" "}
+                        {duration} nuit{duration > 1 ? "s" : ""}
+                        {touristTaxSettings.amount > 0 &&
+                          ` • ${touristTaxSettings.amount.toFixed(2)} ${booking.currency}/pers./nuit`}
+                      </div>
+                    </div>
+                    <span className="text-base font-medium">
+                      +{touristTaxSettings.total.toFixed(2)} {booking.currency}
+                    </span>
                   </div>
                 )}
               </div>
