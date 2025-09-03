@@ -17,6 +17,7 @@ import {
   Plus,
   X,
   ImageIcon,
+  Send,
 } from "lucide-react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ImageUploader } from "@/components/ImageUploader";
@@ -90,6 +91,8 @@ export function ConfirmationManager({ hotelSlug }: ConfirmationManagerProps) {
   const [success, setSuccess] = useState("");
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
   const [newEmailAddress, setNewEmailAddress] = useState("");
+  const [testEmail, setTestEmail] = useState("");
+  const [isSendingTest, setIsSendingTest] = useState(false);
 
   // Validation d'email
   const isValidEmail = (email: string) => {
@@ -169,6 +172,46 @@ export function ConfirmationManager({ hotelSlug }: ConfirmationManagerProps) {
   const updateSettings = (newSettings: Partial<ConfirmationSettings>) => {
     setSettings((prev) => ({ ...prev, ...newSettings }));
     setHasUnsavedChanges(true);
+  };
+
+  // Fonction pour envoyer un email de test
+  const sendTestEmail = async () => {
+    if (!testEmail || !isValidEmail(testEmail)) {
+      setError("Veuillez entrer une adresse email valide");
+      return;
+    }
+
+    setIsSendingTest(true);
+    setError("");
+    setSuccess("");
+
+    try {
+      const response = await fetch(
+        `/api/admin/${hotelSlug}/test-confirmation-email`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            testEmail,
+            settings,
+          }),
+        }
+      );
+
+      if (response.ok) {
+        setSuccess(`Email de test envoyé avec succès à ${testEmail}`);
+        setTimeout(() => setSuccess(""), 5000);
+      } else {
+        const data = await response.json();
+        setError(data.error || "Erreur lors de l'envoi de l'email de test");
+      }
+    } catch {
+      setError("Erreur lors de l'envoi de l'email de test");
+    } finally {
+      setIsSendingTest(false);
+    }
   };
 
   useEffect(() => {
@@ -313,7 +356,7 @@ export function ConfirmationManager({ hotelSlug }: ConfirmationManagerProps) {
 
       {/* Interface avec onglets */}
       <Tabs defaultValue="contact" className="w-full">
-        <TabsList className="grid w-full grid-cols-3">
+        <TabsList className="grid w-full grid-cols-4">
           <TabsTrigger value="contact" className="flex items-center gap-2">
             <MessageSquare className="h-4 w-4" />
             Contact
@@ -325,6 +368,10 @@ export function ConfirmationManager({ hotelSlug }: ConfirmationManagerProps) {
           <TabsTrigger value="copy" className="flex items-center gap-2">
             <Users className="h-4 w-4" />
             Copie
+          </TabsTrigger>
+          <TabsTrigger value="test" className="flex items-center gap-2">
+            <Send className="h-4 w-4" />
+            Test
           </TabsTrigger>
         </TabsList>
 
@@ -662,6 +709,92 @@ export function ConfirmationManager({ hotelSlug }: ConfirmationManagerProps) {
                 </div>
               </CardContent>
             )}
+          </Card>
+        </TabsContent>
+
+        {/* Onglet Test */}
+        <TabsContent value="test" className="space-y-4">
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Send className="h-5 w-5" />
+                Test d&apos;email de confirmation
+              </CardTitle>
+              <p className="text-sm text-gray-600">
+                Envoyez un email de test pour vérifier l&apos;apparence et le
+                contenu de vos confirmations
+              </p>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="bg-blue-50 p-4 rounded-lg border border-blue-200">
+                <div className="flex items-center gap-2 mb-2">
+                  <Mail className="h-4 w-4 text-blue-600" />
+                  <span className="text-sm font-medium text-blue-800">
+                    Comment ça fonctionne
+                  </span>
+                </div>
+                <p className="text-sm text-blue-700">
+                  L&apos;email de test utilise le template configuré dans
+                  l&apos;onglet &quot;Email&quot; avec des données
+                  d&apos;exemple. Il vous permet de vérifier l&apos;apparence
+                  finale avant l&apos;envoi aux clients.
+                </p>
+              </div>
+
+              <div className="space-y-4">
+                <div>
+                  <Label htmlFor="test-email" className="text-sm font-medium">
+                    Adresse email de test
+                  </Label>
+                  <Input
+                    id="test-email"
+                    type="email"
+                    placeholder="votre@email.com"
+                    value={testEmail}
+                    onChange={(e) => setTestEmail(e.target.value)}
+                    className="mt-1"
+                  />
+                  <p className="text-xs text-gray-500 mt-1">
+                    L&apos;email de test sera envoyé à cette adresse
+                  </p>
+                </div>
+
+                <Button
+                  onClick={sendTestEmail}
+                  disabled={
+                    isSendingTest || !testEmail || !isValidEmail(testEmail)
+                  }
+                  className="w-full"
+                >
+                  {isSendingTest ? (
+                    <>
+                      <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+                      Envoi en cours...
+                    </>
+                  ) : (
+                    <>
+                      <Send className="mr-2 h-4 w-4" />
+                      Envoyer l&apos;email de test
+                    </>
+                  )}
+                </Button>
+              </div>
+
+              <div className="bg-yellow-50 p-4 rounded-lg border border-yellow-200">
+                <div className="flex items-center gap-2 mb-2">
+                  <span className="text-yellow-600">ℹ️</span>
+                  <span className="text-sm font-medium text-yellow-800">
+                    Données d&apos;exemple utilisées
+                  </span>
+                </div>
+                <ul className="text-sm text-yellow-700 space-y-1">
+                  <li>• Client : Jean Dupont</li>
+                  <li>• Chambre : Chambre Standard</li>
+                  <li>• Dates : 15-17 juillet 2025</li>
+                  <li>• Code d&apos;accès : selon votre configuration</li>
+                </ul>
+              </div>
+            </CardContent>
           </Card>
         </TabsContent>
       </Tabs>
