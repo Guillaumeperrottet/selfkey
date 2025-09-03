@@ -119,6 +119,7 @@ Nouveau template :
 | `{accessCode}`        | Code d'accès (simplifié) |
 | `{hotelContactEmail}` | Email de contact         |
 | `{hotelContactPhone}` | Téléphone de contact     |
+| `{bookingNumber}`     | Numéro de réservation    |
 
 ## 📧 Exemple de template avec image
 

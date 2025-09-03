@@ -40,6 +40,8 @@ const defaultEmailTemplate = `Bonjour {clientFirstName} {clientLastName},
 
 Votre réservation à {establishmentName} a été confirmée avec succès !
 
+📋 Numéro de réservation : {bookingNumber}
+
 Détails de votre réservation :
 - Chambre : {roomName}
 - Arrivée : {checkInDate}
@@ -60,6 +62,8 @@ L'équipe de {establishmentName}
 Guten Tag {clientFirstName} {clientLastName},
 
 Ihre Reservierung im {establishmentName} wurde erfolgreich bestätigt!
+
+📋 Buchungsnummer: {bookingNumber}
 
 Details Ihrer Reservierung:
 - Zimmer: {roomName}
@@ -276,6 +280,7 @@ export function ConfirmationManager({ hotelSlug }: ConfirmationManagerProps) {
       key: "hotelContactPhone",
       label: "Téléphone de contact de l'établissement",
     },
+    { key: "bookingNumber", label: "Numéro de réservation" },
   ];
 
   const copyToClipboard = (text: string) => {

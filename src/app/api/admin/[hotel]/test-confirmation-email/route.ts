@@ -82,6 +82,7 @@ export async function POST(request: NextRequest, { params }: Params) {
       accessCode,
       hotelContactEmail: settings.hotelContactEmail || "contact@hotel.ch",
       hotelContactPhone: settings.hotelContactPhone || "+41 XX XXX XX XX",
+      bookingNumber: "DEMO-12345-2025",
     };
 
     // Remplacer les variables dans le template

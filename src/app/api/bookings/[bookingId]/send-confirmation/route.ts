@@ -18,6 +18,7 @@ interface TemplateData {
   accessCode: string;
   hotelContactEmail: string;
   hotelContactPhone: string;
+  bookingNumber: string;
 }
 
 interface BookingWithDetails {
@@ -227,6 +228,7 @@ export async function POST(request: Request, { params }: Props) {
         booking.establishment.hotelContactEmail || "Non renseigné",
       hotelContactPhone:
         booking.establishment.hotelContactPhone || "Non renseigné",
+      bookingNumber: booking.id,
     };
 
     // Envoyer la confirmation selon la méthode choisie
@@ -473,6 +475,8 @@ function getDefaultEmailTemplate(): string {
 
 Votre réservation à {establishmentName} a été confirmée avec succès !
 
+📋 Numéro de réservation : {bookingNumber}
+
 Détails de votre réservation :
 - Chambre : {roomName}
 - Arrivée : {checkInDate}
@@ -495,6 +499,8 @@ L'équipe de {establishmentName}
 Guten Tag {clientFirstName} {clientLastName},
 
 Ihre Buchung im {establishmentName} wurde erfolgreich bestätigt!
+
+📋 Buchungsnummer: {bookingNumber}
 
 Details Ihrer Buchung:
 - Zimmer: {roomName}
@@ -519,7 +525,8 @@ Bonjour {clientFirstName},
 
 Votre réservation à {establishmentName} est confirmée ✅
 
-📅 Arrivée : {checkInDate}
+� N° réservation : {bookingNumber}
+�📅 Arrivée : {checkInDate}
 📅 Départ : {checkOutDate}
 🏠 Chambre : {roomName}
 🔑 Code d'accès : {accessCode}
@@ -538,6 +545,7 @@ Guten Tag {clientFirstName},
 
 Ihre Buchung im {establishmentName} ist bestätigt ✅
 
+📋 Buchungsnr.: {bookingNumber}
 📅 Anreise: {checkInDate}
 📅 Abreise: {checkOutDate}
 🏠 Zimmer: {roomName}

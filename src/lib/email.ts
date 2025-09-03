@@ -12,6 +12,7 @@ const resend = process.env.RESEND_API_KEY
   : null;
 
 interface BookingConfirmationData {
+  id: string; // ID de la réservation
   clientName: string;
   clientEmail: string;
   roomName: string;
@@ -61,6 +62,7 @@ export async function sendBookingConfirmation(
           
           <div class="booking-details">
             <h3>Détails de votre réservation :</h3>
+            <p><strong>📋 Numéro de réservation :</strong> ${booking.id}</p>
             <p><strong>Chambre :</strong> ${booking.roomName} (N° ${booking.roomId})</p>
             <p><strong>Date :</strong> ${booking.bookingDate.toLocaleDateString("fr-CH")}</p>
             <p><strong>Montant payé :</strong> ${booking.amount} ${booking.currency}</p>
@@ -154,6 +156,8 @@ export async function sendDayParkingConfirmation(
 
 Votre réservation de parking jour à {establishmentName} a été confirmée avec succès !
 
+📋 Numéro de réservation : {bookingId}
+
 Détails de votre parking :
 - Durée : {dayParkingDuration}
 - Heure de fin : {dayParkingEndTime}
@@ -203,6 +207,8 @@ The {establishmentName} team
 Guten Tag {clientFirstName} {clientLastName},
 
 Ihre Tagesparkplatz-Reservierung bei {establishmentName} wurde erfolgreich bestätigt!
+
+📋 Buchungsnummer: {bookingId}
 
 Parkplatz-Details:
 - Dauer: {dayParkingDuration}
@@ -269,7 +275,8 @@ Das {establishmentName} Team`;
       .replace(/{currency}/g, booking.currency)
       .replace(/{extendParkingUrl}/g, extendParkingUrl)
       .replace(/{hotelContactEmail}/g, establishment.hotelContactEmail || "")
-      .replace(/{hotelContactPhone}/g, establishment.hotelContactPhone || "");
+      .replace(/{hotelContactPhone}/g, establishment.hotelContactPhone || "")
+      .replace(/{bookingId}/g, booking.bookingId);
 
     // Convertir le contenu en HTML simple
     const htmlContent = `

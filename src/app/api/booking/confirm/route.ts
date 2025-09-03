@@ -34,6 +34,7 @@ export async function POST(request: NextRequest) {
     try {
       await sendBookingConfirmation(
         {
+          id: bookingWithDetails.id, // Ajout de l'ID de réservation
           clientName: `${bookingWithDetails.clientFirstName} ${bookingWithDetails.clientLastName}`,
           clientEmail: bookingWithDetails.clientEmail,
           roomName: bookingWithDetails.room
