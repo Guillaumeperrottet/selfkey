@@ -119,11 +119,11 @@ export function RoomManagement({ hotelSlug, currency }: Props) {
   const loadEstablishmentSettings = useCallback(async () => {
     try {
       const response = await fetch(`/api/establishments/${hotelSlug}/settings`);
-      const data = await response.json();
 
-      if (data.success) {
+      if (response.ok) {
+        const data = await response.json();
         setEstablishmentSettings({
-          enableDogOption: data.settings.enableDogOption,
+          enableDogOption: data.enableDogOption,
         });
       }
     } catch (error) {
