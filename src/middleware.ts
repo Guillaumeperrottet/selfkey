@@ -1,6 +1,15 @@
 import { NextResponse, type NextRequest } from "next/server";
 
 export async function middleware(request: NextRequest) {
+  // Redirection de selfkey.ch vers selfcamp.ch
+  const hostname = request.headers.get("host") || "";
+
+  if (hostname === "selfkey.ch" || hostname === "www.selfkey.ch") {
+    const url = new URL(request.url);
+    url.hostname = "selfcamp.ch";
+    return NextResponse.redirect(url, 301); // Redirection permanente
+  }
+
   // Protéger les routes admin et establishments
   if (
     request.nextUrl.pathname.startsWith("/admin") ||
