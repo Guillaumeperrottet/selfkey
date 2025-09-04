@@ -101,9 +101,9 @@ export function PricingOptionsManager({
       displayOrder: pricingOptions.length,
       values: [
         {
-          label: "",
+          label: "Option 1",
           priceModifier: 0,
-          isDefault: false, // Ne pas marquer comme défaut automatiquement
+          isDefault: false,
           displayOrder: 0,
         },
       ],
@@ -127,11 +127,12 @@ export function PricingOptionsManager({
 
   const addValue = (optionIndex: number) => {
     const updated = [...pricingOptions];
+    const currentOption = updated[optionIndex];
     const newValue: PricingOptionValue = {
-      label: "",
+      label: `Option ${currentOption.values.length + 1}`,
       priceModifier: 0,
-      isDefault: false, // Ne pas marquer comme défaut automatiquement
-      displayOrder: updated[optionIndex].values.length,
+      isDefault: false,
+      displayOrder: currentOption.values.length,
     };
     updated[optionIndex].values.push(newValue);
     setPricingOptions(updated);
@@ -177,6 +178,22 @@ export function PricingOptionsManager({
 
   const savePricingOptions = async () => {
     setSaving(true);
+
+    // Validation avant sauvegarde
+    const invalidOptions = pricingOptions.filter((option) => {
+      if (!option.name.trim()) return true;
+      if (option.values.length === 0) return true;
+      if (!option.values.some((value) => value.label.trim())) return true;
+      return false;
+    });
+
+    if (invalidOptions.length > 0) {
+      setSaving(false);
+      toastUtils.error(
+        "Veuillez compléter toutes les options (nom et au moins une valeur avec un label)"
+      );
+      return;
+    }
 
     const loadingToast = toastUtils.loading("Sauvegarde en cours...");
 
@@ -583,7 +600,15 @@ export function PricingOptionsManager({
                           })
                         }
                         placeholder="ex: Hauteur du véhicule"
+                        className={
+                          !option.name.trim() ? "border-red-300 bg-red-50" : ""
+                        }
                       />
+                      {!option.name.trim() && (
+                        <p className="text-xs text-red-600 mt-1">
+                          ⚠️ Nom requis pour sauvegarder
+                        </p>
+                      )}
                     </div>
                     <div>
                       <Label htmlFor={`option-type-${optionIndex}`}>Type</Label>
@@ -668,7 +693,17 @@ export function PricingOptionsManager({
                             })
                           }
                           placeholder="ex: Moins de 2m"
+                          className={
+                            !value.label.trim()
+                              ? "border-red-300 bg-red-50"
+                              : ""
+                          }
                         />
+                        {!value.label.trim() && (
+                          <p className="text-xs text-red-600 mt-1">
+                            ⚠️ Label requis pour sauvegarder
+                          </p>
+                        )}
                       </div>
                       <div className="w-32">
                         <Input

@@ -359,8 +359,28 @@ export function BookingFormDetails({
     const missingFields = requiredFieldsValidation.filter(
       (field) => !field.value
     );
+
+    // Validation des options de prix obligatoires
+    const missingRequiredOptions = pricingOptions
+      .filter((option) => option.isRequired && option.isActive)
+      .filter((option) => {
+        const selected = selectedPricingOptions[option.id];
+        return (
+          !selected ||
+          (Array.isArray(selected) && selected.length === 0) ||
+          (!Array.isArray(selected) && selected === "")
+        );
+      });
+
     if (missingFields.length > 0 || adults < 1) {
       toastUtils.error("Please fill in all required fields");
+      return;
+    }
+
+    if (missingRequiredOptions.length > 0) {
+      toastUtils.error(
+        `Please complete the required options: ${missingRequiredOptions.map((o) => o.name).join(", ")}`
+      );
       return;
     }
 
@@ -809,7 +829,7 @@ export function BookingFormDetails({
           </div>
 
           {/* Section options de prix */}
-          {pricingOptions.filter((option) => option.isActive).length > 0 && (
+          {pricingOptions.length > 0 && (
             <div className="space-y-4">
               <div>
                 <h4 className="font-medium text-gray-900 mb-1">
@@ -818,85 +838,100 @@ export function BookingFormDetails({
                 <p className="text-sm text-gray-600">Enhance your experience</p>
               </div>
 
-              <div className="space-y-4">
-                {pricingOptions
-                  .filter((option) => option.isActive)
-                  .sort((a, b) => a.displayOrder - b.displayOrder)
-                  .map((option) => (
-                    <div
-                      key={option.id}
-                      className="space-y-3 p-4 border border-gray-200 rounded-lg"
-                    >
-                      <Label className="text-sm font-medium text-gray-900 flex items-center gap-2">
-                        {option.name}
-                        {option.isRequired && (
-                          <span className="text-red-500 text-xs">*</span>
-                        )}
-                      </Label>
+              {/* Afficher les options valides */}
+              {pricingOptions.filter(
+                (option) => option.isActive && option.values?.length > 0
+              ).length > 0 ? (
+                <div className="space-y-4">
+                  {pricingOptions
+                    .filter(
+                      (option) => option.isActive && option.values?.length > 0
+                    )
+                    .sort((a, b) => a.displayOrder - b.displayOrder)
+                    .map((option) => (
+                      <div
+                        key={option.id}
+                        className="space-y-3 p-4 border border-gray-200 rounded-lg bg-gray-50"
+                      >
+                        <div className="flex items-center justify-between">
+                          <Label className="text-sm font-medium text-gray-900 flex items-center gap-2">
+                            {option.name}
+                            {option.isRequired && (
+                              <span className="text-red-500 text-xs bg-red-100 px-2 py-1 rounded-full">
+                                Obligatoire
+                              </span>
+                            )}
+                          </Label>
+                          {/* Indicateur du type d'option */}
+                          <span className="text-xs text-gray-500 bg-white px-2 py-1 rounded border">
+                            {option.type === "select" && "Menu déroulant"}
+                            {option.type === "radio" && "Choix unique"}
+                            {option.type === "checkbox" && "Choix multiple"}
+                          </span>
+                        </div>
 
-                      {option.type === "select" && (
-                        <Select
-                          value={
-                            (selectedPricingOptions[option.id] as string) || ""
-                          }
-                          onValueChange={(value) =>
-                            handlePricingOptionChange(option.id, value)
-                          }
-                        >
-                          <SelectTrigger className="h-10">
-                            <SelectValue placeholder="Choose an option" />
-                          </SelectTrigger>
-                          <SelectContent>
+                        {option.type === "select" && (
+                          <Select
+                            value={
+                              (selectedPricingOptions[option.id] as string) ||
+                              (option.isRequired ? "" : "__none__")
+                            }
+                            onValueChange={(value) =>
+                              handlePricingOptionChange(
+                                option.id,
+                                value === "__none__" ? "" : value
+                              )
+                            }
+                          >
+                            <SelectTrigger className="h-12 bg-white border-gray-300 hover:border-gray-400 focus:border-blue-500">
+                              <SelectValue placeholder="Sélectionnez une option..." />
+                            </SelectTrigger>
+                            <SelectContent>
+                              {!option.isRequired && (
+                                <SelectItem value="__none__">
+                                  <span className="text-gray-500">Options</span>
+                                </SelectItem>
+                              )}
+                              {option.values
+                                .sort((a, b) => a.displayOrder - b.displayOrder)
+                                .map((value) => (
+                                  <SelectItem key={value.id} value={value.id}>
+                                    <div className="flex justify-between w-full items-center">
+                                      <span>{value.label}</span>
+                                      {value.priceModifier !== 0 && (
+                                        <span className="ml-2 text-gray-600 font-medium">
+                                          {value.priceModifier > 0 ? "+" : ""}
+                                          {value.priceModifier} CHF
+                                        </span>
+                                      )}
+                                    </div>
+                                  </SelectItem>
+                                ))}
+                            </SelectContent>
+                          </Select>
+                        )}
+
+                        {option.type === "checkbox" && (
+                          <div className="space-y-2">
                             {option.values
                               .sort((a, b) => a.displayOrder - b.displayOrder)
                               .map((value) => (
-                                <SelectItem key={value.id} value={value.id}>
-                                  <div className="flex justify-between w-full">
-                                    <span>{value.label}</span>
-                                    {value.priceModifier !== 0 && (
-                                      <span className="ml-2 text-gray-600 font-medium">
-                                        {value.priceModifier > 0 ? "+" : ""}
-                                        {value.priceModifier} CHF
-                                      </span>
-                                    )}
-                                  </div>
-                                </SelectItem>
-                              ))}
-                          </SelectContent>
-                        </Select>
-                      )}
-
-                      {option.type === "checkbox" && (
-                        <div className="space-y-3">
-                          {option.values
-                            .sort((a, b) => a.displayOrder - b.displayOrder)
-                            .map((value) => (
-                              <div
-                                key={value.id}
-                                className="flex items-center space-x-3 p-3 border border-gray-100 rounded-md"
-                              >
-                                <Checkbox
-                                  id={`${option.id}-${value.id}`}
-                                  checked={
-                                    Array.isArray(
-                                      selectedPricingOptions[option.id]
-                                    ) &&
-                                    (
-                                      selectedPricingOptions[
-                                        option.id
-                                      ] as string[]
-                                    ).includes(value.id)
-                                  }
-                                  onCheckedChange={(checked) => {
+                                <div
+                                  key={value.id}
+                                  className="flex items-center space-x-3 p-3 bg-white border border-gray-200 rounded-md hover:border-gray-300 hover:bg-gray-50 transition-all cursor-pointer"
+                                  onClick={() => {
                                     const currentValues =
                                       (selectedPricingOptions[
                                         option.id
                                       ] as string[]) || [];
-                                    const newValues = checked
-                                      ? [...currentValues, value.id]
-                                      : currentValues.filter(
+                                    const isChecked = currentValues.includes(
+                                      value.id
+                                    );
+                                    const newValues = isChecked
+                                      ? currentValues.filter(
                                           (v) => v !== value.id
-                                        );
+                                        )
+                                      : [...currentValues, value.id];
 
                                     if (
                                       newValues.length === 0 &&
@@ -910,28 +945,164 @@ export function BookingFormDetails({
                                       newValues
                                     );
                                   }}
+                                >
+                                  <Checkbox
+                                    id={`${option.id}-${value.id}`}
+                                    checked={
+                                      Array.isArray(
+                                        selectedPricingOptions[option.id]
+                                      ) &&
+                                      (
+                                        selectedPricingOptions[
+                                          option.id
+                                        ] as string[]
+                                      ).includes(value.id)
+                                    }
+                                    onCheckedChange={(checked) => {
+                                      const currentValues =
+                                        (selectedPricingOptions[
+                                          option.id
+                                        ] as string[]) || [];
+                                      const newValues = checked
+                                        ? [...currentValues, value.id]
+                                        : currentValues.filter(
+                                            (v) => v !== value.id
+                                          );
+
+                                      if (
+                                        newValues.length === 0 &&
+                                        option.isRequired
+                                      ) {
+                                        return;
+                                      }
+
+                                      handlePricingOptionChange(
+                                        option.id,
+                                        newValues
+                                      );
+                                    }}
+                                    className="h-5 w-5"
+                                  />
+                                  <Label
+                                    htmlFor={`${option.id}-${value.id}`}
+                                    className="flex-1 cursor-pointer flex justify-between items-center"
+                                  >
+                                    <span className="text-sm font-medium text-gray-800">
+                                      {value.label}
+                                    </span>
+                                    {value.priceModifier !== 0 && (
+                                      <span
+                                        className={`font-semibold text-sm ${
+                                          value.priceModifier > 0
+                                            ? "text-green-600"
+                                            : "text-red-600"
+                                        }`}
+                                      >
+                                        {value.priceModifier > 0 ? "+" : ""}
+                                        {value.priceModifier} CHF
+                                      </span>
+                                    )}
+                                  </Label>
+                                </div>
+                              ))}
+                          </div>
+                        )}
+
+                        {option.type === "radio" && (
+                          <div className="space-y-2">
+                            {!option.isRequired && (
+                              <div className="flex items-center space-x-3 p-3 bg-white border border-gray-200 rounded-md hover:border-gray-300 hover:bg-gray-50 transition-all cursor-pointer">
+                                <input
+                                  type="radio"
+                                  id={`${option.id}-none`}
+                                  name={`radio-${option.id}`}
+                                  value="__none__"
+                                  checked={
+                                    !selectedPricingOptions[option.id] ||
+                                    selectedPricingOptions[option.id] === ""
+                                  }
+                                  onChange={() =>
+                                    handlePricingOptionChange(option.id, "")
+                                  }
+                                  className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300"
                                 />
                                 <Label
-                                  htmlFor={`${option.id}-${value.id}`}
+                                  htmlFor={`${option.id}-none`}
                                   className="flex-1 cursor-pointer flex justify-between items-center"
                                 >
-                                  <span className="text-sm font-medium">
-                                    {value.label}
+                                  <span className="text-sm font-medium text-gray-600">
+                                    Aucune option
                                   </span>
-                                  {value.priceModifier !== 0 && (
-                                    <span className="text-gray-600 font-medium">
-                                      {value.priceModifier > 0 ? "+" : ""}
-                                      {value.priceModifier} CHF
-                                    </span>
-                                  )}
+                                  <span className="text-sm text-gray-400">
+                                    +0 CHF
+                                  </span>
                                 </Label>
                               </div>
-                            ))}
-                        </div>
-                      )}
-                    </div>
-                  ))}
-              </div>
+                            )}
+                            {option.values
+                              .sort((a, b) => a.displayOrder - b.displayOrder)
+                              .map((value) => (
+                                <div
+                                  key={value.id}
+                                  className="flex items-center space-x-3 p-3 bg-white border border-gray-200 rounded-md hover:border-gray-300 hover:bg-gray-50 transition-all cursor-pointer"
+                                  onClick={() =>
+                                    handlePricingOptionChange(
+                                      option.id,
+                                      value.id
+                                    )
+                                  }
+                                >
+                                  <input
+                                    type="radio"
+                                    id={`${option.id}-${value.id}`}
+                                    name={`radio-${option.id}`}
+                                    value={value.id}
+                                    checked={
+                                      selectedPricingOptions[option.id] ===
+                                      value.id
+                                    }
+                                    onChange={() =>
+                                      handlePricingOptionChange(
+                                        option.id,
+                                        value.id
+                                      )
+                                    }
+                                    className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300"
+                                  />
+                                  <Label
+                                    htmlFor={`${option.id}-${value.id}`}
+                                    className="flex-1 cursor-pointer flex justify-between items-center"
+                                  >
+                                    <span className="text-sm font-medium text-gray-800">
+                                      {value.label}
+                                    </span>
+                                    {value.priceModifier !== 0 && (
+                                      <span
+                                        className={`font-semibold text-sm ${
+                                          value.priceModifier > 0
+                                            ? "text-green-600"
+                                            : "text-red-600"
+                                        }`}
+                                      >
+                                        {value.priceModifier > 0 ? "+" : ""}
+                                        {value.priceModifier} CHF
+                                      </span>
+                                    )}
+                                  </Label>
+                                </div>
+                              ))}
+                          </div>
+                        )}
+                      </div>
+                    ))}
+                </div>
+              ) : (
+                <div className="p-4 text-center text-gray-500 bg-gray-50 rounded-lg border border-gray-200">
+                  <p className="text-sm">
+                    Aucune option supplémentaire disponible pour le moment.
+                  </p>
+                </div>
+              )}
             </div>
           )}
 
@@ -967,9 +1138,7 @@ export function BookingFormDetails({
 
             {/* Détail des prix */}
             <div className="p-4 space-y-3">
-              <h5 className="font-medium text-gray-900 mb-3">
-                Price breakdown
-              </h5>
+              <h5 className="font-medium text-gray-900 mb-3">Price</h5>
 
               {/* Prix de base */}
               <div className="flex justify-between items-center">
@@ -983,12 +1152,48 @@ export function BookingFormDetails({
               </div>
 
               {/* Options supplémentaires */}
-              {pricingOptionsTotal > 0 && (
-                <div className="flex justify-between items-center">
-                  <span className="text-gray-700">Additional options</span>
-                  <span className="font-medium text-gray-900">
-                    +{pricingOptionsTotal} CHF
-                  </span>
+              {pricingOptionsTotal !== 0 && (
+                <div className="space-y-2">
+                  <div>
+                    <span className="text-gray-700 font-medium">
+                      Additional options
+                    </span>
+                  </div>
+                  {/* Détail des options sélectionnées */}
+                  <div className="ml-4 space-y-1">
+                    {pricingOptions
+                      .filter((option) => {
+                        const selected = selectedPricingOptions[option.id];
+                        return (
+                          selected &&
+                          ((Array.isArray(selected) && selected.length > 0) ||
+                            (!Array.isArray(selected) && selected !== ""))
+                        );
+                      })
+                      .map((option) => {
+                        const selected = selectedPricingOptions[option.id];
+                        const selectedValues = Array.isArray(selected)
+                          ? option.values.filter((v) => selected.includes(v.id))
+                          : option.values.filter((v) => v.id === selected);
+
+                        return selectedValues.map((value) => (
+                          <div
+                            key={`${option.id}-${value.id}`}
+                            className="flex justify-between items-center text-sm"
+                          >
+                            <span className="text-gray-600">
+                              • {value.label}
+                            </span>
+                            <span
+                              className={`${value.priceModifier > 0 ? "text-green-600" : value.priceModifier < 0 ? "text-red-600" : "text-gray-500"}`}
+                            >
+                              {value.priceModifier > 0 ? "+" : ""}
+                              {value.priceModifier} CHF
+                            </span>
+                          </div>
+                        ));
+                      })}
+                  </div>
                 </div>
               )}
 
@@ -1023,6 +1228,37 @@ export function BookingFormDetails({
 
             {/* Bouton de confirmation */}
             <div className="p-4">
+              {/* Validation des options obligatoires */}
+              {(() => {
+                const missingRequiredOptions = pricingOptions
+                  .filter((option) => option.isRequired && option.isActive)
+                  .filter((option) => {
+                    const selected = selectedPricingOptions[option.id];
+                    return (
+                      !selected ||
+                      (Array.isArray(selected) && selected.length === 0) ||
+                      (!Array.isArray(selected) && selected === "")
+                    );
+                  });
+
+                return (
+                  missingRequiredOptions.length > 0 && (
+                    <div className="mb-3 p-3 bg-amber-50 border border-amber-200 rounded-lg">
+                      <div className="flex items-center gap-2 text-amber-800">
+                        <span className="text-sm font-medium">
+                          ⚠️ Options obligatoires manquantes :
+                        </span>
+                      </div>
+                      <ul className="mt-1 ml-4 text-sm text-amber-700">
+                        {missingRequiredOptions.map((option) => (
+                          <li key={option.id}>• {option.name}</li>
+                        ))}
+                      </ul>
+                    </div>
+                  )
+                );
+              })()}
+
               <Button
                 onClick={handleConfirmBooking}
                 disabled={bookingInProgress}
