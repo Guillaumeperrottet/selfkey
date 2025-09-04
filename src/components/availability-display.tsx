@@ -1,11 +1,12 @@
-"use client";
+'use client';
 
-import { useEffect, useState } from "react";
+import { useEffect, useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Calendar, Users, MapPin, Clock } from "lucide-react";
 import Link from "next/link";
+import { API_ENDPOINTS, DOMAINS } from "@/lib/domains";
 
 interface AvailabilityData {
   totalSpots: number;
@@ -23,14 +24,14 @@ export function AvailabilityDisplay() {
   useEffect(() => {
     async function fetchAvailability() {
       try {
-        // Appel à l'API selfkey pour récupérer les données en temps réel
-        const response = await fetch("/api/public/availability");
+        // Utiliser l'API endpoint configuré qui pointe vers selfkey.ch
+        const response = await fetch(API_ENDPOINTS.AVAILABILITY);
         if (response.ok) {
           const data = await response.json();
           setAvailability(data);
         }
       } catch (error) {
-        console.error("Erreur lors du chargement des disponibilités:", error);
+        console.error('Erreur lors du chargement des disponibilités:', error);
       } finally {
         setLoading(false);
       }
@@ -39,11 +40,9 @@ export function AvailabilityDisplay() {
     fetchAvailability();
     // Actualiser toutes les 5 minutes
     const interval = setInterval(fetchAvailability, 5 * 60 * 1000);
-
+    
     return () => clearInterval(interval);
-  }, []);
-
-  if (loading) {
+  }, []);  if (loading) {
     return (
       <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
         {[1, 2, 3, 4].map((i) => (
@@ -69,7 +68,7 @@ export function AvailabilityDisplay() {
             Impossible de charger les disponibilités pour le moment.
           </p>
           <Button asChild className="mt-4">
-            <Link href="https://selfkey.ch">
+            <Link href={DOMAINS.SELFKEY}>
               Voir toutes les disponibilités
             </Link>
           </Button>
@@ -185,7 +184,7 @@ export function AvailabilityDisplay() {
                 asChild
                 className="bg-green-600 hover:bg-green-700"
               >
-                <Link href="https://selfkey.ch">Réserver maintenant</Link>
+                <Link href={DOMAINS.SELFKEY}>Réserver maintenant</Link>
               </Button>
             </>
           ) : (
@@ -199,7 +198,7 @@ export function AvailabilityDisplay() {
                   ` Prochaine disponibilité : ${availability.nextAvailable}`}
               </p>
               <Button size="lg" asChild variant="outline">
-                <Link href="https://selfkey.ch">
+                <Link href={DOMAINS.SELFKEY}>
                   Voir les prochaines disponibilités
                 </Link>
               </Button>

@@ -18,39 +18,24 @@ if (
 }
 
 const nextConfig: NextConfig = {
-  // Configuration pour gérer les domaines multiples
+  // Configuration pour gérer les domaines multiples et permettre la communication
   async headers() {
     return [
       {
-        // Permettre les appels API entre selfcamp.ch et selfkey.ch
-        source: "/api/:path*",
+        // Permettre les appels API depuis selfcamp.ch vers selfkey.ch
+        source: '/api/:path*',
         headers: [
           {
-            key: "Access-Control-Allow-Origin",
-            value: "https://selfcamp.ch",
+            key: 'Access-Control-Allow-Origin',
+            value: 'https://selfcamp.ch, https://www.selfcamp.ch, http://localhost:3000',
           },
           {
-            key: "Access-Control-Allow-Methods",
-            value: "GET, POST, PUT, DELETE, OPTIONS",
+            key: 'Access-Control-Allow-Methods',
+            value: 'GET, POST, PUT, DELETE, OPTIONS',
           },
           {
-            key: "Access-Control-Allow-Headers",
-            value: "Content-Type, Authorization",
-          },
-        ],
-      },
-    ];
-  },
-  // Gérer les rewrites pour les différents domaines
-  async rewrites() {
-    return [
-      {
-        source: "/:path*",
-        destination: "/:path*",
-        has: [
-          {
-            type: "host",
-            value: "selfcamp.ch",
+            key: 'Access-Control-Allow-Headers',
+            value: 'Content-Type, Authorization',
           },
         ],
       },

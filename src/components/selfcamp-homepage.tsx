@@ -1,6 +1,11 @@
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import Image from "next/image";
 import {
   Tent,
@@ -12,6 +17,7 @@ import {
   MapPin,
 } from "lucide-react";
 import { AvailabilityDisplay } from "../components/availability-display";
+import { DOMAINS } from "@/lib/domains";
 
 export function SelfcampHomepage() {
   return (
@@ -44,7 +50,7 @@ export function SelfcampHomepage() {
             </a>
           </nav>
           <Button asChild className="bg-green-600 hover:bg-green-700">
-            <Link href="https://selfkey.ch">Réserver maintenant</Link>
+            <Link href={DOMAINS.SELFKEY}>Réserver maintenant</Link>
           </Button>
         </div>
       </header>
@@ -67,7 +73,7 @@ export function SelfcampHomepage() {
               asChild
               className="bg-green-600 hover:bg-green-700"
             >
-              <Link href="https://selfkey.ch">Réserver votre emplacement</Link>
+              <Link href={DOMAINS.SELFKEY}>Réserver votre emplacement</Link>
             </Button>
             <Button size="lg" variant="outline">
               Découvrir nos services
@@ -184,7 +190,7 @@ export function SelfcampHomepage() {
             asChild
             className="bg-white text-green-600 hover:bg-gray-100"
           >
-            <Link href="https://selfkey.ch">Commencer ma réservation</Link>
+            <Link href={DOMAINS.SELFKEY}>Commencer ma réservation</Link>
           </Button>
         </div>
       </section>
@@ -228,7 +234,7 @@ export function SelfcampHomepage() {
                 </div>
                 <div>
                   <a
-                    href="https://selfkey.ch"
+                    href={DOMAINS.SELFKEY}
                     className="text-green-400 hover:text-green-300"
                   >
                     Système de réservation
