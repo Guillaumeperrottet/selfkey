@@ -884,7 +884,7 @@ export function SettingsManager({ hotelSlug }: SettingsManagerProps) {
               {/* Section Bonnes Pratiques */}
               <div className="space-y-3">
                 <h4 className="font-semibold text-sm text-foreground border-b pb-1">
-                  💡 Bonnes pratiques
+                  💡
                 </h4>
                 <div className="space-y-2 text-sm text-muted-foreground">
                   <div className="flex items-start gap-2">
@@ -909,10 +909,7 @@ export function SettingsManager({ hotelSlug }: SettingsManagerProps) {
                     <span className="text-green-600 font-medium min-w-fit">
                       ✓
                     </span>
-                    <span>
-                      Testez vos templates d&apos;email avant d&apos;activer le
-                      parking jour
-                    </span>
+                    <span>Testez vos templates d&apos;email</span>
                   </div>
                   <div className="flex items-start gap-2">
                     <span className="text-green-600 font-medium min-w-fit">
