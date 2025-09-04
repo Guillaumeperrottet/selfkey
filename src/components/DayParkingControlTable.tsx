@@ -12,6 +12,14 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import {
@@ -27,6 +35,9 @@ import {
   AlertCircle,
   RefreshCw,
   Settings,
+  QrCode,
+  Copy,
+  ExternalLink,
 } from "lucide-react";
 import { toastUtils } from "@/lib/toast-utils";
 
@@ -59,6 +70,8 @@ export function DayParkingControlTable({
   const [filterDate, setFilterDate] = useState(
     new Date().toISOString().split("T")[0]
   );
+  const [qrCodeUrl, setQrCodeUrl] = useState<string | null>(null);
+  const [isGeneratingQr, setIsGeneratingQr] = useState(false);
 
   const fetchBookings = async () => {
     try {
@@ -163,7 +176,37 @@ export function DayParkingControlTable({
   };
 
   const handleAccessSettings = () => {
-    window.location.href = `/admin/${hotelSlug}#parking-access`;
+    // Ouvrir les paramètres dans un nouvel onglet
+    window.open(`/admin/${hotelSlug}#parking-access`, "_blank");
+  };
+
+  // Fonctions pour le contrôle d'accès
+  const token = `${hotelSlug}-parking-control-2025`;
+  const controlUrl = `${typeof window !== "undefined" ? window.location.origin : ""}/parking-control/${hotelSlug}?token=${encodeURIComponent(token)}`;
+
+  const generateQrCode = async () => {
+    setIsGeneratingQr(true);
+    try {
+      const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=${encodeURIComponent(controlUrl)}`;
+      setQrCodeUrl(qrUrl);
+    } catch {
+      toastUtils.error("Erreur lors de la génération du QR code");
+    } finally {
+      setIsGeneratingQr(false);
+    }
+  };
+
+  const copyUrl = async () => {
+    try {
+      await navigator.clipboard.writeText(controlUrl);
+      toastUtils.success("URL copiée dans le presse-papier");
+    } catch {
+      toastUtils.error("Erreur lors de la copie");
+    }
+  };
+
+  const openControlPreview = () => {
+    window.open(controlUrl, "_blank");
   };
 
   return (
@@ -177,14 +220,97 @@ export function DayParkingControlTable({
               Contrôle Parking Jour
             </CardTitle>
             <div className="flex gap-2">
-              <Button
-                onClick={handleAccessSettings}
-                variant="outline"
-                size="sm"
-              >
-                <Settings className="w-4 h-4 mr-2" />
-                Accès Contrôle
-              </Button>
+              <Dialog>
+                <DialogTrigger asChild>
+                  <Button variant="outline" size="sm">
+                    <Settings className="w-4 h-4 mr-2" />
+                    Accès Contrôle
+                  </Button>
+                </DialogTrigger>
+                <DialogContent className="max-w-md">
+                  <DialogHeader>
+                    <DialogTitle className="flex items-center gap-2">
+                      <QrCode className="h-5 w-5" />
+                      Accès Contrôle Parking
+                    </DialogTitle>
+                    <DialogDescription>
+                      Interface sécurisée pour le contrôle des véhicules
+                    </DialogDescription>
+                  </DialogHeader>
+                  <div className="space-y-4">
+                    {/* URL d'accès */}
+                    <div>
+                      <label className="text-sm font-medium">
+                        URL d&apos;accès :
+                      </label>
+                      <div className="flex gap-2 mt-1">
+                        <Input
+                          value={controlUrl}
+                          readOnly
+                          className="text-xs"
+                        />
+                        <Button onClick={copyUrl} variant="outline" size="sm">
+                          <Copy className="h-4 w-4" />
+                        </Button>
+                      </div>
+                    </div>
+
+                    {/* QR Code */}
+                    <div className="text-center space-y-2">
+                      {!qrCodeUrl ? (
+                        <Button
+                          onClick={generateQrCode}
+                          disabled={isGeneratingQr}
+                          variant="outline"
+                        >
+                          <QrCode className="h-4 w-4 mr-2" />
+                          {isGeneratingQr ? "Génération..." : "Générer QR Code"}
+                        </Button>
+                      ) : (
+                        <div className="space-y-2">
+                          <div className="inline-block p-2 bg-white border rounded">
+                            {/* eslint-disable-next-line @next/next/no-img-element */}
+                            <img
+                              src={qrCodeUrl}
+                              alt="QR Code contrôle parking"
+                              className="w-32 h-32"
+                            />
+                          </div>
+                          <Button
+                            onClick={generateQrCode}
+                            variant="outline"
+                            size="sm"
+                          >
+                            Régénérer
+                          </Button>
+                        </div>
+                      )}
+                    </div>
+
+                    {/* Boutons d'action */}
+                    <div className="flex gap-2 pt-2">
+                      <Button
+                        onClick={openControlPreview}
+                        variant="outline"
+                        size="sm"
+                        className="flex-1"
+                      >
+                        <ExternalLink className="h-4 w-4 mr-2" />
+                        Prévisualiser
+                      </Button>
+                      <Button
+                        onClick={handleAccessSettings}
+                        variant="outline"
+                        size="sm"
+                        className="flex-1"
+                      >
+                        <Settings className="h-4 w-4 mr-2" />
+                        Paramètres
+                      </Button>
+                    </div>
+                  </div>
+                </DialogContent>
+              </Dialog>
               <Button onClick={handlePrint} variant="outline" size="sm">
                 <Printer className="w-4 h-4 mr-2" />
                 Imprimer
