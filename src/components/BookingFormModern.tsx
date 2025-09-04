@@ -17,6 +17,9 @@ interface Establishment {
   maxBookingDays: number;
   allowFutureBookings: boolean;
   enableDogOption?: boolean;
+  enableCutoffTime?: boolean;
+  cutoffTime?: string;
+  reopenTime?: string;
 }
 
 interface BookingFormModernProps {

@@ -5,18 +5,22 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Calendar, Clock, Info } from "lucide-react";
+import { Calendar, Clock, Info, AlertTriangle } from "lucide-react";
 import { toastUtils } from "@/lib/toast-utils";
 import {
   validateBookingDates,
   calculateStayDuration,
 } from "@/lib/availability";
+import { checkCutoffTime, formatTimeForDisplay } from "@/lib/time-utils";
 
 interface Establishment {
   name: string;
   maxBookingDays: number;
   allowFutureBookings: boolean;
   enableDogOption?: boolean;
+  enableCutoffTime?: boolean;
+  cutoffTime?: string;
+  reopenTime?: string;
 }
 
 interface DateSelectorProps {
@@ -50,7 +54,20 @@ export function DateSelector({
       ? calculateStayDuration(new Date(checkInDate), new Date(checkOutDate))
       : 0;
 
+  // Vérifier l'heure limite
+  const cutoffResult = checkCutoffTime(
+    establishment.enableCutoffTime || false,
+    establishment.cutoffTime || null,
+    establishment.reopenTime || "00:00"
+  );
+
   const handleSearch = async () => {
+    // Vérifier l'heure limite en premier
+    if (cutoffResult.isAfterCutoff) {
+      toastUtils.error(cutoffResult.message);
+      return;
+    }
+
     if (!checkOutDate) {
       toastUtils.error("Veuillez sélectionner la date de départ");
       return;
@@ -123,6 +140,41 @@ export function DateSelector({
         </CardTitle>
       </CardHeader>
       <CardContent className="space-y-4">
+        {/* Alerte heure limite */}
+        {cutoffResult.isAfterCutoff && (
+          <div className="flex items-start gap-3 p-4 bg-red-50 border border-red-200 rounded-lg">
+            <AlertTriangle className="h-5 w-5 text-red-600 mt-0.5 flex-shrink-0" />
+            <div className="space-y-1">
+              <p className="text-sm font-medium text-red-800">
+                Réservations fermées / Bookings Closed
+              </p>
+              <p className="text-sm text-red-700">{cutoffResult.message}</p>
+              {cutoffResult.nextAvailableTime && (
+                <p className="text-xs text-red-600">
+                  Prochaine ouverture / Next opening:{" "}
+                  {formatTimeForDisplay(cutoffResult.nextAvailableTime)}
+                </p>
+              )}
+            </div>
+          </div>
+        )}
+
+        {/* Info heure limite active */}
+        {establishment.enableCutoffTime &&
+          !cutoffResult.isAfterCutoff &&
+          establishment.cutoffTime && (
+            <div className="flex items-start gap-3 p-4 bg-blue-50 border border-blue-200 rounded-lg">
+              <Clock className="h-5 w-5 text-blue-600 mt-0.5 flex-shrink-0" />
+              <div>
+                <p className="text-sm font-medium text-blue-800">
+                  Réservations ouvertes jusqu&apos;à {establishment.cutoffTime}{" "}
+                  / Bookings open until {establishment.cutoffTime}
+                </p>
+                <p className="text-xs text-blue-600">{cutoffResult.message}</p>
+              </div>
+            </div>
+          )}
+
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>
             <Label htmlFor="checkIn">Check-in Date</Label>
@@ -247,13 +299,15 @@ export function DateSelector({
 
         <Button
           onClick={handleSearch}
-          disabled={loading || !checkOutDate}
+          disabled={loading || !checkOutDate || cutoffResult.isAfterCutoff}
           className="w-full"
           size="lg"
         >
-          {loading
-            ? "Validation en cours... / Validating..."
-            : "Rechercher disponibilité / Search Availability"}
+          {cutoffResult.isAfterCutoff
+            ? "Réservations fermées / Bookings Closed"
+            : loading
+              ? "Validation en cours... / Validating..."
+              : "Rechercher disponibilité / Search Availability"}
         </Button>
       </CardContent>
     </Card>

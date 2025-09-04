@@ -2,16 +2,23 @@
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Moon, Sun } from "lucide-react";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Moon, Sun, Clock } from "lucide-react";
 
 interface ParkingTypeSelectorProps {
   onSelect: (type: "night" | "day") => void;
   establishmentName: string;
+  isNightBookingClosed?: boolean;
+  cutoffTime?: string;
+  reopenTime?: string;
 }
 
 export function ParkingTypeSelector({
   onSelect,
   establishmentName,
+  isNightBookingClosed = false,
+  cutoffTime,
+  reopenTime,
 }: ParkingTypeSelectorProps) {
   const handleSelect = (type: "night" | "day") => {
     onSelect(type);
@@ -57,7 +64,13 @@ export function ParkingTypeSelector({
           </Card>
 
           {/* Parking Nuit */}
-          <Card className="cursor-pointer hover:shadow-lg transition-shadow border-2 hover:border-blue-500">
+          <Card
+            className={`cursor-pointer hover:shadow-lg transition-shadow border-2 ${
+              isNightBookingClosed
+                ? "opacity-60 border-gray-300"
+                : "hover:border-blue-500"
+            }`}
+          >
             <CardHeader className="text-center pb-4">
               <div className="mx-auto w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mb-4">
                 <Moon className="w-8 h-8 text-blue-600" />
@@ -79,12 +92,23 @@ export function ParkingTypeSelector({
                 </div>
               </div>
 
+              {isNightBookingClosed && (
+                <Alert className="border-red-200 bg-red-50 mb-4">
+                  <Clock className="h-4 w-4" />
+                  <AlertDescription className="text-red-800 text-sm">
+                    Réservations fermées depuis {cutoffTime}. Réouverture à{" "}
+                    {reopenTime}.
+                  </AlertDescription>
+                </Alert>
+              )}
+
               <Button
                 onClick={() => handleSelect("night")}
                 className="w-full mt-6"
                 size="lg"
+                disabled={isNightBookingClosed}
               >
-                Continue
+                {isNightBookingClosed ? "Fermé / Closed" : "Continue"}
               </Button>
             </CardContent>
           </Card>
