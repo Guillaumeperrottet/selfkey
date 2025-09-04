@@ -606,7 +606,7 @@ export function BookingSummary({ bookingId }: BookingSummaryProps) {
             <span className="text-white text-xs font-bold">✓</span>
           </div>
           <span className="text-xs text-gray-600 font-medium hidden md:inline">
-            Réservation
+            Booking
           </span>
         </div>
         <div className="w-3 h-0.5 bg-gray-300"></div>
@@ -615,7 +615,7 @@ export function BookingSummary({ bookingId }: BookingSummaryProps) {
             <span className="text-white text-xs font-bold">2</span>
           </div>
           <span className="text-xs text-gray-800 font-medium hidden md:inline">
-            Résumé
+            Summary
           </span>
         </div>
         <div className="w-3 h-0.5 bg-gray-300"></div>
@@ -624,7 +624,7 @@ export function BookingSummary({ bookingId }: BookingSummaryProps) {
             <span className="text-white text-xs font-bold">3</span>
           </div>
           <span className="text-xs text-gray-600 font-medium hidden md:inline">
-            Paiement
+            Payment
           </span>
         </div>
       </div>
@@ -639,14 +639,14 @@ export function BookingSummary({ bookingId }: BookingSummaryProps) {
             className="flex items-center gap-2 text-gray-600 hover:text-gray-800"
           >
             <ArrowLeft className="h-4 w-4" />
-            <span className="hidden sm:inline">Retour</span>
+            <span className="hidden sm:inline">Back</span>
           </Button>
           <div>
             <h1 className="text-base sm:text-lg font-bold text-gray-900">
-              Résumé de votre réservation
+              Booking Summary
             </h1>
             <p className="text-xs text-gray-600">
-              Vérifiez vos informations avant de procéder au paiement
+              Check your information before payment
             </p>
           </div>
           <div className="w-20"></div> {/* Spacer pour équilibrer */}
@@ -654,15 +654,15 @@ export function BookingSummary({ bookingId }: BookingSummaryProps) {
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-3 lg:gap-4">
-        {/* Détails de la réservation */}
+        {/* Booking Details */}
         <div className="lg:col-span-2 space-y-2">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-2">
-            {/* Informations du séjour */}
+            {/* Stay Information */}
             <Card>
               <CardHeader className="pb-1">
                 <CardTitle className="flex items-center gap-2 text-sm">
                   <Calendar className="h-4 w-4" />
-                  Détails du séjour
+                  Details
                 </CardTitle>
               </CardHeader>
               <CardContent className="space-y-1.5">
@@ -671,7 +671,7 @@ export function BookingSummary({ bookingId }: BookingSummaryProps) {
                     <Clock className="h-3 w-3 text-gray-600" />
                     <div>
                       <div className="text-xs font-medium text-gray-700">
-                        Arrivée
+                        Check-in
                       </div>
                       <div className="text-xs text-gray-900">
                         {formatDate(booking.checkInDate)}
@@ -682,7 +682,7 @@ export function BookingSummary({ bookingId }: BookingSummaryProps) {
                     <Clock className="h-3 w-3 text-gray-600" />
                     <div>
                       <div className="text-xs font-medium text-gray-700">
-                        Départ
+                        Check-out
                       </div>
                       <div className="text-xs text-gray-900">
                         {formatDate(booking.checkOutDate)}
@@ -701,11 +701,11 @@ export function BookingSummary({ bookingId }: BookingSummaryProps) {
                       {booking.establishment.name}
                     </div>
                     <div className="text-xs text-gray-700">
-                      Chambre: {booking.room.name}
+                      Place: {booking.room.name}
                     </div>
                   </div>
                   <Badge variant="secondary" className="text-xs">
-                    {duration} nuit{duration > 1 ? "s" : ""}
+                    {duration} night{duration > 1 ? "s" : ""}
                   </Badge>
                 </div>
               </CardContent>
@@ -716,7 +716,7 @@ export function BookingSummary({ bookingId }: BookingSummaryProps) {
               <CardHeader className="pb-1">
                 <CardTitle className="flex items-center gap-2 text-sm">
                   <User className="h-4 w-4" />
-                  Invités
+                  Guests
                 </CardTitle>
               </CardHeader>
               <CardContent>
@@ -725,7 +725,7 @@ export function BookingSummary({ bookingId }: BookingSummaryProps) {
                     <User className="h-3 w-3 text-gray-600" />
                     <div>
                       <div className="text-xs font-medium text-gray-700">
-                        Adultes
+                        Adults
                       </div>
                       <div className="text-sm font-semibold text-gray-900">
                         {booking.adults}
@@ -736,7 +736,7 @@ export function BookingSummary({ bookingId }: BookingSummaryProps) {
                     <User className="h-3 w-3 text-gray-600" />
                     <div>
                       <div className="text-xs font-medium text-gray-700">
-                        Enfants
+                        Children
                       </div>
                       <div className="text-sm font-semibold text-gray-900">
                         {booking.children}
@@ -759,33 +759,33 @@ export function BookingSummary({ bookingId }: BookingSummaryProps) {
             </Card>
           </div>
 
-          {/* Informations du client - Layout optimisé */}
+          {/* Customer Information - Optimized Layout */}
           <Card>
             <CardHeader className="pb-1">
               <CardTitle className="flex items-center gap-2 text-sm">
                 <User className="h-4 w-4" />
-                Vos informations
+                Your Information
                 <Badge variant="outline" className="ml-auto text-xs">
-                  Modifiables
+                  Editable
                 </Badge>
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-2">
-              {/* Informations personnelles - Layout en grille optimisé */}
+              {/* Personal Information - Optimized Grid Layout */}
               <div>
                 <h4 className="font-medium text-xs text-gray-700 mb-1">
-                  Informations personnelles
+                  Personal Information
                 </h4>
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-1">
                   <EditableField
                     field="clientFirstName"
-                    label="Prénom"
+                    label="First Name"
                     value={booking.clientFirstName}
                     icon={User}
                   />
                   <EditableField
                     field="clientLastName"
-                    label="Nom"
+                    label="Last Name"
                     value={booking.clientLastName}
                     icon={User}
                   />
@@ -793,7 +793,7 @@ export function BookingSummary({ bookingId }: BookingSummaryProps) {
                     <Calendar className="h-3 w-3 text-gray-600" />
                     <div>
                       <div className="text-xs font-medium text-gray-600">
-                        Date de naissance
+                        Birth Date
                       </div>
                       <div className="text-xs text-gray-900">
                         {formatDate(booking.clientBirthDate)}
@@ -802,7 +802,7 @@ export function BookingSummary({ bookingId }: BookingSummaryProps) {
                   </div>
                   <EditableField
                     field="clientBirthPlace"
-                    label="Lieu de naissance"
+                    label="Birth Place"
                     value={booking.clientBirthPlace}
                     icon={MapPin}
                   />
@@ -824,7 +824,7 @@ export function BookingSummary({ bookingId }: BookingSummaryProps) {
                   />
                   <EditableField
                     field="clientPhone"
-                    label="Téléphone"
+                    label="Phone"
                     value={booking.clientPhone}
                     type="tel"
                     icon={Phone}
@@ -832,54 +832,54 @@ export function BookingSummary({ bookingId }: BookingSummaryProps) {
                 </div>
               </div>
 
-              {/* Adresse - Layout en ligne */}
+              {/* Address - Inline Layout */}
               <div>
                 <h4 className="font-medium text-xs text-gray-700 mb-1">
-                  Adresse
+                  Address
                 </h4>
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-1">
                   <EditableField
                     field="clientAddress"
-                    label="Adresse"
+                    label="Address"
                     value={booking.clientAddress}
                     icon={MapPin}
                   />
                   <EditableField
                     field="clientPostalCode"
-                    label="Code postal"
+                    label="Postal Code"
                     value={booking.clientPostalCode}
                     icon={MapPin}
                   />
                   <EditableField
                     field="clientCity"
-                    label="Ville"
+                    label="City"
                     value={booking.clientCity}
                     icon={MapPin}
                   />
                   <EditableField
                     field="clientCountry"
-                    label="Pays"
+                    label="Country"
                     value={booking.clientCountry}
                     icon={MapPin}
                   />
                 </div>
               </div>
 
-              {/* Documents et véhicule */}
+              {/* Documents and Vehicle */}
               <div>
                 <h4 className="font-medium text-xs text-gray-700 mb-1">
-                  Documents et véhicule
+                  Documents & Vehicle
                 </h4>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-1">
                   <EditableField
                     field="clientIdNumber"
-                    label="N° d'identification"
+                    label="ID Number"
                     value={booking.clientIdNumber}
                     icon={FileText}
                   />
                   <EditableField
                     field="clientVehicleNumber"
-                    label="N° d'immatriculation"
+                    label="License Plate"
                     value={booking.clientVehicleNumber}
                     icon={Car}
                   />
@@ -889,41 +889,41 @@ export function BookingSummary({ bookingId }: BookingSummaryProps) {
           </Card>
         </div>
 
-        {/* Récapitulatif des prix - Optimisé */}
+        {/* Price Summary - Optimized */}
         <div className="lg:col-span-1">
           <Card className="lg:sticky lg:top-4">
             <CardHeader className="pb-2">
               <CardTitle className="flex items-center gap-2 text-base">
-                Récapitulatif
+                Summary
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-3">
               <div className="space-y-2">
                 <div className="flex justify-between items-center">
                   <span className="text-sm text-gray-600">
-                    Chambre ({duration} nuit{duration > 1 ? "s" : ""})
+                    Room ({duration} night{duration > 1 ? "s" : ""})
                   </span>
                   <span className="text-base font-medium">
                     {booking.room.price * duration} {booking.currency}
                   </span>
                 </div>
 
-                {/* Options de pricing - affichage simple */}
+                {/* Pricing options - compact display */}
                 {booking.pricingOptionsTotal > 0 && (
-                  <div className="border rounded-lg p-2 bg-gray-50">
-                    <div className="flex justify-between items-center mb-2">
-                      <span className="text-sm text-gray-700 font-medium">
-                        Options supplémentaires
+                  <div className="border rounded-lg p-1.5 bg-gray-50">
+                    <div className="flex justify-between items-center mb-1">
+                      <span className="text-xs text-gray-700 font-medium">
+                        Additional Options
                       </span>
-                      <span className="text-base font-medium text-gray-800">
+                      <span className="text-sm font-medium text-gray-800">
                         +{booking.pricingOptionsTotal} {booking.currency}
                       </span>
                     </div>
 
-                    <div className="space-y-1">
+                    <div className="space-y-0.5">
                       {Object.entries(booking.selectedPricingOptions).map(
                         ([key, value]) => (
-                          <div key={key} className="text-sm text-gray-600">
+                          <div key={key} className="text-xs text-gray-600">
                             {getOptionDisplayName(key, value)}
                           </div>
                         )
@@ -932,18 +932,16 @@ export function BookingSummary({ bookingId }: BookingSummaryProps) {
                   </div>
                 )}
 
-                {/* Taxe de séjour */}
+                {/* Tourist Tax */}
                 {touristTaxSettings.enabled && touristTaxSettings.total > 0 && (
                   <div className="flex justify-between items-center">
                     <div>
-                      <span className="text-sm text-gray-600">
-                        Taxe de séjour
-                      </span>
+                      <span className="text-sm text-gray-600">Tourist Tax</span>
                       <div className="text-xs text-gray-500">
-                        {booking.adults} adulte{booking.adults > 1 ? "s" : ""} •{" "}
-                        {duration} nuit{duration > 1 ? "s" : ""}
+                        {booking.adults} adult{booking.adults > 1 ? "s" : ""} •{" "}
+                        {duration} night{duration > 1 ? "s" : ""}
                         {touristTaxSettings.amount > 0 &&
-                          ` • ${touristTaxSettings.amount.toFixed(2)} ${booking.currency}/pers./nuit`}
+                          ` • ${touristTaxSettings.amount.toFixed(2)} ${booking.currency}/person/night`}
                       </div>
                     </div>
                     <span className="text-base font-medium">
@@ -975,7 +973,7 @@ export function BookingSummary({ bookingId }: BookingSummaryProps) {
 
               <Separator />
 
-              {/* Conditions générales */}
+              {/* Terms and Conditions */}
               <div className="space-y-2">
                 <div className="flex items-start space-x-2">
                   <Checkbox
@@ -991,65 +989,60 @@ export function BookingSummary({ bookingId }: BookingSummaryProps) {
                       htmlFor="terms"
                       className="text-sm cursor-pointer leading-relaxed"
                     >
-                      J&apos;accepte les{" "}
+                      I accept the{" "}
                       <Dialog>
                         <DialogTrigger asChild>
                           <span className="text-gray-700 hover:underline cursor-pointer">
-                            conditions générales de vente
+                            terms and conditions
                           </span>
                         </DialogTrigger>
                         <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">
                           <DialogHeader>
-                            <DialogTitle>
-                              Conditions générales de vente
-                            </DialogTitle>
+                            <DialogTitle>Terms and Conditions</DialogTitle>
                           </DialogHeader>
                           <div className="space-y-4 text-sm">
                             <div>
-                              <h4 className="font-medium mb-2">
-                                1. Réservation
-                              </h4>
+                              <h4 className="font-medium mb-2">1. Booking</h4>
                               <p>
-                                La réservation est confirmée après paiement
-                                intégral du séjour. Aucune réservation
-                                n&apos;est garantie sans paiement.
+                                The booking is confirmed after full payment of
+                                the stay. No booking is guaranteed without
+                                payment.
                               </p>
                             </div>
                             <div>
-                              <h4 className="font-medium mb-2">2. Paiement</h4>
+                              <h4 className="font-medium mb-2">2. Payment</h4>
                               <p>
-                                Le paiement s&apos;effectue en ligne de manière
-                                sécurisée via Stripe. Toutes les transactions
-                                sont protégées par un cryptage SSL.
-                              </p>
-                            </div>
-                            <div>
-                              <h4 className="font-medium mb-2">
-                                3. Arrivée et départ
-                              </h4>
-                              <p>
-                                L&apos;arrivée se fait à partir de 15h00 et le
-                                départ avant 11h00, sauf accord particulier.
+                                Payment is made online securely via Stripe. All
+                                transactions are protected by SSL encryption.
                               </p>
                             </div>
                             <div>
                               <h4 className="font-medium mb-2">
-                                4. Responsabilité
+                                3. Check-in and check-out
                               </h4>
                               <p>
-                                L&apos;établissement décline toute
-                                responsabilité en cas de vol, perte ou dommage
-                                aux biens personnels.
+                                Check-in is from 3:00 PM and check-out before
+                                11:00 AM, unless otherwise agreed.
                               </p>
                             </div>
                             <div>
                               <h4 className="font-medium mb-2">
-                                5. Annulation
+                                4. Responsibility
                               </h4>
                               <p>
-                                Annulation gratuite jusqu&apos;à 24h avant
-                                l&apos;arrivée. Annulation tardive : 50% du
-                                montant sera retenu.
+                                The establishment declines any responsabilité en
+                                cas de vol, perte ou dommage aux biens
+                                personnels.
+                              </p>
+                            </div>
+                            <div>
+                              <h4 className="font-medium mb-2">
+                                5. Cancellation
+                              </h4>
+                              <p>
+                                Free cancellation up to 24h before arrival. Late
+                                cancellation: 50% of the amount will be
+                                retained.
                               </p>
                             </div>
                           </div>
@@ -1062,8 +1055,8 @@ export function BookingSummary({ bookingId }: BookingSummaryProps) {
                 {!acceptedTerms && (
                   <Alert className="py-2">
                     <AlertDescription className="text-sm">
-                      Vous devez accepter les conditions générales pour procéder
-                      au paiement.
+                      You must accept the terms and conditions to proceed with
+                      payment.
                     </AlertDescription>
                   </Alert>
                 )}
@@ -1076,10 +1069,10 @@ export function BookingSummary({ bookingId }: BookingSummaryProps) {
                 size="lg"
               >
                 {processingPayment ? (
-                  "Redirection..."
+                  "Redirecting..."
                 ) : (
                   <>
-                    Procéder au paiement
+                    Proceed to Payment
                     <ChevronRight className="h-4 w-4 ml-2" />
                   </>
                 )}
