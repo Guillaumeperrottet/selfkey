@@ -10,6 +10,7 @@ import { Label } from "@/components/ui/label";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Separator } from "@/components/ui/separator";
+import { toastUtils } from "@/lib/toast-utils";
 import {
   Select,
   SelectContent,
@@ -133,6 +134,11 @@ export function BookingSummary({ bookingId }: BookingSummaryProps) {
   // États pour la modification des informations
   const [editingField, setEditingField] = useState<string | null>(null);
   const [editValues, setEditValues] = useState<Record<string, string>>({});
+
+  // Nettoyer les toasts persistants au montage du composant
+  useEffect(() => {
+    toastUtils.dismissAll();
+  }, []);
 
   useEffect(() => {
     const loadBooking = async () => {
