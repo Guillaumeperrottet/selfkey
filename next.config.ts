@@ -23,19 +23,20 @@ const nextConfig: NextConfig = {
     return [
       {
         // Permettre les appels API depuis selfcamp.ch vers selfkey.ch
-        source: '/api/:path*',
+        source: "/api/:path*",
         headers: [
           {
-            key: 'Access-Control-Allow-Origin',
-            value: 'https://selfcamp.ch, https://www.selfcamp.ch, http://localhost:3000',
+            key: "Access-Control-Allow-Origin",
+            value:
+              "https://selfcamp.ch, https://www.selfcamp.ch, http://localhost:3000",
           },
           {
-            key: 'Access-Control-Allow-Methods',
-            value: 'GET, POST, PUT, DELETE, OPTIONS',
+            key: "Access-Control-Allow-Methods",
+            value: "GET, POST, PUT, DELETE, OPTIONS",
           },
           {
-            key: 'Access-Control-Allow-Headers',
-            value: 'Content-Type, Authorization',
+            key: "Access-Control-Allow-Headers",
+            value: "Content-Type, Authorization",
           },
         ],
       },

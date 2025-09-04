@@ -10,6 +10,8 @@ interface QRCodeWithLogoOptions {
   logoUrl?: string;
   logoSize?: number;
   borderRadius?: number;
+  quality?: "low" | "medium" | "high" | "print"; // Nouveau paramètre de qualité
+  scale?: number; // Facteur de mise à l'échelle pour la haute définition
 }
 
 export async function generateQRCodeWithLogo(
@@ -21,17 +23,25 @@ export async function generateQRCodeWithLogo(
     margin = 2,
     color = { dark: "#000000", light: "#FFFFFF" },
     logoUrl = "https://res.cloudinary.com/dafkgjhwt/image/upload/v1756998073/selfcamp_logo_seul_1_kdcjwb.png",
-    logoSize = width * 0.2, // 20% de la taille du QR code
+    logoSize = width * 0.2,
     borderRadius = 16,
+    quality = "medium",
+    scale = quality === "print" ? 4 : quality === "high" ? 2 : 1, // Facteur de mise à l'échelle basé sur la qualité
   } = options;
 
+  // Calculer les dimensions finales
+  const finalWidth = width * scale;
+  const finalLogoSize = logoSize * scale;
+  const finalBorderRadius = borderRadius * scale;
+
   try {
-    // Générer le QR code de base
+    // Générer le QR code de base avec une résolution plus élevée
     const qrCodeDataUrl = await QRCode.toDataURL(text, {
-      width,
+      width: finalWidth,
       margin,
       color,
-      errorCorrectionLevel: "M", // Niveau de correction d'erreur moyen pour permettre l'ajout du logo
+      errorCorrectionLevel:
+        quality === "print" ? "H" : quality === "high" ? "M" : "L", // Correction d'erreur adaptative
     });
 
     // Si nous sommes côté serveur, retourner juste le QR code simple
@@ -47,8 +57,8 @@ export async function generateQRCodeWithLogo(
       throw new Error("Impossible de créer le contexte canvas");
     }
 
-    canvas.width = width;
-    canvas.height = width;
+    canvas.width = finalWidth;
+    canvas.height = finalWidth;
 
     // Dessiner le QR code de base
     const qrImage = new Image();
@@ -63,16 +73,21 @@ export async function generateQRCodeWithLogo(
     // Appliquer les angles arrondis avec un masque
     ctx.save();
 
-    // Créer un chemin avec des angles arrondis
-    const radius = borderRadius;
+    // Créer un chemin avec des angles arrondis (utiliser les dimensions finales)
+    const radius = finalBorderRadius;
     ctx.beginPath();
     ctx.moveTo(radius, 0);
-    ctx.lineTo(width - radius, 0);
-    ctx.quadraticCurveTo(width, 0, width, radius);
-    ctx.lineTo(width, width - radius);
-    ctx.quadraticCurveTo(width, width, width - radius, width);
-    ctx.lineTo(radius, width);
-    ctx.quadraticCurveTo(0, width, 0, width - radius);
+    ctx.lineTo(finalWidth - radius, 0);
+    ctx.quadraticCurveTo(finalWidth, 0, finalWidth, radius);
+    ctx.lineTo(finalWidth, finalWidth - radius);
+    ctx.quadraticCurveTo(
+      finalWidth,
+      finalWidth,
+      finalWidth - radius,
+      finalWidth
+    );
+    ctx.lineTo(radius, finalWidth);
+    ctx.quadraticCurveTo(0, finalWidth, 0, finalWidth - radius);
     ctx.lineTo(0, radius);
     ctx.quadraticCurveTo(0, 0, radius, 0);
     ctx.closePath();
@@ -80,8 +95,8 @@ export async function generateQRCodeWithLogo(
     // Utiliser le chemin comme masque
     ctx.clip();
 
-    // Dessiner le QR code
-    ctx.drawImage(qrImage, 0, 0, width, width);
+    // Dessiner le QR code avec la haute résolution
+    ctx.drawImage(qrImage, 0, 0, finalWidth, finalWidth);
 
     ctx.restore();
 
@@ -99,14 +114,14 @@ export async function generateQRCodeWithLogo(
         logoImage.src = logoUrl;
       });
 
-      // Calculer la position du logo au centre
-      const logoX = (width - logoSize) / 2;
-      const logoY = (width - logoSize) / 2;
+      // Calculer la position du logo au centre (avec les dimensions finales)
+      const logoX = (finalWidth - finalLogoSize) / 2;
+      const logoY = (finalWidth - finalLogoSize) / 2;
 
-      // Dessiner un fond blanc avec des angles arrondis pour le logo
-      const logoRadius = 8;
-      const logoPadding = 4;
-      const logoBackgroundSize = logoSize + logoPadding * 2;
+      // Dessiner un fond blanc avec des angles arrondis pour le logo (adapté à la résolution)
+      const logoRadius = 8 * scale;
+      const logoPadding = 4 * scale;
+      const logoBackgroundSize = finalLogoSize + logoPadding * 2;
       const logoBackgroundX = logoX - logoPadding;
       const logoBackgroundY = logoY - logoPadding;
 
@@ -155,39 +170,39 @@ export async function generateQRCodeWithLogo(
       ctx.fill();
       ctx.restore();
 
-      // Dessiner le logo avec des angles arrondis
+      // Dessiner le logo avec des angles arrondis (utiliser les dimensions finales)
       if (logoImage.complete && logoImage.naturalWidth > 0) {
         ctx.save();
         ctx.beginPath();
         ctx.moveTo(logoX + logoRadius, logoY);
-        ctx.lineTo(logoX + logoSize - logoRadius, logoY);
+        ctx.lineTo(logoX + finalLogoSize - logoRadius, logoY);
         ctx.quadraticCurveTo(
-          logoX + logoSize,
+          logoX + finalLogoSize,
           logoY,
-          logoX + logoSize,
+          logoX + finalLogoSize,
           logoY + logoRadius
         );
-        ctx.lineTo(logoX + logoSize, logoY + logoSize - logoRadius);
+        ctx.lineTo(logoX + finalLogoSize, logoY + finalLogoSize - logoRadius);
         ctx.quadraticCurveTo(
-          logoX + logoSize,
-          logoY + logoSize,
-          logoX + logoSize - logoRadius,
-          logoY + logoSize
+          logoX + finalLogoSize,
+          logoY + finalLogoSize,
+          logoX + finalLogoSize - logoRadius,
+          logoY + finalLogoSize
         );
-        ctx.lineTo(logoX + logoRadius, logoY + logoSize);
+        ctx.lineTo(logoX + logoRadius, logoY + finalLogoSize);
         ctx.quadraticCurveTo(
           logoX,
-          logoY + logoSize,
+          logoY + finalLogoSize,
           logoX,
-          logoY + logoSize - logoRadius
+          logoY + finalLogoSize - logoRadius
         );
         ctx.lineTo(logoX, logoY + logoRadius);
         ctx.quadraticCurveTo(logoX, logoY, logoX + logoRadius, logoY);
         ctx.closePath();
         ctx.clip();
 
-        // Dessiner le logo
-        ctx.drawImage(logoImage, logoX, logoY, logoSize, logoSize);
+        // Dessiner le logo avec la taille finale haute résolution
+        ctx.drawImage(logoImage, logoX, logoY, finalLogoSize, finalLogoSize);
         ctx.restore();
       }
     } catch (logoError) {
@@ -202,6 +217,25 @@ export async function generateQRCodeWithLogo(
   } catch (error) {
     console.error("Erreur lors de la génération du QR code avec logo:", error);
     // En cas d'erreur, retourner un QR code simple
-    return QRCode.toDataURL(text, { width, margin, color });
+    return QRCode.toDataURL(text, { width: finalWidth, margin, color });
   }
+}
+
+// Fonction helper pour générer un QR code haute qualité pour téléchargement
+export async function generateHighQualityQRCode(
+  text: string,
+  options: Omit<QRCodeWithLogoOptions, "quality"> = {}
+): Promise<string> {
+  return generateQRCodeWithLogo(text, { ...options, quality: "print" });
+}
+
+// Fonction helper pour télécharger un QR code
+export function downloadQRCode(
+  dataUrl: string,
+  filename: string = "qr-code.png"
+) {
+  const link = document.createElement("a");
+  link.download = filename;
+  link.href = dataUrl;
+  link.click();
 }

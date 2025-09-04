@@ -1,7 +1,11 @@
 "use client";
 
 import { useState, useEffect, useRef } from "react";
-import { generateQRCodeWithLogo } from "@/lib/qrcode-with-logo";
+import {
+  generateQRCodeWithLogo,
+  generateHighQualityQRCode,
+  downloadQRCode,
+} from "@/lib/qrcode-with-logo";
 import { useReactToPrint } from "react-to-print";
 import Image from "next/image";
 
@@ -15,6 +19,7 @@ export function QRCodeGenerator({
   hotelName,
 }: QRCodeGeneratorProps) {
   const [qrCodeUrl, setQrCodeUrl] = useState<string>("");
+  const [printQrCodeUrl, setPrintQrCodeUrl] = useState<string>("");
   const [bookingUrl, setBookingUrl] = useState<string>("");
   const printRef = useRef<HTMLDivElement>(null);
 
@@ -23,11 +28,12 @@ export function QRCodeGenerator({
     const url = `${window.location.origin}/${hotelSlug}`;
     setBookingUrl(url);
 
-    // Générer le code QR avec logo
+    // Générer le code QR avec logo pour l'affichage
     generateQRCodeWithLogo(url, {
       width: 256,
       margin: 2,
       borderRadius: 16,
+      quality: "medium",
     })
       .then((dataUrl: string) => {
         setQrCodeUrl(dataUrl);
@@ -35,12 +41,45 @@ export function QRCodeGenerator({
       .catch((error: Error) => {
         console.error("Erreur lors de la génération du QR Code:", error);
       });
+
+    // Générer le code QR haute qualité pour l'impression
+    generateQRCodeWithLogo(url, {
+      width: 320,
+      margin: 2,
+      borderRadius: 20,
+      quality: "print",
+    })
+      .then((dataUrl: string) => {
+        setPrintQrCodeUrl(dataUrl);
+      })
+      .catch((error: Error) => {
+        console.error(
+          "Erreur lors de la génération du QR Code d'impression:",
+          error
+        );
+      });
   }, [hotelSlug]);
 
   const handlePrint = useReactToPrint({
     contentRef: printRef,
     documentTitle: `QR Code - ${hotelName}`,
   });
+
+  // Fonction pour télécharger en haute qualité
+  const handleDownload = async () => {
+    try {
+      const highQualityQR = await generateHighQualityQRCode(bookingUrl, {
+        width: 512, // Taille plus grande pour le téléchargement
+        margin: 2,
+        borderRadius: 32, // Proportionnel à la taille
+      });
+      downloadQRCode(highQualityQR, `qr-code-${hotelSlug}-hq.png`);
+    } catch (error) {
+      console.error("Erreur lors du téléchargement haute qualité:", error);
+      // Fallback vers le QR code normal
+      downloadQRCode(qrCodeUrl, `qr-code-${hotelSlug}.png`);
+    }
+  };
 
   return (
     <div className="bg-white rounded-lg shadow-md p-6">
@@ -94,10 +133,10 @@ export function QRCodeGenerator({
             <span>Imprimer</span>
           </button>
 
-          <a
-            href={qrCodeUrl}
-            download={`qr-code-${hotelSlug}.png`}
-            className="bg-green-600 text-white px-6 py-2 rounded-lg hover:bg-green-700 flex items-center space-x-2"
+          <button
+            onClick={handleDownload}
+            disabled={!qrCodeUrl}
+            className="bg-green-600 text-white px-6 py-2 rounded-lg hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed flex items-center space-x-2"
           >
             <svg
               className="w-5 h-5"
@@ -112,8 +151,8 @@ export function QRCodeGenerator({
                 d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
               />
             </svg>
-            <span>Télécharger</span>
-          </a>
+            <span>Télécharger HQ</span>
+          </button>
         </div>
       </div>
 
@@ -123,10 +162,10 @@ export function QRCodeGenerator({
           <h1 className="text-3xl font-bold mb-4">{hotelName}</h1>
           <h2 className="text-xl mb-6">Réservation en ligne</h2>
 
-          {qrCodeUrl && (
+          {printQrCodeUrl && (
             <div className="flex justify-center mb-6">
               <Image
-                src={qrCodeUrl}
+                src={printQrCodeUrl}
                 alt="QR Code pour réservation"
                 width={320}
                 height={320}

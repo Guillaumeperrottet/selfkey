@@ -2,7 +2,7 @@ import { NextResponse, type NextRequest } from "next/server";
 
 export async function middleware(request: NextRequest) {
   // Plus de redirection automatique - chaque domaine affiche sa propre page
-  
+
   // Protéger les routes admin et establishments
   if (
     request.nextUrl.pathname.startsWith("/admin") ||

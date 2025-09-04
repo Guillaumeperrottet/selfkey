@@ -1,6 +1,6 @@
-'use client';
+"use client";
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -31,7 +31,7 @@ export function AvailabilityDisplay() {
           setAvailability(data);
         }
       } catch (error) {
-        console.error('Erreur lors du chargement des disponibilités:', error);
+        console.error("Erreur lors du chargement des disponibilités:", error);
       } finally {
         setLoading(false);
       }
@@ -40,9 +40,10 @@ export function AvailabilityDisplay() {
     fetchAvailability();
     // Actualiser toutes les 5 minutes
     const interval = setInterval(fetchAvailability, 5 * 60 * 1000);
-    
+
     return () => clearInterval(interval);
-  }, []);  if (loading) {
+  }, []);
+  if (loading) {
     return (
       <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
         {[1, 2, 3, 4].map((i) => (
@@ -68,9 +69,7 @@ export function AvailabilityDisplay() {
             Impossible de charger les disponibilités pour le moment.
           </p>
           <Button asChild className="mt-4">
-            <Link href={DOMAINS.SELFKEY}>
-              Voir toutes les disponibilités
-            </Link>
+            <Link href={DOMAINS.SELFKEY}>Voir toutes les disponibilités</Link>
           </Button>
         </CardContent>
       </Card>
