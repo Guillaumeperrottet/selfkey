@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import QRCode from "qrcode";
+import { generateQRCodeWithLogo } from "@/lib/qrcode-with-logo";
 import Image from "next/image";
 
 interface QRCodePreviewProps {
@@ -17,19 +17,16 @@ export function QRCodePreview({ hotelSlug }: QRCodePreviewProps) {
     const url = `${window.location.origin}/${hotelSlug}`;
     setBookingUrl(url);
 
-    // Générer le code QR
-    QRCode.toDataURL(url, {
+    // Générer le code QR avec logo
+    generateQRCodeWithLogo(url, {
       width: 128,
       margin: 1,
-      color: {
-        dark: "#000000",
-        light: "#FFFFFF",
-      },
+      borderRadius: 12,
     })
-      .then((dataUrl) => {
+      .then((dataUrl: string) => {
         setQrCodeUrl(dataUrl);
       })
-      .catch((error) => {
+      .catch((error: Error) => {
         console.error("Erreur lors de la génération du QR Code:", error);
       });
   }, [hotelSlug]);
@@ -96,7 +93,7 @@ export function QRCodePreview({ hotelSlug }: QRCodePreviewProps) {
               alt="QR Code pour réservation"
               width={128}
               height={128}
-              className="w-32 h-32"
+              className="w-32 h-32 rounded-lg"
             />
           </div>
         </div>

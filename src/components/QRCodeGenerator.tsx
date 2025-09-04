@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, useRef } from "react";
-import QRCode from "qrcode";
+import { generateQRCodeWithLogo } from "@/lib/qrcode-with-logo";
 import { useReactToPrint } from "react-to-print";
 import Image from "next/image";
 
@@ -23,19 +23,16 @@ export function QRCodeGenerator({
     const url = `${window.location.origin}/${hotelSlug}`;
     setBookingUrl(url);
 
-    // Générer le code QR
-    QRCode.toDataURL(url, {
+    // Générer le code QR avec logo
+    generateQRCodeWithLogo(url, {
       width: 256,
       margin: 2,
-      color: {
-        dark: "#000000",
-        light: "#FFFFFF",
-      },
+      borderRadius: 16,
     })
-      .then((dataUrl) => {
+      .then((dataUrl: string) => {
         setQrCodeUrl(dataUrl);
       })
-      .catch((error) => {
+      .catch((error: Error) => {
         console.error("Erreur lors de la génération du QR Code:", error);
       });
   }, [hotelSlug]);
@@ -61,7 +58,7 @@ export function QRCodeGenerator({
                 alt="QR Code pour réservation"
                 width={256}
                 height={256}
-                className="w-64 h-64"
+                className="w-64 h-64 rounded-lg"
               />
             </div>
           )}
