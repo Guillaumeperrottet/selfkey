@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
 
 interface DomainRouterProps {
@@ -8,7 +8,7 @@ interface DomainRouterProps {
   selfkeyContent: React.ReactNode;
 }
 
-export function DomainRouter({
+function DomainRouterInner({
   selfcampContent,
   selfkeyContent,
 }: DomainRouterProps) {
@@ -42,4 +42,18 @@ export function DomainRouter({
 
   // Sinon afficher le contenu selfkey par défaut
   return <>{selfkeyContent}</>;
+}
+
+export function DomainRouter({
+  selfcampContent,
+  selfkeyContent,
+}: DomainRouterProps) {
+  return (
+    <Suspense fallback={<>{selfkeyContent}</>}>
+      <DomainRouterInner
+        selfcampContent={selfcampContent}
+        selfkeyContent={selfkeyContent}
+      />
+    </Suspense>
+  );
 }

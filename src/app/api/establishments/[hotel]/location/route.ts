@@ -4,7 +4,7 @@ import { prisma } from "@/lib/prisma";
 
 export async function PATCH(
   request: NextRequest,
-  { params }: { params: { hotel: string } }
+  { params }: { params: Promise<{ hotel: string }> }
 ) {
   try {
     const session = await auth.api.getSession({
@@ -15,7 +15,8 @@ export async function PATCH(
       return NextResponse.json({ error: "Non autorisé" }, { status: 401 });
     }
 
-    const establishmentSlug = params.hotel;
+    const { hotel } = await params;
+    const establishmentSlug = hotel;
     const { address, city, postalCode, country, latitude, longitude } =
       await request.json();
 
