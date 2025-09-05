@@ -256,6 +256,18 @@ export function AdminSidebar({
           size="sm"
           className="w-full justify-start"
           asChild
+        >
+          <Link href={`/${hotel}`} target="_blank">
+            <ExternalLink className="mr-2 h-4 w-4" />
+            Page de réservation
+          </Link>
+        </Button>
+
+        <Button
+          variant="outline"
+          size="sm"
+          className="w-full justify-start"
+          asChild
           data-tutorial="location-link"
         >
           <Link href={`/admin/${hotel}/location`}>
