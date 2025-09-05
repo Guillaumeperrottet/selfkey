@@ -13,11 +13,9 @@ import {
   Shield,
   MapPin,
 } from "lucide-react";
-import { AvailabilityDisplay } from "../components/availability-display";
 import { DOMAINS } from "@/lib/domains";
-import { AnimatedBackground } from "@/components/ui/animated-background";
-import { FloatingParticles } from "@/components/ui/floating-particles";
-import { useEffect } from "react";
+import SearchBar from "@/components/ui/search-bar";
+import { useEffect, useRef } from "react";
 import {
   animateOnScroll,
   setupCardHoverAnimations,
@@ -30,6 +28,8 @@ import {
 } from "@/lib/animations";
 
 export function SelfcampHomepage() {
+  const backgroundRef = useRef<HTMLDivElement>(null);
+
   useEffect(() => {
     // Initialiser les animations après le montage du composant
     const initializeAnimations = () => {
@@ -67,125 +67,127 @@ export function SelfcampHomepage() {
       }
     };
 
+    // Effet parallax pour l'image de fond
+    const handleScroll = () => {
+      if (backgroundRef.current) {
+        const scrolled = window.pageYOffset;
+        const rate = scrolled * -0.5; // Vitesse du parallax inversée
+        backgroundRef.current.style.transform = `translateY(${rate}px)`;
+      }
+    };
+
+    // Ajouter l'écouteur de scroll
+    window.addEventListener("scroll", handleScroll);
+
     // Délai pour s'assurer que tous les éléments sont montés
     setTimeout(initializeAnimations, 100);
+
+    // Cleanup
+    return () => {
+      window.removeEventListener("scroll", handleScroll);
+    };
   }, []);
 
   return (
-    <div className="min-h-screen relative overflow-hidden">
-      <AnimatedBackground />
-      <FloatingParticles />
+    <div
+      className="min-h-screen relative overflow-hidden"
+      style={{ backgroundColor: "#212215" }}
+    >
+      {/* Background Image */}
+      <div
+        ref={backgroundRef}
+        className="fixed inset-0 z-0"
+        style={{
+          backgroundImage: "url(/background-selfcamp.jpg)",
+          backgroundSize: "cover",
+          backgroundPosition: "center",
+          backgroundRepeat: "no-repeat",
+        }}
+      >
+        {/* Overlay pour assurer la lisibilité */}
+        <div className="absolute inset-0 bg-black/20"></div>
+      </div>
 
       {/* Header */}
-      <header className="bg-white/90 backdrop-blur-md border-b border-vintage-gray sticky top-0 z-50 animate-on-scroll">
-        <div className="container mx-auto px-4 py-4 flex justify-between items-center">
-          <div className="flex items-center space-x-3">
-            <Image
-              src="/logo.png"
-              alt="SelfCamp Logo"
-              width={40}
-              height={40}
-              className="rounded-lg floating-icon"
-            />
-            <h1 className="text-2xl font-bold text-vintage-teal">SelfCamp</h1>
+      <header className="absolute top-0 left-0 right-0 z-50 py-6">
+        <div className="container mx-auto px-4 flex justify-between items-center">
+          {/* Gauche */}
+          <div className="text-white/90 text-sm font-medium">
+            CAMPING AUTOMATISÉ
           </div>
-          <nav className="hidden md:flex space-x-6">
-            <a
-              href="#disponibilites"
-              className="text-vintage-teal hover:text-vintage-yellow transition-colors duration-300"
-            >
-              Disponibilités
-            </a>
-            <a
-              href="#services"
-              className="text-vintage-teal hover:text-vintage-yellow transition-colors duration-300"
-            >
-              Services
-            </a>
-            <a
-              href="#contact"
-              className="text-vintage-teal hover:text-vintage-yellow transition-colors duration-300"
-            >
-              Contact
-            </a>
-          </nav>
-          <Button
-            asChild
-            className="btn-vintage-primary morph-button transition-all duration-300 transform hover:scale-105"
-          >
-            <Link href={DOMAINS.SELFKEY}>Réserver maintenant</Link>
-          </Button>
+
+          {/* Centre */}
+          <div className="text-white/90 text-sm font-medium text-center">
+            SELFCAMP.CH - EXPÉRIENCE UNIQUE
+          </div>
+
+          {/* Droite */}
+          <div className="text-white/90 text-sm font-medium">24H/24 - 7J/7</div>
         </div>
       </header>
 
       {/* Hero Section */}
-      <section className="py-20 px-4">
+      <section className="py-20 px-4 relative z-10">
         <div className="container mx-auto text-center">
-          <div className="pulse-badge inline-block mb-6">
-            <span className="bg-vintage-yellow text-vintage-teal px-4 py-2 rounded-full text-sm font-medium">
-              🏕️ Camping automatisé 2025
-            </span>
-          </div>
-          <h2 className="text-5xl md:text-6xl font-bold text-vintage-black mb-6 animate-on-scroll">
-            Votre <span className="text-gradient-vintage-primary">camping</span>{" "}
-            <br />
-            <span className="text-gradient-vintage-secondary">automatisé</span>
-          </h2>
-          <p className="text-xl text-vintage-teal mb-8 max-w-2xl mx-auto animate-on-scroll-delayed">
-            Découvrez l&apos;expérience unique du camping automatisé. Réservez,
-            payez et accédez à votre emplacement 24h/24 grâce à notre système
-            révolutionnaire.
-          </p>
-          <div className="flex flex-col sm:flex-row gap-4 justify-center animate-on-scroll-delayed">
-            <Button
-              size="lg"
-              asChild
-              className="btn-vintage-primary morph-button transform hover:scale-105 transition-all duration-300 shadow-lg hover:shadow-xl"
-            >
-              <Link href={DOMAINS.SELFKEY}>Réserver votre emplacement</Link>
-            </Button>
-            <Button
-              size="lg"
-              variant="outline"
-              className="morph-button transform hover:scale-105 transition-all duration-300 border-vintage-teal hover:border-vintage-yellow hover-vintage-yellow"
-            >
-              Découvrir nos services
-            </Button>
+          {/* Logo principal */}
+          <div className="mb-6 animate-on-scroll">
+            <Image
+              src="/selfcamp_logo.png"
+              alt="SelfCamp Logo"
+              width={400}
+              height={200}
+              className="mx-auto"
+              priority
+            />
           </div>
         </div>
       </section>
 
-      {/* Disponibilités en temps réel */}
-      <section
-        id="disponibilites"
-        className="py-16 px-4 section-vintage-accent backdrop-blur-sm"
-      >
+      {/* Search Section */}
+      <section className="py-14 px-4 relative z-10">
         <div className="container mx-auto">
-          <h3 className="text-3xl font-bold text-center text-vintage-teal mb-12 animate-on-scroll">
-            Disponibilités en temps réel
-          </h3>
-          <div className="animate-on-scroll-delayed">
-            <AvailabilityDisplay />
+          <div className="max-w-4xl mx-auto text-center mb-8">
+            <h2
+              className="text-3xl font-bold mb-4 animate-on-scroll"
+              style={{ color: "#B8B8B8" }}
+            >
+              Trouvez votre{" "}
+              <span style={{ color: "#B8B8B8" }}>emplacement</span>
+            </h2>
+            <p
+              className="text-lg animate-on-scroll-delayed"
+              style={{ color: "#B8B8B8" }}
+            >
+              Recherchez et découvrez nos emplacements de camping disponibles
+            </p>
           </div>
+          <SearchBar />
         </div>
       </section>
 
       {/* Services */}
-      <section id="services" className="py-16 px-4">
+      <section
+        id="services"
+        className="py-20 px-4"
+        style={{ backgroundColor: "#212215" }}
+      >
         <div className="container mx-auto">
-          <h3 className="text-3xl font-bold text-center text-vintage-teal mb-12 animate-on-scroll">
+          <h3
+            className="text-3xl font-bold text-center mb-12 animate-on-scroll"
+            style={{ color: "#E85A73" }}
+          >
             Nos services & équipements
           </h3>
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
             <Card className="text-center service-card card-vintage animate-on-scroll transition-all duration-300">
               <CardHeader>
                 <Tent className="h-12 w-12 text-vintage-teal mx-auto mb-4 floating-icon" />
-                <CardTitle className="text-vintage-black">
+                <CardTitle style={{ color: "#E85A73" }}>
                   Emplacements spacieux
                 </CardTitle>
               </CardHeader>
               <CardContent>
-                <p className="text-vintage-teal">
+                <p style={{ color: "#B8B8B8" }}>
                   Emplacements délimités de 100m² avec accès électrique
                 </p>
               </CardContent>
@@ -194,12 +196,12 @@ export function SelfcampHomepage() {
             <Card className="text-center service-card card-vintage animate-on-scroll transition-all duration-300">
               <CardHeader>
                 <ShowerHead className="h-12 w-12 text-vintage-orange mx-auto mb-4 floating-icon" />
-                <CardTitle className="text-vintage-black">
+                <CardTitle style={{ color: "#E85A73" }}>
                   Sanitaires modernes
                 </CardTitle>
               </CardHeader>
               <CardContent>
-                <p className="text-vintage-teal">
+                <p style={{ color: "#B8B8B8" }}>
                   Douches chaudes, WC et lavabos dans des blocs sanitaires
                   propres
                 </p>
@@ -209,12 +211,12 @@ export function SelfcampHomepage() {
             <Card className="text-center service-card card-vintage animate-on-scroll transition-all duration-300">
               <CardHeader>
                 <Car className="h-12 w-12 text-vintage-yellow mx-auto mb-4 floating-icon" />
-                <CardTitle className="text-vintage-black">
+                <CardTitle style={{ color: "#E85A73" }}>
                   Parking sécurisé
                 </CardTitle>
               </CardHeader>
               <CardContent>
-                <p className="text-vintage-teal">
+                <p style={{ color: "#B8B8B8" }}>
                   Place de parking incluse pour chaque emplacement
                 </p>
               </CardContent>
@@ -223,12 +225,10 @@ export function SelfcampHomepage() {
             <Card className="text-center service-card card-vintage animate-on-scroll transition-all duration-300">
               <CardHeader>
                 <Wifi className="h-12 w-12 text-vintage-teal mx-auto mb-4 floating-icon" />
-                <CardTitle className="text-vintage-black">
-                  WiFi gratuit
-                </CardTitle>
+                <CardTitle style={{ color: "#E85A73" }}>WiFi gratuit</CardTitle>
               </CardHeader>
               <CardContent>
-                <p className="text-vintage-teal">
+                <p style={{ color: "#B8B8B8" }}>
                   Connexion internet haut débit sur tout le camping
                 </p>
               </CardContent>
@@ -237,12 +237,12 @@ export function SelfcampHomepage() {
             <Card className="text-center service-card card-vintage animate-on-scroll transition-all duration-300">
               <CardHeader>
                 <Coffee className="h-12 w-12 text-vintage-orange mx-auto mb-4 floating-icon" />
-                <CardTitle className="text-vintage-black">
+                <CardTitle style={{ color: "#E85A73" }}>
                   Espace détente
                 </CardTitle>
               </CardHeader>
               <CardContent>
-                <p className="text-vintage-teal">
+                <p style={{ color: "#B8B8B8" }}>
                   Coin café et espace commun pour se détendre
                 </p>
               </CardContent>
@@ -251,12 +251,10 @@ export function SelfcampHomepage() {
             <Card className="text-center service-card card-vintage animate-on-scroll transition-all duration-300">
               <CardHeader>
                 <Shield className="h-12 w-12 text-vintage-yellow mx-auto mb-4 floating-icon" />
-                <CardTitle className="text-vintage-black">
-                  Accès 24h/24
-                </CardTitle>
+                <CardTitle style={{ color: "#E85A73" }}>Accès 24h/24</CardTitle>
               </CardHeader>
               <CardContent>
-                <p className="text-vintage-teal">
+                <p style={{ color: "#B8B8B8" }}>
                   Système automatisé pour un accès libre à toute heure
                 </p>
               </CardContent>
@@ -266,13 +264,22 @@ export function SelfcampHomepage() {
       </section>
 
       {/* CTA Section */}
-      <section className="py-16 px-4 bg-gradient-vintage-primary relative overflow-hidden">
+      <section
+        className="py-16 px-4 relative overflow-hidden"
+        style={{ backgroundColor: "#212215" }}
+      >
         <div className="absolute inset-0 bg-black/10"></div>
         <div className="container mx-auto text-center relative z-10">
-          <h3 className="text-3xl font-bold text-white mb-6 animate-on-scroll">
+          <h3
+            className="text-3xl font-bold mb-6 animate-on-scroll"
+            style={{ color: "#E85A73" }}
+          >
             Prêt pour votre prochaine aventure ?
           </h3>
-          <p className="text-vintage-gray-light mb-8 max-w-2xl mx-auto animate-on-scroll-delayed">
+          <p
+            className="mb-8 max-w-2xl mx-auto animate-on-scroll-delayed"
+            style={{ color: "#B8B8B8" }}
+          >
             Réservez votre emplacement en quelques clics et profitez d&apos;une
             expérience camping unique et moderne.
           </p>
@@ -296,7 +303,10 @@ export function SelfcampHomepage() {
       </section>
 
       {/* Footer */}
-      <footer className="bg-vintage-teal-dark text-white py-12 px-4">
+      <footer
+        className="text-white py-12 px-4"
+        style={{ backgroundColor: "#212215" }}
+      >
         <div className="container mx-auto">
           <div className="grid md:grid-cols-3 gap-8">
             <div className="animate-on-scroll">
