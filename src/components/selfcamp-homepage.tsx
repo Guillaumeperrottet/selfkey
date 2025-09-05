@@ -118,7 +118,7 @@ export function SelfcampHomepage() {
 
           {/* Centre */}
           <div className="text-white/90 text-sm font-medium text-center">
-            SELFCAMP.CH - EXPÉRIENCE UNIQUE
+            EXPÉRIENCE UNIQUE
           </div>
 
           {/* Droite */}
@@ -144,7 +144,7 @@ export function SelfcampHomepage() {
       </section>
 
       {/* Search Section */}
-      <section className="py-14 px-4 relative z-10">
+      <section className="py-3 px-4 relative z-10">
         <div className="container mx-auto">
           <div className="max-w-4xl mx-auto text-center mb-8">
             <h2
@@ -168,7 +168,7 @@ export function SelfcampHomepage() {
       {/* Services */}
       <section
         id="services"
-        className="py-20 px-4"
+        className="py-50 px-4"
         style={{ backgroundColor: "#212215" }}
       >
         <div className="container mx-auto">
