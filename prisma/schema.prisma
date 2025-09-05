@@ -93,6 +93,15 @@ model Establishment {
   commissionRate                Float                   @default(0)
   fixedFee                      Float                   @default(3.00)
   createdAt                     DateTime                @default(now())
+  
+  // Géolocalisation
+  address                       String?
+  city                          String?
+  postalCode                    String?
+  country                       String?                 @default("Switzerland")
+  latitude                      Float?
+  longitude                     Float?
+  
   accessCodeType                String                  @default("room")
   accessInstructions            String?
   generalAccessCode             String?

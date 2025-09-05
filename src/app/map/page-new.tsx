@@ -52,7 +52,6 @@ export default function MapPage() {
 
   useEffect(() => {
     filterEstablishments();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [establishments, searchQuery, selectedAmenities, priceRange]);
 
   const fetchEstablishments = async () => {

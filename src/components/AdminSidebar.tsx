@@ -20,6 +20,7 @@ import {
   ChevronRight,
   Activity,
   Edit3,
+  MapPin,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
@@ -247,6 +248,19 @@ export function AdminSidebar({
           <Link href={`/admin/${hotel}/qr-code`}>
             <QrCode className="mr-2 h-4 w-4" />
             Code QR
+          </Link>
+        </Button>
+
+        <Button
+          variant="outline"
+          size="sm"
+          className="w-full justify-start"
+          asChild
+          data-tutorial="location-link"
+        >
+          <Link href={`/admin/${hotel}/location`}>
+            <MapPin className="mr-2 h-4 w-4" />
+            Localisation
           </Link>
         </Button>
 

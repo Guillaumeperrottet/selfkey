@@ -35,15 +35,15 @@ export default function MapComponent() {
   useEffect(() => {
     const fetchEstablishments = async () => {
       try {
-        const response = await fetch('/api/public/establishments');
+        const response = await fetch("/api/public/establishments");
         if (response.ok) {
           const data = await response.json();
           setEstablishments(data);
         } else {
-          console.error('Erreur lors du chargement des établissements');
+          console.error("Erreur lors du chargement des établissements");
         }
       } catch (error) {
-        console.error('Erreur:', error);
+        console.error("Erreur:", error);
       } finally {
         setLoading(false);
       }
@@ -62,7 +62,7 @@ export default function MapComponent() {
       price: "25 CHF/nuit",
       type: "camping",
       description: "Magnificent bucolic square between garden and forest",
-      location: "Fribourg, Switzerland"
+      location: "Fribourg, Switzerland",
     },
   ];
 
@@ -78,7 +78,11 @@ export default function MapComponent() {
 
   return (
     <MapContainer
-      center={spotsToShow.length > 0 ? [spotsToShow[0].latitude, spotsToShow[0].longitude] : [46.8182, 7.1619]}
+      center={
+        spotsToShow.length > 0
+          ? [spotsToShow[0].latitude, spotsToShow[0].longitude]
+          : [46.8182, 7.1619]
+      }
       zoom={10}
       style={{ height: "100%", width: "100%" }}
     >

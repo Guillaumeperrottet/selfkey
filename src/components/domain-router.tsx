@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useSearchParams } from "next/navigation";
 
 interface DomainRouterProps {
   selfcampContent: React.ReactNode;
@@ -12,18 +13,30 @@ export function DomainRouter({
   selfkeyContent,
 }: DomainRouterProps) {
   const [hostname, setHostname] = useState("");
+  const searchParams = useSearchParams();
 
   useEffect(() => {
     setHostname(window.location.hostname);
   }, []);
 
-  // Afficher le contenu selfcamp si on est sur selfcamp.ch ou en mode développement
-  if (
-    hostname === "selfcamp.ch" ||
-    hostname === "www.selfcamp.ch" ||
-    hostname === "localhost" ||
-    hostname === "127.0.0.1"
-  ) {
+  // Permettre de forcer l'affichage avec ?app=selfkey ou ?app=selfcamp
+  const forceApp = searchParams.get("app");
+
+  if (forceApp === "selfkey") {
+    return <>{selfkeyContent}</>;
+  }
+
+  if (forceApp === "selfcamp") {
+    return <>{selfcampContent}</>;
+  }
+
+  // Afficher le contenu selfkey par défaut en développement local
+  if (hostname === "localhost" || hostname === "127.0.0.1") {
+    return <>{selfkeyContent}</>;
+  }
+
+  // Afficher le contenu selfcamp si on est sur selfcamp.ch
+  if (hostname === "selfcamp.ch" || hostname === "www.selfcamp.ch") {
     return <>{selfcampContent}</>;
   }
 
