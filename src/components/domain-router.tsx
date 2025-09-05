@@ -17,8 +17,13 @@ export function DomainRouter({
     setHostname(window.location.hostname);
   }, []);
 
-  // Afficher le contenu selfcamp si on est sur selfcamp.ch
-  if (hostname === "selfcamp.ch" || hostname === "www.selfcamp.ch") {
+  // Afficher le contenu selfcamp si on est sur selfcamp.ch ou en mode développement
+  if (
+    hostname === "selfcamp.ch" ||
+    hostname === "www.selfcamp.ch" ||
+    hostname === "localhost" ||
+    hostname === "127.0.0.1"
+  ) {
     return <>{selfcampContent}</>;
   }
 
