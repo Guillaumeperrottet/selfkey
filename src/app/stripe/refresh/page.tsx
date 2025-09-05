@@ -9,9 +9,9 @@ export default function StripeRefresh() {
   useEffect(() => {
     // Rediriger vers la page admin après un court délai
     const timer = setTimeout(() => {
-      const hotelSlug =
-        localStorage.getItem("currentHotel") || "hotel-test-paradise";
-      router.push(`/admin/${hotelSlug}`);
+      const currentHotel =
+        localStorage.getItem("currentHotel") || "camping-du-lac";
+      router.push(`/admin/${currentHotel}`);
     }, 2000);
 
     return () => clearTimeout(timer);
@@ -45,7 +45,7 @@ export default function StripeRefresh() {
           <button
             onClick={() => {
               const hotelSlug =
-                localStorage.getItem("currentHotel") || "hotel-test-paradise";
+                localStorage.getItem("currentHotel") || "camping-du-lac";
               router.push(`/admin/${hotelSlug}`);
             }}
             className="mt-4 bg-yellow-600 text-white py-2 px-6 rounded-md hover:bg-yellow-700 transition-colors"

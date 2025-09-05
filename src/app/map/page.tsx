@@ -18,7 +18,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { AvailabilityBadge } from "@/components/ui/availability-badge";
 import { useAvailability } from "@/hooks/useAvailability";
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect, useMemo, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
 
 interface Establishment {
@@ -38,7 +38,8 @@ interface Establishment {
   address?: string; // Optionnel
 }
 
-export default function MapPage() {
+// Composant interne qui utilise useSearchParams
+function MapPageContent() {
   const [establishments, setEstablishments] = useState<Establishment[]>([]);
   const [filteredEstablishments, setFilteredEstablishments] = useState<
     Establishment[]
@@ -466,5 +467,23 @@ export default function MapPage() {
         />
       </div>
     </div>
+  );
+}
+
+// Composant principal avec Suspense boundary
+export default function MapPage() {
+  return (
+    <Suspense
+      fallback={
+        <div className="min-h-screen flex items-center justify-center bg-vintage-gray-light">
+          <div className="text-center">
+            <div className="animate-spin h-8 w-8 border-2 border-vintage-teal border-t-transparent rounded-full mx-auto mb-4"></div>
+            <p className="text-vintage-black">Chargement de la carte...</p>
+          </div>
+        </div>
+      }
+    >
+      <MapPageContent />
+    </Suspense>
   );
 }

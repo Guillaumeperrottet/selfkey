@@ -11,7 +11,7 @@ export default function StripeSuccess() {
     const timer = setTimeout(() => {
       // Essayer de récupérer l'hôtel depuis l'URL ou le localStorage
       const hotelSlug =
-        localStorage.getItem("currentHotel") || "hotel-test-paradise";
+        localStorage.getItem("currentHotel") || "camping-du-lac";
       router.push(`/admin/${hotelSlug}`);
     }, 3000);
 
@@ -52,7 +52,7 @@ export default function StripeSuccess() {
           <button
             onClick={() => {
               const hotelSlug =
-                localStorage.getItem("currentHotel") || "hotel-test-paradise";
+                localStorage.getItem("currentHotel") || "camping-du-lac";
               router.push(`/admin/${hotelSlug}`);
             }}
             className="mt-4 bg-green-600 text-white py-2 px-6 rounded-md hover:bg-green-700 transition-colors"
