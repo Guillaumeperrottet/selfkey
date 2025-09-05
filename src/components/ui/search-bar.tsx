@@ -18,11 +18,15 @@ interface Establishment {
 
 interface SearchSuggestion {
   id: string;
-  type: "location" | "map" | "recent";
+  type: "establishment" | "location" | "map" | "recent";
   title: string;
-  subtitle?: string;
+  subtitle?: string | null;
   icon: "location" | "map" | "recent";
   establishment?: Establishment;
+  coordinates?: {
+    lat: number;
+    lon: number;
+  };
 }
 
 const RECENT_SEARCHES_KEY = "selfcamp_recent_searches";
@@ -73,20 +77,8 @@ export default function SearchBar() {
         `/api/public/establishments/search?q=${encodeURIComponent(query)}`
       );
       if (response.ok) {
-        const establishments: Establishment[] = await response.json();
-
-        const establishmentSuggestions: SearchSuggestion[] = establishments.map(
-          (est) => ({
-            id: est.id,
-            type: "location",
-            title: est.mapTitle || est.name,
-            subtitle: `${est.city}, ${est.country}`,
-            icon: "location",
-            establishment: est,
-          })
-        );
-
-        setSuggestions(establishmentSuggestions);
+        const results: SearchSuggestion[] = await response.json();
+        setSuggestions(results);
       }
     } catch (error) {
       console.error("Erreur lors de la recherche:", error);
@@ -133,14 +125,26 @@ export default function SearchBar() {
   };
 
   const handleSuggestionClick = (suggestion: SearchSuggestion) => {
-    if (suggestion.type === "location" && suggestion.establishment) {
+    if (suggestion.type === "establishment" && suggestion.establishment) {
       // Sauvegarder dans l'historique
       saveRecentSearch(suggestion.title);
 
-      // Rediriger vers la map avec recherche pré-filtrée
+      // Rediriger vers la map avec recherche pré-filtrée sur l'établissement
       const params = new URLSearchParams({
         search: suggestion.title,
         establishment: suggestion.establishment.slug,
+      });
+      router.push(`/map?${params.toString()}`);
+    } else if (suggestion.type === "location" && suggestion.coordinates) {
+      // Sauvegarder dans l'historique
+      saveRecentSearch(suggestion.title);
+
+      // Rediriger vers la map avec coordonnées géographiques
+      const params = new URLSearchParams({
+        search: suggestion.title,
+        lat: suggestion.coordinates.lat.toString(),
+        lng: suggestion.coordinates.lon.toString(),
+        zoom: "12",
       });
       router.push(`/map?${params.toString()}`);
     } else if (suggestion.type === "recent") {
@@ -158,12 +162,17 @@ export default function SearchBar() {
     }
   };
 
-  const getIcon = (iconType: string) => {
+  const getIcon = (iconType: string, suggestionType?: string) => {
     switch (iconType) {
       case "map":
         return <Map className="w-5 h-5 text-vintage-teal" />;
       case "location":
-        return <Navigation className="w-5 h-5 text-vintage-yellow" />;
+        // Différencier les établissements des lieux géographiques
+        if (suggestionType === "establishment") {
+          return <Navigation className="w-5 h-5 text-vintage-yellow" />;
+        } else {
+          return <Map className="w-5 h-5 text-vintage-teal" />;
+        }
       case "recent":
         return <Search className="w-5 h-5 text-gray-400" />;
       default:
@@ -238,7 +247,7 @@ export default function SearchBar() {
                   onClick={() => handleSuggestionClick(suggestion)}
                 >
                   <div className="w-10 h-10 bg-vintage-gray/20 rounded-lg flex items-center justify-center">
-                    {getIcon(suggestion.icon)}
+                    {getIcon(suggestion.icon, suggestion.type)}
                   </div>
                   <div className="flex-1">
                     <div className="font-medium text-vintage-black">

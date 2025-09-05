@@ -1,6 +1,13 @@
 "use client";
 
-import { MapContainer, TileLayer, Marker, Popup } from "react-leaflet";
+import {
+  MapContainer,
+  TileLayer,
+  Marker,
+  Popup,
+  useMapEvents,
+  useMap,
+} from "react-leaflet";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
 import { useEffect, useState } from "react";
@@ -101,6 +108,12 @@ interface Establishment {
 interface MapComponentProps {
   hoveredEstablishmentId?: string | null;
   onMarkerClick?: (establishmentId: string) => void;
+  center?: { lat: number; lng: number } | null;
+  zoom?: number;
+  onMapMove?: (bounds: {
+    center: { lat: number; lng: number };
+    zoom: number;
+  }) => void;
 }
 
 // Composant de marqueur animé
@@ -150,9 +163,56 @@ const AnimatedMarker = ({
   );
 };
 
+// Composant pour mettre à jour la vue de la carte
+const MapUpdater = ({
+  center,
+  zoom,
+}: {
+  center?: { lat: number; lng: number } | null;
+  zoom?: number;
+}) => {
+  const map = useMap();
+
+  useEffect(() => {
+    if (center && zoom) {
+      map.setView([center.lat, center.lng], zoom);
+    }
+  }, [center, zoom, map]);
+
+  return null;
+};
+
+// Composant pour gérer les événements de la carte
+const MapEvents = ({
+  onMapMove,
+}: {
+  onMapMove?: (bounds: {
+    center: { lat: number; lng: number };
+    zoom: number;
+  }) => void;
+}) => {
+  useMapEvents({
+    moveend: (e) => {
+      if (onMapMove) {
+        const map = e.target;
+        const center = map.getCenter();
+        const zoom = map.getZoom();
+        onMapMove({
+          center: { lat: center.lat, lng: center.lng },
+          zoom: zoom,
+        });
+      }
+    },
+  });
+  return null;
+};
+
 export default function MapComponent({
   hoveredEstablishmentId,
   onMarkerClick,
+  center,
+  zoom = 6,
+  onMapMove,
 }: MapComponentProps) {
   const [establishments, setEstablishments] = useState<Establishment[]>([]);
   const [loading, setLoading] = useState(true);
@@ -210,11 +270,13 @@ export default function MapComponent({
   return (
     <MapContainer
       center={
-        spotsToShow.length > 0
-          ? [spotsToShow[0].latitude, spotsToShow[0].longitude]
-          : [46.8182, 7.1619]
+        center
+          ? [center.lat, center.lng]
+          : spotsToShow.length > 0
+            ? [spotsToShow[0].latitude, spotsToShow[0].longitude]
+            : [46.8182, 7.1619]
       }
-      zoom={10}
+      zoom={center ? zoom : 10}
       style={{ height: "100%", width: "100%" }}
       maxBounds={maxBounds}
       maxBoundsViscosity={1.0}
@@ -224,6 +286,8 @@ export default function MapComponent({
         attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
         url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
       />
+      <MapUpdater center={center} zoom={zoom} />
+      <MapEvents onMapMove={onMapMove} />
       {spotsToShow.map((spot) => (
         <AnimatedMarker
           key={spot.id}

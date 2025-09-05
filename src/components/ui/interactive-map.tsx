@@ -8,6 +8,12 @@ interface InteractiveMapProps {
   showTitle?: boolean;
   hoveredEstablishmentId?: string | null;
   onMarkerClick?: (establishmentId: string) => void;
+  center?: { lat: number; lng: number } | null;
+  zoom?: number;
+  onMapMove?: (bounds: {
+    center: { lat: number; lng: number };
+    zoom: number;
+  }) => void;
 }
 
 // Composant Map dynamique pour éviter les problèmes SSR
@@ -25,6 +31,9 @@ export default function InteractiveMap({
   showTitle = true,
   hoveredEstablishmentId = null,
   onMarkerClick,
+  center,
+  zoom,
+  onMapMove,
 }: InteractiveMapProps) {
   const [mounted, setMounted] = useState(false);
 
@@ -55,6 +64,9 @@ export default function InteractiveMap({
         <DynamicMap
           hoveredEstablishmentId={hoveredEstablishmentId}
           onMarkerClick={onMarkerClick}
+          center={center}
+          zoom={zoom}
+          onMapMove={onMapMove}
         />
       </div>
     </div>

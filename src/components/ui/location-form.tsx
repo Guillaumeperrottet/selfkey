@@ -189,7 +189,8 @@ export function LocationForm({
           </div>
           <p className="text-xs text-gray-600 mt-1 ml-6">
             Décochez cette option si vous ne souhaitez pas que votre
-            établissement apparaisse sur la carte publique
+            établissement apparaisse sur la carte publique de notre partenaire
+            Selfcamp.ch
           </p>
         </div>
 
@@ -346,7 +347,7 @@ export function LocationForm({
             className="w-full flex items-center gap-2"
           >
             <Save className="h-4 w-4" />
-            {isSaving ? "Sauvegarde..." : "Enregistrer la localisation"}
+            {isSaving ? "Sauvegarde..." : "Enregistrer"}
           </Button>
         </div>
       </CardContent>
