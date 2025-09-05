@@ -6,6 +6,8 @@ import dynamic from "next/dynamic";
 interface InteractiveMapProps {
   fullHeight?: boolean;
   showTitle?: boolean;
+  hoveredEstablishmentId?: string | null;
+  onMarkerClick?: (establishmentId: string) => void;
 }
 
 // Composant Map dynamique pour éviter les problèmes SSR
@@ -21,6 +23,8 @@ const DynamicMap = dynamic(() => import("@/components/ui/map-component"), {
 export default function InteractiveMap({
   fullHeight = false,
   showTitle = true,
+  hoveredEstablishmentId = null,
+  onMarkerClick,
 }: InteractiveMapProps) {
   const [mounted, setMounted] = useState(false);
 
@@ -48,7 +52,10 @@ export default function InteractiveMap({
       <div
         className={`w-full ${fullHeight ? "h-full" : "h-96"} rounded-lg overflow-hidden`}
       >
-        <DynamicMap />
+        <DynamicMap
+          hoveredEstablishmentId={hoveredEstablishmentId}
+          onMarkerClick={onMarkerClick}
+        />
       </div>
     </div>
   );

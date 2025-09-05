@@ -102,6 +102,12 @@ model Establishment {
   latitude                      Float?
   longitude                     Float?
   
+  // Informations pour la carte
+  mapTitle                      String?                 // Titre affiché sur la carte
+  mapDescription                String?                 // Description brève pour la carte
+  mapImage                      String?                 // URL de l'image pour la carte
+  showOnMap                     Boolean                 @default(true) // Afficher sur la carte publique
+  
   accessCodeType                String                  @default("room")
   accessInstructions            String?
   generalAccessCode             String?

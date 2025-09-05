@@ -52,6 +52,9 @@ export default async function LocationPage({
               country: establishment.country || "",
               latitude: establishment.latitude || undefined,
               longitude: establishment.longitude || undefined,
+              mapTitle: establishment.mapTitle || "",
+              mapDescription: establishment.mapDescription || "",
+              mapImage: establishment.mapImage || "",
             }}
           />
         </div>

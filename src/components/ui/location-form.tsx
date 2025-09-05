@@ -4,9 +4,13 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { MapPin, Search, Save } from "lucide-react";
+import { Checkbox } from "@/components/ui/checkbox";
+import { ImageUpload } from "@/components/ui/image-upload";
+import { MapPin, Search, Save, Map, ArrowLeft, Eye } from "lucide-react";
 import { toast } from "sonner";
+import { useRouter } from "next/navigation";
 
 interface LocationData {
   address: string;
@@ -15,6 +19,10 @@ interface LocationData {
   country: string;
   latitude: number;
   longitude: number;
+  mapTitle?: string;
+  mapDescription?: string;
+  mapImage?: string;
+  showOnMap?: boolean;
 }
 
 interface LocationFormProps {
@@ -26,6 +34,10 @@ interface LocationFormProps {
     country?: string;
     latitude?: number;
     longitude?: number;
+    mapTitle?: string;
+    mapDescription?: string;
+    mapImage?: string;
+    showOnMap?: boolean;
   };
   onSave?: (data: LocationData) => void;
 }
@@ -35,6 +47,7 @@ export function LocationForm({
   initialData,
   onSave,
 }: LocationFormProps) {
+  const router = useRouter();
   const [formData, setFormData] = useState({
     address: initialData?.address || "",
     city: initialData?.city || "",
@@ -42,11 +55,15 @@ export function LocationForm({
     country: initialData?.country || "Switzerland",
     latitude: initialData?.latitude || "",
     longitude: initialData?.longitude || "",
+    mapTitle: initialData?.mapTitle || "",
+    mapDescription: initialData?.mapDescription || "",
+    mapImage: initialData?.mapImage || "",
+    showOnMap: initialData?.showOnMap ?? true,
   });
   const [isGeocoding, setIsGeocoding] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
 
-  const handleInputChange = (field: string, value: string) => {
+  const handleInputChange = (field: string, value: string | boolean) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
   };
 
@@ -113,6 +130,9 @@ export function LocationForm({
             country: formData.country,
             latitude: parseFloat(formData.latitude.toString()),
             longitude: parseFloat(formData.longitude.toString()),
+            mapTitle: formData.mapTitle || null,
+            mapDescription: formData.mapDescription || null,
+            mapImage: formData.mapImage || null,
           }),
         }
       );
@@ -126,6 +146,9 @@ export function LocationForm({
           country: formData.country,
           latitude: parseFloat(formData.latitude.toString()),
           longitude: parseFloat(formData.longitude.toString()),
+          mapTitle: formData.mapTitle,
+          mapDescription: formData.mapDescription,
+          mapImage: formData.mapImage,
         });
       } else {
         throw new Error("Erreur sauvegarde");
@@ -147,6 +170,29 @@ export function LocationForm({
         </CardTitle>
       </CardHeader>
       <CardContent className="space-y-4">
+        {/* Case à cocher pour afficher sur la carte publique */}
+        <div className="p-4 bg-blue-50 rounded-lg border border-blue-200">
+          <div className="flex items-center space-x-2">
+            <Checkbox
+              id="showOnMap"
+              checked={formData.showOnMap}
+              onCheckedChange={(checked) =>
+                handleInputChange("showOnMap", checked === true)
+              }
+            />
+            <Label
+              htmlFor="showOnMap"
+              className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+            >
+              Afficher cet établissement sur la carte publique
+            </Label>
+          </div>
+          <p className="text-xs text-gray-600 mt-1 ml-6">
+            Décochez cette option si vous ne souhaitez pas que votre
+            établissement apparaisse sur la carte publique
+          </p>
+        </div>
+
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>
             <Label htmlFor="address">Adresse</Label>
@@ -224,14 +270,85 @@ export function LocationForm({
           </div>
         </div>
 
-        <Button
-          onClick={handleSave}
-          disabled={isSaving}
-          className="w-full flex items-center gap-2"
-        >
-          <Save className="h-4 w-4" />
-          {isSaving ? "Sauvegarde..." : "Enregistrer la localisation"}
-        </Button>
+        {/* Section pour les informations d'affichage sur la carte */}
+        {formData.showOnMap && (
+          <div className="mt-6 p-4 bg-gray-50 rounded-lg">
+            <h3 className="text-lg font-semibold mb-4 flex items-center gap-2">
+              <Map className="h-5 w-5" />
+              Informations d&apos;affichage sur la carte
+            </h3>
+
+            <div className="space-y-4">
+              <div>
+                <Label htmlFor="mapTitle">Titre affiché (optionnel)</Label>
+                <Input
+                  id="mapTitle"
+                  value={formData.mapTitle}
+                  onChange={(e) =>
+                    handleInputChange("mapTitle", e.target.value)
+                  }
+                  placeholder="Laissez vide pour utiliser le nom de l'établissement"
+                />
+              </div>
+
+              <div>
+                <Label htmlFor="mapDescription">
+                  Description brève (optionnel)
+                </Label>
+                <Textarea
+                  id="mapDescription"
+                  value={formData.mapDescription}
+                  onChange={(e) =>
+                    handleInputChange("mapDescription", e.target.value)
+                  }
+                  placeholder="Description courte qui sera affichée sur la carte"
+                  rows={3}
+                />
+              </div>
+
+              <ImageUpload
+                value={formData.mapImage}
+                onChange={(value) => handleInputChange("mapImage", value)}
+              />
+            </div>
+          </div>
+        )}
+
+        {/* Boutons d'action */}
+        <div className="space-y-3">
+          {/* Boutons de navigation */}
+          <div className="flex gap-3">
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => router.back()}
+              className="flex-1 flex items-center gap-2"
+            >
+              <ArrowLeft className="h-4 w-4" />
+              Retour
+            </Button>
+
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => window.open("/map", "_blank")}
+              className="flex-1 flex items-center gap-2"
+            >
+              <Eye className="h-4 w-4" />
+              Voir sur la carte
+            </Button>
+          </div>
+
+          {/* Bouton de sauvegarde */}
+          <Button
+            onClick={handleSave}
+            disabled={isSaving}
+            className="w-full flex items-center gap-2"
+          >
+            <Save className="h-4 w-4" />
+            {isSaving ? "Sauvegarde..." : "Enregistrer la localisation"}
+          </Button>
+        </div>
       </CardContent>
     </Card>
   );

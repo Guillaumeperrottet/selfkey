@@ -18,6 +18,18 @@ if (
 }
 
 const nextConfig: NextConfig = {
+  // Configuration pour les images Cloudinary
+  images: {
+    remotePatterns: [
+      {
+        protocol: "https",
+        hostname: "res.cloudinary.com",
+        port: "",
+        pathname: "/**",
+      },
+    ],
+  },
+
   // Configuration pour gérer les domaines multiples et permettre la communication
   async headers() {
     return [

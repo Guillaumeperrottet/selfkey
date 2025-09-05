@@ -17,8 +17,18 @@ export async function PATCH(
 
     const { hotel } = await params;
     const establishmentSlug = hotel;
-    const { address, city, postalCode, country, latitude, longitude } =
-      await request.json();
+    const {
+      address,
+      city,
+      postalCode,
+      country,
+      latitude,
+      longitude,
+      mapTitle,
+      mapDescription,
+      mapImage,
+      showOnMap,
+    } = await request.json();
 
     // Vérifier que l'utilisateur est propriétaire de l'établissement
     const establishment = await prisma.establishment.findFirst({
@@ -49,6 +59,10 @@ export async function PATCH(
         country,
         latitude,
         longitude,
+        mapTitle,
+        mapDescription,
+        mapImage,
+        showOnMap,
       },
     });
 

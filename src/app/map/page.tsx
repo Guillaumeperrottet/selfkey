@@ -8,11 +8,9 @@ import {
   Search,
   Filter,
   MapPin,
-  Star,
-  Wifi,
   ShowerHead,
-  Car,
   X,
+  Navigation,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -45,6 +43,35 @@ export default function MapPage() {
   const [showFilters, setShowFilters] = useState(false);
   const [selectedAmenities, setSelectedAmenities] = useState<string[]>([]);
   const [priceRange, setPriceRange] = useState<[number, number]>([0, 100]);
+  const [hoveredEstablishment, setHoveredEstablishment] = useState<
+    string | null
+  >(null);
+
+  // Fonction pour scroller vers une carte d'établissement
+  const scrollToEstablishment = (establishmentId: string) => {
+    const element = document.getElementById(
+      `establishment-card-${establishmentId}`
+    );
+    if (element) {
+      element.scrollIntoView({
+        behavior: "smooth",
+        block: "nearest",
+      });
+      // Optionnel : mettre en surbrillance temporaire la carte
+      setHoveredEstablishment(establishmentId);
+      setTimeout(() => setHoveredEstablishment(null), 2000);
+    }
+  };
+
+  // Fonction pour ouvrir Google Maps avec les coordonnées
+  const openGoogleMaps = (
+    latitude: number,
+    longitude: number,
+    name: string
+  ) => {
+    const url = `https://www.google.com/maps/dir/?api=1&destination=${latitude},${longitude}&destination_place_id=${encodeURIComponent(name)}`;
+    window.open(url, "_blank");
+  };
 
   useEffect(() => {
     fetchEstablishments();
@@ -80,10 +107,10 @@ export default function MapPage() {
       filtered = filtered.filter(
         (establishment) =>
           establishment.name
-            .toLowerCase()
+            ?.toLowerCase()
             .includes(searchQuery.toLowerCase()) ||
           establishment.location
-            .toLowerCase()
+            ?.toLowerCase()
             .includes(searchQuery.toLowerCase())
       );
     }
@@ -91,17 +118,18 @@ export default function MapPage() {
     // Filtre par équipements
     if (selectedAmenities.length > 0) {
       filtered = filtered.filter((establishment) =>
-        selectedAmenities.every((amenity) =>
-          establishment.amenities.includes(amenity)
+        selectedAmenities.every(
+          (amenity) => establishment.amenities?.includes(amenity) || false
         )
       );
     }
 
-    // Filtre par prix
-    filtered = filtered.filter((establishment) => {
-      const price = parseFloat(establishment.price.replace(/[^\d.]/g, ""));
-      return price >= priceRange[0] && price <= priceRange[1];
-    });
+    // Filtre par prix (désactivé temporairement car le champ price n'existe pas encore)
+    // filtered = filtered.filter((establishment) => {
+    //   if (!establishment.price) return true; // Inclure les établissements sans prix
+    //   const price = parseFloat(establishment.price.replace(/[^\d.]/g, ""));
+    //   return price >= priceRange[0] && price <= priceRange[1];
+    // });
 
     setFilteredEstablishments(filtered);
   };
@@ -122,9 +150,7 @@ export default function MapPage() {
   };
 
   const availableAmenities = [
-    { key: "wifi", label: "WiFi", icon: Wifi },
     { key: "shower", label: "Douches", icon: ShowerHead },
-    { key: "parking", label: "Parking", icon: Car },
   ];
 
   if (loading) {
@@ -136,11 +162,11 @@ export default function MapPage() {
   }
 
   return (
-    <div className="min-h-screen bg-[#212215] flex">
+    <div className="h-screen bg-[#212215] flex overflow-hidden">
       {/* Left Sidebar */}
       <div className="w-96 bg-white border-r flex flex-col">
         {/* Header */}
-        <div className="p-4 border-b bg-white">
+        <div className="p-4 border-b bg-white flex-shrink-0">
           <div className="flex items-center justify-between mb-4">
             <Link href="/">
               <Button
@@ -183,7 +209,7 @@ export default function MapPage() {
 
           {/* Filters Panel */}
           {showFilters && (
-            <div className="mt-4 p-4 bg-gray-50 rounded-lg space-y-4">
+            <div className="mt-4 p-4 bg-gray-50 rounded-lg space-y-4 flex-shrink-0">
               <div>
                 <h3 className="font-medium mb-2">Équipements</h3>
                 <div className="flex flex-wrap gap-2">
@@ -235,7 +261,14 @@ export default function MapPage() {
             {filteredEstablishments.map((spot) => (
               <Card
                 key={spot.id}
-                className="cursor-pointer hover:shadow-md transition-shadow"
+                id={`establishment-card-${spot.id}`}
+                className={`cursor-pointer transition-all duration-300 ${
+                  hoveredEstablishment === spot.id
+                    ? "shadow-lg scale-[1.02] border-blue-300"
+                    : "hover:shadow-md"
+                }`}
+                onMouseEnter={() => setHoveredEstablishment(spot.id)}
+                onMouseLeave={() => setHoveredEstablishment(null)}
               >
                 <div className="relative h-32 bg-gray-200 rounded-t-lg overflow-hidden">
                   <Image
@@ -252,13 +285,6 @@ export default function MapPage() {
                 <CardContent className="p-3">
                   <div className="flex items-start justify-between mb-2">
                     <h3 className="font-semibold text-gray-900">{spot.name}</h3>
-                    <div className="flex items-center gap-1">
-                      <Star className="w-4 h-4 fill-yellow-400 text-yellow-400" />
-                      <span className="text-sm font-medium">{spot.rating}</span>
-                      <span className="text-sm text-gray-500">
-                        ({spot.reviews})
-                      </span>
-                    </div>
                   </div>
 
                   <div className="flex items-center gap-1 text-sm text-gray-600 mb-2">
@@ -270,25 +296,33 @@ export default function MapPage() {
                     {spot.description}
                   </p>
 
-                  <div className="flex gap-2">
-                    {spot.amenities.includes("wifi") && (
-                      <div className="flex items-center gap-1 text-xs text-gray-600">
-                        <Wifi className="w-3 h-3" />
-                        <span>WiFi</span>
-                      </div>
-                    )}
-                    {spot.amenities.includes("shower") && (
-                      <div className="flex items-center gap-1 text-xs text-gray-600">
-                        <ShowerHead className="w-3 h-3" />
-                        <span>Douche</span>
-                      </div>
-                    )}
-                    {spot.amenities.includes("parking") && (
-                      <div className="flex items-center gap-1 text-xs text-gray-600">
-                        <Car className="w-3 h-3" />
-                        <span>Parking</span>
-                      </div>
-                    )}
+                  <div className="flex justify-between items-center">
+                    <div className="flex gap-2">
+                      {spot.amenities.includes("shower") && (
+                        <div className="flex items-center gap-1 text-xs text-gray-600">
+                          <ShowerHead className="w-3 h-3" />
+                          <span>Douche</span>
+                        </div>
+                      )}
+                    </div>
+
+                    {/* Bouton GPS */}
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        openGoogleMaps(
+                          spot.latitude,
+                          spot.longitude,
+                          spot.name
+                        );
+                      }}
+                      className="flex items-center gap-1 text-xs px-2 py-1 h-7 border-blue-200 text-blue-600 hover:bg-blue-50"
+                    >
+                      <Navigation className="w-3 h-3" />
+                      GPS
+                    </Button>
                   </div>
                 </CardContent>
               </Card>
@@ -298,8 +332,13 @@ export default function MapPage() {
       </div>
 
       {/* Right Map Container */}
-      <div className="flex-1">
-        <InteractiveMap fullHeight showTitle={false} />
+      <div className="flex-1 h-full">
+        <InteractiveMap
+          fullHeight
+          showTitle={false}
+          hoveredEstablishmentId={hoveredEstablishment}
+          onMarkerClick={scrollToEstablishment}
+        />
       </div>
     </div>
   );
