@@ -16,10 +16,14 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { useState, useEffect } from "react";
+import { AvailabilityBadge } from "@/components/ui/availability-badge";
+import { useAvailability } from "@/hooks/useAvailability";
+import { useState, useEffect, useMemo } from "react";
+import { useSearchParams } from "next/navigation";
 
 interface Establishment {
   id: string;
+  slug: string;
   name: string;
   location: string;
   latitude: number;
@@ -31,6 +35,7 @@ interface Establishment {
   image: string;
   rating: number;
   reviews: number;
+  address?: string; // Optionnel
 }
 
 export default function MapPage() {
@@ -46,6 +51,42 @@ export default function MapPage() {
   const [hoveredEstablishment, setHoveredEstablishment] = useState<
     string | null
   >(null);
+
+  // Gérer les paramètres URL pour les recherches depuis la homepage
+  const searchParams = useSearchParams();
+
+  useEffect(() => {
+    // Récupérer la recherche depuis l'URL
+    const urlSearch = searchParams.get("search");
+    const urlEstablishment = searchParams.get("establishment");
+
+    if (urlSearch) {
+      setSearchQuery(urlSearch);
+    }
+
+    // Si un établissement spécifique est demandé, on peut le mettre en évidence
+    if (urlEstablishment && establishments.length > 0) {
+      const targetEstablishment = establishments.find(
+        (est) => est.slug === urlEstablishment
+      );
+      if (targetEstablishment) {
+        // Scroll vers l'établissement après un délai pour laisser le temps au rendu
+        setTimeout(() => {
+          scrollToEstablishment(targetEstablishment.id);
+        }, 1000);
+      }
+    }
+  }, [searchParams, establishments]);
+
+  // Récupérer les slugs des établissements pour la disponibilité
+  const establishmentSlugs = useMemo(
+    () => establishments.map((est) => est.slug),
+    [establishments]
+  );
+
+  // Hook pour récupérer la disponibilité en temps réel
+  const { availabilityData, loading: availabilityLoading } =
+    useAvailability(establishmentSlugs);
 
   // Fonction pour scroller vers une carte d'établissement
   const scrollToEstablishment = (establishmentId: string) => {
@@ -100,19 +141,41 @@ export default function MapPage() {
   };
 
   const filterEstablishments = () => {
-    let filtered = establishments;
+    let filtered = [...establishments];
 
-    // Filtre par recherche
-    if (searchQuery) {
-      filtered = filtered.filter(
-        (establishment) =>
-          establishment.name
-            ?.toLowerCase()
-            .includes(searchQuery.toLowerCase()) ||
-          establishment.location
-            ?.toLowerCase()
-            .includes(searchQuery.toLowerCase())
-      );
+    // Filtre par recherche amélioré
+    if (searchQuery.trim()) {
+      const query = searchQuery.toLowerCase().trim();
+      filtered = filtered.filter((establishment) => {
+        // Recherche dans le nom
+        const nameMatch = establishment.name?.toLowerCase().includes(query);
+
+        // Recherche dans la localisation (ville, pays)
+        const locationMatch = establishment.location
+          ?.toLowerCase()
+          .includes(query);
+
+        // Recherche dans la description
+        const descriptionMatch = establishment.description
+          ?.toLowerCase()
+          .includes(query);
+
+        // Recherche dans l'adresse si disponible
+        const addressMatch = establishment.address
+          ?.toLowerCase()
+          .includes(query);
+
+        // Recherche par type d'établissement
+        const typeMatch = establishment.type?.toLowerCase().includes(query);
+
+        return (
+          nameMatch ||
+          locationMatch ||
+          descriptionMatch ||
+          addressMatch ||
+          typeMatch
+        );
+      });
     }
 
     // Filtre par équipements
@@ -185,11 +248,21 @@ export default function MapPage() {
           <div className="relative mb-4">
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
             <Input
-              placeholder="Rechercher un emplacement..."
+              placeholder="Rechercher par nom, ville, description..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="pl-10"
+              className="pl-10 pr-10"
             />
+            {searchQuery && (
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => setSearchQuery("")}
+                className="absolute right-1 top-1/2 transform -translate-y-1/2 h-6 w-6 p-0"
+              >
+                <X className="h-3 w-3" />
+              </Button>
+            )}
           </div>
 
           {/* Filters Button */}
@@ -250,11 +323,41 @@ export default function MapPage() {
         {/* Results */}
         <div className="flex-1 overflow-y-auto p-4">
           <div className="mb-4">
-            <p className="text-sm text-gray-600">
-              {filteredEstablishments.length} emplacement
-              {filteredEstablishments.length !== 1 ? "s" : ""} trouvé
-              {filteredEstablishments.length !== 1 ? "s" : ""}
-            </p>
+            <div className="flex items-center justify-between">
+              <p className="text-sm text-gray-600">
+                {searchQuery ? (
+                  <>
+                    <span className="font-medium">
+                      {filteredEstablishments.length}
+                    </span>{" "}
+                    résultat
+                    {filteredEstablishments.length !== 1 ? "s" : ""} pour{" "}
+                    <span className="font-medium text-gray-800">
+                      &ldquo;{searchQuery}&rdquo;
+                    </span>
+                  </>
+                ) : (
+                  <>
+                    <span className="font-medium">
+                      {filteredEstablishments.length}
+                    </span>{" "}
+                    emplacement
+                    {filteredEstablishments.length !== 1 ? "s" : ""} disponible
+                    {filteredEstablishments.length !== 1 ? "s" : ""}
+                  </>
+                )}
+              </p>
+              {searchQuery && (
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => setSearchQuery("")}
+                  className="text-xs"
+                >
+                  Effacer
+                </Button>
+              )}
+            </div>
           </div>
 
           <div className="space-y-4">
@@ -280,6 +383,28 @@ export default function MapPage() {
                   />
                   <div className="absolute top-2 right-2 bg-white px-2 py-1 rounded text-sm font-medium">
                     {spot.price}
+                  </div>
+                  {/* Badge de disponibilité */}
+                  <div className="absolute top-2 left-2">
+                    {availabilityData[spot.slug] ? (
+                      <AvailabilityBadge
+                        availableRooms={
+                          availabilityData[spot.slug].availableRooms
+                        }
+                        totalRooms={availabilityData[spot.slug].totalRooms}
+                        status={availabilityData[spot.slug].status}
+                        nextAvailable={
+                          availabilityData[spot.slug].nextAvailable
+                        }
+                      />
+                    ) : (
+                      <AvailabilityBadge
+                        availableRooms={0}
+                        totalRooms={0}
+                        status="available"
+                        loading={availabilityLoading}
+                      />
+                    )}
                   </div>
                 </div>
                 <CardContent className="p-3">

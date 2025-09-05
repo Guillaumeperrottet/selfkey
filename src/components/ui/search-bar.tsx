@@ -1,52 +1,161 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import { Search, Map, Navigation } from "lucide-react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
+
+interface Establishment {
+  id: string;
+  slug: string;
+  name: string;
+  city: string;
+  country: string;
+  address?: string;
+  mapTitle?: string;
+  mapDescription?: string;
+}
 
 interface SearchSuggestion {
   id: string;
-  type: "location" | "map" | "parking";
+  type: "location" | "map" | "recent";
   title: string;
   subtitle?: string;
-  icon: "location" | "map" | "parking";
+  icon: "location" | "map" | "recent";
+  establishment?: Establishment;
 }
 
-const suggestions: SearchSuggestion[] = [
-  {
-    id: "use-map",
-    type: "map",
-    title: "Use the map",
-    subtitle: "Explore all available spots",
-    icon: "map",
-  },
-  {
-    id: "gumefens",
-    type: "location",
-    title: "Gumefens, 1643, Switzerland",
-    subtitle: "Last search",
-    icon: "location",
-  },
-  {
-    id: "fribourg",
-    type: "parking",
-    title: "(1700) Fribourg - 10 Chemin de Lorette",
-    subtitle: "Parking spot",
-    icon: "parking",
-  },
-];
+const RECENT_SEARCHES_KEY = "selfcamp_recent_searches";
 
 export default function SearchBar() {
   const [isOpen, setIsOpen] = useState(false);
   const [searchValue, setSearchValue] = useState("");
+  const [suggestions, setSuggestions] = useState<SearchSuggestion[]>([]);
+  const [isLoading, setIsLoading] = useState(false);
+  const [recentSearches, setRecentSearches] = useState<string[]>([]);
+  const router = useRouter();
+  const searchTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+
+  // Charger les recherches récentes au montage
+  useEffect(() => {
+    const saved = localStorage.getItem(RECENT_SEARCHES_KEY);
+    if (saved) {
+      try {
+        setRecentSearches(JSON.parse(saved));
+      } catch {
+        // Ignore les erreurs de parsing
+      }
+    }
+  }, []);
+
+  // Sauvegarder une recherche récente
+  const saveRecentSearch = useCallback((query: string) => {
+    setRecentSearches((prev) => {
+      const updated = [query, ...prev.filter((item) => item !== query)].slice(
+        0,
+        5
+      );
+      localStorage.setItem(RECENT_SEARCHES_KEY, JSON.stringify(updated));
+      return updated;
+    });
+  }, []);
+
+  // Fonction de recherche avec debounce
+  const searchEstablishments = useCallback(async (query: string) => {
+    if (!query.trim()) {
+      setSuggestions([]);
+      return;
+    }
+
+    setIsLoading(true);
+    try {
+      const response = await fetch(
+        `/api/public/establishments/search?q=${encodeURIComponent(query)}`
+      );
+      if (response.ok) {
+        const establishments: Establishment[] = await response.json();
+
+        const establishmentSuggestions: SearchSuggestion[] = establishments.map(
+          (est) => ({
+            id: est.id,
+            type: "location",
+            title: est.mapTitle || est.name,
+            subtitle: `${est.city}, ${est.country}`,
+            icon: "location",
+            establishment: est,
+          })
+        );
+
+        setSuggestions(establishmentSuggestions);
+      }
+    } catch (error) {
+      console.error("Erreur lors de la recherche:", error);
+    } finally {
+      setIsLoading(false);
+    }
+  }, []);
+
+  // Gérer la saisie avec debounce
+  const handleInputChange = (value: string) => {
+    setSearchValue(value);
+
+    // Annuler la recherche précédente
+    if (searchTimeoutRef.current) {
+      clearTimeout(searchTimeoutRef.current);
+    }
+
+    // Lancer une nouvelle recherche après 300ms
+    searchTimeoutRef.current = setTimeout(() => {
+      searchEstablishments(value);
+    }, 300);
+  };
 
   const handleFocus = () => {
     setIsOpen(true);
+    if (!searchValue.trim() && recentSearches.length > 0) {
+      // Afficher les recherches récentes
+      const recentSuggestions: SearchSuggestion[] = recentSearches.map(
+        (search, index) => ({
+          id: `recent-${index}`,
+          type: "recent",
+          title: search,
+          subtitle: "Recherche récente",
+          icon: "recent",
+        })
+      );
+      setSuggestions(recentSuggestions);
+    }
   };
 
   const handleBlur = () => {
     // Delay to allow click on suggestions
     setTimeout(() => setIsOpen(false), 200);
+  };
+
+  const handleSuggestionClick = (suggestion: SearchSuggestion) => {
+    if (suggestion.type === "location" && suggestion.establishment) {
+      // Sauvegarder dans l'historique
+      saveRecentSearch(suggestion.title);
+
+      // Rediriger vers la map avec recherche pré-filtrée
+      const params = new URLSearchParams({
+        search: suggestion.title,
+        establishment: suggestion.establishment.slug,
+      });
+      router.push(`/map?${params.toString()}`);
+    } else if (suggestion.type === "recent") {
+      // Relancer une recherche avec le terme récent
+      setSearchValue(suggestion.title);
+      searchEstablishments(suggestion.title);
+    }
+  };
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (searchValue.trim()) {
+      saveRecentSearch(searchValue.trim());
+      router.push(`/map?search=${encodeURIComponent(searchValue.trim())}`);
+    }
   };
 
   const getIcon = (iconType: string) => {
@@ -55,12 +164,8 @@ export default function SearchBar() {
         return <Map className="w-5 h-5 text-vintage-teal" />;
       case "location":
         return <Navigation className="w-5 h-5 text-vintage-yellow" />;
-      case "parking":
-        return (
-          <div className="w-5 h-5 bg-vintage-orange rounded-full flex items-center justify-center text-white text-xs font-bold">
-            P
-          </div>
-        );
+      case "recent":
+        return <Search className="w-5 h-5 text-gray-400" />;
       default:
         return <Search className="w-5 h-5 text-vintage-teal" />;
     }
@@ -69,24 +174,31 @@ export default function SearchBar() {
   return (
     <div className="w-full max-w-2xl mx-auto relative">
       {/* Search Input */}
-      <div className="relative">
-        <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-          <Search className="h-5 w-5 text-gray-400" />
+      <form onSubmit={handleSubmit}>
+        <div className="relative">
+          <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+            <Search className="h-5 w-5 text-gray-400" />
+          </div>
+          <input
+            type="text"
+            value={searchValue}
+            onChange={(e) => handleInputChange(e.target.value)}
+            onFocus={handleFocus}
+            onBlur={handleBlur}
+            placeholder="Rechercher un emplacement, ville, camping..."
+            className="w-full pl-12 pr-4 py-4 text-lg border-2 border-vintage-gray rounded-xl focus:outline-none focus:border-vintage-teal transition-colors bg-white shadow-lg"
+          />
+          {isLoading && (
+            <div className="absolute inset-y-0 right-0 pr-4 flex items-center pointer-events-none">
+              <div className="animate-spin h-4 w-4 border-2 border-vintage-teal border-t-transparent rounded-full"></div>
+            </div>
+          )}
         </div>
-        <input
-          type="text"
-          value={searchValue}
-          onChange={(e) => setSearchValue(e.target.value)}
-          onFocus={handleFocus}
-          onBlur={handleBlur}
-          placeholder="City, country, address ..."
-          className="w-full pl-12 pr-4 py-4 text-lg border-2 border-vintage-gray rounded-xl focus:outline-none focus:border-vintage-teal transition-colors bg-white shadow-lg"
-        />
-      </div>
+      </form>
 
       {/* Suggestions Dropdown */}
       {isOpen && (
-        <div className="absolute top-full left-0 right-0 mt-2 bg-white rounded-xl shadow-xl border border-vintage-gray-light z-50">
+        <div className="absolute top-full left-0 right-0 mt-2 bg-white rounded-xl shadow-xl border border-vintage-gray-light z-50 max-h-96 overflow-y-auto">
           {/* Use the map suggestion */}
           <Link
             href="/map"
@@ -96,62 +208,59 @@ export default function SearchBar() {
               <Map className="w-5 h-5 text-vintage-teal" />
             </div>
             <div>
-              <div className="font-medium text-vintage-black">Use the map</div>
+              <div className="font-medium text-vintage-black">
+                Voir la carte
+              </div>
               <div className="text-sm text-gray-600">
-                Explore all available spots
+                Explorer tous les emplacements disponibles
               </div>
             </div>
           </Link>
 
-          {/* Last searches header */}
-          <div className="px-4 py-3 text-sm font-medium text-gray-500 bg-vintage-gray-light/50">
-            Last searches
-          </div>
-
           {/* Search suggestions */}
-          {suggestions.slice(1).map((suggestion) => (
-            <button
-              key={suggestion.id}
-              className="w-full flex items-center gap-4 p-4 hover:bg-vintage-gray-light transition-colors text-left"
-              onClick={() => {
-                // Handle suggestion click
-                if (suggestion.type === "location") {
-                  // Redirect to map with location
-                  window.location.href =
-                    "/map?location=" + encodeURIComponent(suggestion.title);
-                }
-              }}
-            >
-              <div className="w-10 h-10 bg-vintage-gray/20 rounded-lg flex items-center justify-center">
-                {getIcon(suggestion.icon)}
-              </div>
-              <div className="flex-1">
-                <div className="font-medium text-vintage-black">
-                  {suggestion.title}
+          {suggestions.length > 0 && (
+            <>
+              {!searchValue.trim() && recentSearches.length > 0 && (
+                <div className="px-4 py-3 text-sm font-medium text-gray-500 bg-vintage-gray-light/50">
+                  Recherches récentes
                 </div>
-                {suggestion.subtitle && (
-                  <div className="text-sm text-gray-600">
-                    {suggestion.subtitle}
-                  </div>
-                )}
-              </div>
-              <button className="text-gray-400 hover:text-gray-600">
-                <svg
-                  className="w-4 h-4"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
+              )}
+              {searchValue.trim() && (
+                <div className="px-4 py-3 text-sm font-medium text-gray-500 bg-vintage-gray-light/50">
+                  Résultats de recherche
+                </div>
+              )}
+
+              {suggestions.map((suggestion) => (
+                <button
+                  key={suggestion.id}
+                  className="w-full flex items-center gap-4 p-4 hover:bg-vintage-gray-light transition-colors text-left"
+                  onClick={() => handleSuggestionClick(suggestion)}
                 >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M6 18L18 6M6 6l12 12"
-                  />
-                </svg>
-              </button>
-            </button>
-          ))}
+                  <div className="w-10 h-10 bg-vintage-gray/20 rounded-lg flex items-center justify-center">
+                    {getIcon(suggestion.icon)}
+                  </div>
+                  <div className="flex-1">
+                    <div className="font-medium text-vintage-black">
+                      {suggestion.title}
+                    </div>
+                    {suggestion.subtitle && (
+                      <div className="text-sm text-gray-600">
+                        {suggestion.subtitle}
+                      </div>
+                    )}
+                  </div>
+                </button>
+              ))}
+            </>
+          )}
+
+          {/* No results */}
+          {searchValue.trim() && suggestions.length === 0 && !isLoading && (
+            <div className="p-4 text-center text-gray-500">
+              Aucun résultat trouvé pour &ldquo;{searchValue}&rdquo;
+            </div>
+          )}
         </div>
       )}
     </div>
