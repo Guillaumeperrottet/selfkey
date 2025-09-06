@@ -18,7 +18,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 
 interface Establishment {
   id: string;
@@ -46,14 +46,6 @@ export default function MapPage() {
   const [selectedAmenities, setSelectedAmenities] = useState<string[]>([]);
   const [priceRange, setPriceRange] = useState<[number, number]>([0, 100]);
 
-  useEffect(() => {
-    fetchEstablishments();
-  }, []);
-
-  useEffect(() => {
-    filterEstablishments();
-  }, [establishments, searchQuery, selectedAmenities, priceRange]);
-
   const fetchEstablishments = async () => {
     try {
       const response = await fetch("/api/public/establishments");
@@ -71,7 +63,7 @@ export default function MapPage() {
     }
   };
 
-  const filterEstablishments = () => {
+  const filterEstablishments = useCallback(() => {
     let filtered = establishments;
 
     // Filtre par recherche
@@ -103,7 +95,15 @@ export default function MapPage() {
     });
 
     setFilteredEstablishments(filtered);
-  };
+  }, [establishments, searchQuery, selectedAmenities, priceRange]);
+
+  useEffect(() => {
+    fetchEstablishments();
+  }, []);
+
+  useEffect(() => {
+    filterEstablishments();
+  }, [filterEstablishments]);
 
   const toggleAmenity = (amenity: string) => {
     setSelectedAmenities((prev) =>

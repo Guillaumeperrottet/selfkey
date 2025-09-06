@@ -91,7 +91,7 @@ export function SelfcampHomepage() {
           </h1>
           <p className="text-xl md:text-2xl mb-12 text-gray-200 max-w-4xl mx-auto leading-relaxed">
             Découvrez une nouvelle façon de camper avec notre plateforme
-            innovante qui révolutionne l'expérience outdoor en Suisse.
+            innovante qui révolutionne l&apos;expérience outdoor en Suisse.
           </p>
         </div>
       </section>
@@ -190,7 +190,7 @@ export function SelfcampHomepage() {
                 {[
                   "Saturation des parkings en haute saison",
                   "Manque de coordination entre hébergements",
-                  "Difficultés d'accès aux sites touristiques",
+                  "Difficultés d&apos;accès aux sites touristiques",
                   "Gestion sous-optimale des flux de visiteurs",
                 ].map((item, index) => (
                   <div key={index} className="flex items-start space-x-3">
@@ -212,7 +212,7 @@ export function SelfcampHomepage() {
               <div className="space-y-4">
                 {[
                   "Manque de données fiables sur la fréquentation réelle",
-                  "Difficultés de planification et d'investissement",
+                  "Difficultés de planification et d&apos;investissement",
                   "Image du canton affectée par ces problématiques",
                 ].map((item, index) => (
                   <div key={index} className="flex items-start space-x-3">
@@ -294,7 +294,7 @@ export function SelfcampHomepage() {
               {
                 title: "Tableau de bord",
                 description:
-                  "Tableau de bord centralisé via Selfcamp.ch pour l'UFT et les communes",
+                  "Tableau de bord centralisé via Selfcamp.ch pour l&apos;UFT et les communes",
                 icon: BarChart3,
               },
               {
@@ -358,7 +358,7 @@ export function SelfcampHomepage() {
             {[
               "Délimitation de la zone et des places",
               "Mise en place de la signalétique",
-              "Mise en place du système d'enregistrement (Totem et QR code)",
+              "Mise en place du système d&apos;enregistrement (Totem et QR code)",
               "Solution de vidange (sur place ou dans campings partenaires)",
               "Promotion sur site internet",
               "Promotion sur réseaux sociaux",
@@ -403,8 +403,8 @@ export function SelfcampHomepage() {
                 title: "Flexibilité",
                 points: [
                   "Check-in/enregistrement 24h/24 et 7j/7",
-                  "Pas d'attente aux réceptions ou points d'accueil",
-                  "Liberté d'arrivée selon ses horaires de voyage",
+                  "Pas d&apos;attente aux réceptions ou points d&apos;accueil",
+                  "Liberté d&apos;arrivée selon ses horaires de voyage",
                 ],
                 icon: Clock,
               },
@@ -422,7 +422,7 @@ export function SelfcampHomepage() {
                 points: [
                   "Accès facilité aux services partenaires",
                   "Informations touristiques intégrées sur la région",
-                  "Solution moderne qui valorise l'image du canton de Fribourg",
+                  "Solution moderne qui valorise l&apos;image du canton de Fribourg",
                 ],
                 icon: MapPin,
               },
