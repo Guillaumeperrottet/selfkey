@@ -17,50 +17,82 @@ import {
   MapPin,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import SearchBar from "@/components/ui/search-bar";
-import { DOMAINS } from "@/lib/domains";
+import { SearchBar } from "@/components/search-bar";
+import { DOMAINS } from "@/lib/constants";
 
 export function SelfcampHomepage() {
   return (
     <div className="min-h-screen">
-      {/* Background avec parallax */}
-      <div
-        className="fixed top-0 left-0 w-full h-full z-0"
-        style={{
-          backgroundImage: "url('/background-selfcamp.jpg')",
-          backgroundSize: "cover",
-          backgroundPosition: "center",
-          backgroundRepeat: "no-repeat",
-          transform: "translateY(0px)",
-        }}
-      />
+      {/* Fixed background image */}
+      <div className="fixed inset-0 z-0">
+        <Image
+          src="/background-selfcamp.jpg"
+          alt="Selfcamp Background"
+          layout="fill"
+          objectFit="cover"
+          objectPosition="center"
+          quality={100}
+          priority
+        />
+        <div className="absolute inset-0 bg-black/30" />
+      </div>
 
       {/* Header */}
-      <header className="relative z-40 bg-transparent backdrop-blur-sm">
-        <div className="container mx-auto px-4 py-3">
-          <div className="flex items-center justify-between text-sm">
-            <div className="text-gray-600 font-medium">24h/24 - 7j/7</div>
-            <div className="text-gray-600 font-medium">
-              Enregistrement automatique
+      <header className="relative z-40 bg-black/20 backdrop-blur-sm border-b border-white/10">
+        <div className="container mx-auto px-4 py-4">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center space-x-3">
+              <Image
+                src="/logo.png"
+                alt="SelfCamp"
+                width={40}
+                height={40}
+                className="rounded"
+              />
+              <span className="text-2xl font-bold" style={{ color: "#E85A73" }}>
+                SelfCamp
+              </span>
             </div>
-            <div className="text-gray-600 font-medium">CONTACTEZ-NOUS</div>
+            <nav className="hidden md:flex items-center space-x-8">
+              <Link
+                href="#problemes"
+                className="text-white hover:text-pink-400 transition-colors duration-300"
+              >
+                Problèmes
+              </Link>
+              <Link
+                href="#solution"
+                className="text-white hover:text-pink-400 transition-colors duration-300"
+              >
+                Solution
+              </Link>
+              <Link
+                href="#services"
+                className="text-white hover:text-pink-400 transition-colors duration-300"
+              >
+                Services
+              </Link>
+              <Link
+                href="#avantages"
+                className="text-white hover:text-pink-400 transition-colors duration-300"
+              >
+                Avantages
+              </Link>
+            </nav>
           </div>
         </div>
       </header>
 
       {/* Hero Section */}
-      <section className="relative z-30 text-white text-center py-16 px-4">
+      <section className="relative z-30 text-white text-center py-32 px-4">
         <div className="container mx-auto">
-          <div className="flex justify-center mb-8">
-            <Image
-              src="/selfcamp_logo.png"
-              alt="SelfCamp Logo"
-              width={400}
-              height={200}
-              className="max-w-full h-auto"
-              priority
-            />
-          </div>
+          <h1 className="text-5xl md:text-7xl font-bold mb-6 bg-gradient-to-r from-white via-pink-200 to-purple-200 bg-clip-text text-transparent">
+            Bienvenue dans le futur du camping
+          </h1>
+          <p className="text-xl md:text-2xl mb-12 text-gray-200 max-w-4xl mx-auto leading-relaxed">
+            Découvrez une nouvelle façon de camper avec notre plateforme
+            innovante qui révolutionne l'expérience outdoor en Suisse.
+          </p>
         </div>
       </section>
 
@@ -68,7 +100,7 @@ export function SelfcampHomepage() {
       <section className="relative z-20 py-16 px-4">
         <div className="container mx-auto">
           <div className="max-w-4xl mx-auto">
-            <div className="p-8">
+            <div className="bg-white/10 backdrop-blur-lg rounded-2xl p-8 border border-white/20 shadow-2xl">
               <h2 className="text-2xl font-bold text-white mb-6 text-center">
                 Trouvez votre emplacement idéal
               </h2>

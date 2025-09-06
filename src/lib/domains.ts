@@ -1,4 +1,5 @@
 // Configuration des domaines pour la communication inter-domaines
+// pour accèder a selfcamp -> http://localhost:3000?app=selfcamp
 
 export const DOMAINS = {
   SELFKEY:
