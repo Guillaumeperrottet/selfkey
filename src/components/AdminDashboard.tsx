@@ -16,6 +16,7 @@ import { DayParkingEmailManager } from "@/components/DayParkingEmailManager";
 import { DayParkingControlTable } from "@/components/DayParkingControlTable";
 import { BookingsTable } from "@/components/BookingsTable";
 import { DashboardCharts } from "@/components/DashboardCharts";
+import { DashboardPublicAccess } from "@/components/DashboardPublicAccess";
 import { ChartColorSelector } from "@/components/ChartColorSelector";
 import ExcelExportManager from "@/components/ExcelExportManager";
 import {
@@ -642,6 +643,12 @@ export function AdminDashboard({
               </div>
               <div className="flex items-center gap-4">
                 <TutorialMenu onStartTutorial={tutorial.startTutorial} />
+                {finalIsStripeConfigured && (
+                  <DashboardPublicAccess
+                    hotelSlug={hotel}
+                    establishmentName={establishment.name}
+                  />
+                )}
                 {finalIsStripeConfigured && (
                   <Badge variant="outline" className="flex items-center gap-2">
                     <CheckCircle className="h-4 w-4 text-green-600" />
