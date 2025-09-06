@@ -166,10 +166,10 @@ export function SelfcampHomepage() {
             <div className="text-center mb-16">
               <h2
                 className="text-4xl md:text-5xl font-bold mb-6"
-                style={{ color: "#E85A73" }}
+                style={{ color: "#D4AF37" }}
               >
                 Les problématiques{" "}
-                <span className="bg-purple-200 text-black px-4 py-2 rounded-lg">
+                <span className="bg-amber-100/20 text-amber-100 px-4 py-2 rounded-lg border border-amber-200/30">
                   majeures
                 </span>
               </h2>
@@ -182,7 +182,7 @@ export function SelfcampHomepage() {
                   <AlertTriangle className="h-8 w-8 text-orange-500" />
                   <h3
                     className="text-2xl font-bold"
-                    style={{ color: "#E85A73" }}
+                    style={{ color: "#D4AF37" }}
                   >
                     Taxes de séjour
                   </h3>
@@ -208,7 +208,7 @@ export function SelfcampHomepage() {
                   <Users className="h-8 w-8 text-red-500" />
                   <h3
                     className="text-2xl font-bold"
-                    style={{ color: "#E85A73" }}
+                    style={{ color: "#D4AF37" }}
                   >
                     Camping sauvage
                   </h3>
@@ -234,7 +234,7 @@ export function SelfcampHomepage() {
                   <Building className="h-8 w-8 text-yellow-500" />
                   <h3
                     className="text-2xl font-bold"
-                    style={{ color: "#E85A73" }}
+                    style={{ color: "#D4AF37" }}
                   >
                     Infrastructure et stationnement
                   </h3>
@@ -260,7 +260,7 @@ export function SelfcampHomepage() {
                   <Globe className="h-8 w-8 text-purple-500" />
                   <h3
                     className="text-2xl font-bold"
-                    style={{ color: "#E85A73" }}
+                    style={{ color: "#D4AF37" }}
                   >
                     Impact global
                   </h3>
@@ -291,10 +291,10 @@ export function SelfcampHomepage() {
             <div className="text-center mb-16">
               <h2
                 className="text-4xl md:text-5xl font-bold mb-6"
-                style={{ color: "#E85A73" }}
+                style={{ color: "#D4AF37" }}
               >
                 Notre{" "}
-                <span className="bg-purple-200 text-black px-4 py-2 rounded-lg">
+                <span className="bg-amber-100/20 text-amber-100 px-4 py-2 rounded-lg border border-amber-200/30">
                   solution
                 </span>
               </h2>
@@ -332,11 +332,11 @@ export function SelfcampHomepage() {
                 >
                   <item.icon
                     className="h-12 w-12 mb-6"
-                    style={{ color: "#E85A73" }}
+                    style={{ color: "#D4AF37" }}
                   />
                   <h3
                     className="text-xl font-bold mb-4"
-                    style={{ color: "#E85A73" }}
+                    style={{ color: "#D4AF37" }}
                   >
                     {item.title}
                   </h3>
@@ -372,11 +372,11 @@ export function SelfcampHomepage() {
                 >
                   <item.icon
                     className="h-12 w-12 mb-6"
-                    style={{ color: "#E85A73" }}
+                    style={{ color: "#D4AF37" }}
                   />
                   <h3
                     className="text-xl font-bold mb-4"
-                    style={{ color: "#E85A73" }}
+                    style={{ color: "#D4AF37" }}
                   >
                     {item.title}
                   </h3>
@@ -396,10 +396,10 @@ export function SelfcampHomepage() {
             <div className="text-center mb-16">
               <h2
                 className="text-4xl md:text-5xl font-bold mb-6"
-                style={{ color: "#E85A73" }}
+                style={{ color: "#D4AF37" }}
               >
                 Nos{" "}
-                <span className="bg-purple-200 text-black px-4 py-2 rounded-lg">
+                <span className="bg-amber-100/20 text-amber-100 border border-amber-200/30 px-4 py-2 rounded-lg">
                   prestations
                 </span>
               </h2>
@@ -440,14 +440,14 @@ export function SelfcampHomepage() {
             <div className="text-center mb-16">
               <h2
                 className="text-4xl md:text-5xl font-bold mb-6"
-                style={{ color: "#E85A73" }}
+                style={{ color: "#D4AF37" }}
               >
                 Avantages{" "}
-                <span className="bg-purple-200 text-black px-4 py-2 rounded-lg">
+                <span className="bg-amber-100/20 text-amber-100 border border-amber-200/30 px-4 py-2 rounded-lg">
                   utilisateurs
                 </span>{" "}
                 &
-                <span className="bg-purple-200 text-black px-4 py-2 rounded-lg ml-2">
+                <span className="bg-amber-100/20 text-amber-100 border border-amber-200/30 px-4 py-2 rounded-lg ml-2">
                   prestataires
                 </span>
               </h2>
@@ -498,11 +498,11 @@ export function SelfcampHomepage() {
                 >
                   <advantage.icon
                     className="h-10 w-10 mb-4"
-                    style={{ color: "#E85A73" }}
+                    style={{ color: "#D4AF37" }}
                   />
                   <h3
                     className="text-xl font-bold mb-4"
-                    style={{ color: "#E85A73" }}
+                    style={{ color: "#D4AF37" }}
                   >
                     {advantage.title}
                   </h3>
@@ -512,7 +512,7 @@ export function SelfcampHomepage() {
                         key={pointIndex}
                         className="flex items-start space-x-2"
                       >
-                        <div className="w-2 h-2 bg-purple-400 rounded-full mt-2 flex-shrink-0"></div>
+                        <div className="w-2 h-2 bg-amber-300 rounded-full mt-2 flex-shrink-0"></div>
                         <p className="text-sm text-gray-300">{point}</p>
                       </div>
                     ))}
@@ -529,7 +529,7 @@ export function SelfcampHomepage() {
             <div>
               <h3
                 className="text-3xl md:text-4xl font-bold mb-6"
-                style={{ color: "#E85A73" }}
+                style={{ color: "#D4AF37" }}
               >
                 Prêt pour votre prochaine aventure ?
               </h3>
@@ -540,7 +540,7 @@ export function SelfcampHomepage() {
               <Button
                 size="lg"
                 asChild
-                className="bg-gradient-to-r from-pink-500 to-purple-600 hover:from-pink-600 hover:to-purple-700 text-white px-8 py-4 rounded-full text-lg font-semibold transform hover:scale-105 transition-all duration-300 shadow-lg hover:shadow-xl"
+                className="bg-gradient-to-r from-amber-600 to-yellow-700 hover:from-amber-700 hover:to-yellow-800 text-white px-8 py-4 rounded-full text-lg font-semibold transform hover:scale-105 transition-all duration-300 shadow-lg hover:shadow-xl"
               >
                 <Link
                   href={DOMAINS.SELFKEY}
@@ -572,7 +572,7 @@ export function SelfcampHomepage() {
                   />
                   <span
                     className="text-xl font-bold"
-                    style={{ color: "#E85A73" }}
+                    style={{ color: "#D4AF37" }}
                   >
                     SelfCamp
                   </span>
@@ -583,7 +583,7 @@ export function SelfcampHomepage() {
               </div>
 
               <div>
-                <h4 className="font-semibold mb-4" style={{ color: "#E85A73" }}>
+                <h4 className="font-semibold mb-4" style={{ color: "#D4AF37" }}>
                   Services
                 </h4>
                 <ul className="space-y-2 text-gray-400">
@@ -603,7 +603,7 @@ export function SelfcampHomepage() {
               </div>
 
               <div>
-                <h4 className="font-semibold mb-4" style={{ color: "#E85A73" }}>
+                <h4 className="font-semibold mb-4" style={{ color: "#D4AF37" }}>
                   Contact
                 </h4>
                 <div className="space-y-2 text-gray-400">
@@ -614,7 +614,7 @@ export function SelfcampHomepage() {
                   <div>
                     <a
                       href={DOMAINS.SELFKEY}
-                      className="text-pink-400 hover:text-pink-300 transition-colors duration-300"
+                      className="text-amber-400 hover:text-amber-300 transition-colors duration-300"
                     >
                       Système de réservation
                     </a>
