@@ -17,8 +17,8 @@ import {
   MapPin,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { SearchBar } from "@/components/search-bar";
-import { DOMAINS } from "@/lib/constants";
+import SearchBar from "@/components/ui/search-bar";
+import { DOMAINS } from "@/lib/domains";
 
 export function SelfcampHomepage() {
   return (

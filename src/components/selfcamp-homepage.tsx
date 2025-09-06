@@ -125,10 +125,13 @@ export function SelfcampHomepage() {
         <div className="h-20"></div>
 
         {/* Animated Wave Separator with Bounce and CSS Animation */}
-        <div className="wave-container relative w-full overflow-hidden" style={{ height: "200px" }}>
-          <svg 
-            viewBox="0 0 1000 200" 
-            preserveAspectRatio="none" 
+        <div
+          className="wave-container relative w-full overflow-hidden"
+          style={{ height: "200px" }}
+        >
+          <svg
+            viewBox="0 0 1000 200"
+            preserveAspectRatio="none"
             className="absolute inset-0 w-full h-full"
             style={{
               transform: isScrolling
@@ -137,7 +140,9 @@ export function SelfcampHomepage() {
               filter: isScrolling
                 ? "none"
                 : "drop-shadow(0 2px 4px rgba(0,0,0,0.1))",
-              transition: isScrolling ? "transform 0.3s ease-out" : "transform 0.3s ease-bounce",
+              transition: isScrolling
+                ? "transform 0.3s ease-out"
+                : "transform 0.3s ease-bounce",
             }}
           >
             <path
