@@ -81,34 +81,37 @@ export function SelfcampHomepage() {
         {/* Header */}
         <header className="relative z-40 bg-transparent backdrop-blur-sm">
           <div className="container mx-auto px-4 py-3">
-            <div className="flex items-center justify-between text-sm">
-              <div className="text-gray-600 font-medium">24h/24 - 7j/7</div>
-              <div className="text-gray-600 font-medium">
-                Enregistrement automatique
+            <div className="flex items-center justify-between text-lg">
+              <div className="text-amber-100 font-bold uppercase tracking-wide">
+                24H/24 - 7J/7
               </div>
-              <div className="text-gray-600 font-medium">CONTACTEZ-NOUS</div>
+              <div className="text-amber-100 font-bold uppercase tracking-wide">
+                ENREGISTREMENT AUTOMATIQUE
+              </div>
+              <div className="text-amber-100 font-bold uppercase tracking-wide">
+                CONTACTEZ-NOUS
+              </div>
             </div>
           </div>
         </header>
 
         {/* Hero Section */}
-        <section className="relative z-30 text-white text-center py-16 px-4">
+        <section className="relative z-30 text-white text-center py-12 px-4">
           <div className="container mx-auto">
-            <div className="flex justify-center mb-8">
-              <Image
-                src="/selfcamp_logo.png"
-                alt="SelfCamp Logo"
-                width={400}
-                height={200}
-                className="max-w-full h-auto"
-                priority
-              />
+            <div className="flex flex-col items-center justify-center min-h-[50vh]">
+              <h1 className="text-6xl md:text-8xl font-bold mb-8 text-white">
+                Selfcamp.ch
+              </h1>
+              <p className="text-xl md:text-2xl mb-12 text-black max-w-4xl mx-auto leading-relaxed text-center font-medium">
+                Solution d&apos;accès intelligent pour le tourisme de véhicules
+                de loisirs hors zone camping
+              </p>
             </div>
           </div>
         </section>
 
         {/* Search Section */}
-        <section className="relative z-20 py-16 px-4">
+        <section className="relative z-20 px-4">
           <div className="container mx-auto">
             <div className="max-w-4xl mx-auto">
               <div className="p-8">
