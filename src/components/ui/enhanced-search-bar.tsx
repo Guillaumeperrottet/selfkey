@@ -195,6 +195,19 @@ export default function EnhancedSearchBar({
     setIsOpen(false);
   };
 
+  const removeRecentSearch = (searchToRemove: RecentSearch) => {
+    setRecentSearches((prev) => {
+      const updated = prev.filter(
+        (item) => item.title !== searchToRemove.title
+      );
+      localStorage.setItem(
+        "selfcamp_map_recent_searches",
+        JSON.stringify(updated)
+      );
+      return updated;
+    });
+  };
+
   // Géolocalisation
   const handleGeolocation = () => {
     if (!navigator.geolocation) {
@@ -308,23 +321,46 @@ export default function EnhancedSearchBar({
                 Recherches récentes
               </div>
               {suggestions.map((suggestion) => (
-                <button
+                <div
                   key={suggestion.id}
-                  className="w-full flex items-center gap-3 p-2 hover:bg-gray-50 rounded-md text-left transition-colors"
-                  onClick={() => handleSuggestionClick(suggestion)}
+                  className="w-full flex items-center gap-3 p-2 hover:bg-gray-50 rounded-md transition-colors group"
                 >
-                  {getIcon(suggestion)}
-                  <div className="flex-1 min-w-0">
-                    <div className="font-medium text-gray-900 truncate">
-                      {suggestion.title}
-                    </div>
-                    {suggestion.subtitle && (
-                      <div className="text-xs text-gray-500 truncate">
-                        {suggestion.subtitle}
+                  <button
+                    className="flex items-center gap-3 flex-1 text-left"
+                    onClick={() => handleSuggestionClick(suggestion)}
+                  >
+                    {getIcon(suggestion)}
+                    <div className="flex-1 min-w-0">
+                      <div className="font-medium text-gray-900 truncate">
+                        {suggestion.title}
                       </div>
-                    )}
-                  </div>
-                </button>
+                      {suggestion.subtitle && (
+                        <div className="text-xs text-gray-500 truncate">
+                          {suggestion.subtitle}
+                        </div>
+                      )}
+                    </div>
+                  </button>
+
+                  {/* Bouton supprimer pour les recherches récentes */}
+                  {suggestion.type === "recent" && (
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        const recentSearch = recentSearches.find(
+                          (s) => s.title === suggestion.title
+                        );
+                        if (recentSearch) {
+                          removeRecentSearch(recentSearch);
+                        }
+                      }}
+                      className="opacity-0 group-hover:opacity-100 p-1 hover:bg-red-100 rounded-full transition-all duration-200"
+                      title="Supprimer de l'historique"
+                    >
+                      <X className="h-3 w-3 text-gray-400 hover:text-red-500" />
+                    </button>
+                  )}
+                </div>
               ))}
             </div>
           )}

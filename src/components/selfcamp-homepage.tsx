@@ -82,13 +82,13 @@ export function SelfcampHomepage() {
         <header className="relative z-40 bg-transparent backdrop-blur-sm">
           <div className="container mx-auto px-4 py-3">
             <div className="flex items-center justify-between text-lg">
-              <div className="text-amber-100 font-bold uppercase tracking-wide">
+              <div className="text-white font-bold uppercase tracking-wide">
                 24H/24 - 7J/7
               </div>
-              <div className="text-amber-100 font-bold uppercase tracking-wide">
+              <div className="text-white font-bold uppercase tracking-wide">
                 ENREGISTREMENT AUTOMATIQUE
               </div>
-              <div className="text-amber-100 font-bold uppercase tracking-wide">
+              <div className="text-white font-bold uppercase tracking-wide">
                 CONTACTEZ-NOUS
               </div>
             </div>
@@ -102,7 +102,7 @@ export function SelfcampHomepage() {
               <h1 className="text-6xl md:text-8xl font-bold mb-8 text-white">
                 Selfcamp.ch
               </h1>
-              <p className="text-xl md:text-2xl mb-12 text-black max-w-4xl mx-auto leading-relaxed text-center font-medium">
+              <p className="text-xl md:text-2xl mb-12 text-white max-w-4xl mx-auto leading-relaxed text-center font-medium">
                 Solution d&apos;accès intelligent pour le tourisme de véhicules
                 de loisirs hors zone camping
               </p>
@@ -577,12 +577,7 @@ export function SelfcampHomepage() {
                     height={32}
                     className="rounded"
                   />
-                  <span
-                    className="text-xl font-bold"
-                    style={{ color: "#D4AF37" }}
-                  >
-                    SelfCamp
-                  </span>
+                  <span className="text-xl font-bold text-white">SelfCamp</span>
                 </div>
                 <p className="text-gray-400">
                   Le camping du futur, disponible dès aujourd&apos;hui.

@@ -198,6 +198,16 @@ export default function SearchBar() {
     setIsOpen(false);
   };
 
+  const removeRecentSearch = (searchToRemove: RecentSearch) => {
+    setRecentSearches((prev) => {
+      const updated = prev.filter(
+        (item) => item.title !== searchToRemove.title
+      );
+      localStorage.setItem(RECENT_SEARCHES_KEY, JSON.stringify(updated));
+      return updated;
+    });
+  };
+
   const getIcon = (iconType: string, suggestionType?: string) => {
     switch (iconType) {
       case "map":
@@ -289,25 +299,48 @@ export default function SearchBar() {
               )}
 
               {suggestions.map((suggestion) => (
-                <button
+                <div
                   key={suggestion.id}
-                  className="w-full flex items-center gap-4 p-4 hover:bg-vintage-gray-light/70 hover:shadow-sm transition-all duration-200 ease-in-out text-left cursor-pointer group transform hover:translate-x-1"
-                  onClick={() => handleSuggestionClick(suggestion)}
+                  className="w-full flex items-center gap-4 p-4 hover:bg-vintage-gray-light/70 hover:shadow-sm transition-all duration-200 ease-in-out group"
                 >
-                  <div className="w-10 h-10 bg-vintage-gray/20 rounded-lg flex items-center justify-center group-hover:bg-vintage-gray/30 group-hover:scale-105 transition-all duration-200">
-                    {getIcon(suggestion.icon, suggestion.type)}
-                  </div>
-                  <div className="flex-1">
-                    <div className="font-medium text-vintage-black group-hover:text-vintage-teal transition-colors duration-200">
-                      {suggestion.title}
+                  <button
+                    className="flex items-center gap-4 flex-1 text-left cursor-pointer transform hover:translate-x-1 transition-transform duration-200"
+                    onClick={() => handleSuggestionClick(suggestion)}
+                  >
+                    <div className="w-10 h-10 bg-vintage-gray/20 rounded-lg flex items-center justify-center group-hover:bg-vintage-gray/30 group-hover:scale-105 transition-all duration-200">
+                      {getIcon(suggestion.icon, suggestion.type)}
                     </div>
-                    {suggestion.subtitle && (
-                      <div className="text-sm text-gray-600 group-hover:text-gray-700 transition-colors duration-200">
-                        {suggestion.subtitle}
+                    <div className="flex-1">
+                      <div className="font-medium text-vintage-black group-hover:text-vintage-teal transition-colors duration-200">
+                        {suggestion.title}
                       </div>
-                    )}
-                  </div>
-                </button>
+                      {suggestion.subtitle && (
+                        <div className="text-sm text-gray-600 group-hover:text-gray-700 transition-colors duration-200">
+                          {suggestion.subtitle}
+                        </div>
+                      )}
+                    </div>
+                  </button>
+
+                  {/* Bouton supprimer pour les recherches récentes */}
+                  {suggestion.type === "recent" && (
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        const recentSearch = recentSearches.find(
+                          (s) => s.title === suggestion.title
+                        );
+                        if (recentSearch) {
+                          removeRecentSearch(recentSearch);
+                        }
+                      }}
+                      className="opacity-0 group-hover:opacity-100 p-1 hover:bg-red-100 rounded-full transition-all duration-200"
+                      title="Supprimer de l'historique"
+                    >
+                      <X className="h-4 w-4 text-gray-400 hover:text-red-500" />
+                    </button>
+                  )}
+                </div>
               ))}
             </>
           )}
