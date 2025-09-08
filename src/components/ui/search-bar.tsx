@@ -211,13 +211,13 @@ export default function SearchBar() {
           {/* Use the map suggestion */}
           <Link
             href="/map"
-            className="flex items-center gap-4 p-4 hover:bg-vintage-gray-light transition-colors border-b border-vintage-gray-light"
+            className="flex items-center gap-4 p-4 hover:bg-vintage-gray-light/70 hover:shadow-sm transition-all duration-200 ease-in-out border-b border-vintage-gray-light cursor-pointer group"
           >
-            <div className="w-10 h-10 bg-vintage-teal/10 rounded-lg flex items-center justify-center">
+            <div className="w-10 h-10 bg-vintage-teal/10 rounded-lg flex items-center justify-center group-hover:bg-vintage-teal/20 transition-colors duration-200">
               <Map className="w-5 h-5 text-vintage-teal" />
             </div>
             <div>
-              <div className="font-medium text-vintage-black">
+              <div className="font-medium text-vintage-black group-hover:text-vintage-teal transition-colors duration-200">
                 Voir la carte
               </div>
               <div className="text-sm text-gray-600">
@@ -243,18 +243,18 @@ export default function SearchBar() {
               {suggestions.map((suggestion) => (
                 <button
                   key={suggestion.id}
-                  className="w-full flex items-center gap-4 p-4 hover:bg-vintage-gray-light transition-colors text-left"
+                  className="w-full flex items-center gap-4 p-4 hover:bg-vintage-gray-light/70 hover:shadow-sm transition-all duration-200 ease-in-out text-left cursor-pointer group transform hover:translate-x-1"
                   onClick={() => handleSuggestionClick(suggestion)}
                 >
-                  <div className="w-10 h-10 bg-vintage-gray/20 rounded-lg flex items-center justify-center">
+                  <div className="w-10 h-10 bg-vintage-gray/20 rounded-lg flex items-center justify-center group-hover:bg-vintage-gray/30 group-hover:scale-105 transition-all duration-200">
                     {getIcon(suggestion.icon, suggestion.type)}
                   </div>
                   <div className="flex-1">
-                    <div className="font-medium text-vintage-black">
+                    <div className="font-medium text-vintage-black group-hover:text-vintage-teal transition-colors duration-200">
                       {suggestion.title}
                     </div>
                     {suggestion.subtitle && (
-                      <div className="text-sm text-gray-600">
+                      <div className="text-sm text-gray-600 group-hover:text-gray-700 transition-colors duration-200">
                         {suggestion.subtitle}
                       </div>
                     )}

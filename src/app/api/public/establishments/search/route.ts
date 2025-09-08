@@ -35,16 +35,46 @@ interface SearchResult {
 // API de géocodage simple pour les villes/pays
 async function geocodeLocation(location: string): Promise<GeocodingResult[]> {
   try {
-    const response = await fetch(
-      `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(location)}&limit=3&countrycodes=ch,fr,it,de,at,es&accept-language=fr`
-    );
+    const url = `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(location)}&limit=5&countrycodes=ch,fr,it,de,at,es,be,nl&accept-language=fr&addressdetails=1`;
+
+    console.log("Geocoding URL:", url);
+
+    const response = await fetch(url, {
+      headers: {
+        "User-Agent": "SelfCamp/1.0 (contact@selfcamp.ch)",
+        Accept: "application/json",
+      },
+    });
+
+    if (!response.ok) {
+      console.error(
+        "Nominatim API error:",
+        response.status,
+        response.statusText
+      );
+      return [];
+    }
+
     const data = (await response.json()) as Array<{
       display_name: string;
       lat: string;
       lon: string;
       type: string;
       class: string;
+      address?: {
+        town?: string;
+        city?: string;
+        village?: string;
+        municipality?: string;
+        county?: string;
+        state?: string;
+        country?: string;
+        postcode?: string;
+      };
     }>;
+
+    console.log("Geocoding results:", data);
+
     return data.map((item) => ({
       display_name: item.display_name,
       lat: parseFloat(item.lat),
@@ -73,13 +103,21 @@ export async function GET(request: Request) {
     // 1. PRIORITÉ AUX LIEUX GÉOGRAPHIQUES (comme Park4night)
     try {
       const geocodingResults = await geocodeLocation(searchTerm);
+      console.log(
+        `Found ${geocodingResults.length} geocoding results for "${searchTerm}"`
+      );
 
       geocodingResults.forEach((location) => {
+        // Extraire le nom principal et la localisation
+        const parts = location.display_name.split(",");
+        const mainName = parts[0].trim();
+        const locationInfo = parts.slice(1).join(",").trim();
+
         allResults.push({
           id: `location-${location.lat}-${location.lon}`,
           type: "location",
-          title: location.display_name.split(",")[0], // Premier élément (ville)
-          subtitle: location.display_name,
+          title: mainName,
+          subtitle: locationInfo,
           icon: "map",
           coordinates: {
             lat: location.lat,
