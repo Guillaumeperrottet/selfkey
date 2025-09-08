@@ -13,7 +13,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Checkbox } from "@/components/ui/checkbox";
 import { DatePicker } from "@/components/ui/date-picker";
 import { toastUtils } from "@/lib/toast-utils";
 import { calculateStayDuration } from "@/lib/availability";
@@ -26,24 +25,6 @@ interface Room {
   price: number;
 }
 
-interface PricingOptionValue {
-  id: string;
-  label: string;
-  priceModifier: number;
-  isDefault: boolean;
-  displayOrder: number;
-}
-
-interface PricingOption {
-  id: string;
-  name: string;
-  type: "select" | "checkbox" | "radio";
-  isRequired: boolean;
-  isActive: boolean;
-  displayOrder: number;
-  values: PricingOptionValue[];
-}
-
 interface BookingFormDetailsProps {
   hotelSlug: string;
   establishmentName: string;
@@ -51,6 +32,7 @@ interface BookingFormDetailsProps {
   checkInDate: string;
   checkOutDate: string;
   hasDog?: boolean;
+  selectedPricingOptions?: Record<string, string | string[]>;
   onBack: () => void;
   initialData?: {
     adults?: number;
@@ -79,6 +61,7 @@ export function BookingFormDetails({
   checkInDate,
   checkOutDate,
   hasDog,
+  selectedPricingOptions: initialSelectedPricingOptions,
   onBack,
   initialData,
 }: BookingFormDetailsProps) {
@@ -129,13 +112,6 @@ export function BookingFormDetails({
     initialData?.clientVehicleNumber || ""
   );
 
-  // États pour les options de prix
-  const [pricingOptions, setPricingOptions] = useState<PricingOption[]>([]);
-  const [selectedPricingOptions, setSelectedPricingOptions] = useState<
-    Record<string, string | string[]>
-  >(initialData?.selectedPricingOptions || {});
-  const [pricingOptionsTotal, setPricingOptionsTotal] = useState(0);
-
   // États pour la taxe de séjour
   const [touristTaxEnabled, setTouristTaxEnabled] = useState(true);
   const [touristTaxAmount, setTouristTaxAmount] = useState(3.0);
@@ -147,48 +123,6 @@ export function BookingFormDetails({
     new Date(checkInDate),
     new Date(checkOutDate)
   );
-
-  // Charger les options de prix
-  useEffect(() => {
-    const loadPricingOptions = async () => {
-      try {
-        console.log("DEBUG: Loading pricing options for hotel:", hotelSlug);
-        const response = await fetch(
-          `/api/establishments/${hotelSlug}/pricing-options`
-        );
-        console.log("DEBUG: Response status:", response.ok);
-        if (response.ok) {
-          const data = await response.json();
-          console.log("DEBUG: Pricing options received:", data.pricingOptions);
-          setPricingOptions(data.pricingOptions || []);
-
-          // Initialiser les valeurs par défaut
-          const defaultSelections: Record<string, string | string[]> = {};
-          data.pricingOptions?.forEach((option: PricingOption) => {
-            const defaultValue = option.values.find((v) => v.isDefault);
-            if (defaultValue) {
-              if (option.type === "checkbox") {
-                defaultSelections[option.id] = [defaultValue.id];
-              } else {
-                defaultSelections[option.id] = defaultValue.id;
-              }
-            }
-          });
-          console.log("DEBUG: Default selections:", defaultSelections);
-
-          // Fusionner avec les données initiales si disponibles
-          setSelectedPricingOptions((prev) => ({
-            ...defaultSelections,
-            ...prev,
-          }));
-        }
-      } catch (error) {
-        console.error("Erreur lors du chargement des options de prix:", error);
-      }
-    };
-
-    loadPricingOptions();
-  }, [hotelSlug]);
 
   // Charger les paramètres de taxe de séjour
   useEffect(() => {
@@ -223,30 +157,6 @@ export function BookingFormDetails({
     loadTouristTaxSettings();
   }, [hotelSlug]);
 
-  // Calculer le total des options de prix
-  useEffect(() => {
-    let total = 0;
-    pricingOptions.forEach((option) => {
-      const selectedValue = selectedPricingOptions[option.id];
-      if (selectedValue) {
-        if (Array.isArray(selectedValue)) {
-          selectedValue.forEach((valueId) => {
-            const value = option.values.find((v) => v.id === valueId);
-            if (value) {
-              total += value.priceModifier;
-            }
-          });
-        } else {
-          const value = option.values.find((v) => v.id === selectedValue);
-          if (value) {
-            total += value.priceModifier;
-          }
-        }
-      }
-    });
-    setPricingOptionsTotal(total);
-  }, [selectedPricingOptions, pricingOptions]);
-
   // Calculer la taxe de séjour (uniquement pour les adultes)
   useEffect(() => {
     const taxCalculation = calculateTouristTax(
@@ -257,16 +167,6 @@ export function BookingFormDetails({
     );
     setTouristTaxTotal(taxCalculation.totalTax);
   }, [adults, duration, touristTaxEnabled, touristTaxAmount]);
-
-  const handlePricingOptionChange = (
-    optionId: string,
-    value: string | string[]
-  ) => {
-    setSelectedPricingOptions((prev) => ({
-      ...prev,
-      [optionId]: value,
-    }));
-  };
 
   const handleConfirmBooking = async () => {
     // Validation des champs obligatoires
@@ -360,27 +260,8 @@ export function BookingFormDetails({
       (field) => !field.value
     );
 
-    // Validation des options de prix obligatoires
-    const missingRequiredOptions = pricingOptions
-      .filter((option) => option.isRequired && option.isActive)
-      .filter((option) => {
-        const selected = selectedPricingOptions[option.id];
-        return (
-          !selected ||
-          (Array.isArray(selected) && selected.length === 0) ||
-          (!Array.isArray(selected) && selected === "")
-        );
-      });
-
     if (missingFields.length > 0 || adults < 1) {
       toastUtils.error("Please fill in all required fields");
-      return;
-    }
-
-    if (missingRequiredOptions.length > 0) {
-      toastUtils.error(
-        `Please complete the required options: ${missingRequiredOptions.map((o) => o.name).join(", ")}`
-      );
       return;
     }
 
@@ -395,8 +276,7 @@ export function BookingFormDetails({
     const loadingToast = toastUtils.loading("Creating your booking...");
 
     try {
-      const totalPrice =
-        selectedRoom.price * duration + pricingOptionsTotal + touristTaxTotal;
+      const totalPrice = selectedRoom.price * duration + touristTaxTotal;
 
       const bookingData = {
         hotelSlug,
@@ -421,8 +301,7 @@ export function BookingFormDetails({
         clientVehicleNumber: clientVehicleNumber.trim(),
         amount: totalPrice,
         currency: "CHF",
-        selectedPricingOptions,
-        pricingOptionsTotal,
+        selectedPricingOptions: initialSelectedPricingOptions || {},
         touristTaxTotal,
         touristTaxPerPersonPerNight: touristTaxAmount,
         guests: adults + children,
@@ -447,16 +326,13 @@ export function BookingFormDetails({
     }
   };
 
-  const totalPrice =
-    selectedRoom.price * duration + pricingOptionsTotal + touristTaxTotal;
-
   return (
     <Card className="max-w-4xl mx-auto border border-gray-200 shadow-sm">
       <CardHeader className="border-b border-gray-200 bg-white">
         <div className="flex items-center justify-between">
           <div>
             <CardTitle className="text-xl font-medium text-gray-900">
-              Complete Your Booking
+              Contact details
             </CardTitle>
           </div>
           <Button
@@ -464,7 +340,7 @@ export function BookingFormDetails({
             onClick={onBack}
             className="text-gray-700 border-gray-300 hover:bg-gray-50"
           >
-            ← Change Room
+            ← Change Place
           </Button>
         </div>
       </CardHeader>
@@ -478,7 +354,7 @@ export function BookingFormDetails({
                 Guest Information
               </h4>
               <p className="text-sm text-gray-600">
-                Adults (16+) and children (16-)
+                Adults (16+) and children (15-)
               </p>
             </div>
 
@@ -828,453 +704,25 @@ export function BookingFormDetails({
             </div>
           </div>
 
-          {/* Section options de prix */}
-          {pricingOptions.length > 0 && (
-            <div className="space-y-4">
-              <div>
-                <h4 className="font-medium text-gray-900 mb-1">
-                  Additional Options
-                </h4>
-                <p className="text-sm text-gray-600">Enhance your experience</p>
-              </div>
-
-              {/* Afficher les options valides */}
-              {pricingOptions.filter(
-                (option) => option.isActive && option.values?.length > 0
-              ).length > 0 ? (
-                <div className="space-y-4">
-                  {pricingOptions
-                    .filter(
-                      (option) => option.isActive && option.values?.length > 0
-                    )
-                    .sort((a, b) => a.displayOrder - b.displayOrder)
-                    .map((option) => (
-                      <div
-                        key={option.id}
-                        className="space-y-3 p-4 border border-gray-200 rounded-lg bg-gray-50"
-                      >
-                        <div className="flex items-center justify-between">
-                          <Label className="text-sm font-medium text-gray-900 flex items-center gap-2">
-                            {option.name}
-                            {option.isRequired && (
-                              <span className="text-red-500 text-xs bg-red-100 px-2 py-1 rounded-full">
-                                Obligatoire
-                              </span>
-                            )}
-                          </Label>
-                          {/* Indicateur du type d'option */}
-                          <span className="text-xs text-gray-500 bg-white px-2 py-1 rounded border">
-                            {option.type === "select" && "Menu déroulant"}
-                            {option.type === "radio" && "Choix unique"}
-                            {option.type === "checkbox" && "Choix multiple"}
-                          </span>
-                        </div>
-
-                        {option.type === "select" && (
-                          <Select
-                            value={
-                              (selectedPricingOptions[option.id] as string) ||
-                              (option.isRequired ? "" : "__none__")
-                            }
-                            onValueChange={(value) =>
-                              handlePricingOptionChange(
-                                option.id,
-                                value === "__none__" ? "" : value
-                              )
-                            }
-                          >
-                            <SelectTrigger className="h-12 bg-white border-gray-300 hover:border-gray-400 focus:border-blue-500">
-                              <SelectValue placeholder="Sélectionnez une option..." />
-                            </SelectTrigger>
-                            <SelectContent>
-                              {!option.isRequired && (
-                                <SelectItem value="__none__">
-                                  <span className="text-gray-500">Options</span>
-                                </SelectItem>
-                              )}
-                              {option.values
-                                .sort((a, b) => a.displayOrder - b.displayOrder)
-                                .map((value) => (
-                                  <SelectItem key={value.id} value={value.id}>
-                                    <div className="flex justify-between w-full items-center">
-                                      <span>{value.label}</span>
-                                      {value.priceModifier !== 0 && (
-                                        <span className="ml-2 text-gray-600 font-medium">
-                                          {value.priceModifier > 0 ? "+" : ""}
-                                          {value.priceModifier} CHF
-                                        </span>
-                                      )}
-                                    </div>
-                                  </SelectItem>
-                                ))}
-                            </SelectContent>
-                          </Select>
-                        )}
-
-                        {option.type === "checkbox" && (
-                          <div className="space-y-2">
-                            {option.values
-                              .sort((a, b) => a.displayOrder - b.displayOrder)
-                              .map((value) => (
-                                <div
-                                  key={value.id}
-                                  className="flex items-center space-x-3 p-3 bg-white border border-gray-200 rounded-md hover:border-gray-300 hover:bg-gray-50 transition-all cursor-pointer"
-                                  onClick={() => {
-                                    const currentValues =
-                                      (selectedPricingOptions[
-                                        option.id
-                                      ] as string[]) || [];
-                                    const isChecked = currentValues.includes(
-                                      value.id
-                                    );
-                                    const newValues = isChecked
-                                      ? currentValues.filter(
-                                          (v) => v !== value.id
-                                        )
-                                      : [...currentValues, value.id];
-
-                                    if (
-                                      newValues.length === 0 &&
-                                      option.isRequired
-                                    ) {
-                                      return;
-                                    }
-
-                                    handlePricingOptionChange(
-                                      option.id,
-                                      newValues
-                                    );
-                                  }}
-                                >
-                                  <Checkbox
-                                    id={`${option.id}-${value.id}`}
-                                    checked={
-                                      Array.isArray(
-                                        selectedPricingOptions[option.id]
-                                      ) &&
-                                      (
-                                        selectedPricingOptions[
-                                          option.id
-                                        ] as string[]
-                                      ).includes(value.id)
-                                    }
-                                    onCheckedChange={(checked) => {
-                                      const currentValues =
-                                        (selectedPricingOptions[
-                                          option.id
-                                        ] as string[]) || [];
-                                      const newValues = checked
-                                        ? [...currentValues, value.id]
-                                        : currentValues.filter(
-                                            (v) => v !== value.id
-                                          );
-
-                                      if (
-                                        newValues.length === 0 &&
-                                        option.isRequired
-                                      ) {
-                                        return;
-                                      }
-
-                                      handlePricingOptionChange(
-                                        option.id,
-                                        newValues
-                                      );
-                                    }}
-                                    className="h-5 w-5"
-                                  />
-                                  <Label
-                                    htmlFor={`${option.id}-${value.id}`}
-                                    className="flex-1 cursor-pointer flex justify-between items-center"
-                                  >
-                                    <span className="text-sm font-medium text-gray-800">
-                                      {value.label}
-                                    </span>
-                                    {value.priceModifier !== 0 && (
-                                      <span
-                                        className={`font-semibold text-sm ${
-                                          value.priceModifier > 0
-                                            ? "text-green-600"
-                                            : "text-red-600"
-                                        }`}
-                                      >
-                                        {value.priceModifier > 0 ? "+" : ""}
-                                        {value.priceModifier} CHF
-                                      </span>
-                                    )}
-                                  </Label>
-                                </div>
-                              ))}
-                          </div>
-                        )}
-
-                        {option.type === "radio" && (
-                          <div className="space-y-2">
-                            {!option.isRequired && (
-                              <div className="flex items-center space-x-3 p-3 bg-white border border-gray-200 rounded-md hover:border-gray-300 hover:bg-gray-50 transition-all cursor-pointer">
-                                <input
-                                  type="radio"
-                                  id={`${option.id}-none`}
-                                  name={`radio-${option.id}`}
-                                  value="__none__"
-                                  checked={
-                                    !selectedPricingOptions[option.id] ||
-                                    selectedPricingOptions[option.id] === ""
-                                  }
-                                  onChange={() =>
-                                    handlePricingOptionChange(option.id, "")
-                                  }
-                                  className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300"
-                                />
-                                <Label
-                                  htmlFor={`${option.id}-none`}
-                                  className="flex-1 cursor-pointer flex justify-between items-center"
-                                >
-                                  <span className="text-sm font-medium text-gray-600">
-                                    Aucune option
-                                  </span>
-                                  <span className="text-sm text-gray-400">
-                                    +0 CHF
-                                  </span>
-                                </Label>
-                              </div>
-                            )}
-                            {option.values
-                              .sort((a, b) => a.displayOrder - b.displayOrder)
-                              .map((value) => (
-                                <div
-                                  key={value.id}
-                                  className="flex items-center space-x-3 p-3 bg-white border border-gray-200 rounded-md hover:border-gray-300 hover:bg-gray-50 transition-all cursor-pointer"
-                                  onClick={() =>
-                                    handlePricingOptionChange(
-                                      option.id,
-                                      value.id
-                                    )
-                                  }
-                                >
-                                  <input
-                                    type="radio"
-                                    id={`${option.id}-${value.id}`}
-                                    name={`radio-${option.id}`}
-                                    value={value.id}
-                                    checked={
-                                      selectedPricingOptions[option.id] ===
-                                      value.id
-                                    }
-                                    onChange={() =>
-                                      handlePricingOptionChange(
-                                        option.id,
-                                        value.id
-                                      )
-                                    }
-                                    className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300"
-                                  />
-                                  <Label
-                                    htmlFor={`${option.id}-${value.id}`}
-                                    className="flex-1 cursor-pointer flex justify-between items-center"
-                                  >
-                                    <span className="text-sm font-medium text-gray-800">
-                                      {value.label}
-                                    </span>
-                                    {value.priceModifier !== 0 && (
-                                      <span
-                                        className={`font-semibold text-sm ${
-                                          value.priceModifier > 0
-                                            ? "text-green-600"
-                                            : "text-red-600"
-                                        }`}
-                                      >
-                                        {value.priceModifier > 0 ? "+" : ""}
-                                        {value.priceModifier} CHF
-                                      </span>
-                                    )}
-                                  </Label>
-                                </div>
-                              ))}
-                          </div>
-                        )}
-                      </div>
-                    ))}
+          {/* Boutons de navigation */}
+          <div className="flex gap-4 pt-6">
+            <Button variant="outline" onClick={onBack} className="flex-1">
+              ← Back
+            </Button>
+            <Button
+              onClick={handleConfirmBooking}
+              disabled={bookingInProgress}
+              className="flex-1"
+            >
+              {bookingInProgress ? (
+                <div className="flex items-center gap-2">
+                  <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
+                  Processing...
                 </div>
               ) : (
-                <div className="p-4 text-center text-gray-500 bg-gray-50 rounded-lg border border-gray-200">
-                  <p className="text-sm">
-                    Aucune option supplémentaire disponible pour le moment.
-                  </p>
-                </div>
+                "Next / Suivant →"
               )}
-            </div>
-          )}
-
-          {/* Récapitulatif final */}
-          <div className="bg-white border border-gray-200 rounded-lg shadow-sm">
-            {/* En-tête avec informations de réservation */}
-            <div className="p-4 border-b border-gray-200">
-              <div className="flex items-start justify-between">
-                <div>
-                  <h4 className="font-semibold text-lg text-gray-900">
-                    {selectedRoom.name}
-                  </h4>
-                  <p className="text-gray-600 mt-1">
-                    {new Date(checkInDate).toLocaleDateString("fr-CH", {
-                      weekday: "short",
-                      day: "numeric",
-                      month: "short",
-                    })}{" "}
-                    →{" "}
-                    {new Date(checkOutDate).toLocaleDateString("fr-CH", {
-                      weekday: "short",
-                      day: "numeric",
-                      month: "short",
-                    })}
-                  </p>
-                  <p className="text-sm text-gray-500">
-                    {duration} night{duration > 1 ? "s" : ""} •{" "}
-                    {adults + children} guest{adults + children > 1 ? "s" : ""}
-                  </p>
-                </div>
-              </div>
-            </div>
-
-            {/* Détail des prix */}
-            <div className="p-4 space-y-3">
-              <h5 className="font-medium text-gray-900 mb-3">Price</h5>
-
-              {/* Prix de base */}
-              <div className="flex justify-between items-center">
-                <span className="text-gray-700">
-                  {selectedRoom.price} CHF × {duration} night
-                  {duration > 1 ? "s" : ""}
-                </span>
-                <span className="font-medium text-gray-900">
-                  {selectedRoom.price * duration} CHF
-                </span>
-              </div>
-
-              {/* Options supplémentaires */}
-              {pricingOptionsTotal !== 0 && (
-                <div className="space-y-2">
-                  <div>
-                    <span className="text-gray-700 font-medium">
-                      Additional options
-                    </span>
-                  </div>
-                  {/* Détail des options sélectionnées */}
-                  <div className="ml-4 space-y-1">
-                    {pricingOptions
-                      .filter((option) => {
-                        const selected = selectedPricingOptions[option.id];
-                        return (
-                          selected &&
-                          ((Array.isArray(selected) && selected.length > 0) ||
-                            (!Array.isArray(selected) && selected !== ""))
-                        );
-                      })
-                      .map((option) => {
-                        const selected = selectedPricingOptions[option.id];
-                        const selectedValues = Array.isArray(selected)
-                          ? option.values.filter((v) => selected.includes(v.id))
-                          : option.values.filter((v) => v.id === selected);
-
-                        return selectedValues.map((value) => (
-                          <div
-                            key={`${option.id}-${value.id}`}
-                            className="flex justify-between items-center text-sm"
-                          >
-                            <span className="text-gray-600">
-                              • {value.label}
-                            </span>
-                            <span
-                              className={`${value.priceModifier > 0 ? "text-green-600" : value.priceModifier < 0 ? "text-red-600" : "text-gray-500"}`}
-                            >
-                              {value.priceModifier > 0 ? "+" : ""}
-                              {value.priceModifier} CHF
-                            </span>
-                          </div>
-                        ));
-                      })}
-                  </div>
-                </div>
-              )}
-
-              {/* Taxe de séjour */}
-              {touristTaxEnabled && touristTaxTotal > 0 && (
-                <div className="flex justify-between items-center">
-                  <div>
-                    <span className="text-gray-700">Tourist tax</span>
-                    <div className="text-xs text-gray-500">
-                      {adults} adult{adults > 1 ? "s" : ""} • {duration} night
-                      {duration > 1 ? "s" : ""}
-                    </div>
-                  </div>
-                  <span className="font-medium text-gray-900">
-                    +{touristTaxTotal.toFixed(2)} CHF
-                  </span>
-                </div>
-              )}
-            </div>
-
-            {/* Total final */}
-            <div className="p-4 border-t border-gray-200 bg-gray-50">
-              <div className="flex justify-between items-center">
-                <span className="font-semibold text-lg text-gray-900">
-                  Total
-                </span>
-                <span className="font-bold text-2xl text-gray-900">
-                  {totalPrice.toFixed(2)} CHF
-                </span>
-              </div>
-            </div>
-
-            {/* Bouton de confirmation */}
-            <div className="p-4">
-              {/* Validation des options obligatoires */}
-              {(() => {
-                const missingRequiredOptions = pricingOptions
-                  .filter((option) => option.isRequired && option.isActive)
-                  .filter((option) => {
-                    const selected = selectedPricingOptions[option.id];
-                    return (
-                      !selected ||
-                      (Array.isArray(selected) && selected.length === 0) ||
-                      (!Array.isArray(selected) && selected === "")
-                    );
-                  });
-
-                return (
-                  missingRequiredOptions.length > 0 && (
-                    <div className="mb-3 p-3 bg-amber-50 border border-amber-200 rounded-lg">
-                      <div className="flex items-center gap-2 text-amber-800">
-                        <span className="text-sm font-medium">
-                          ⚠️ Options obligatoires manquantes :
-                        </span>
-                      </div>
-                      <ul className="mt-1 ml-4 text-sm text-amber-700">
-                        {missingRequiredOptions.map((option) => (
-                          <li key={option.id}>• {option.name}</li>
-                        ))}
-                      </ul>
-                    </div>
-                  )
-                );
-              })()}
-
-              <Button
-                onClick={handleConfirmBooking}
-                disabled={bookingInProgress}
-                className="w-full h-12 text-lg font-semibold"
-                size="lg"
-              >
-                {bookingInProgress ? (
-                  <div className="flex items-center gap-2">
-                    <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
-                    Processing...
-                  </div>
-                ) : (
-                  "Complete Booking"
-                )}
-              </Button>
-            </div>
+            </Button>
           </div>
         </div>
       </CardContent>

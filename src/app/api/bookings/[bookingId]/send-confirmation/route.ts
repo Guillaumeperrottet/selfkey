@@ -40,6 +40,7 @@ interface BookingWithDetails {
   dayParkingDuration: string | null;
   dayParkingStartTime: Date | null;
   dayParkingEndTime: Date | null;
+  hasDog: boolean | null;
   room: {
     id: string;
     name: string;
@@ -278,16 +279,18 @@ async function sendEmailConfirmation(
   booking: BookingWithDetails,
   templateData: TemplateData
 ) {
-  // Choisir le bon template selon si la chambre accepte les chiens
+  // Choisir le bon template selon si le client a un chien
   let template: string;
 
-  // Si la chambre accepte les chiens et qu'un template spécifique est défini
+  // Si le client a coché "avec chien" et qu'un template spécifique est défini
   if (
-    booking.room?.allowDogs &&
+    booking.hasDog &&
     booking.establishment.confirmationEmailTemplateWithDog
   ) {
     template = booking.establishment.confirmationEmailTemplateWithDog;
-    console.log("📧 Utilisation du template EMAIL AVEC CHIEN");
+    console.log(
+      "📧 Utilisation du template EMAIL AVEC CHIEN (client a un chien)"
+    );
   }
   // Sinon, utiliser le template normal (général)
   else {

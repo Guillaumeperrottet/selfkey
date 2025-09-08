@@ -1,10 +1,18 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Checkbox } from "@/components/ui/checkbox";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { Calendar, Clock, Info, AlertTriangle } from "lucide-react";
 import { toastUtils } from "@/lib/toast-utils";
 import {
@@ -12,6 +20,25 @@ import {
   calculateStayDuration,
 } from "@/lib/availability";
 import { checkCutoffTime, formatTimeForDisplay } from "@/lib/time-utils";
+
+interface PricingOptionValue {
+  id: string;
+  label: string;
+  priceModifier: number;
+  isDefault: boolean;
+  displayOrder: number;
+}
+
+interface PricingOption {
+  id: string;
+  name: string;
+  description: string | null;
+  type: "select" | "radio" | "checkbox";
+  isRequired: boolean;
+  isActive: boolean;
+  displayOrder: number;
+  values: PricingOptionValue[];
+}
 
 interface Establishment {
   name: string;
@@ -24,23 +51,28 @@ interface Establishment {
 }
 
 interface DateSelectorProps {
+  hotelSlug: string;
   establishment: Establishment;
   onDatesConfirmed: (
     checkInDate: string,
     checkOutDate: string,
-    hasDog?: boolean
+    hasDog?: boolean,
+    selectedPricingOptions?: Record<string, string | string[]>
   ) => void;
   initialCheckInDate?: string;
   initialCheckOutDate?: string;
   initialHasDog?: boolean;
+  initialPricingOptions?: Record<string, string | string[]>;
 }
 
 export function DateSelector({
+  hotelSlug,
   establishment,
   onDatesConfirmed,
   initialCheckInDate,
   initialCheckOutDate,
   initialHasDog,
+  initialPricingOptions = {},
 }: DateSelectorProps) {
   const today = new Date().toISOString().split("T")[0];
 
@@ -48,6 +80,70 @@ export function DateSelector({
   const [checkOutDate, setCheckOutDate] = useState(initialCheckOutDate || "");
   const [hasDog, setHasDog] = useState(initialHasDog || false);
   const [loading, setLoading] = useState(false);
+
+  // États pour les options de prix
+  const [pricingOptions, setPricingOptions] = useState<PricingOption[]>([]);
+  const [selectedPricingOptions, setSelectedPricingOptions] = useState<
+    Record<string, string | string[]>
+  >(initialPricingOptions);
+  const [pricingOptionsLoading, setPricingOptionsLoading] = useState(true);
+
+  // Charger les options de prix
+  useEffect(() => {
+    if (!hotelSlug) return;
+
+    const fetchPricingOptions = async () => {
+      try {
+        setPricingOptionsLoading(true);
+        const response = await fetch(
+          `/api/establishments/${hotelSlug}/pricing-options`
+        );
+        if (response.ok) {
+          const data = await response.json();
+          // L'API retourne { pricingOptions: [...] }
+          const options = data.pricingOptions;
+          // S'assurer que les options sont un tableau
+          if (Array.isArray(options)) {
+            console.log(
+              "DEBUG: Options de prix chargées:",
+              options.length,
+              options
+            );
+            setPricingOptions(options);
+          } else {
+            console.warn(
+              "Les options de prix ne sont pas un tableau:",
+              options
+            );
+            setPricingOptions([]);
+          }
+        } else {
+          console.warn(
+            "Erreur lors du chargement des options de prix:",
+            response.status
+          );
+          setPricingOptions([]);
+        }
+      } catch (error) {
+        console.error("Erreur lors du chargement des options de prix:", error);
+      } finally {
+        setPricingOptionsLoading(false);
+      }
+    };
+
+    fetchPricingOptions();
+  }, [hotelSlug]);
+
+  // Gestionnaire pour les changements d'options de prix
+  const handlePricingOptionChange = (
+    optionKey: string,
+    value: string | string[]
+  ) => {
+    setSelectedPricingOptions((prev) => ({
+      ...prev,
+      [optionKey]: value,
+    }));
+  };
 
   const duration =
     checkInDate && checkOutDate
@@ -114,7 +210,12 @@ export function DateSelector({
 
       toastUtils.dismiss(loadingToast);
 
-      onDatesConfirmed(checkInDate, checkOutDate, hasDog);
+      onDatesConfirmed(
+        checkInDate,
+        checkOutDate,
+        hasDog,
+        selectedPricingOptions
+      );
     } catch {
       toastUtils.dismiss(loadingToast);
       toastUtils.error("Erreur lors de la validation des dates");
@@ -129,6 +230,139 @@ export function DateSelector({
     if (checkOutDate && newCheckInDate >= checkOutDate) {
       setCheckOutDate("");
     }
+  };
+
+  // Fonction pour rendre les options de prix sans afficher les prix
+  const renderPricingOptions = () => {
+    if (pricingOptionsLoading) {
+      return (
+        <div className="space-y-4">
+          <h3 className="text-lg font-semibold">Chargement des options...</h3>
+        </div>
+      );
+    }
+
+    if (!Array.isArray(pricingOptions) || pricingOptions.length === 0) {
+      return null;
+    }
+
+    console.log(
+      "DEBUG: Rendu des options de prix:",
+      pricingOptions.length,
+      pricingOptions
+    );
+
+    return (
+      <div className="space-y-4 mb-6">
+        {pricingOptions.map((option) => (
+          <div key={option.id} className="space-y-2">
+            <label className="text-sm font-medium">
+              {option.name}
+              {option.isRequired && (
+                <span className="text-red-500 ml-1">*</span>
+              )}
+            </label>
+
+            {option.type === "select" && (
+              <Select
+                value={(selectedPricingOptions[option.id] as string) || ""}
+                onValueChange={(value) =>
+                  handlePricingOptionChange(option.id, value)
+                }
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Sélectionnez une option" />
+                </SelectTrigger>
+                <SelectContent>
+                  {option.values.map((optionValue) => (
+                    <SelectItem key={optionValue.id} value={optionValue.id}>
+                      {optionValue.label}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            )}
+
+            {option.type === "radio" && (
+              <div className="space-y-2">
+                {option.values.map((optionValue) => (
+                  <div
+                    key={optionValue.id}
+                    className="flex items-center space-x-2"
+                  >
+                    <input
+                      type="radio"
+                      id={`${option.id}-${optionValue.id}`}
+                      name={option.id}
+                      value={optionValue.id}
+                      checked={
+                        selectedPricingOptions[option.id] === optionValue.id
+                      }
+                      onChange={(e) =>
+                        handlePricingOptionChange(option.id, e.target.value)
+                      }
+                      className="w-4 h-4"
+                    />
+                    <label
+                      htmlFor={`${option.id}-${optionValue.id}`}
+                      className="text-sm"
+                    >
+                      {optionValue.label}
+                    </label>
+                  </div>
+                ))}
+              </div>
+            )}
+
+            {option.type === "checkbox" && (
+              <div className="space-y-2">
+                {option.values.map((optionValue) => (
+                  <div
+                    key={optionValue.id}
+                    className="flex items-center space-x-2"
+                  >
+                    <Checkbox
+                      id={`${option.id}-${optionValue.id}`}
+                      checked={
+                        Array.isArray(selectedPricingOptions[option.id])
+                          ? (
+                              selectedPricingOptions[option.id] as string[]
+                            ).includes(optionValue.id)
+                          : false
+                      }
+                      onCheckedChange={(checked) => {
+                        const currentValues = Array.isArray(
+                          selectedPricingOptions[option.id]
+                        )
+                          ? (selectedPricingOptions[option.id] as string[])
+                          : [];
+
+                        let newValues: string[];
+                        if (checked) {
+                          newValues = [...currentValues, optionValue.id];
+                        } else {
+                          newValues = currentValues.filter(
+                            (v) => v !== optionValue.id
+                          );
+                        }
+
+                        handlePricingOptionChange(option.id, newValues);
+                      }}
+                    />
+                    <label
+                      htmlFor={`${option.id}-${optionValue.id}`}
+                      className="text-sm"
+                    >
+                      {optionValue.label}
+                    </label>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        ))}
+      </div>
+    );
   };
 
   return (
@@ -255,6 +489,9 @@ export function DateSelector({
             </Label>
           </div>
         )}
+
+        {/* Options de prix */}
+        {renderPricingOptions()}
 
         {duration > 0 && (
           <div className="flex items-center gap-2 text-sm text-gray-600">

@@ -182,12 +182,6 @@ export function RoomSelector({
                         </h3>
                       </div>
                     </div>
-                    <div className="text-right">
-                      <div className="text-base font-medium text-gray-900">
-                        {room.price} CHF
-                      </div>
-                      <div className="text-xs text-gray-400">per night</div>
-                    </div>
                   </div>
                 </div>
               );

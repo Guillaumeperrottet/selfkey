@@ -37,6 +37,9 @@ export function BookingFormModern({
   const [checkInDate, setCheckInDate] = useState("");
   const [checkOutDate, setCheckOutDate] = useState("");
   const [hasDog, setHasDog] = useState(false);
+  const [selectedPricingOptions, setSelectedPricingOptions] = useState<
+    Record<string, string | string[]>
+  >({});
   const [selectedRoom, setSelectedRoom] = useState<Room | null>(null);
 
   // Charger les données sauvegardées si l'utilisateur revient
@@ -61,6 +64,9 @@ export function BookingFormModern({
                 if (data.room) {
                   setSelectedRoom(data.room);
                   setCurrentStep("details");
+                } else if (data.selectedPricingOptions) {
+                  setSelectedPricingOptions(data.selectedPricingOptions);
+                  setCurrentStep("rooms");
                 } else {
                   setCurrentStep("rooms");
                 }
@@ -86,11 +92,13 @@ export function BookingFormModern({
   const handleDatesConfirmed = (
     checkIn: string,
     checkOut: string,
-    withDog?: boolean
+    withDog?: boolean,
+    pricingOptions?: Record<string, string | string[]>
   ) => {
     setCheckInDate(checkIn);
     setCheckOutDate(checkOut);
     setHasDog(withDog || false);
+    setSelectedPricingOptions(pricingOptions || {});
     setCurrentStep("rooms");
   };
 
@@ -101,6 +109,7 @@ export function BookingFormModern({
 
   const handleBackToDates = () => {
     setCurrentStep("dates");
+    setSelectedPricingOptions({});
     setSelectedRoom(null);
   };
 
@@ -130,11 +139,13 @@ export function BookingFormModern({
       {/* Contenu selon l'étape actuelle */}
       {currentStep === "dates" && (
         <DateSelector
+          hotelSlug={hotelSlug}
           establishment={establishment}
           onDatesConfirmed={handleDatesConfirmed}
           initialCheckInDate={checkInDate}
           initialCheckOutDate={checkOutDate}
           initialHasDog={hasDog}
+          initialPricingOptions={selectedPricingOptions}
         />
       )}
 
@@ -160,6 +171,7 @@ export function BookingFormModern({
             checkInDate={checkInDate}
             checkOutDate={checkOutDate}
             hasDog={hasDog}
+            selectedPricingOptions={selectedPricingOptions}
             onBack={handleBackToRooms}
           />
         )}

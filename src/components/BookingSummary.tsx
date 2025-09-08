@@ -606,25 +606,25 @@ export function BookingSummary({ bookingId }: BookingSummaryProps) {
             <span className="text-white text-xs font-bold">✓</span>
           </div>
           <span className="text-xs text-gray-600 font-medium hidden md:inline">
-            Booking
+            Dates & Options
+          </span>
+        </div>
+        <div className="w-3 h-0.5 bg-gray-300"></div>
+        <div className="flex items-center gap-1">
+          <div className="w-5 h-5 bg-gray-600 rounded-full flex items-center justify-center">
+            <span className="text-white text-xs font-bold">✓</span>
+          </div>
+          <span className="text-xs text-gray-600 font-medium hidden md:inline">
+            Rooms
           </span>
         </div>
         <div className="w-3 h-0.5 bg-gray-300"></div>
         <div className="flex items-center gap-1">
           <div className="w-5 h-5 bg-gray-800 rounded-full flex items-center justify-center">
-            <span className="text-white text-xs font-bold">2</span>
-          </div>
-          <span className="text-xs text-gray-800 font-medium hidden md:inline">
-            Summary
-          </span>
-        </div>
-        <div className="w-3 h-0.5 bg-gray-300"></div>
-        <div className="flex items-center gap-1">
-          <div className="w-5 h-5 bg-gray-400 rounded-full flex items-center justify-center">
             <span className="text-white text-xs font-bold">3</span>
           </div>
-          <span className="text-xs text-gray-600 font-medium hidden md:inline">
-            Payment
+          <span className="text-xs text-gray-800 font-medium hidden md:inline">
+            Details
           </span>
         </div>
       </div>
@@ -894,7 +894,7 @@ export function BookingSummary({ bookingId }: BookingSummaryProps) {
           <Card className="lg:sticky lg:top-4">
             <CardHeader className="pb-2">
               <CardTitle className="flex items-center gap-2 text-base">
-                Summary
+                My reservation
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-3">

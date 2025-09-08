@@ -8,20 +8,20 @@ export function BookingSteps({ currentStep }: BookingStepsProps) {
   const steps = [
     {
       number: 1,
-      title: "Booking",
+      title: "Dates & Options",
       description: "Selection & details",
       icon: Calendar,
     },
     {
       number: 2,
-      title: "Summary",
-      description: "Review & terms",
+      title: "Place",
+      description: "Choose your Place",
       icon: FileText,
     },
     {
       number: 3,
-      title: "Payment",
-      description: "Secure payment",
+      title: "Details",
+      description: "Complete booking",
       icon: CreditCard,
     },
   ];
