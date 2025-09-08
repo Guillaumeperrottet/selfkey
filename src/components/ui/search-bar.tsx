@@ -204,6 +204,22 @@ export default function SearchBar() {
         (item) => item.title !== searchToRemove.title
       );
       localStorage.setItem(RECENT_SEARCHES_KEY, JSON.stringify(updated));
+
+      // Mettre à jour les suggestions si on affiche les recherches récentes
+      if (!searchValue.trim()) {
+        const updatedSuggestions: SearchSuggestion[] = updated.map(
+          (search, index) => ({
+            id: `recent-${index}`,
+            type: "recent",
+            title: search.title,
+            subtitle: search.subtitle || "Recherche récente",
+            icon: "recent",
+            coordinates: search.coordinates,
+          })
+        );
+        setSuggestions(updatedSuggestions);
+      }
+
       return updated;
     });
   };

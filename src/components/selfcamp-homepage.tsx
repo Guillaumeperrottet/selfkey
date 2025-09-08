@@ -96,13 +96,13 @@ export function SelfcampHomepage() {
         </header>
 
         {/* Hero Section */}
-        <section className="relative z-30 text-white text-center py-12 px-4">
+        <section className="relative z-30 text-white text-center py-24 px-4">
           <div className="container mx-auto">
-            <div className="flex flex-col items-center justify-center min-h-[50vh]">
-              <h1 className="text-6xl md:text-8xl font-bold mb-8 text-white">
+            <div className="flex flex-col items-center justify-center min-h-[35vh]">
+              <h1 className="text-6xl md:text-8xl font-bold mb-6 text-white">
                 Selfcamp.ch
               </h1>
-              <p className="text-xl md:text-2xl mb-12 text-white max-w-4xl mx-auto leading-relaxed text-center font-medium">
+              <p className="text-xl md:text-2xl mb-8 text-white max-w-4xl mx-auto leading-relaxed text-center font-medium">
                 Solution d&apos;accès intelligent pour le tourisme de véhicules
                 de loisirs hors zone camping
               </p>
@@ -114,8 +114,8 @@ export function SelfcampHomepage() {
         <section className="relative z-20 px-4">
           <div className="container mx-auto">
             <div className="max-w-4xl mx-auto">
-              <div className="p-8">
-                <h2 className="text-2xl font-bold text-white mb-6 text-center">
+              <div className="p-4">
+                <h2 className="text-2xl font-bold text-white mb-4 text-center">
                   Trouvez votre emplacement idéal
                 </h2>
                 <SearchBar />
@@ -125,7 +125,7 @@ export function SelfcampHomepage() {
         </section>
 
         {/* Spacer for better visual separation */}
-        <div className="h-20"></div>
+        <div className="h-62"></div>
 
         {/* Animated Wave Separator with Bounce and CSS Animation */}
         <div
