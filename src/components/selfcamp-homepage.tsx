@@ -626,41 +626,113 @@ export function SelfcampHomepage() {
           </div>
         </section>
 
-        {/* CTA Section */}
+        {/* SelfKey Platform Section */}
         <section className="py-20 px-4 relative z-10">
-          <div className="container mx-auto text-center">
-            <div>
-              <h3
-                className="text-3xl md:text-4xl font-bold mb-6"
+          <div className="container mx-auto">
+            <div className="text-center mb-16">
+              <h2
+                className="text-3xl md:text-5xl font-bold mb-8"
                 style={{ color: "#C4A484" }}
               >
-                Prêt pour votre prochaine aventure ?
-              </h3>
+                Créez votre propre solution avec SelfKey.ch
+              </h2>
               <p
-                className="mb-8 max-w-2xl mx-auto text-lg"
+                className="text-xl max-w-4xl mx-auto"
                 style={{ color: "#F8F6F3" }}
               >
-                Découvrez nos emplacements disponibles et réservez votre séjour
-                en quelques clics.
+                Vous avez un parking, un hôtel, un camping, ou tout autre
+                service à proposer ? Avec SelfKey.ch, devenez autonome et gérez
+                tout vous-même, sans intermédiaire.
               </p>
-              <Button
-                size="lg"
-                asChild
-                className="px-8 py-4 rounded-full text-lg font-semibold transform hover:scale-105 transition-all duration-300 shadow-lg hover:shadow-xl"
-                style={{
-                  background:
-                    "linear-gradient(135deg, #2D4A34 0%, #C4A484 100%)",
-                  color: "#F8F6F3",
-                }}
-              >
-                <Link
-                  href={DOMAINS.SELFKEY}
-                  className="inline-flex items-center space-x-2"
+            </div>
+
+            <div className="grid md:grid-cols-3 gap-8 mb-16">
+              {[
+                {
+                  title: "Parking Autonome",
+                  description:
+                    "Transformez votre parking en source de revenus. Gestion automatisée, paiements et accès 24h/24.",
+                  icon: Building,
+                },
+                {
+                  title: "Réservations Tardives",
+                  description:
+                    "Hôteliers, valorisez vos chambres avec des réservations de dernière minute. Interface simple, revenus maximisés.",
+                  icon: Clock,
+                },
+                {
+                  title: "Solution Clé en Main",
+                  description:
+                    "Aucune installation IT requise, rémunération uniquement à la transaction. Pas d'abonnement ni de frais cachés.",
+                  icon: Smartphone,
+                },
+              ].map((item, index) => (
+                <div
+                  key={index}
+                  className="backdrop-blur-sm rounded-xl p-8 border transition-all duration-300"
+                  style={{
+                    backgroundColor: "rgba(196, 164, 132, 0.1)",
+                    borderColor: "rgba(248, 246, 243, 0.1)",
+                  }}
                 >
-                  <span>Commencer ma réservation</span>
-                  <ArrowRight className="h-5 w-5" />
-                </Link>
-              </Button>
+                  <item.icon
+                    className="h-12 w-12 mb-6"
+                    style={{ color: "#F8F6F3" }}
+                  />
+                  <h3
+                    className="text-xl font-bold mb-4"
+                    style={{ color: "#C4A484" }}
+                  >
+                    {item.title}
+                  </h3>
+                  <p style={{ color: "#F8F6F3" }}>{item.description}</p>
+                </div>
+              ))}
+            </div>
+
+            <div className="text-center">
+              <p className="mb-8 text-lg" style={{ color: "#C4A484" }}>
+                Rejoignez les entrepreneurs qui ont choisi l&apos;indépendance
+              </p>
+              <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
+                <Button
+                  size="lg"
+                  asChild
+                  className="px-8 py-4 rounded-full text-lg font-semibold transform hover:scale-105 transition-all duration-300 shadow-lg hover:shadow-xl"
+                  style={{
+                    background:
+                      "linear-gradient(135deg, #2D4A34 0%, #C4A484 100%)",
+                    color: "#F8F6F3",
+                  }}
+                >
+                  <Link
+                    href={DOMAINS.SELFKEY}
+                    className="inline-flex items-center space-x-2"
+                  >
+                    <span>Découvrir SelfKey.ch</span>
+                    <ArrowRight className="h-5 w-5" />
+                  </Link>
+                </Button>
+                <Button
+                  size="lg"
+                  variant="outline"
+                  asChild
+                  className="px-8 py-4 rounded-full text-lg font-semibold transform hover:scale-105 transition-all duration-300 border-2"
+                  style={{
+                    borderColor: "#C4A484",
+                    color: "#C4A484",
+                    background: "transparent",
+                  }}
+                >
+                  <Link
+                    href="/contact"
+                    className="inline-flex items-center space-x-2"
+                  >
+                    <span>Être rappelé</span>
+                    <Users className="h-5 w-5" />
+                  </Link>
+                </Button>
+              </div>
             </div>
           </div>
         </section>
