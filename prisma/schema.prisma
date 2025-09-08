@@ -112,12 +112,14 @@ model Establishment {
   accessInstructions            String?
   generalAccessCode             String?
   maxBookingDays                Int                     @default(4)
-  confirmationEmailEnabled      Boolean                 @default(true)
-  confirmationEmailFrom         String?
-  confirmationEmailTemplate     String?
-  confirmationWhatsappEnabled   Boolean                 @default(false)
-  confirmationWhatsappFrom      String?
-  confirmationWhatsappTemplate  String?
+  confirmationEmailEnabled       Boolean                 @default(true)
+  confirmationEmailFrom          String?
+  confirmationEmailTemplate      String?
+  confirmationEmailTemplateWithDog    String?
+  confirmationEmailTemplateWithoutDog String?
+  confirmationWhatsappEnabled    Boolean                 @default(false)
+  confirmationWhatsappFrom       String?
+  confirmationWhatsappTemplate   String?
   allowFutureBookings           Boolean                 @default(false)
   cutoffTime                    String?                 @default("22:00")
   enableCutoffTime              Boolean                 @default(false)

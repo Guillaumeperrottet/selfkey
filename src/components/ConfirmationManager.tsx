@@ -9,6 +9,13 @@ import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Switch } from "@/components/ui/switch";
 import { Textarea } from "@/components/ui/textarea";
 import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import {
   Mail,
   Settings,
   Copy,
@@ -26,10 +33,12 @@ interface ConfirmationSettings {
   confirmationEmailEnabled: boolean;
   confirmationEmailFrom: string;
   confirmationEmailTemplate: string;
+  confirmationEmailTemplateWithDog: string;
   hotelContactEmail: string;
   hotelContactPhone: string;
   enableEmailCopyOnConfirmation: boolean;
   emailCopyAddresses: string[];
+  enableDogOption: boolean; // Ajout pour savoir si l'option chien est activée
 }
 
 interface ConfirmationManagerProps {
@@ -80,15 +89,77 @@ Wir wünschen Ihnen einen angenehmen Aufenthalt!
 Mit freundlichen Grüssen,
 Das Team von {establishmentName}`;
 
+const defaultEmailTemplateWithDogs = `Bonjour {clientFirstName} {clientLastName},
+
+Votre réservation à {establishmentName} a été confirmée avec succès !
+
+🐕 EMPLACEMENT ACCEPTANT LES CHIENS
+
+📋 Numéro de réservation : {bookingNumber}
+
+Détails de votre réservation :
+- Chambre : {roomName}
+- Arrivée : {checkInDate}
+- Départ : {checkOutDate}
+- Code d'accès : {accessCode}
+
+🐕 INFORMATIONS IMPORTANTES POUR VOTRE CHIEN :
+- Veuillez tenir votre chien en laisse dans les zones communes
+- Des sacs à déjections sont disponibles à l'accueil
+- Zone d'exercice pour chiens disponible derrière le bâtiment principal
+- Vétérinaire le plus proche : Dr. Müller, +41 XX XXX XX XX
+
+Pour toute question, vous pouvez nous contacter :
+📧 Email : {hotelContactEmail}
+📞 Téléphone : {hotelContactPhone}
+
+Nous vous souhaitons un excellent séjour avec votre compagnon à quatre pattes !
+
+Cordialement,
+L'équipe de {establishmentName}
+
+---
+
+Guten Tag {clientFirstName} {clientLastName},
+
+Ihre Reservierung im {establishmentName} wurde erfolgreich bestätigt!
+
+🐕 HUNDEFREUNDLICHER STELLPLATZ
+
+📋 Buchungsnummer: {bookingNumber}
+
+Details Ihrer Reservierung:
+- Zimmer: {roomName}
+- Ankunft: {checkInDate}
+- Abreise: {checkOutDate}
+- Zugangscode: {accessCode}
+
+🐕 WICHTIGE INFORMATIONEN FÜR IHREN HUND:
+- Bitte halten Sie Ihren Hund in den Gemeinschaftsbereichen an der Leine
+- Kotbeutel sind an der Rezeption erhältlich
+- Hundeauslaufbereich hinter dem Hauptgebäude verfügbar
+- Nächster Tierarzt: Dr. Müller, +41 XX XXX XX XX
+
+Bei Fragen können Sie uns gerne kontaktieren:
+📧 E-Mail: {hotelContactEmail}
+📞 Telefon: {hotelContactPhone}
+
+Wir wünschen Ihnen einen angenehmen Aufenthalt mit Ihrem Vierbeiner!
+
+Mit freundlichen Grüssen,
+Das Team von {establishmentName}`;
+
 export function ConfirmationManager({ hotelSlug }: ConfirmationManagerProps) {
   const [settings, setSettings] = useState<ConfirmationSettings>({
     confirmationEmailEnabled: true,
     confirmationEmailFrom: "noreply@selfkey.ch",
     confirmationEmailTemplate: defaultEmailTemplate,
+    confirmationEmailTemplateWithDog: "",
     hotelContactEmail: "",
     hotelContactPhone: "",
     enableEmailCopyOnConfirmation: false,
     emailCopyAddresses: [],
+    enableDogOption: false,
   });
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
@@ -97,6 +168,9 @@ export function ConfirmationManager({ hotelSlug }: ConfirmationManagerProps) {
   const [newEmailAddress, setNewEmailAddress] = useState("");
   const [testEmail, setTestEmail] = useState("");
   const [isSendingTest, setIsSendingTest] = useState(false);
+  const [testTemplateType, setTestTemplateType] = useState<
+    "normal" | "withDog"
+  >("normal");
 
   // Validation d'email
   const isValidEmail = (email: string) => {
@@ -200,6 +274,7 @@ export function ConfirmationManager({ hotelSlug }: ConfirmationManagerProps) {
           body: JSON.stringify({
             testEmail,
             settings,
+            templateType: testTemplateType,
           }),
         }
       );
@@ -239,11 +314,14 @@ export function ConfirmationManager({ hotelSlug }: ConfirmationManagerProps) {
               data.confirmationEmailFrom ?? "noreply@selfkey.ch",
             confirmationEmailTemplate:
               data.confirmationEmailTemplate ?? defaultEmailTemplate,
+            confirmationEmailTemplateWithDog:
+              data.confirmationEmailTemplateWithDog ?? "",
             hotelContactEmail: data.hotelContactEmail ?? "",
             hotelContactPhone: data.hotelContactPhone ?? "",
             enableEmailCopyOnConfirmation:
               data.enableEmailCopyOnConfirmation ?? false,
             emailCopyAddresses: data.emailCopyAddresses ?? [],
+            enableDogOption: data.enableDogOption ?? false,
           });
           // Marquer comme sauvegardé au chargement
           setHasUnsavedChanges(false);
@@ -353,15 +431,20 @@ export function ConfirmationManager({ hotelSlug }: ConfirmationManagerProps) {
 
       {/* Interface avec onglets */}
       <Tabs defaultValue="contact" className="w-full">
-        <TabsList className="grid w-full grid-cols-4">
+        <TabsList className="grid w-full grid-cols-5">
           <TabsTrigger value="contact" className="flex items-center gap-2">
             <MessageSquare className="h-4 w-4" />
             Contact
           </TabsTrigger>
           <TabsTrigger value="email" className="flex items-center gap-2">
             <Mail className="h-4 w-4" />
-            Email
+            Email Normal
           </TabsTrigger>
+          {settings.enableDogOption && (
+            <TabsTrigger value="email-dogs" className="flex items-center gap-2">
+              🐕 Avec Chiens
+            </TabsTrigger>
+          )}
           <TabsTrigger value="copy" className="flex items-center gap-2">
             <Users className="h-4 w-4" />
             Copie
@@ -438,8 +521,39 @@ export function ConfirmationManager({ hotelSlug }: ConfirmationManagerProps) {
           </Card>
         </TabsContent>
 
-        {/* Onglet Email */}
+        {/* Onglet Email Normal */}
         <TabsContent value="email" className="space-y-4">
+          {!settings.enableDogOption && (
+            <div className="bg-amber-50 border border-amber-200 rounded-lg p-4 mb-4">
+              <div className="flex items-center gap-2 mb-2">
+                <span className="text-amber-600">ℹ️</span>
+                <span className="font-medium text-amber-800">Information</span>
+              </div>
+              <p className="text-sm text-amber-700">
+                L&apos;option chien n&apos;est pas activée pour cet
+                établissement. Ce template sera utilisé pour tous les emails de
+                confirmation. Pour avoir un template spécifique pour les
+                emplacements avec chiens, activez l&apos;option dans les
+                paramètres généraux.
+              </p>
+            </div>
+          )}
+          {settings.enableDogOption && (
+            <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-4">
+              <div className="flex items-center gap-2 mb-2">
+                <span className="text-blue-600">ℹ️</span>
+                <span className="font-medium text-blue-800">
+                  Template normal
+                </span>
+              </div>
+              <p className="text-sm text-blue-700">
+                Ce template sera utilisé pour tous les emplacements SAUF ceux
+                qui acceptent les chiens (si un template spécifique &quot;avec
+                chiens&quot; est configuré). C&apos;est votre template principal
+                pour les confirmations.
+              </p>
+            </div>
+          )}
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
             {/* Configuration Email */}
             <div className="lg:col-span-2">
@@ -590,6 +704,110 @@ export function ConfirmationManager({ hotelSlug }: ConfirmationManagerProps) {
             </div>
           </div>
         </TabsContent>
+
+        {/* Onglet Email Avec Chiens */}
+        {settings.enableDogOption && (
+          <TabsContent value="email-dogs" className="space-y-4">
+            <div className="bg-green-50 border border-green-200 rounded-lg p-4 mb-4">
+              <div className="flex items-center gap-2 mb-2">
+                <span className="text-green-600">🐕</span>
+                <span className="font-medium text-green-800">
+                  Template pour emplacements avec chiens
+                </span>
+              </div>
+              <p className="text-sm text-green-700">
+                Ce template sera utilisé lorsqu&apos;un client réserve un
+                emplacement qui accepte les chiens. Vous pouvez y inclure des
+                informations spécifiques comme le plan du site, les règles pour
+                les animaux, etc.
+              </p>
+            </div>
+
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+              <div className="lg:col-span-2">
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="flex items-center gap-2">
+                      🐕 Email pour emplacements avec chiens
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent className="space-y-4">
+                    <div>
+                      <div className="flex items-center justify-between mb-2">
+                        <Label className="text-sm font-medium">
+                          Template du message pour chiens autorisés
+                        </Label>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() =>
+                            updateSettings({
+                              confirmationEmailTemplateWithDog:
+                                defaultEmailTemplateWithDogs,
+                            })
+                          }
+                          className="text-xs"
+                        >
+                          <Copy className="h-3 w-3 mr-1" />
+                          Utiliser template par défaut
+                        </Button>
+                      </div>
+
+                      <Textarea
+                        rows={20}
+                        placeholder="Template spécifique pour les emplacements qui acceptent les chiens..."
+                        value={settings.confirmationEmailTemplateWithDog}
+                        onChange={(e) =>
+                          updateSettings({
+                            confirmationEmailTemplateWithDog: e.target.value,
+                          })
+                        }
+                        className="font-mono text-sm"
+                      />
+                      <p className="text-xs text-muted-foreground mt-1">
+                        Si vide, le template général sera utilisé
+                      </p>
+                    </div>
+                  </CardContent>
+                </Card>
+              </div>
+
+              {/* Variables et Images disponibles */}
+              <div>
+                <Card className="bg-slate-50 border-slate-200 h-fit">
+                  <CardHeader className="pb-3">
+                    <CardTitle className="text-base flex items-center gap-2 text-slate-700">
+                      <Copy className="h-4 w-4" />
+                      Aide
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent className="space-y-4">
+                    <div className="text-xs space-y-2">
+                      <div className="font-medium text-slate-600">
+                        💡 Suggestions spéciales chiens :
+                      </div>
+                      <ul className="space-y-1 text-slate-600 list-disc list-inside">
+                        <li>Plan du site avec zones chiens</li>
+                        <li>Règlement pour les animaux</li>
+                        <li>Informations toilettage/lavage</li>
+                        <li>Zones d&apos;exercice disponibles</li>
+                        <li>Vétérinaires à proximité</li>
+                      </ul>
+                    </div>
+
+                    <div className="bg-amber-50 p-3 rounded border border-amber-200">
+                      <div className="text-xs text-amber-700">
+                        <strong>📍 Astuce :</strong> Utilisez les mêmes
+                        variables que dans le template général. Ajoutez des
+                        informations spécifiques aux propriétaires de chiens.
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              </div>
+            </div>
+          </TabsContent>
+        )}
 
         {/* Onglet Copie */}
         <TabsContent value="copy" className="space-y-4">
@@ -751,6 +969,34 @@ export function ConfirmationManager({ hotelSlug }: ConfirmationManagerProps) {
               </div>
 
               <div className="space-y-4">
+                <div>
+                  <Label
+                    htmlFor="template-type"
+                    className="text-sm font-medium"
+                  >
+                    Type de template à tester
+                  </Label>
+                  <Select
+                    value={testTemplateType}
+                    onValueChange={(value) =>
+                      setTestTemplateType(value as "normal" | "withDog")
+                    }
+                  >
+                    <SelectTrigger className="mt-1">
+                      <SelectValue placeholder="Sélectionnez le type de template" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="normal">Template normal</SelectItem>
+                      <SelectItem value="withDog">
+                        Template avec chien
+                      </SelectItem>
+                    </SelectContent>
+                  </Select>
+                  <p className="text-xs text-gray-500 mt-1">
+                    Choisissez le template que vous souhaitez tester
+                  </p>
+                </div>
+
                 <div>
                   <Label htmlFor="test-email" className="text-sm font-medium">
                     Adresse email de test

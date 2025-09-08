@@ -23,23 +23,27 @@ interface TemplateData {
 
 interface BookingWithDetails {
   id: string;
+  hotelSlug: string;
+  roomId: string | null;
+  clientEmail: string;
   clientFirstName: string;
   clientLastName: string;
-  clientEmail: string;
   clientPhone: string;
+  amount: number;
+  currency: string;
   checkInDate: Date;
   checkOutDate: Date;
-  bookingType: string; // "night" ou "day"
-  dayParkingDuration?: string | null;
-  dayParkingStartTime?: Date | null;
-  dayParkingEndTime?: Date | null;
-  clientVehicleNumber?: string | null;
   stripePaymentIntentId: string | null;
-  confirmationSent: boolean | null;
+  confirmationSent: boolean;
   confirmationSentAt: Date | null;
+  bookingType: string;
+  dayParkingDuration: string | null;
+  dayParkingStartTime: Date | null;
+  dayParkingEndTime: Date | null;
   room: {
     id: string;
     name: string;
+    allowDogs: boolean;
     accessCode: string | null;
   } | null;
   establishment: {
@@ -49,6 +53,8 @@ interface BookingWithDetails {
     confirmationEmailEnabled: boolean;
     confirmationWhatsappEnabled: boolean;
     confirmationEmailTemplate: string | null;
+    confirmationEmailTemplateWithDog: string | null;
+    confirmationEmailTemplateWithoutDog: string | null;
     confirmationWhatsappTemplate: string | null;
     confirmationEmailFrom: string | null;
     confirmationWhatsappFrom: string | null;
@@ -105,6 +111,8 @@ export async function POST(request: Request, { params }: Props) {
             confirmationEmailEnabled: true,
             confirmationWhatsappEnabled: true,
             confirmationEmailTemplate: true,
+            confirmationEmailTemplateWithDog: true,
+            confirmationEmailTemplateWithoutDog: true,
             confirmationWhatsappTemplate: true,
             confirmationEmailFrom: true,
             confirmationWhatsappFrom: true,
@@ -270,10 +278,24 @@ async function sendEmailConfirmation(
   booking: BookingWithDetails,
   templateData: TemplateData
 ) {
-  // Récupérer le template personnalisé ou utiliser le template par défaut
-  const template =
-    booking.establishment.confirmationEmailTemplate ||
-    getDefaultEmailTemplate();
+  // Choisir le bon template selon si la chambre accepte les chiens
+  let template: string;
+
+  // Si la chambre accepte les chiens et qu'un template spécifique est défini
+  if (
+    booking.room?.allowDogs &&
+    booking.establishment.confirmationEmailTemplateWithDog
+  ) {
+    template = booking.establishment.confirmationEmailTemplateWithDog;
+    console.log("📧 Utilisation du template EMAIL AVEC CHIEN");
+  }
+  // Sinon, utiliser le template normal (général)
+  else {
+    template =
+      booking.establishment.confirmationEmailTemplate ||
+      getDefaultEmailTemplate();
+    console.log("📧 Utilisation du template EMAIL NORMAL");
+  }
 
   // Remplacer les variables dans le template
   let emailContent = replaceTemplateVariables(template, templateData);

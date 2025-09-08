@@ -11,8 +11,10 @@ interface Params {
 
 interface TestEmailRequest {
   testEmail: string;
+  templateType?: "normal" | "withDog"; // Nouveau paramètre pour choisir le type de template
   settings: {
     confirmationEmailTemplate: string;
+    confirmationEmailTemplateWithDog?: string;
     confirmationEmailFrom: string;
     hotelContactEmail: string;
     hotelContactPhone: string;
@@ -24,7 +26,8 @@ interface TestEmailRequest {
 export async function POST(request: NextRequest, { params }: Params) {
   try {
     const { hotel } = await params;
-    const { testEmail, settings }: TestEmailRequest = await request.json();
+    const { testEmail, settings, templateType }: TestEmailRequest =
+      await request.json();
 
     // Validation de l'email
     if (!testEmail || !testEmail.includes("@")) {
@@ -85,8 +88,19 @@ export async function POST(request: NextRequest, { params }: Params) {
       bookingNumber: "DEMO-12345-2025",
     };
 
+    // Sélectionner le bon template selon le type demandé
+    let emailTemplate: string;
+    if (
+      templateType === "withDog" &&
+      settings.confirmationEmailTemplateWithDog
+    ) {
+      emailTemplate = settings.confirmationEmailTemplateWithDog;
+    } else {
+      emailTemplate = settings.confirmationEmailTemplate;
+    }
+
     // Remplacer les variables dans le template
-    let emailContent = settings.confirmationEmailTemplate;
+    let emailContent = emailTemplate;
     Object.entries(sampleData).forEach(([key, value]) => {
       const regex = new RegExp(`\\{${key}\\}`, "g");
       emailContent = emailContent.replace(regex, value);
@@ -116,11 +130,15 @@ export async function POST(request: NextRequest, { params }: Params) {
       );
     }
 
+    // Préparer le sujet selon le type de template
+    const templateTypeLabel = templateType === "withDog" ? " - Avec chien" : "";
+    const emailSubject = `Confirmation de réservation - Test${templateTypeLabel} (${hotel})`;
+
     // Envoyer l'email via Resend
     const emailResult = await sendEmail({
       to: testEmail,
       from: settings.confirmationEmailFrom,
-      subject: `Confirmation de réservation - Test (${hotel})`,
+      subject: emailSubject,
       bcc: bccAddresses.length > 0 ? bccAddresses : undefined,
       html: `
         <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
@@ -159,7 +177,7 @@ export async function POST(request: NextRequest, { params }: Params) {
       preview: {
         from: settings.confirmationEmailFrom,
         to: testEmail,
-        subject: `Confirmation de réservation - Test (${hotel})`,
+        subject: emailSubject,
         content: emailContent.substring(0, 200) + "...",
       },
       resendId: emailResult.data?.id,
