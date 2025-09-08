@@ -173,10 +173,17 @@ export function SelfcampHomepage() {
             <div className="text-center mb-16">
               <h2
                 className="text-4xl md:text-5xl font-bold mb-6"
-                style={{ color: "#D4AF37" }}
+                style={{ color: "#C4A484" }}
               >
                 Les problématiques{" "}
-                <span className="bg-amber-100/20 text-amber-100 px-4 py-2 rounded-lg border border-amber-200/30">
+                <span
+                  className="px-4 py-2 rounded-lg border"
+                  style={{
+                    backgroundColor: "rgba(196, 164, 132, 0.1)",
+                    color: "#F8F6F3",
+                    borderColor: "rgba(196, 164, 132, 0.3)",
+                  }}
+                >
                   majeures
                 </span>
               </h2>
@@ -186,10 +193,13 @@ export function SelfcampHomepage() {
               {/* Taxes de séjour */}
               <div className="space-y-6">
                 <div className="flex items-center space-x-4 mb-6">
-                  <AlertTriangle className="h-8 w-8 text-orange-500" />
+                  <AlertTriangle
+                    className="h-8 w-8"
+                    style={{ color: "#F8F6F3" }}
+                  />
                   <h3
                     className="text-2xl font-bold"
-                    style={{ color: "#D4AF37" }}
+                    style={{ color: "#C4A484" }}
                   >
                     Taxes de séjour
                   </h3>
@@ -202,8 +212,11 @@ export function SelfcampHomepage() {
                     "Impact sur le financement des infrastructures touristiques",
                   ].map((item, index) => (
                     <div key={index} className="flex items-start space-x-3">
-                      <div className="w-2 h-2 bg-orange-500 rounded-full mt-2 flex-shrink-0"></div>
-                      <p className="text-gray-300">{item}</p>
+                      <div
+                        className="w-2 h-2 rounded-full mt-2 flex-shrink-0"
+                        style={{ backgroundColor: "#F8F6F3" }}
+                      ></div>
+                      <p style={{ color: "#F8F6F3" }}>{item}</p>
                     </div>
                   ))}
                 </div>
@@ -212,10 +225,10 @@ export function SelfcampHomepage() {
               {/* Camping sauvage */}
               <div className="space-y-6">
                 <div className="flex items-center space-x-4 mb-6">
-                  <Users className="h-8 w-8 text-red-500" />
+                  <Users className="h-8 w-8" style={{ color: "#F8F6F3" }} />
                   <h3
                     className="text-2xl font-bold"
-                    style={{ color: "#D4AF37" }}
+                    style={{ color: "#C4A484" }}
                   >
                     Camping sauvage
                   </h3>
@@ -228,8 +241,11 @@ export function SelfcampHomepage() {
                     "Manque de traçabilité des visiteurs",
                   ].map((item, index) => (
                     <div key={index} className="flex items-start space-x-3">
-                      <div className="w-2 h-2 bg-red-500 rounded-full mt-2 flex-shrink-0"></div>
-                      <p className="text-gray-300">{item}</p>
+                      <div
+                        className="w-2 h-2 rounded-full mt-2 flex-shrink-0"
+                        style={{ backgroundColor: "#F8F6F3" }}
+                      ></div>
+                      <p style={{ color: "#F8F6F3" }}>{item}</p>
                     </div>
                   ))}
                 </div>
@@ -238,10 +254,10 @@ export function SelfcampHomepage() {
               {/* Infrastructure */}
               <div className="space-y-6">
                 <div className="flex items-center space-x-4 mb-6">
-                  <Building className="h-8 w-8 text-yellow-500" />
+                  <Building className="h-8 w-8" style={{ color: "#F8F6F3" }} />
                   <h3
                     className="text-2xl font-bold"
-                    style={{ color: "#D4AF37" }}
+                    style={{ color: "#C4A484" }}
                   >
                     Infrastructure et stationnement
                   </h3>
@@ -254,8 +270,11 @@ export function SelfcampHomepage() {
                     "Gestion sous-optimale des flux de visiteurs",
                   ].map((item, index) => (
                     <div key={index} className="flex items-start space-x-3">
-                      <div className="w-2 h-2 bg-yellow-500 rounded-full mt-2 flex-shrink-0"></div>
-                      <p className="text-gray-300">{item}</p>
+                      <div
+                        className="w-2 h-2 rounded-full mt-2 flex-shrink-0"
+                        style={{ backgroundColor: "#F8F6F3" }}
+                      ></div>
+                      <p style={{ color: "#F8F6F3" }}>{item}</p>
                     </div>
                   ))}
                 </div>
@@ -264,10 +283,10 @@ export function SelfcampHomepage() {
               {/* Impact global */}
               <div className="space-y-6">
                 <div className="flex items-center space-x-4 mb-6">
-                  <Globe className="h-8 w-8 text-purple-500" />
+                  <Globe className="h-8 w-8" style={{ color: "#F8F6F3" }} />
                   <h3
                     className="text-2xl font-bold"
-                    style={{ color: "#D4AF37" }}
+                    style={{ color: "#C4A484" }}
                   >
                     Impact global
                   </h3>
@@ -279,8 +298,11 @@ export function SelfcampHomepage() {
                     "Image du canton affectée par ces problématiques",
                   ].map((item, index) => (
                     <div key={index} className="flex items-start space-x-3">
-                      <div className="w-2 h-2 bg-purple-500 rounded-full mt-2 flex-shrink-0"></div>
-                      <p className="text-gray-300">{item}</p>
+                      <div
+                        className="w-2 h-2 rounded-full mt-2 flex-shrink-0"
+                        style={{ backgroundColor: "#F8F6F3" }}
+                      ></div>
+                      <p style={{ color: "#F8F6F3" }}>{item}</p>
                     </div>
                   ))}
                 </div>
@@ -298,14 +320,24 @@ export function SelfcampHomepage() {
             <div className="text-center mb-16">
               <h2
                 className="text-4xl md:text-5xl font-bold mb-6"
-                style={{ color: "#D4AF37" }}
+                style={{ color: "#C4A484" }}
               >
                 Notre{" "}
-                <span className="bg-amber-100/20 text-amber-100 px-4 py-2 rounded-lg border border-amber-200/30">
+                <span
+                  className="px-4 py-2 rounded-lg border"
+                  style={{
+                    backgroundColor: "rgba(196, 164, 132, 0.1)",
+                    color: "#F8F6F3",
+                    borderColor: "rgba(196, 164, 132, 0.3)",
+                  }}
+                >
                   solution
                 </span>
               </h2>
-              <p className="text-xl text-gray-300 max-w-4xl mx-auto">
+              <p
+                className="text-xl max-w-4xl mx-auto"
+                style={{ color: "#F8F6F3" }}
+              >
                 En collaboration avec les communes nous équipons les aires mise
                 à disposition de places de parc limitées, d&apos;une
                 signalétique, et d&apos;un système d&apos;enregistrement
@@ -335,19 +367,23 @@ export function SelfcampHomepage() {
               ].map((item, index) => (
                 <div
                   key={index}
-                  className="bg-white/5 backdrop-blur-sm rounded-xl p-8 border border-white/10 hover:border-white/20 transition-all duration-300"
+                  className="backdrop-blur-sm rounded-xl p-8 border transition-all duration-300"
+                  style={{
+                    backgroundColor: "rgba(45, 74, 52, 0.1)",
+                    borderColor: "rgba(45, 74, 52, 0.2)",
+                  }}
                 >
                   <item.icon
                     className="h-12 w-12 mb-6"
-                    style={{ color: "#D4AF37" }}
+                    style={{ color: "#F8F6F3" }}
                   />
                   <h3
                     className="text-xl font-bold mb-4"
-                    style={{ color: "#D4AF37" }}
+                    style={{ color: "#C4A484" }}
                   >
                     {item.title}
                   </h3>
-                  <p className="text-gray-300">{item.description}</p>
+                  <p style={{ color: "#F8F6F3" }}>{item.description}</p>
                 </div>
               ))}
             </div>
@@ -375,19 +411,23 @@ export function SelfcampHomepage() {
               ].map((item, index) => (
                 <div
                   key={index}
-                  className="bg-white/5 backdrop-blur-sm rounded-xl p-8 border border-white/10 hover:border-white/20 transition-all duration-300"
+                  className="backdrop-blur-sm rounded-xl p-8 border transition-all duration-300"
+                  style={{
+                    backgroundColor: "rgba(45, 74, 52, 0.1)",
+                    borderColor: "rgba(45, 74, 52, 0.2)",
+                  }}
                 >
                   <item.icon
                     className="h-12 w-12 mb-6"
-                    style={{ color: "#D4AF37" }}
+                    style={{ color: "#F8F6F3" }}
                   />
                   <h3
                     className="text-xl font-bold mb-4"
-                    style={{ color: "#D4AF37" }}
+                    style={{ color: "#C4A484" }}
                   >
                     {item.title}
                   </h3>
-                  <p className="text-gray-300">{item.description}</p>
+                  <p style={{ color: "#F8F6F3" }}>{item.description}</p>
                 </div>
               ))}
             </div>
@@ -403,14 +443,24 @@ export function SelfcampHomepage() {
             <div className="text-center mb-16">
               <h2
                 className="text-4xl md:text-5xl font-bold mb-6"
-                style={{ color: "#D4AF37" }}
+                style={{ color: "#C4A484" }}
               >
                 Nos{" "}
-                <span className="bg-amber-100/20 text-amber-100 border border-amber-200/30 px-4 py-2 rounded-lg">
+                <span
+                  className="px-4 py-2 rounded-lg border"
+                  style={{
+                    backgroundColor: "rgba(196, 164, 132, 0.1)",
+                    color: "#F8F6F3",
+                    borderColor: "rgba(196, 164, 132, 0.3)",
+                  }}
+                >
                   prestations
                 </span>
               </h2>
-              <p className="text-xl text-gray-300 max-w-4xl mx-auto mb-8">
+              <p
+                className="text-xl max-w-4xl mx-auto mb-8"
+                style={{ color: "#F8F6F3" }}
+              >
                 Nous offrons une solution d&apos;enregistrement, mais nous
                 apportons également notre expertise sur l&apos;organisation du
                 parking soit :
@@ -428,10 +478,19 @@ export function SelfcampHomepage() {
               ].map((service, index) => (
                 <div
                   key={index}
-                  className="flex items-center space-x-4 mb-6 p-4 bg-white/5 rounded-lg border border-white/10"
+                  className="flex items-center space-x-4 mb-6 p-4 rounded-lg border"
+                  style={{
+                    backgroundColor: "rgba(45, 74, 52, 0.1)",
+                    borderColor: "rgba(45, 74, 52, 0.2)",
+                  }}
                 >
-                  <CheckCircle className="h-6 w-6 text-green-500 flex-shrink-0" />
-                  <p className="text-lg text-gray-300">{service}</p>
+                  <CheckCircle
+                    className="h-6 w-6 flex-shrink-0"
+                    style={{ color: "#F8F6F3" }}
+                  />
+                  <p className="text-lg" style={{ color: "#F8F6F3" }}>
+                    {service}
+                  </p>
                 </div>
               ))}
             </div>
@@ -447,14 +506,28 @@ export function SelfcampHomepage() {
             <div className="text-center mb-16">
               <h2
                 className="text-4xl md:text-5xl font-bold mb-6"
-                style={{ color: "#D4AF37" }}
+                style={{ color: "#C4A484" }}
               >
                 Avantages{" "}
-                <span className="bg-amber-100/20 text-amber-100 border border-amber-200/30 px-4 py-2 rounded-lg">
+                <span
+                  className="px-4 py-2 rounded-lg border"
+                  style={{
+                    backgroundColor: "rgba(196, 164, 132, 0.1)",
+                    color: "#F8F6F3",
+                    borderColor: "rgba(196, 164, 132, 0.3)",
+                  }}
+                >
                   utilisateurs
                 </span>{" "}
                 &
-                <span className="bg-amber-100/20 text-amber-100 border border-amber-200/30 px-4 py-2 rounded-lg ml-2">
+                <span
+                  className="px-4 py-2 rounded-lg border ml-2"
+                  style={{
+                    backgroundColor: "rgba(196, 164, 132, 0.1)",
+                    color: "#F8F6F3",
+                    borderColor: "rgba(196, 164, 132, 0.3)",
+                  }}
+                >
                   prestataires
                 </span>
               </h2>
@@ -501,15 +574,19 @@ export function SelfcampHomepage() {
               ].map((advantage, index) => (
                 <div
                   key={index}
-                  className="bg-white/5 backdrop-blur-sm rounded-xl p-6 border border-white/10 hover:border-white/20 transition-all duration-300"
+                  className="backdrop-blur-sm rounded-xl p-6 border transition-all duration-300"
+                  style={{
+                    backgroundColor: "rgba(45, 74, 52, 0.1)",
+                    borderColor: "rgba(45, 74, 52, 0.2)",
+                  }}
                 >
                   <advantage.icon
                     className="h-10 w-10 mb-4"
-                    style={{ color: "#D4AF37" }}
+                    style={{ color: "#F8F6F3" }}
                   />
                   <h3
                     className="text-xl font-bold mb-4"
-                    style={{ color: "#D4AF37" }}
+                    style={{ color: "#C4A484" }}
                   >
                     {advantage.title}
                   </h3>
@@ -519,8 +596,13 @@ export function SelfcampHomepage() {
                         key={pointIndex}
                         className="flex items-start space-x-2"
                       >
-                        <div className="w-2 h-2 bg-amber-300 rounded-full mt-2 flex-shrink-0"></div>
-                        <p className="text-sm text-gray-300">{point}</p>
+                        <div
+                          className="w-2 h-2 rounded-full mt-2 flex-shrink-0"
+                          style={{ backgroundColor: "#C4A484" }}
+                        ></div>
+                        <p className="text-sm" style={{ color: "#F8F6F3" }}>
+                          {point}
+                        </p>
                       </div>
                     ))}
                   </div>
@@ -536,18 +618,26 @@ export function SelfcampHomepage() {
             <div>
               <h3
                 className="text-3xl md:text-4xl font-bold mb-6"
-                style={{ color: "#D4AF37" }}
+                style={{ color: "#C4A484" }}
               >
                 Prêt pour votre prochaine aventure ?
               </h3>
-              <p className="mb-8 max-w-2xl mx-auto text-lg text-gray-300">
+              <p
+                className="mb-8 max-w-2xl mx-auto text-lg"
+                style={{ color: "#F8F6F3" }}
+              >
                 Découvrez nos emplacements disponibles et réservez votre séjour
                 en quelques clics.
               </p>
               <Button
                 size="lg"
                 asChild
-                className="bg-gradient-to-r from-amber-600 to-yellow-700 hover:from-amber-700 hover:to-yellow-800 text-white px-8 py-4 rounded-full text-lg font-semibold transform hover:scale-105 transition-all duration-300 shadow-lg hover:shadow-xl"
+                className="px-8 py-4 rounded-full text-lg font-semibold transform hover:scale-105 transition-all duration-300 shadow-lg hover:shadow-xl"
+                style={{
+                  background:
+                    "linear-gradient(135deg, #2D4A34 0%, #C4A484 100%)",
+                  color: "#F8F6F3",
+                }}
               >
                 <Link
                   href={DOMAINS.SELFKEY}
@@ -563,7 +653,7 @@ export function SelfcampHomepage() {
 
         {/* Footer */}
         <footer
-          className="text-white py-12 px-4 relative z-10"
+          className="py-12 px-4 relative z-10"
           style={{ backgroundColor: "#292D1C" }}
         >
           <div className="container mx-auto">
@@ -577,46 +667,67 @@ export function SelfcampHomepage() {
                     height={32}
                     className="rounded"
                   />
-                  <span className="text-xl font-bold text-white">SelfCamp</span>
+                  <span
+                    className="text-xl font-bold"
+                    style={{ color: "#F8F6F3" }}
+                  >
+                    SelfCamp
+                  </span>
                 </div>
-                <p className="text-gray-400">
+                <p style={{ color: "#C4A484" }}>
                   Le camping du futur, disponible dès aujourd&apos;hui.
                 </p>
               </div>
 
               <div>
-                <h4 className="font-semibold mb-4" style={{ color: "#D4AF37" }}>
+                <h4 className="font-semibold mb-4" style={{ color: "#C4A484" }}>
                   Services
                 </h4>
-                <ul className="space-y-2 text-gray-400">
-                  <li className="hover:text-white transition-colors duration-300">
+                <ul className="space-y-2">
+                  <li
+                    className="transition-colors duration-300"
+                    style={{ color: "#F8F6F3" }}
+                  >
                     Réservation en ligne
                   </li>
-                  <li className="hover:text-white transition-colors duration-300">
+                  <li
+                    className="transition-colors duration-300"
+                    style={{ color: "#F8F6F3" }}
+                  >
                     Accès automatisé
                   </li>
-                  <li className="hover:text-white transition-colors duration-300">
+                  <li
+                    className="transition-colors duration-300"
+                    style={{ color: "#F8F6F3" }}
+                  >
                     Paiement sécurisé
                   </li>
-                  <li className="hover:text-white transition-colors duration-300">
+                  <li
+                    className="transition-colors duration-300"
+                    style={{ color: "#F8F6F3" }}
+                  >
                     Support 24h/24
                   </li>
                 </ul>
               </div>
 
               <div>
-                <h4 className="font-semibold mb-4" style={{ color: "#D4AF37" }}>
+                <h4 className="font-semibold mb-4" style={{ color: "#C4A484" }}>
                   Contact
                 </h4>
-                <div className="space-y-2 text-gray-400">
-                  <div className="flex items-center space-x-2 hover:text-white transition-colors duration-300">
+                <div className="space-y-2">
+                  <div
+                    className="flex items-center space-x-2 transition-colors duration-300"
+                    style={{ color: "#F8F6F3" }}
+                  >
                     <MapPin className="h-4 w-4" />
                     <span>Canton de Fribourg, Suisse</span>
                   </div>
                   <div>
                     <a
                       href={DOMAINS.SELFKEY}
-                      className="text-amber-400 hover:text-amber-300 transition-colors duration-300"
+                      className="transition-colors duration-300"
+                      style={{ color: "#C4A484" }}
                     >
                       Système de réservation
                     </a>
@@ -625,7 +736,10 @@ export function SelfcampHomepage() {
               </div>
             </div>
 
-            <div className="border-t border-gray-700 mt-8 pt-8 text-center text-gray-400">
+            <div
+              className="border-t mt-8 pt-8 text-center"
+              style={{ borderColor: "#2D4A34", color: "#C4A484" }}
+            >
               <p>
                 &copy; 2025 SelfCamp. Tous droits réservés. Propulsé par
                 SelfKey.
