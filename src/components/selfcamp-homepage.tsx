@@ -383,8 +383,8 @@ export function SelfcampHomepage() {
                   key={index}
                   className="backdrop-blur-sm rounded-xl p-8 border transition-all duration-300"
                   style={{
-                    backgroundColor: "rgba(45, 74, 52, 0.1)",
-                    borderColor: "rgba(45, 74, 52, 0.2)",
+                    backgroundColor: "transparent",
+                    borderColor: "rgba(248, 246, 243, 0.1)",
                   }}
                 >
                   <item.icon
@@ -427,8 +427,8 @@ export function SelfcampHomepage() {
                   key={index}
                   className="backdrop-blur-sm rounded-xl p-8 border transition-all duration-300"
                   style={{
-                    backgroundColor: "rgba(45, 74, 52, 0.1)",
-                    borderColor: "rgba(45, 74, 52, 0.2)",
+                    backgroundColor: "transparent",
+                    borderColor: "rgba(248, 246, 243, 0.1)",
                   }}
                 >
                   <item.icon
@@ -494,8 +494,8 @@ export function SelfcampHomepage() {
                   key={index}
                   className="flex items-center space-x-4 mb-6 p-4 rounded-lg border"
                   style={{
-                    backgroundColor: "rgba(45, 74, 52, 0.1)",
-                    borderColor: "rgba(45, 74, 52, 0.2)",
+                    backgroundColor: "transparent",
+                    borderColor: "rgba(248, 246, 243, 0.1)",
                   }}
                 >
                   <CheckCircle
@@ -590,8 +590,8 @@ export function SelfcampHomepage() {
                   key={index}
                   className="backdrop-blur-sm rounded-xl p-6 border transition-all duration-300"
                   style={{
-                    backgroundColor: "rgba(45, 74, 52, 0.1)",
-                    borderColor: "rgba(45, 74, 52, 0.2)",
+                    backgroundColor: "transparent",
+                    borderColor: "rgba(248, 246, 243, 0.1)",
                   }}
                 >
                   <advantage.icon
