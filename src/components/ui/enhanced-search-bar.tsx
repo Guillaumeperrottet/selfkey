@@ -5,6 +5,15 @@ import { Search, MapPin, Navigation, X, Loader2 } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 
+interface RecentSearch {
+  title: string;
+  subtitle?: string;
+  coordinates?: {
+    lat: number;
+    lng: number;
+  };
+}
+
 interface SearchSuggestion {
   id: string;
   type: "establishment" | "location" | "recent";
@@ -54,7 +63,7 @@ export default function EnhancedSearchBar({
   const [suggestions, setSuggestions] = useState<SearchSuggestion[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [isGeolocating, setIsGeolocating] = useState(false);
-  const [recentSearches, setRecentSearches] = useState<string[]>([]);
+  const [recentSearches, setRecentSearches] = useState<RecentSearch[]>([]);
   const searchTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const inputRef = useRef<HTMLInputElement>(null);
 
@@ -71,12 +80,12 @@ export default function EnhancedSearchBar({
   }, []);
 
   // Sauvegarder une recherche récente
-  const saveRecentSearch = useCallback((query: string) => {
+  const saveRecentSearch = useCallback((search: RecentSearch) => {
     setRecentSearches((prev) => {
-      const updated = [query, ...prev.filter((item) => item !== query)].slice(
-        0,
-        5
-      );
+      const updated = [
+        search,
+        ...prev.filter((item) => item.title !== search.title),
+      ].slice(0, 5);
       localStorage.setItem(
         "selfcamp_map_recent_searches",
         JSON.stringify(updated)
@@ -132,8 +141,9 @@ export default function EnhancedSearchBar({
         (search, index) => ({
           id: `recent-${index}`,
           type: "recent",
-          title: search,
-          subtitle: "Recherche récente",
+          title: search.title,
+          subtitle: search.subtitle || "Recherche récente",
+          coordinates: search.coordinates,
         })
       );
       setSuggestions(recentSuggestions);
@@ -147,7 +157,11 @@ export default function EnhancedSearchBar({
 
   const handleSuggestionClick = (suggestion: SearchSuggestion) => {
     if (suggestion.type === "location" && suggestion.coordinates) {
-      saveRecentSearch(suggestion.title);
+      saveRecentSearch({
+        title: suggestion.title,
+        subtitle: suggestion.subtitle,
+        coordinates: suggestion.coordinates,
+      });
       onLocationSelect?.({
         lat: suggestion.coordinates.lat,
         lng: suggestion.coordinates.lng,
@@ -158,12 +172,25 @@ export default function EnhancedSearchBar({
       suggestion.type === "establishment" &&
       suggestion.establishment
     ) {
-      saveRecentSearch(suggestion.title);
+      saveRecentSearch({
+        title: suggestion.title,
+        subtitle: suggestion.subtitle,
+      });
       onEstablishmentSelect?.(suggestion.establishment);
       onChange(suggestion.title);
     } else if (suggestion.type === "recent") {
+      // Pour les recherches récentes, utiliser directement les coordonnées si disponibles
+      if (suggestion.coordinates) {
+        onLocationSelect?.({
+          lat: suggestion.coordinates.lat,
+          lng: suggestion.coordinates.lng,
+          name: suggestion.title,
+        });
+      } else {
+        // Sinon, relancer une recherche
+        searchSuggestions(suggestion.title);
+      }
       onChange(suggestion.title);
-      searchSuggestions(suggestion.title);
     }
     setIsOpen(false);
   };

@@ -124,7 +124,11 @@ const MapUpdater = ({
   const map = useMap();
 
   useEffect(() => {
-    if (center && typeof center.lat === 'number' && typeof center.lng === 'number') {
+    if (
+      center &&
+      typeof center.lat === "number" &&
+      typeof center.lng === "number"
+    ) {
       console.log("MapUpdater - Centrage sur:", center, "zoom:", zoom);
       map.setView([center.lat, center.lng], zoom || map.getZoom());
     } else if (center) {

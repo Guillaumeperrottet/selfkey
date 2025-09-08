@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, useCallback, useRef } from "react";
-import { Search, Map, Navigation } from "lucide-react";
+import { Search, Map, Navigation, X } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 
@@ -16,6 +16,15 @@ interface Establishment {
   mapDescription?: string;
 }
 
+interface RecentSearch {
+  title: string;
+  subtitle?: string;
+  coordinates?: {
+    lat: number;
+    lng: number;
+  };
+}
+
 interface SearchSuggestion {
   id: string;
   type: "establishment" | "location" | "map" | "recent";
@@ -25,7 +34,7 @@ interface SearchSuggestion {
   establishment?: Establishment;
   coordinates?: {
     lat: number;
-    lon: number;
+    lng: number;
   };
 }
 
@@ -36,7 +45,7 @@ export default function SearchBar() {
   const [searchValue, setSearchValue] = useState("");
   const [suggestions, setSuggestions] = useState<SearchSuggestion[]>([]);
   const [isLoading, setIsLoading] = useState(false);
-  const [recentSearches, setRecentSearches] = useState<string[]>([]);
+  const [recentSearches, setRecentSearches] = useState<RecentSearch[]>([]);
   const router = useRouter();
   const searchTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
@@ -53,12 +62,12 @@ export default function SearchBar() {
   }, []);
 
   // Sauvegarder une recherche récente
-  const saveRecentSearch = useCallback((query: string) => {
+  const saveRecentSearch = useCallback((search: RecentSearch) => {
     setRecentSearches((prev) => {
-      const updated = [query, ...prev.filter((item) => item !== query)].slice(
-        0,
-        5
-      );
+      const updated = [
+        search,
+        ...prev.filter((item) => item.title !== search.title),
+      ].slice(0, 5);
       localStorage.setItem(RECENT_SEARCHES_KEY, JSON.stringify(updated));
       return updated;
     });
@@ -110,9 +119,10 @@ export default function SearchBar() {
         (search, index) => ({
           id: `recent-${index}`,
           type: "recent",
-          title: search,
-          subtitle: "Recherche récente",
+          title: search.title,
+          subtitle: search.subtitle || "Recherche récente",
           icon: "recent",
+          coordinates: search.coordinates,
         })
       );
       setSuggestions(recentSuggestions);
@@ -127,7 +137,10 @@ export default function SearchBar() {
   const handleSuggestionClick = (suggestion: SearchSuggestion) => {
     if (suggestion.type === "establishment" && suggestion.establishment) {
       // Sauvegarder dans l'historique
-      saveRecentSearch(suggestion.title);
+      saveRecentSearch({
+        title: suggestion.title,
+        subtitle: suggestion.subtitle || undefined,
+      });
 
       // Rediriger vers la map avec recherche pré-filtrée sur l'établissement
       const params = new URLSearchParams({
@@ -137,29 +150,52 @@ export default function SearchBar() {
       router.push(`/map?${params.toString()}`);
     } else if (suggestion.type === "location" && suggestion.coordinates) {
       // Sauvegarder dans l'historique
-      saveRecentSearch(suggestion.title);
+      saveRecentSearch({
+        title: suggestion.title,
+        subtitle: suggestion.subtitle || undefined,
+        coordinates: suggestion.coordinates,
+      });
 
       // Rediriger vers la map avec coordonnées géographiques
       const params = new URLSearchParams({
         search: suggestion.title,
         lat: suggestion.coordinates.lat.toString(),
-        lng: suggestion.coordinates.lon.toString(),
+        lng: suggestion.coordinates.lng.toString(),
         zoom: "12",
       });
       router.push(`/map?${params.toString()}`);
     } else if (suggestion.type === "recent") {
-      // Relancer une recherche avec le terme récent
-      setSearchValue(suggestion.title);
-      searchEstablishments(suggestion.title);
+      // Pour les recherches récentes, utiliser directement les coordonnées si disponibles
+      if (suggestion.coordinates) {
+        const params = new URLSearchParams({
+          search: suggestion.title,
+          lat: suggestion.coordinates.lat.toString(),
+          lng: suggestion.coordinates.lng.toString(),
+          zoom: "12",
+        });
+        router.push(`/map?${params.toString()}`);
+      } else {
+        // Sinon, relancer une recherche
+        setSearchValue(suggestion.title);
+        searchEstablishments(suggestion.title);
+      }
     }
   };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (searchValue.trim()) {
-      saveRecentSearch(searchValue.trim());
+      saveRecentSearch({
+        title: searchValue.trim(),
+      });
       router.push(`/map?search=${encodeURIComponent(searchValue.trim())}`);
     }
+  };
+
+  const clearSearch = () => {
+    setSearchValue("");
+    setSuggestions([]);
+    setIsOpen(false);
   };
 
   const getIcon = (iconType: string, suggestionType?: string) => {
@@ -195,8 +231,20 @@ export default function SearchBar() {
             onFocus={handleFocus}
             onBlur={handleBlur}
             placeholder="Rechercher un emplacement, ville, camping..."
-            className="w-full pl-12 pr-4 py-4 text-lg border-2 border-vintage-gray rounded-xl focus:outline-none focus:border-vintage-teal transition-colors bg-white shadow-lg"
+            className="w-full pl-12 pr-12 py-4 text-lg border-2 border-vintage-gray rounded-xl focus:outline-none focus:border-vintage-teal transition-colors bg-white shadow-lg"
           />
+
+          {/* Clear button */}
+          {searchValue && (
+            <button
+              type="button"
+              onClick={clearSearch}
+              className="absolute inset-y-0 right-0 pr-4 flex items-center hover:bg-gray-100 hover:rounded-r-xl transition-colors"
+            >
+              <X className="h-5 w-5 text-gray-400 hover:text-gray-600" />
+            </button>
+          )}
+
           {isLoading && (
             <div className="absolute inset-y-0 right-0 pr-4 flex items-center pointer-events-none">
               <div className="animate-spin h-4 w-4 border-2 border-vintage-teal border-t-transparent rounded-full"></div>
