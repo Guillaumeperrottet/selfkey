@@ -198,122 +198,127 @@ export function SelfcampHomepage() {
               </h2>
             </div>
 
-            <div className="grid md:grid-cols-2 gap-12">
-              {/* Taxes de séjour */}
-              <div className="space-y-6">
-                <div className="flex items-center space-x-4 mb-6">
-                  <AlertTriangle
-                    className="h-8 w-8"
-                    style={{ color: "#F8F6F3" }}
-                  />
-                  <h3
-                    className="text-2xl font-bold"
-                    style={{ color: "#C4A484" }}
-                  >
-                    Taxes de séjour
-                  </h3>
+            <div className="max-w-6xl mx-auto">
+              <div className="grid md:grid-cols-2 gap-x-16 gap-y-12 items-start">
+                {/* Taxes de séjour */}
+                <div className="space-y-6">
+                  <div className="flex items-center space-x-4 mb-6">
+                    <AlertTriangle
+                      className="h-8 w-8"
+                      style={{ color: "#F8F6F3" }}
+                    />
+                    <h3
+                      className="text-2xl font-bold"
+                      style={{ color: "#C4A484" }}
+                    >
+                      Taxes de séjour
+                    </h3>
+                  </div>
+                  <div className="space-y-4">
+                    {[
+                      "Non-paiement ou déclarations incomplètes",
+                      "Perte de revenus significative pour les structures du canton",
+                      "Contrôle difficile des séjours non déclarés",
+                      "Impact sur le financement des infrastructures touristiques",
+                    ].map((item, index) => (
+                      <div key={index} className="flex items-start space-x-3">
+                        <div
+                          className="w-2 h-2 rounded-full mt-2 flex-shrink-0"
+                          style={{ backgroundColor: "#F8F6F3" }}
+                        ></div>
+                        <p style={{ color: "#F8F6F3" }}>{item}</p>
+                      </div>
+                    ))}
+                  </div>
                 </div>
-                <div className="space-y-4">
-                  {[
-                    "Non-paiement ou déclarations incomplètes",
-                    "Perte de revenus significative pour les structures du canton",
-                    "Contrôle difficile des séjours non déclarés",
-                    "Impact sur le financement des infrastructures touristiques",
-                  ].map((item, index) => (
-                    <div key={index} className="flex items-start space-x-3">
-                      <div
-                        className="w-2 h-2 rounded-full mt-2 flex-shrink-0"
-                        style={{ backgroundColor: "#F8F6F3" }}
-                      ></div>
-                      <p style={{ color: "#F8F6F3" }}>{item}</p>
-                    </div>
-                  ))}
-                </div>
-              </div>
 
-              {/* Camping sauvage */}
-              <div className="space-y-6">
-                <div className="flex items-center space-x-4 mb-6">
-                  <Users className="h-8 w-8" style={{ color: "#F8F6F3" }} />
-                  <h3
-                    className="text-2xl font-bold"
-                    style={{ color: "#C4A484" }}
-                  >
-                    Camping sauvage
-                  </h3>
+                {/* Camping sauvage */}
+                <div className="space-y-6">
+                  <div className="flex items-center space-x-4 mb-6">
+                    <Users className="h-8 w-8" style={{ color: "#F8F6F3" }} />
+                    <h3
+                      className="text-2xl font-bold"
+                      style={{ color: "#C4A484" }}
+                    >
+                      Camping sauvage
+                    </h3>
+                  </div>
+                  <div className="space-y-4">
+                    {[
+                      "Augmentation des campements non autorisés",
+                      "Dégradation des sites naturels",
+                      "Nuisances pour les riverains",
+                      "Manque de traçabilité des visiteurs",
+                    ].map((item, index) => (
+                      <div key={index} className="flex items-start space-x-3">
+                        <div
+                          className="w-2 h-2 rounded-full mt-2 flex-shrink-0"
+                          style={{ backgroundColor: "#F8F6F3" }}
+                        ></div>
+                        <p style={{ color: "#F8F6F3" }}>{item}</p>
+                      </div>
+                    ))}
+                  </div>
                 </div>
-                <div className="space-y-4">
-                  {[
-                    "Augmentation des campements non autorisés",
-                    "Dégradation des sites naturels",
-                    "Nuisances pour les riverains",
-                    "Manque de traçabilité des visiteurs",
-                  ].map((item, index) => (
-                    <div key={index} className="flex items-start space-x-3">
-                      <div
-                        className="w-2 h-2 rounded-full mt-2 flex-shrink-0"
-                        style={{ backgroundColor: "#F8F6F3" }}
-                      ></div>
-                      <p style={{ color: "#F8F6F3" }}>{item}</p>
-                    </div>
-                  ))}
-                </div>
-              </div>
 
-              {/* Infrastructure */}
-              <div className="space-y-6">
-                <div className="flex items-center space-x-4 mb-6">
-                  <Building className="h-8 w-8" style={{ color: "#F8F6F3" }} />
-                  <h3
-                    className="text-2xl font-bold"
-                    style={{ color: "#C4A484" }}
-                  >
-                    Infrastructure et stationnement
-                  </h3>
+                {/* Infrastructure */}
+                <div className="space-y-6">
+                  <div className="flex items-center space-x-4 mb-6">
+                    <Building
+                      className="h-8 w-8"
+                      style={{ color: "#F8F6F3" }}
+                    />
+                    <h3
+                      className="text-2xl font-bold"
+                      style={{ color: "#C4A484" }}
+                    >
+                      Infrastructure et stationnement
+                    </h3>
+                  </div>
+                  <div className="space-y-4">
+                    {[
+                      "Saturation des parkings en haute saison",
+                      "Manque de coordination entre hébergements",
+                      "Difficultés d&apos;accès aux sites touristiques",
+                      "Gestion sous-optimale des flux de visiteurs",
+                    ].map((item, index) => (
+                      <div key={index} className="flex items-start space-x-3">
+                        <div
+                          className="w-2 h-2 rounded-full mt-2 flex-shrink-0"
+                          style={{ backgroundColor: "#F8F6F3" }}
+                        ></div>
+                        <p style={{ color: "#F8F6F3" }}>{item}</p>
+                      </div>
+                    ))}
+                  </div>
                 </div>
-                <div className="space-y-4">
-                  {[
-                    "Saturation des parkings en haute saison",
-                    "Manque de coordination entre hébergements",
-                    "Difficultés d&apos;accès aux sites touristiques",
-                    "Gestion sous-optimale des flux de visiteurs",
-                  ].map((item, index) => (
-                    <div key={index} className="flex items-start space-x-3">
-                      <div
-                        className="w-2 h-2 rounded-full mt-2 flex-shrink-0"
-                        style={{ backgroundColor: "#F8F6F3" }}
-                      ></div>
-                      <p style={{ color: "#F8F6F3" }}>{item}</p>
-                    </div>
-                  ))}
-                </div>
-              </div>
 
-              {/* Impact global */}
-              <div className="space-y-6">
-                <div className="flex items-center space-x-4 mb-6">
-                  <Globe className="h-8 w-8" style={{ color: "#F8F6F3" }} />
-                  <h3
-                    className="text-2xl font-bold"
-                    style={{ color: "#C4A484" }}
-                  >
-                    Impact global
-                  </h3>
-                </div>
-                <div className="space-y-4">
-                  {[
-                    "Manque de données fiables sur la fréquentation réelle",
-                    "Difficultés de planification et d&apos;investissement",
-                    "Image du canton affectée par ces problématiques",
-                  ].map((item, index) => (
-                    <div key={index} className="flex items-start space-x-3">
-                      <div
-                        className="w-2 h-2 rounded-full mt-2 flex-shrink-0"
-                        style={{ backgroundColor: "#F8F6F3" }}
-                      ></div>
-                      <p style={{ color: "#F8F6F3" }}>{item}</p>
-                    </div>
-                  ))}
+                {/* Impact global */}
+                <div className="space-y-6">
+                  <div className="flex items-center space-x-4 mb-6">
+                    <Globe className="h-8 w-8" style={{ color: "#F8F6F3" }} />
+                    <h3
+                      className="text-2xl font-bold"
+                      style={{ color: "#C4A484" }}
+                    >
+                      Impact global
+                    </h3>
+                  </div>
+                  <div className="space-y-4">
+                    {[
+                      "Manque de données fiables sur la fréquentation réelle",
+                      "Difficultés de planification et d&apos;investissement",
+                      "Image du canton affectée par ces problématiques",
+                    ].map((item, index) => (
+                      <div key={index} className="flex items-start space-x-3">
+                        <div
+                          className="w-2 h-2 rounded-full mt-2 flex-shrink-0"
+                          style={{ backgroundColor: "#F8F6F3" }}
+                        ></div>
+                        <p style={{ color: "#F8F6F3" }}>{item}</p>
+                      </div>
+                    ))}
+                  </div>
                 </div>
               </div>
             </div>
