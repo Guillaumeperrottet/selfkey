@@ -627,7 +627,10 @@ export function SelfcampHomepage() {
         </section>
 
         {/* SelfKey Platform Section */}
-        <section className="py-20 px-4 relative z-10">
+        <section
+          className="py-20 px-4 relative z-10"
+          style={{ backgroundColor: "#292D1C" }}
+        >
           <div className="container mx-auto">
             <div className="text-center mb-16">
               <h2
@@ -669,10 +672,10 @@ export function SelfcampHomepage() {
               ].map((item, index) => (
                 <div
                   key={index}
-                  className="backdrop-blur-sm rounded-xl p-8 border transition-all duration-300"
+                  className="rounded-xl p-8 border transition-all duration-300"
                   style={{
-                    backgroundColor: "rgba(196, 164, 132, 0.1)",
-                    borderColor: "rgba(248, 246, 243, 0.1)",
+                    backgroundColor: "rgba(196, 164, 132, 0.3)",
+                    borderColor: "rgba(248, 246, 243, 0.3)",
                   }}
                 >
                   <item.icon
@@ -698,11 +701,11 @@ export function SelfcampHomepage() {
                 <Button
                   size="lg"
                   asChild
-                  className="px-8 py-4 rounded-full text-lg font-semibold transform hover:scale-105 transition-all duration-300 shadow-lg hover:shadow-xl"
+                  className="px-6 py-3 rounded-lg font-medium transition-all duration-200 hover:opacity-90"
                   style={{
-                    background:
-                      "linear-gradient(135deg, #2D4A34 0%, #C4A484 100%)",
-                    color: "#F8F6F3",
+                    backgroundColor: "#C4A484",
+                    color: "#2D4A34",
+                    border: "none",
                   }}
                 >
                   <Link
@@ -710,14 +713,14 @@ export function SelfcampHomepage() {
                     className="inline-flex items-center space-x-2"
                   >
                     <span>Découvrir SelfKey.ch</span>
-                    <ArrowRight className="h-5 w-5" />
+                    <ArrowRight className="h-4 w-4" />
                   </Link>
                 </Button>
                 <Button
                   size="lg"
                   variant="outline"
                   asChild
-                  className="px-8 py-4 rounded-full text-lg font-semibold transform hover:scale-105 transition-all duration-300 border-2"
+                  className="px-6 py-3 rounded-lg font-medium transition-all duration-200 hover:bg-white/10"
                   style={{
                     borderColor: "#C4A484",
                     color: "#C4A484",
@@ -729,7 +732,7 @@ export function SelfcampHomepage() {
                     className="inline-flex items-center space-x-2"
                   >
                     <span>Être rappelé</span>
-                    <Users className="h-5 w-5" />
+                    <Users className="h-4 w-4" />
                   </Link>
                 </Button>
               </div>
