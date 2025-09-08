@@ -1,11 +1,11 @@
 "use client";
 
 import InteractiveMap from "@/components/ui/interactive-map";
+import EnhancedSearchBar from "@/components/ui/enhanced-search-bar";
 import Link from "next/link";
 import Image from "next/image";
 import {
   ArrowLeft,
-  Search,
   Filter,
   MapPin,
   ShowerHead,
@@ -13,7 +13,6 @@ import {
   Navigation,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { AvailabilityBadge } from "@/components/ui/availability-badge";
@@ -57,11 +56,7 @@ function MapPageContent() {
     lng: number;
   } | null>(null);
   const [mapZoom, setMapZoom] = useState<number>(6);
-  const [isSearchingInArea, setIsSearchingInArea] = useState(false);
-  const [currentMapBounds, setCurrentMapBounds] = useState<{
-    center: { lat: number; lng: number };
-    zoom: number;
-  } | null>(null);
+  const [isSearchingInArea] = useState(false);
 
   // Gérer les paramètres URL pour les recherches depuis la homepage
   const searchParams = useSearchParams();
@@ -158,64 +153,9 @@ function MapPageContent() {
 
   // Fonction pour rechercher dans la zone visible de la carte
   const searchInArea = async () => {
-    if (!currentMapBounds) {
-      console.log("Aucune limite de carte disponible");
-      return;
-    }
-
-    setIsSearchingInArea(true);
-    try {
-      const response = await fetch(
-        `/api/public/establishments/search-in-area?lat=${currentMapBounds.center.lat}&lng=${currentMapBounds.center.lng}&radius=20`
-      );
-
-      if (response.ok) {
-        const nearbyEstablishments = await response.json();
-        console.log(
-          "Établissements trouvés dans la zone:",
-          nearbyEstablishments
-        );
-
-        // Convertir les données pour matcher l'interface Establishment
-        const convertedEstablishments: Establishment[] =
-          nearbyEstablishments.map(
-            (est: {
-              id: string;
-              slug: string;
-              name: string;
-              city: string | null;
-              country: string | null;
-              latitude: number;
-              longitude: number;
-              mapDescription: string | null;
-              mapImage: string | null;
-              address: string | null;
-            }) => ({
-              id: est.id,
-              slug: est.slug,
-              name: est.name,
-              location: `${est.city || ""}, ${est.country || ""}`,
-              latitude: est.latitude,
-              longitude: est.longitude,
-              price: "À partir de 25€/nuit", // Prix par défaut
-              type: "Camping",
-              amenities: ["Wi-Fi", "Sanitaires"],
-              description: est.mapDescription || est.name,
-              image: est.mapImage || "/placeholder-establishment.jpg",
-              rating: 4.5,
-              reviews: 12,
-              address: est.address,
-            })
-          );
-
-        setFilteredEstablishments(convertedEstablishments);
-        setSearchQuery("Résultats dans cette zone");
-      }
-    } catch (error) {
-      console.error("Erreur lors de la recherche dans la zone:", error);
-    } finally {
-      setIsSearchingInArea(false);
-    }
+    // Fonctionnalité temporairement désactivée
+    console.log("Recherche dans la zone temporairement désactivée");
+    return;
   };
 
   useEffect(() => {
@@ -227,13 +167,69 @@ function MapPageContent() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [establishments, searchQuery, selectedAmenities, priceRange]);
 
+  // Debug log pour les établissements filtrés
+  useEffect(() => {
+    console.log(
+      "MapPage - filteredEstablishments changed:",
+      filteredEstablishments.length,
+      filteredEstablishments
+    );
+  }, [filteredEstablishments]);
+
   const fetchEstablishments = async () => {
     try {
-      const response = await fetch("/api/public/establishments");
+      const response = await fetch("/api/public/map/establishments");
       if (response.ok) {
-        const data = await response.json();
-        setEstablishments(data);
-        setFilteredEstablishments(data);
+        const result = await response.json();
+        if (result.success) {
+          // Convertir les données de la base pour matcher l'interface Establishment
+          const convertedEstablishments: Establishment[] =
+            result.establishments.map(
+              (est: {
+                id: string;
+                slug: string;
+                name: string;
+                location: string;
+                latitude: number;
+                longitude: number;
+                price?: string;
+                type?: string;
+                description: string;
+                image?: string;
+              }) => ({
+                id: est.id,
+                slug: est.slug,
+                name: est.name,
+                location: est.location,
+                latitude: est.latitude,
+                longitude: est.longitude,
+                price: est.price || "Sur demande",
+                type: est.type || "camping",
+                amenities: ["wifi", "douche"], // À adapter selon vos données
+                description: est.description,
+                image: est.image || "/selfcamp_logo.png", // Image par défaut
+                rating: 4.5, // À adapter selon vos données
+                reviews: 0, // À adapter selon vos données
+                address: est.location,
+              })
+            );
+
+          setEstablishments(convertedEstablishments);
+          setFilteredEstablishments(convertedEstablishments);
+          console.log(
+            `${convertedEstablishments.length} établissements chargés depuis la base de données`
+          );
+          console.log(
+            "Établissements avec coordonnées:",
+            convertedEstablishments.map((est) => ({
+              name: est.name,
+              lat: est.latitude,
+              lng: est.longitude,
+            }))
+          );
+        } else {
+          console.error("Erreur dans la réponse API:", result.error);
+        }
       } else {
         console.error("Erreur lors du chargement des établissements");
       }
@@ -345,28 +341,41 @@ function MapPageContent() {
                 Retour
               </Button>
             </Link>
-            <h1 className="text-xl font-bold text-[#9EA173]">SelfCamp</h1>
+            <a
+              href="https://selfcamp.ch"
+              className="hover:opacity-80 transition-opacity"
+            >
+              <h1 className="text-xl font-bold text-[#9EA173] cursor-pointer">
+                SelfCamp
+              </h1>
+            </a>
           </div>
 
-          {/* Search Bar */}
-          <div className="relative mb-4">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
-            <Input
-              placeholder="Rechercher par nom, ville, description..."
+          {/* Enhanced Search Bar */}
+          <div className="mb-4">
+            <EnhancedSearchBar
               value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="pl-10 pr-10"
+              onChange={setSearchQuery}
+              onLocationSelect={(location) => {
+                setMapCenter({ lat: location.lat, lng: location.lng });
+                setMapZoom(location.name === "Ma position" ? 15 : 12);
+              }}
+              onEstablishmentSelect={(establishment) => {
+                centerMapOnEstablishment({
+                  ...establishment,
+                  price: "",
+                  type: "",
+                  amenities: [],
+                  description: "",
+                  image: "",
+                  rating: 0,
+                  reviews: 0,
+                  slug: establishment.id,
+                  address: establishment.location,
+                });
+              }}
+              placeholder="Rechercher par nom, ville, description..."
             />
-            {searchQuery && (
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={() => setSearchQuery("")}
-                className="absolute right-1 top-1/2 transform -translate-y-1/2 h-6 w-6 p-0"
-              >
-                <X className="h-3 w-3" />
-              </Button>
-            )}
           </div>
 
           {/* Filters Button */}
@@ -388,7 +397,7 @@ function MapPageContent() {
           <Button
             variant="outline"
             onClick={searchInArea}
-            disabled={isSearchingInArea || !currentMapBounds}
+            disabled={isSearchingInArea}
             className="w-full flex items-center gap-2 text-vintage-teal border-vintage-teal hover:bg-vintage-teal hover:text-white disabled:opacity-50"
           >
             <MapPin className="h-4 w-4" />
@@ -575,14 +584,22 @@ function MapPageContent() {
       {/* Right Map Container */}
       <div className="flex-1 h-full">
         <InteractiveMap
+          establishments={filteredEstablishments} // Passer les établissements filtrés
           fullHeight
           showTitle={false}
           hoveredEstablishmentId={hoveredEstablishment}
           onMarkerClick={scrollToEstablishment}
           center={mapCenter}
           zoom={mapZoom}
-          onMapMove={setCurrentMapBounds}
         />
+
+        {/* Debug info */}
+        {process.env.NODE_ENV === "development" && (
+          <div className="fixed bottom-4 right-4 bg-black text-white p-2 text-xs rounded z-50">
+            Establishments: {filteredEstablishments.length} | Loading:{" "}
+            {loading.toString()}
+          </div>
+        )}
       </div>
     </div>
   );

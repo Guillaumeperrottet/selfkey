@@ -1,45 +1,53 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import dynamic from "next/dynamic";
+import DirectMap from "@/components/ui/direct-map";
+
+interface Establishment {
+  id: string;
+  name: string;
+  location: string;
+  latitude: number;
+  longitude: number;
+  price: string;
+  type: string;
+  description: string;
+}
 
 interface InteractiveMapProps {
+  establishments?: Establishment[]; // Ajouter les établissements
   fullHeight?: boolean;
   showTitle?: boolean;
   hoveredEstablishmentId?: string | null;
   onMarkerClick?: (establishmentId: string) => void;
   center?: { lat: number; lng: number } | null;
   zoom?: number;
-  onMapMove?: (bounds: {
-    center: { lat: number; lng: number };
-    zoom: number;
-  }) => void;
 }
 
-// Composant Map dynamique pour éviter les problèmes SSR
-const DynamicMap = dynamic(() => import("@/components/ui/map-component"), {
-  ssr: false,
-  loading: () => (
-    <div className="w-full h-full bg-gray-100 flex items-center justify-center rounded-lg">
-      <div className="text-gray-500">Chargement de la carte...</div>
-    </div>
-  ),
-});
-
 export default function InteractiveMap({
+  establishments = [], // Recevoir les établissements
   fullHeight = false,
   showTitle = true,
   hoveredEstablishmentId = null,
   onMarkerClick,
   center,
   zoom,
-  onMapMove,
 }: InteractiveMapProps) {
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
     setMounted(true);
   }, []);
+
+  // Debug log
+  useEffect(() => {
+    console.log(
+      "InteractiveMap - establishments received:",
+      establishments?.length,
+      establishments
+    );
+    console.log("InteractiveMap - About to pass to DirectMap:", establishments);
+  }, [establishments]);
 
   if (!mounted) {
     return (
@@ -61,12 +69,12 @@ export default function InteractiveMap({
       <div
         className={`w-full ${fullHeight ? "h-full" : "h-96"} rounded-lg overflow-hidden`}
       >
-        <DynamicMap
+        <DirectMap
+          establishments={establishments || []} // Passer les établissements
           hoveredEstablishmentId={hoveredEstablishmentId}
           onMarkerClick={onMarkerClick}
           center={center}
           zoom={zoom}
-          onMapMove={onMapMove}
         />
       </div>
     </div>
