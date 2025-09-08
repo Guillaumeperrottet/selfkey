@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import DirectMap from "@/components/ui/direct-map";
+import dynamic from "next/dynamic";
 
 interface Establishment {
   id: string;
@@ -23,6 +23,16 @@ interface InteractiveMapProps {
   center?: { lat: number; lng: number } | null;
   zoom?: number;
 }
+
+// Composant Map dynamique pour éviter les problèmes SSR
+const DirectMap = dynamic(() => import("@/components/ui/direct-map"), {
+  ssr: false,
+  loading: () => (
+    <div className="w-full h-full bg-gray-100 flex items-center justify-center rounded-lg">
+      <div className="text-gray-500">Chargement de la carte...</div>
+    </div>
+  ),
+});
 
 export default function InteractiveMap({
   establishments = [], // Recevoir les établissements
