@@ -28,7 +28,7 @@ interface SearchResult {
   };
   coordinates?: {
     lat: number;
-    lon: number;
+    lng: number;
   };
 }
 
@@ -121,7 +121,7 @@ export async function GET(request: Request) {
           icon: "map",
           coordinates: {
             lat: location.lat,
-            lon: location.lon,
+            lng: location.lon,
           },
         });
       });

@@ -4,17 +4,9 @@ import InteractiveMap from "@/components/ui/interactive-map";
 import EnhancedSearchBar from "@/components/ui/enhanced-search-bar";
 import Link from "next/link";
 import Image from "next/image";
-import {
-  ArrowLeft,
-  Filter,
-  MapPin,
-  ShowerHead,
-  X,
-  Navigation,
-} from "lucide-react";
+import { ArrowLeft, MapPin, ShowerHead, Navigation } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
 import { AvailabilityBadge } from "@/components/ui/availability-badge";
 import { useAvailability } from "@/hooks/useAvailability";
 import { useState, useEffect, useMemo, Suspense } from "react";
@@ -35,6 +27,7 @@ interface Establishment {
   rating: number;
   reviews: number;
   address?: string; // Optionnel
+  distance?: number; // Distance en km pour les recherches de proximité
 }
 
 // Composant interne qui utilise useSearchParams
@@ -45,9 +38,6 @@ function MapPageContent() {
   >([]);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
-  const [showFilters, setShowFilters] = useState(false);
-  const [selectedAmenities, setSelectedAmenities] = useState<string[]>([]);
-  const [priceRange, setPriceRange] = useState<[number, number]>([0, 100]);
   const [hoveredEstablishment, setHoveredEstablishment] = useState<
     string | null
   >(null);
@@ -56,7 +46,8 @@ function MapPageContent() {
     lng: number;
   } | null>(null);
   const [mapZoom, setMapZoom] = useState<number>(6);
-  const [isSearchingInArea] = useState(false);
+  const [showingNearbyEstablishments, setShowingNearbyEstablishments] =
+    useState(false);
 
   // Gérer les paramètres URL pour les recherches depuis la homepage
   const searchParams = useSearchParams();
@@ -151,13 +142,6 @@ function MapPageContent() {
     setTimeout(() => setHoveredEstablishment(null), 2000);
   };
 
-  // Fonction pour rechercher dans la zone visible de la carte
-  const searchInArea = async () => {
-    // Fonctionnalité temporairement désactivée
-    console.log("Recherche dans la zone temporairement désactivée");
-    return;
-  };
-
   useEffect(() => {
     fetchEstablishments();
   }, []);
@@ -165,7 +149,7 @@ function MapPageContent() {
   useEffect(() => {
     filterEstablishments();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [establishments, searchQuery, selectedAmenities, priceRange]);
+  }, [establishments, searchQuery]);
 
   // Debug log pour les établissements filtrés
   useEffect(() => {
@@ -240,8 +224,29 @@ function MapPageContent() {
     }
   };
 
+  // Fonction pour calculer la distance entre deux points (formule haversine)
+  const calculateDistance = (
+    lat1: number,
+    lon1: number,
+    lat2: number,
+    lon2: number
+  ) => {
+    const R = 6371; // Rayon de la Terre en km
+    const dLat = ((lat2 - lat1) * Math.PI) / 180;
+    const dLon = ((lon2 - lon1) * Math.PI) / 180;
+    const a =
+      Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+      Math.cos((lat1 * Math.PI) / 180) *
+        Math.cos((lat2 * Math.PI) / 180) *
+        Math.sin(dLon / 2) *
+        Math.sin(dLon / 2);
+    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+    return R * c;
+  };
+
   const filterEstablishments = () => {
     let filtered = [...establishments];
+    setShowingNearbyEstablishments(false); // Reset par défaut
 
     // Filtre par recherche amélioré
     if (searchQuery.trim()) {
@@ -276,45 +281,37 @@ function MapPageContent() {
           typeMatch
         );
       });
-    }
 
-    // Filtre par équipements
-    if (selectedAmenities.length > 0) {
-      filtered = filtered.filter((establishment) =>
-        selectedAmenities.every(
-          (amenity) => establishment.amenities?.includes(amenity) || false
-        )
-      );
-    }
+      // Si aucun résultat et qu'on a des coordonnées de recherche,
+      // afficher les établissements les plus proches
+      if (filtered.length === 0 && mapCenter) {
+        console.log(
+          "Aucun résultat pour la recherche, affichage des établissements les plus proches"
+        );
+        setShowingNearbyEstablishments(true);
 
-    // Filtre par prix (désactivé temporairement car le champ price n'existe pas encore)
-    // filtered = filtered.filter((establishment) => {
-    //   if (!establishment.price) return true; // Inclure les établissements sans prix
-    //   const price = parseFloat(establishment.price.replace(/[^\d.]/g, ""));
-    //   return price >= priceRange[0] && price <= priceRange[1];
-    // });
+        // Calculer les distances et trier par proximité
+        const establishmentsWithDistance = establishments.map(
+          (establishment) => ({
+            ...establishment,
+            distance: calculateDistance(
+              mapCenter.lat,
+              mapCenter.lng,
+              establishment.latitude,
+              establishment.longitude
+            ),
+          })
+        );
+
+        // Trier par distance et prendre les 5 plus proches
+        filtered = establishmentsWithDistance
+          .sort((a, b) => a.distance - b.distance)
+          .slice(0, 5);
+      }
+    }
 
     setFilteredEstablishments(filtered);
   };
-
-  const toggleAmenity = (amenity: string) => {
-    setSelectedAmenities((prev) =>
-      prev.includes(amenity)
-        ? prev.filter((a) => a !== amenity)
-        : [...prev, amenity]
-    );
-  };
-
-  const clearFilters = () => {
-    setSearchQuery("");
-    setSelectedAmenities([]);
-    setPriceRange([0, 100]);
-    setShowFilters(false);
-  };
-
-  const availableAmenities = [
-    { key: "shower", label: "Douches", icon: ShowerHead },
-  ];
 
   if (loading) {
     return (
@@ -377,71 +374,6 @@ function MapPageContent() {
               placeholder="Rechercher par nom, ville, description..."
             />
           </div>
-
-          {/* Filters Button */}
-          <Button
-            variant={showFilters ? "default" : "outline"}
-            onClick={() => setShowFilters(!showFilters)}
-            className="w-full flex items-center gap-2"
-          >
-            <Filter className="h-4 w-4" />
-            Filtres
-            {(selectedAmenities.length > 0 || searchQuery) && (
-              <Badge variant="secondary" className="ml-auto">
-                {selectedAmenities.length + (searchQuery ? 1 : 0)}
-              </Badge>
-            )}
-          </Button>
-
-          {/* Search in Area Button */}
-          <Button
-            variant="outline"
-            onClick={searchInArea}
-            disabled={isSearchingInArea}
-            className="w-full flex items-center gap-2 text-vintage-teal border-vintage-teal hover:bg-vintage-teal hover:text-white disabled:opacity-50"
-          >
-            <MapPin className="h-4 w-4" />
-            {isSearchingInArea ? "Recherche..." : "Rechercher dans cette zone"}
-          </Button>
-
-          {/* Filters Panel */}
-          {showFilters && (
-            <div className="mt-4 p-4 bg-gray-50 rounded-lg space-y-4 flex-shrink-0">
-              <div>
-                <h3 className="font-medium mb-2">Équipements</h3>
-                <div className="flex flex-wrap gap-2">
-                  {availableAmenities.map((amenity) => (
-                    <Button
-                      key={amenity.key}
-                      variant={
-                        selectedAmenities.includes(amenity.key)
-                          ? "default"
-                          : "outline"
-                      }
-                      size="sm"
-                      onClick={() => toggleAmenity(amenity.key)}
-                      className="flex items-center gap-1"
-                    >
-                      <amenity.icon className="h-3 w-3" />
-                      {amenity.label}
-                    </Button>
-                  ))}
-                </div>
-              </div>
-
-              <div className="flex gap-2">
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={clearFilters}
-                  className="flex items-center gap-1"
-                >
-                  <X className="h-3 w-3" />
-                  Effacer
-                </Button>
-              </div>
-            </div>
-          )}
         </div>
 
         {/* Results */}
@@ -450,16 +382,30 @@ function MapPageContent() {
             <div className="flex items-center justify-between">
               <p className="text-sm text-gray-600">
                 {searchQuery ? (
-                  <>
-                    <span className="font-medium">
-                      {filteredEstablishments.length}
-                    </span>{" "}
-                    résultat
-                    {filteredEstablishments.length !== 1 ? "s" : ""} pour{" "}
-                    <span className="font-medium text-gray-800">
-                      &ldquo;{searchQuery}&rdquo;
-                    </span>
-                  </>
+                  showingNearbyEstablishments ? (
+                    <>
+                      <span className="font-medium">
+                        {filteredEstablishments.length}
+                      </span>{" "}
+                      établissement
+                      {filteredEstablishments.length !== 1 ? "s" : ""} les plus
+                      proches de{" "}
+                      <span className="font-medium text-gray-800">
+                        &ldquo;{searchQuery}&rdquo;
+                      </span>
+                    </>
+                  ) : (
+                    <>
+                      <span className="font-medium">
+                        {filteredEstablishments.length}
+                      </span>{" "}
+                      résultat
+                      {filteredEstablishments.length !== 1 ? "s" : ""} pour{" "}
+                      <span className="font-medium text-gray-800">
+                        &ldquo;{searchQuery}&rdquo;
+                      </span>
+                    </>
+                  )
                 ) : (
                   <>
                     <span className="font-medium">
@@ -506,9 +452,6 @@ function MapPageContent() {
                     height={128}
                     className="w-full h-full object-cover"
                   />
-                  <div className="absolute top-2 right-2 bg-white px-2 py-1 rounded text-sm font-medium">
-                    {spot.price}
-                  </div>
                   {/* Badge de disponibilité */}
                   <div className="absolute top-2 left-2">
                     {availabilityData[spot.slug] ? (
@@ -540,6 +483,11 @@ function MapPageContent() {
                   <div className="flex items-center gap-1 text-sm text-gray-600 mb-2">
                     <MapPin className="w-4 h-4" />
                     <span>{spot.location}</span>
+                    {showingNearbyEstablishments && spot.distance && (
+                      <span className="ml-2 px-2 py-1 bg-blue-100 text-blue-700 rounded-full text-xs font-medium">
+                        {spot.distance.toFixed(1)} km
+                      </span>
+                    )}
                   </div>
 
                   <p className="text-gray-700 text-sm mb-3 line-clamp-2">
@@ -584,7 +532,7 @@ function MapPageContent() {
       {/* Right Map Container */}
       <div className="flex-1 h-full">
         <InteractiveMap
-          establishments={filteredEstablishments} // Passer les établissements filtrés
+          establishments={establishments} // Afficher TOUS les établissements sur la carte
           fullHeight
           showTitle={false}
           hoveredEstablishmentId={hoveredEstablishment}

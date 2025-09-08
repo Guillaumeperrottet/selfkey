@@ -18,7 +18,7 @@ const createAnimatedIcon = (isHovered: boolean) => {
         position: relative;
         transition: all 0.3s ease;
         cursor: pointer;
-        ${isHovered ? "animation: pinBounce 0.8s ease-in-out infinite;" : ""}
+        ${isHovered ? "animation: pinBounce 1.5s ease-in-out infinite;" : ""}
       ">
         <!-- Effet de pulse autour du pin -->
         <div class="pulse-ring" style="
@@ -70,9 +70,9 @@ const createAnimatedIcon = (isHovered: boolean) => {
         
         @keyframes pinBounce {
           0%, 100% { transform: translateY(0) scale(1); }
-          25% { transform: translateY(-4px) scale(1.05); }
-          50% { transform: translateY(-8px) scale(1.1); }
-          75% { transform: translateY(-4px) scale(1.05); }
+          25% { transform: translateY(-3px) scale(1.02); }
+          50% { transform: translateY(-5px) scale(1.05); }
+          75% { transform: translateY(-2px) scale(1.02); }
         }
       </style>
     `,
@@ -124,9 +124,11 @@ const MapUpdater = ({
   const map = useMap();
 
   useEffect(() => {
-    if (center) {
+    if (center && typeof center.lat === 'number' && typeof center.lng === 'number') {
       console.log("MapUpdater - Centrage sur:", center, "zoom:", zoom);
       map.setView([center.lat, center.lng], zoom || map.getZoom());
+    } else if (center) {
+      console.error("Coordonnées invalides:", center);
     }
   }, [center, zoom, map]);
 
@@ -193,7 +195,7 @@ export default function DirectMap({
   }, [establishments]);
 
   // Ne pas rendre côté serveur
-  if (!mounted || typeof window === 'undefined') {
+  if (!mounted || typeof window === "undefined") {
     return (
       <div className="w-full h-full bg-gray-100 flex items-center justify-center rounded-lg">
         <div className="text-gray-500">Chargement de la carte...</div>
