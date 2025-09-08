@@ -38,7 +38,6 @@ export async function POST(
       clientVehicleNumber,
       expectedPrice,
       selectedPricingOptions,
-      pricingOptionsTotal,
     } = body;
 
     // Validation des données
@@ -266,7 +265,7 @@ export async function POST(
         client_city: clientCity,
         client_country: clientCountry,
         client_id_number: clientIdNumber,
-        client_vehicle_number: clientVehicleNumber || "",
+        client_vehicle_number: clientVehicleNumber,
         adults: adults.toString(),
         children: children.toString(),
         guests: (adults + children).toString(),
