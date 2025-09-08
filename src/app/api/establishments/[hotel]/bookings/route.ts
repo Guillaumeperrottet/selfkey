@@ -38,6 +38,7 @@ export async function POST(
       clientVehicleNumber,
       expectedPrice,
       selectedPricingOptions,
+      pricingOptionsTotal,
     } = body;
 
     // Validation des données
@@ -50,7 +51,6 @@ export async function POST(
       !clientEmail ||
       !clientPhone ||
       !clientBirthDate ||
-      !clientBirthPlace ||
       !clientAddress ||
       !clientPostalCode ||
       !clientCity ||
