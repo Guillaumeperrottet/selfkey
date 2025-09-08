@@ -19,6 +19,7 @@ import {
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import SearchBar from "@/components/ui/search-bar";
+import TextType from "@/components/ui/text-type";
 import { DOMAINS } from "@/lib/domains";
 
 export function SelfcampHomepage() {
@@ -102,10 +103,18 @@ export function SelfcampHomepage() {
               <h1 className="text-6xl md:text-8xl font-bold mb-6 text-white">
                 Selfcamp.ch
               </h1>
-              <p className="text-xl md:text-2xl mb-8 text-white max-w-4xl mx-auto leading-relaxed text-center font-medium">
-                Solution d&apos;accès intelligent pour le tourisme de véhicules
-                de loisirs hors zone camping
-              </p>
+              <div className="text-xl md:text-2xl mb-8 text-white max-w-4xl mx-auto leading-relaxed text-center font-medium">
+                <TextType
+                  text="Solution d'accès intelligent pour le tourisme de véhicules de loisirs hors zone camping"
+                  typingSpeed={50}
+                  showCursor={true}
+                  cursorCharacter="|"
+                  cursorClassName="text-white"
+                  loop={true}
+                  loopInterval={90000} // 1min30 en millisecondes
+                  startOnVisible={true}
+                />
+              </div>
             </div>
           </div>
         </section>
