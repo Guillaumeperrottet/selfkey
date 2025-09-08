@@ -112,6 +112,13 @@ export function BookingSummary({ bookingId }: BookingSummaryProps) {
     total: number;
   }>({ enabled: false, amount: 0, total: 0 });
 
+  // États pour les frais SelfKey
+  const [platformFees, setPlatformFees] = useState<{
+    fixedFee: number;
+    commission: number;
+    total: number;
+  }>({ fixedFee: 0, commission: 0, total: 0 });
+
   // Liste des pays avec codes ISO
   const countries = [
     { name: "Suisse", code: "CH" },
@@ -187,6 +194,24 @@ export function BookingSummary({ bookingId }: BookingSummaryProps) {
             });
           }
 
+          // Charger les frais de plateforme SelfKey
+          const platformFeesResponse = await fetch(
+            `/api/establishments/${data.hotelSlug}/fees`
+          );
+          if (platformFeesResponse.ok) {
+            const platformFeesData = await platformFeesResponse.json();
+            const subtotal = data.amount; // Utiliser le montant total pour calculer la commission
+            const commission =
+              subtotal * (platformFeesData.commissionRate / 100);
+            const totalPlatformFees = platformFeesData.fixedFee + commission;
+
+            setPlatformFees({
+              fixedFee: platformFeesData.fixedFee,
+              commission: commission,
+              total: totalPlatformFees,
+            });
+          }
+
           // Initialiser les valeurs d'édition
           setEditValues({
             clientFirstName: data.clientFirstName,
@@ -238,6 +263,24 @@ export function BookingSummary({ bookingId }: BookingSummaryProps) {
               enabled: touristTaxData.touristTaxEnabled,
               amount: touristTaxData.touristTaxAmount,
               total: taxTotal,
+            });
+          }
+
+          // Charger les frais de plateforme SelfKey
+          const platformFeesResponse = await fetch(
+            `/api/establishments/${data.hotelSlug}/fees`
+          );
+          if (platformFeesResponse.ok) {
+            const platformFeesData = await platformFeesResponse.json();
+            const subtotal = data.amount; // Utiliser le montant total pour calculer la commission
+            const commission =
+              subtotal * (platformFeesData.commissionRate / 100);
+            const totalPlatformFees = platformFeesData.fixedFee + commission;
+
+            setPlatformFees({
+              fixedFee: platformFeesData.fixedFee,
+              commission: commission,
+              total: totalPlatformFees,
             });
           }
 
@@ -894,58 +937,94 @@ export function BookingSummary({ bookingId }: BookingSummaryProps) {
           <Card className="lg:sticky lg:top-4">
             <CardHeader className="pb-2">
               <CardTitle className="flex items-center gap-2 text-base">
-                My reservation
+                Reservation
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-3">
               <div className="space-y-2">
                 <div className="flex justify-between items-center">
                   <span className="text-sm text-gray-600">
-                    Room ({duration} night{duration > 1 ? "s" : ""})
+                    {booking.room.name} ({duration} night
+                    {duration > 1 ? "s" : ""})
                   </span>
-                  <span className="text-base font-medium">
-                    {booking.room.price * duration} {booking.currency}
-                  </span>
+                  {booking.room.price > 0 && (
+                    <span className="text-base font-medium">
+                      {booking.room.price * duration} {booking.currency}
+                    </span>
+                  )}
                 </div>
 
-                {/* Pricing options - compact display */}
-                {booking.pricingOptionsTotal > 0 && (
-                  <div className="border rounded-lg p-1.5 bg-gray-50">
-                    <div className="flex justify-between items-center mb-1">
-                      <span className="text-xs text-gray-700 font-medium">
-                        Additional Options
-                      </span>
-                      <span className="text-sm font-medium text-gray-800">
-                        +{booking.pricingOptionsTotal} {booking.currency}
-                      </span>
-                    </div>
-
-                    <div className="space-y-0.5">
+                {/* Pricing options - same style as room line */}
+                {booking.selectedPricingOptions &&
+                  Object.keys(booking.selectedPricingOptions).length > 0 && (
+                    <>
                       {Object.entries(booking.selectedPricingOptions).map(
-                        ([key, value]) => (
-                          <div key={key} className="text-xs text-gray-600">
-                            {getOptionDisplayName(key, value)}
-                          </div>
-                        )
+                        ([key, value]) => {
+                          // Trouver le prix de cette option
+                          const option = pricingOptions.find(
+                            (opt) => opt.id === key
+                          );
+                          let optionPrice = 0;
+
+                          if (option) {
+                            if (Array.isArray(value)) {
+                              optionPrice = value.reduce((total, valueId) => {
+                                const optionValue = option.values.find(
+                                  (val) => val.id === valueId
+                                );
+                                return (
+                                  total +
+                                  (optionValue ? optionValue.priceModifier : 0)
+                                );
+                              }, 0);
+                            } else {
+                              const optionValue = option.values.find(
+                                (val) => val.id === value
+                              );
+                              optionPrice = optionValue
+                                ? optionValue.priceModifier
+                                : 0;
+                            }
+                          }
+
+                          return (
+                            <div
+                              key={key}
+                              className="flex justify-between items-center"
+                            >
+                              <span className="text-sm text-gray-600">
+                                {getOptionDisplayName(key, value)}
+                              </span>
+                              {optionPrice > 0 && (
+                                <span className="text-base font-medium">
+                                  {optionPrice} {booking.currency}
+                                </span>
+                              )}
+                            </div>
+                          );
+                        }
                       )}
-                    </div>
-                  </div>
-                )}
+                    </>
+                  )}
 
                 {/* Tourist Tax */}
                 {touristTaxSettings.enabled && touristTaxSettings.total > 0 && (
                   <div className="flex justify-between items-center">
-                    <div>
-                      <span className="text-sm text-gray-600">Tourist Tax</span>
-                      <div className="text-xs text-gray-500">
-                        {booking.adults} adult{booking.adults > 1 ? "s" : ""} •{" "}
-                        {duration} night{duration > 1 ? "s" : ""}
-                        {touristTaxSettings.amount > 0 &&
-                          ` • ${touristTaxSettings.amount.toFixed(2)} ${booking.currency}/person/night`}
-                      </div>
-                    </div>
+                    <span className="text-sm text-gray-600">Tourist tax</span>
                     <span className="text-base font-medium">
-                      +{touristTaxSettings.total.toFixed(2)} {booking.currency}
+                      {touristTaxSettings.total.toFixed(2)} {booking.currency}
+                    </span>
+                  </div>
+                )}
+
+                {/* Platform Fees - SelfKey */}
+                {platformFees.total > 0 && (
+                  <div className="flex justify-between items-center">
+                    <span className="text-sm text-gray-600">
+                      Frais Plateforme
+                    </span>
+                    <span className="text-base font-medium">
+                      {platformFees.total.toFixed(2)} {booking.currency}
                     </span>
                   </div>
                 )}
@@ -957,6 +1036,14 @@ export function BookingSummary({ bookingId }: BookingSummaryProps) {
                 <span className="text-base font-semibold">Total</span>
                 <span className="text-xl font-bold text-gray-900">
                   {booking.amount} {booking.currency}
+                </span>
+              </div>
+
+              {/* TVA incluse */}
+              <div className="flex justify-start">
+                <span className="text-xs text-gray-500">
+                  (TVA 8.1% {((booking.amount * 8.1) / 100).toFixed(2)}{" "}
+                  {booking.currency} compris)
                 </span>
               </div>
 
