@@ -285,20 +285,11 @@ export function EmailEditor({
         </TabsList>
 
         <TabsContent value="editor" className="mt-4">
-          <div
-            className="border rounded-lg overflow-auto shadow-lg"
-            style={{
-              width: "100%",
-              minWidth: "1024px",
-              height: "900px",
-              minHeight: "900px",
-            }}
-          >
+          <div className="w-full h-[900px]">
             <EmailEditorComponent
               ref={emailEditorRef}
               onReady={onReady}
               minHeight="900px"
-              style={{ width: "1024px", height: "900px" }}
               options={{
                 displayMode: "email",
                 locale: "fr-FR",
@@ -318,22 +309,20 @@ export function EmailEditor({
                   stockImages: false, // Désactivé pour éviter les coûts
                   colorPicker: {
                     presets: [
-                      "#1f2937",
+                      "#ffffff", // Blanc
+                      "#f8f9fa", // Gris très clair
+                      "#e9ecef", // Gris clair
+                      "#dee2e6", // Gris
+                      "#1f2937", // Gris foncé
                       "#374151",
-                      "#6b7280",
-                      "#9ca3af",
-                      "#3b82f6",
+                      "#3b82f6", // Bleu
                       "#1d4ed8",
-                      "#1e40af",
-                      "#1e3a8a",
-                      "#059669",
+                      "#059669", // Vert
                       "#047857",
-                      "#065f46",
-                      "#064e3b",
-                      "#dc2626",
+                      "#dc2626", // Rouge
                       "#b91c1c",
-                      "#991b1b",
-                      "#7f1d1d",
+                      "#f59e0b", // Orange
+                      "#d97706",
                     ],
                   },
                 },
