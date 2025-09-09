@@ -519,7 +519,7 @@ Votre réservation à {establishmentName} a été confirmée avec succès !
 📋 Numéro de réservation : {bookingNumber}
 
 Détails de votre réservation :
-- Chambre : {roomName}
+- Place : {roomName}
 - Arrivée : {checkInDate}
 - Départ : {checkOutDate}
 - Code d'accès : {accessCode}

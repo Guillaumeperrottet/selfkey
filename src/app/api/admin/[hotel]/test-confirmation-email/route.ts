@@ -79,7 +79,7 @@ export async function POST(request: NextRequest, { params }: Params) {
       clientFirstName: "Jean",
       clientLastName: "Dupont",
       establishmentName: hotel,
-      roomName: "Chambre Standard",
+      roomName: "Place Standard",
       checkInDate: "15 juillet 2025",
       checkOutDate: "17 juillet 2025",
       accessCode,

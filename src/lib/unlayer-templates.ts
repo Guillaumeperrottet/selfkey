@@ -90,7 +90,7 @@ export const defaultUnlayerTemplates = {
                       
                       <div style="background-color: #ffffff; padding: 20px; border: 1px solid #e0e0e0; border-radius: 8px; margin: 20px 0;">
                         <h3 style="color: #3554c1; margin-top: 0; margin-bottom: 15px;">📋 Détails de votre réservation</h3>
-                        <p style="margin: 8px 0; font-size: 15px;"><strong>Chambre :</strong> {roomName}</p>
+                        <p style="margin: 8px 0; font-size: 15px;"><strong>Place :</strong> {roomName}</p>
                         <p style="margin: 8px 0; font-size: 15px;"><strong>Arrivée :</strong> {checkInDate}</p>
                         <p style="margin: 8px 0; font-size: 15px;"><strong>Départ :</strong> {checkOutDate}</p>
                         <p style="margin: 8px 0; font-size: 15px;"><strong>Code d'accès :</strong> <span style="background: #3554c1; color: white; padding: 4px 8px; border-radius: 4px; font-weight: bold;">{accessCode}</span></p>
@@ -182,7 +182,7 @@ export const defaultUnlayerTemplates = {
                       
                       <div style="background-color: #ffffff; padding: 20px; border: 1px solid #e0e0e0; border-radius: 8px; margin: 20px 0;">
                         <h3 style="color: #3554c1; margin-top: 0; margin-bottom: 15px;">📋 Details Ihrer Reservierung</h3>
-                        <p style="margin: 8px 0; font-size: 15px;"><strong>Zimmer :</strong> {roomName}</p>
+                        <p style="margin: 8px 0; font-size: 15px;"><strong>Platz :</strong> {roomName}</p>
                         <p style="margin: 8px 0; font-size: 15px;"><strong>Ankunft :</strong> {checkInDate}</p>
                         <p style="margin: 8px 0; font-size: 15px;"><strong>Abreise :</strong> {checkOutDate}</p>
                         <p style="margin: 8px 0; font-size: 15px;"><strong>Zugangscode :</strong> <span style="background: #3554c1; color: white; padding: 4px 8px; border-radius: 4px; font-weight: bold;">{accessCode}</span></p>
@@ -354,7 +354,7 @@ export const defaultUnlayerTemplates = {
                       
                       <div style="background-color: #f1f8e9; padding: 20px; border-radius: 8px; margin: 20px 0; border-left: 4px solid #4caf50;">
                         <h3 style="color: #2d7d32; margin-top: 0; margin-bottom: 15px;">📋 Détails de votre réservation</h3>
-                        <p style="margin: 8px 0; font-size: 15px;"><strong>Chambre :</strong> {roomName}</p>
+                        <p style="margin: 8px 0; font-size: 15px;"><strong>Place :</strong> {roomName}</p>
                         <p style="margin: 8px 0; font-size: 15px;"><strong>Arrivée :</strong> {checkInDate}</p>
                         <p style="margin: 8px 0; font-size: 15px;"><strong>Départ :</strong> {checkOutDate}</p>
                         <p style="margin: 8px 0; font-size: 15px;"><strong>Code d'accès :</strong> <span style="background: #2d7d32; color: white; padding: 4px 8px; border-radius: 4px; font-weight: bold;">{accessCode}</span></p>
@@ -365,7 +365,6 @@ export const defaultUnlayerTemplates = {
                         <ul style="margin: 0; padding-left: 20px; font-size: 15px; line-height: 1.6;">
                           <li style="margin: 8px 0;">Veuillez tenir votre chien en laisse dans les zones communes</li>
                           <li style="margin: 8px 0;">Des sacs à déjections sont disponibles à l'accueil</li>
-                          <li style="margin: 8px 0;">Zone d'exercice pour chiens disponible</li>
                           <li style="margin: 8px 0;">Merci de respecter les autres clients</li>
                         </ul>
                       </div>
@@ -456,7 +455,7 @@ export const defaultUnlayerTemplates = {
                       
                       <div style="background-color: #f1f8e9; padding: 20px; border-radius: 8px; margin: 20px 0; border-left: 4px solid #4caf50;">
                         <h3 style="color: #2d7d32; margin-top: 0; margin-bottom: 15px;">📋 Details Ihrer Reservierung</h3>
-                        <p style="margin: 8px 0; font-size: 15px;"><strong>Zimmer :</strong> {roomName}</p>
+                        <p style="margin: 8px 0; font-size: 15px;"><strong>Platz :</strong> {roomName}</p>
                         <p style="margin: 8px 0; font-size: 15px;"><strong>Ankunft :</strong> {checkInDate}</p>
                         <p style="margin: 8px 0; font-size: 15px;"><strong>Abreise :</strong> {checkOutDate}</p>
                         <p style="margin: 8px 0; font-size: 15px;"><strong>Zugangscode :</strong> <span style="background: #2d7d32; color: white; padding: 4px 8px; border-radius: 4px; font-weight: bold;">{accessCode}</span></p>
@@ -467,7 +466,6 @@ export const defaultUnlayerTemplates = {
                         <ul style="margin: 0; padding-left: 20px; font-size: 15px; line-height: 1.6;">
                           <li style="margin: 8px 0;">Bitte halten Sie Ihren Hund in den Gemeinschaftsbereichen an der Leine</li>
                           <li style="margin: 8px 0;">Kotbeutel sind an der Rezeption erhältlich</li>
-                          <li style="margin: 8px 0;">Hundeauslaufbereich verfügbar</li>
                           <li style="margin: 8px 0;">Bitte respektieren Sie die anderen Gäste</li>
                         </ul>
                       </div>
