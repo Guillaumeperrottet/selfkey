@@ -221,70 +221,84 @@ export function RoomFormModal({
           </div>
 
           {/* Aperçu des frais */}
-          {formData.price && parseFloat(formData.price) > 0 && !feesLoading && (
-            <Card className="bg-blue-50 border-blue-200">
-              <CardContent className="p-4">
-                <h4 className="font-medium text-blue-900 mb-2">
-                  💰 Aperçu de la répartition des revenus
-                </h4>
-                <div className="space-y-2 text-sm">
-                  <div className="flex justify-between">
-                    <span>Prix affiché :</span>
-                    <span className="font-medium">
-                      {parseFloat(formData.price).toFixed(2)} {currency}
-                    </span>
-                  </div>
+          {formData.price &&
+            parseFloat(formData.price) >= 0 &&
+            !feesLoading && (
+              <Card className="bg-blue-50 border-blue-200">
+                <CardContent className="p-4">
+                  <h4 className="font-medium text-blue-900 mb-2">
+                    💰 Aperçu de la répartition des revenus
+                  </h4>
 
-                  {/* Commission - seulement si > 0 */}
-                  {commissionRate > 0 && (
-                    <div className="flex justify-between text-red-600">
-                      <span>Commission SelfKey ({commissionRate}%) :</span>
+                  {/* Message spécial pour prix à 0 */}
+                  {parseFloat(formData.price) === 0 && (
+                    <div className="bg-amber-50 border border-amber-200 rounded p-3 mb-3">
+                      <p className="text-amber-800 text-sm">
+                        <strong>💡 Chambre gratuite :</strong> Parfait pour les
+                        paiements de taxes de séjour uniquement. Seules les
+                        taxes et frais optionnels seront facturés.
+                      </p>
+                    </div>
+                  )}
+
+                  <div className="space-y-2 text-sm">
+                    <div className="flex justify-between">
+                      <span>Prix affiché :</span>
+                      <span className="font-medium">
+                        {parseFloat(formData.price).toFixed(2)} {currency}
+                      </span>
+                    </div>
+
+                    {/* Commission - seulement si > 0 */}
+                    {commissionRate > 0 && (
+                      <div className="flex justify-between text-red-600">
+                        <span>Commission SelfKey ({commissionRate}%) :</span>
+                        <span>
+                          -
+                          {(
+                            (parseFloat(formData.price) * commissionRate) /
+                            100
+                          ).toFixed(2)}{" "}
+                          {currency}
+                        </span>
+                      </div>
+                    )}
+
+                    {/* Frais fixes - seulement si > 0 */}
+                    {fixedFee > 0 && (
+                      <div className="flex justify-between text-red-600">
+                        <span>Frais fixes SelfKey :</span>
+                        <span>
+                          -{fixedFee.toFixed(2)} {currency}
+                        </span>
+                      </div>
+                    )}
+
+                    {/* Si aucun frais SelfKey, afficher un message contextuel */}
+                    {commissionRate === 0 && fixedFee === 0 && (
+                      <div className="text-center text-muted-foreground italic py-2">
+                        (Aucun frais SelfKey configuré)
+                      </div>
+                    )}
+
+                    <div className="border-t pt-2 flex justify-between font-medium text-green-600">
+                      <span>Montant net :</span>
                       <span>
-                        -
-                        {(
-                          (parseFloat(formData.price) * commissionRate) /
-                          100
-                        ).toFixed(2)}{" "}
+                        {(() => {
+                          const calculation = calculateFees(
+                            parseFloat(formData.price),
+                            commissionRate / 100,
+                            fixedFee
+                          );
+                          return calculation.netAmount.toFixed(2);
+                        })()}{" "}
                         {currency}
                       </span>
                     </div>
-                  )}
-
-                  {/* Frais fixes - seulement si > 0 */}
-                  {fixedFee > 0 && (
-                    <div className="flex justify-between text-red-600">
-                      <span>Frais fixes SelfKey :</span>
-                      <span>
-                        -{fixedFee.toFixed(2)} {currency}
-                      </span>
-                    </div>
-                  )}
-
-                  {/* Si aucun frais SelfKey, afficher un message contextuel */}
-                  {commissionRate === 0 && fixedFee === 0 && (
-                    <div className="text-center text-muted-foreground italic py-2">
-                      (Aucun frais SelfKey configuré)
-                    </div>
-                  )}
-
-                  <div className="border-t pt-2 flex justify-between font-medium text-green-600">
-                    <span>Montant net :</span>
-                    <span>
-                      {(() => {
-                        const calculation = calculateFees(
-                          parseFloat(formData.price),
-                          commissionRate / 100,
-                          fixedFee
-                        );
-                        return calculation.netAmount.toFixed(2);
-                      })()}{" "}
-                      {currency}
-                    </span>
                   </div>
-                </div>
-              </CardContent>
-            </Card>
-          )}
+                </CardContent>
+              </Card>
+            )}
 
           {/* Boutons d'action */}
           <div className="flex justify-end gap-2 pt-4">

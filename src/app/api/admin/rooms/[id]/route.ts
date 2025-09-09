@@ -32,9 +32,9 @@ export async function PUT(request: NextRequest, { params }: Params) {
 
     if (price !== undefined) {
       const numPrice = parseFloat(price);
-      if (isNaN(numPrice) || numPrice <= 0) {
+      if (isNaN(numPrice) || numPrice < 0) {
         return NextResponse.json(
-          { error: "Le prix doit être un nombre positif" },
+          { error: "Le prix doit être un nombre positif ou égal à zéro" },
           { status: 400 }
         );
       }
