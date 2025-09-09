@@ -261,6 +261,12 @@ export function ClassicBookingPaymentForm({
   const options = {
     clientSecret: bookingData.clientSecret,
     appearance,
+    paymentMethodTypes: ["card", "apple_pay", "twint"],
+    paymentMethodConfiguration: {
+      applePay: {
+        merchantId: "pmd_1S5LTUA99kUqhk9kdHaO3kO8",
+      },
+    },
   };
 
   return (
@@ -280,10 +286,10 @@ export function ClassicBookingPaymentForm({
             </Button>
             <div className="flex-1">
               <h1 className="text-2xl font-bold text-gray-900 mb-2">
-                Finaliser votre réservation
+                Finalize réservation
               </h1>
               <p className="text-gray-600">
-                Paiement sécurisé par Stripe • Cartes • TWINT • Apple Pay
+                Paiement secure with Stripe • Cartes • TWINT • Apple Pay
               </p>
             </div>
             <div className="w-20"></div> {/* Spacer */}
@@ -300,7 +306,7 @@ export function ClassicBookingPaymentForm({
                     {bookingData.establishment.name}
                   </div>
                   <div className="text-sm text-gray-600">
-                    Chambre: {bookingData.room.name} • {duration} nuit
+                    Place: {bookingData.room.name} • {duration} night
                     {duration > 1 ? "s" : ""}
                   </div>
                 </div>
@@ -319,7 +325,7 @@ export function ClassicBookingPaymentForm({
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <CreditCard className="h-5 w-5" />
-              Informations de paiement
+              Informations of paiement
             </CardTitle>
           </CardHeader>
           <CardContent>
@@ -341,7 +347,7 @@ export function ClassicBookingPaymentForm({
             </div>
             <div className="flex items-center gap-2">
               <CreditCard className="h-4 w-4" />
-              <span>Visa, Mastercard, TWINT</span>
+              <span>Visa, Mastercard, Apple Pay, TWINT</span>
             </div>
           </div>
         </div>
