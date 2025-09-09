@@ -4,21 +4,8 @@ import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { Separator } from "@/components/ui/separator";
-import {
-  Calendar,
-  MapPin,
-  User,
-  Phone,
-  Mail,
-  CreditCard,
-  Shield,
-  Euro,
-  Car,
-  ArrowLeft,
-} from "lucide-react";
+import { CreditCard, Shield, ArrowLeft } from "lucide-react";
 import {
   Elements,
   useStripe,
@@ -216,15 +203,6 @@ export function ClassicBookingPaymentForm({
     router.push(`/${hotelSlug}`);
   };
 
-  const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString("fr-FR", {
-      weekday: "long",
-      year: "numeric",
-      month: "long",
-      day: "numeric",
-    });
-  };
-
   if (loading || isInitializing) {
     return (
       <div className="flex justify-center items-center min-h-96">
@@ -287,8 +265,8 @@ export function ClassicBookingPaymentForm({
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <div className="container mx-auto px-4 py-8 max-w-6xl">
-        {/* Header */}
+      <div className="container mx-auto px-4 py-8 max-w-2xl">
+        {/* Header simplifié */}
         <div className="text-center mb-8">
           <div className="flex items-center justify-between mb-4">
             <Button
@@ -300,7 +278,7 @@ export function ClassicBookingPaymentForm({
               <ArrowLeft className="h-4 w-4" />
               <span className="hidden sm:inline">Retour</span>
             </Button>
-            <div>
+            <div className="flex-1">
               <h1 className="text-2xl font-bold text-gray-900 mb-2">
                 Finaliser votre réservation
               </h1>
@@ -312,202 +290,59 @@ export function ClassicBookingPaymentForm({
           </div>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          {/* Formulaire de paiement */}
-          <div className="lg:col-span-2">
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <CreditCard className="h-5 w-5" />
-                  Informations de paiement
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <Elements stripe={stripePromise} options={options}>
-                  <StripePaymentFormContent
-                    paymentIntentId={paymentIntentId}
-                    hotelSlug={hotelSlug}
-                  />
-                </Elements>
-              </CardContent>
-            </Card>
-          </div>
-
-          {/* Résumé détaillé de la réservation */}
-          <div className="lg:col-span-1">
-            <Card className="sticky top-8">
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2 text-lg">
-                  <Euro className="h-5 w-5" />
-                  Résumé de votre réservation
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                {/* Détails du séjour */}
-                <div className="space-y-3">
-                  <div className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg">
-                    <MapPin className="h-5 w-5 text-gray-600" />
-                    <div className="flex-1">
-                      <div className="font-medium text-gray-900">
-                        {bookingData.establishment.name}
-                      </div>
-                      <div className="text-sm text-gray-600">
-                        Chambre: {bookingData.room.name}
-                      </div>
-                    </div>
-                    <Badge variant="secondary">
-                      {duration} nuit{duration > 1 ? "s" : ""}
-                    </Badge>
+        {/* Résumé simple avec juste l'essentiel */}
+        <div className="mb-6">
+          <Card>
+            <CardContent className="p-4">
+              <div className="flex items-center justify-between">
+                <div>
+                  <div className="font-semibold text-lg text-gray-900">
+                    {bookingData.establishment.name}
                   </div>
-
-                  <div className="grid grid-cols-1 gap-2">
-                    <div className="flex items-center gap-3 p-2 bg-gray-50 rounded-lg">
-                      <Calendar className="h-4 w-4 text-gray-600" />
-                      <div>
-                        <div className="text-sm font-medium text-gray-700">
-                          Arrivée
-                        </div>
-                        <div className="text-sm text-gray-900">
-                          {formatDate(bookingData.checkInDate)}
-                        </div>
-                      </div>
-                    </div>
-                    <div className="flex items-center gap-3 p-2 bg-gray-50 rounded-lg">
-                      <Calendar className="h-4 w-4 text-gray-600" />
-                      <div>
-                        <div className="text-sm font-medium text-gray-700">
-                          Départ
-                        </div>
-                        <div className="text-sm text-gray-900">
-                          {formatDate(bookingData.checkOutDate)}
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Invités */}
-                  <div className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg">
-                    <User className="h-5 w-5 text-gray-600" />
-                    <div className="flex-1">
-                      <div className="font-medium text-gray-700">Invités</div>
-                      <div className="text-sm text-gray-600">
-                        {bookingData.adults} adulte
-                        {bookingData.adults > 1 ? "s" : ""}
-                        {bookingData.children > 0 &&
-                          `, ${bookingData.children} enfant${bookingData.children > 1 ? "s" : ""}`}
-                      </div>
-                    </div>
+                  <div className="text-sm text-gray-600">
+                    Chambre: {bookingData.room.name} • {duration} nuit
+                    {duration > 1 ? "s" : ""}
                   </div>
                 </div>
-
-                <Separator />
-
-                {/* Informations client */}
-                <div className="space-y-2">
-                  <h4 className="font-medium text-gray-900">
-                    Informations client
-                  </h4>
-                  <div className="space-y-2 text-sm">
-                    <div className="flex items-center gap-2">
-                      <User className="h-4 w-4 text-gray-500" />
-                      <span>
-                        {bookingData.clientFirstName}{" "}
-                        {bookingData.clientLastName}
-                      </span>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <Mail className="h-4 w-4 text-gray-500" />
-                      <span>{bookingData.clientEmail}</span>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <Phone className="h-4 w-4 text-gray-500" />
-                      <span>{bookingData.clientPhone}</span>
-                    </div>
-                    {bookingData.clientVehicleNumber !== "Non renseigné" && (
-                      <div className="flex items-center gap-2">
-                        <Car className="h-4 w-4 text-gray-500" />
-                        <span>{bookingData.clientVehicleNumber}</span>
-                      </div>
-                    )}
+                <div className="text-right">
+                  <div className="text-2xl font-bold text-gray-900">
+                    {bookingData.amount} {bookingData.currency}
                   </div>
                 </div>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
 
-                <Separator />
+        {/* Formulaire de paiement centré */}
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <CreditCard className="h-5 w-5" />
+              Informations de paiement
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <Elements stripe={stripePromise} options={options}>
+              <StripePaymentFormContent
+                paymentIntentId={paymentIntentId}
+                hotelSlug={hotelSlug}
+              />
+            </Elements>
+          </CardContent>
+        </Card>
 
-                {/* Récapitulatif des prix */}
-                <div className="space-y-3">
-                  <div className="flex justify-between items-center">
-                    <span className="text-sm text-gray-600">
-                      Chambre ({duration} nuit{duration > 1 ? "s" : ""})
-                    </span>
-                    <span className="font-medium">
-                      {bookingData.room.price * duration} {bookingData.currency}
-                    </span>
-                  </div>
-
-                  {/* Options de pricing */}
-                  {bookingData.pricingOptionsTotal > 0 && (
-                    <div className="space-y-2">
-                      <div className="flex justify-between items-center">
-                        <span className="text-sm text-gray-600">
-                          Options supplémentaires
-                        </span>
-                        <span className="font-medium">
-                          +{bookingData.pricingOptionsTotal}{" "}
-                          {bookingData.currency}
-                        </span>
-                      </div>
-                    </div>
-                  )}
-
-                  {/* Taxe de séjour */}
-                  {bookingData.touristTaxTotal &&
-                    bookingData.touristTaxTotal > 0 && (
-                      <div className="flex justify-between items-center">
-                        <div>
-                          <span className="text-sm text-gray-600">
-                            Taxe de séjour
-                          </span>
-                          <div className="text-xs text-gray-500">
-                            {bookingData.adults} adulte
-                            {bookingData.adults > 1 ? "s" : ""} • {duration}{" "}
-                            nuit{duration > 1 ? "s" : ""}
-                            {bookingData.touristTaxPerPersonPerNight &&
-                              ` • ${bookingData.touristTaxPerPersonPerNight.toFixed(2)} ${bookingData.currency}/pers./nuit`}
-                          </div>
-                        </div>
-                        <span className="font-medium">
-                          +{bookingData.touristTaxTotal.toFixed(2)}{" "}
-                          {bookingData.currency}
-                        </span>
-                      </div>
-                    )}
-
-                  <Separator />
-
-                  <div className="flex justify-between items-center">
-                    <span className="font-semibold">Total</span>
-                    <span className="text-xl font-bold text-gray-900">
-                      {bookingData.amount} {bookingData.currency}
-                    </span>
-                  </div>
-                </div>
-
-                <Separator />
-
-                {/* Sécurité */}
-                <div className="space-y-2">
-                  <div className="flex items-center gap-2 text-sm text-gray-600">
-                    <Shield className="h-4 w-4" />
-                    <span>Paiement 100% sécurisé</span>
-                  </div>
-                  <div className="flex items-center gap-2 text-sm text-gray-600">
-                    <CreditCard className="h-4 w-4" />
-                    <span>Visa, Mastercard, TWINT</span>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
+        {/* Informations de sécurité en bas */}
+        <div className="mt-6 text-center">
+          <div className="flex items-center justify-center gap-4 text-sm text-gray-600">
+            <div className="flex items-center gap-2">
+              <Shield className="h-4 w-4" />
+              <span>Paiement 100% sécurisé</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <CreditCard className="h-4 w-4" />
+              <span>Visa, Mastercard, TWINT</span>
+            </div>
           </div>
         </div>
       </div>
