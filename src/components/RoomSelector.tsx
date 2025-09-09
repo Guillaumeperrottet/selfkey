@@ -57,7 +57,7 @@ export function RoomSelector({
 
         try {
           const response = await fetch(
-            `/api/establishments/${hotelSlug}/availability?checkInDate=${checkInDate}&checkOutDate=${checkOutDate}${hasDog ? "&hasDog=true" : ""}`
+            `/api/establishments/${hotelSlug}/availability?checkInDate=${checkInDate}&checkOutDate=${checkOutDate}${hasDog !== undefined ? `&hasDog=${hasDog}` : ""}`
           );
 
           toastUtils.dismiss(loadingToast);

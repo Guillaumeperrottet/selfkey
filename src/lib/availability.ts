@@ -145,16 +145,51 @@ export async function getAvailableRooms(
 ): Promise<AvailableRoom[]> {
   // Si pas de dates spécifiées, utiliser la logique actuelle (aujourd'hui)
   if (!checkInDate || !checkOutDate) {
-    return getAvailableRoomsToday(hotelSlug);
+    return getAvailableRoomsToday(hotelSlug, hasDog);
   }
 
-  // Récupérer les chambres actives de l'hôtel
+  // Vérifier si l'établissement a l'option chien activée
+  const establishment = await prisma.establishment.findUnique({
+    where: { slug: hotelSlug },
+    select: { enableDogOption: true },
+  });
+
+  // Préparer les filtres pour les chambres
+  const roomFilters: {
+    hotelSlug: string;
+    isActive: boolean;
+    allowDogs?: boolean;
+  } = {
+    hotelSlug,
+    isActive: true,
+  };
+
+  // Si l'option chien est activée dans l'établissement, filtrer selon le choix du client
+  if (establishment?.enableDogOption) {
+    console.log("DEBUG: Dog option is enabled for establishment");
+    if (hasDog === true) {
+      // Client avec chien : montrer seulement les chambres qui acceptent les chiens
+      roomFilters.allowDogs = true;
+      console.log(
+        "DEBUG: Client has dog - filtering for rooms that allow dogs"
+      );
+    } else if (hasDog === false) {
+      // Client sans chien : montrer seulement les chambres qui n'acceptent PAS les chiens
+      roomFilters.allowDogs = false;
+      console.log(
+        "DEBUG: Client has NO dog - filtering for rooms that do NOT allow dogs"
+      );
+    }
+    // Si hasDog est undefined, on ne filtre pas (affiche toutes les chambres)
+  } else {
+    console.log("DEBUG: Dog option is NOT enabled for establishment");
+  }
+
+  console.log("DEBUG: Room filters applied:", roomFilters);
+
+  // Récupérer les chambres actives de l'hôtel avec les filtres appropriés
   const rooms = await prisma.room.findMany({
-    where: {
-      hotelSlug,
-      isActive: true,
-      ...(hasDog ? { allowDogs: true } : {}),
-    },
+    where: roomFilters,
   });
 
   if (rooms.length === 0) {
@@ -189,17 +224,43 @@ export async function getAvailableRooms(
  * Version legacy pour la compatibilité - chambres disponibles aujourd'hui
  */
 async function getAvailableRoomsToday(
-  hotelSlug: string
+  hotelSlug: string,
+  hasDog?: boolean
 ): Promise<AvailableRoom[]> {
   const today = new Date();
   today.setHours(0, 0, 0, 0);
 
-  // Récupérer les chambres actives de l'hôtel
+  // Vérifier si l'établissement a l'option chien activée
+  const establishment = await prisma.establishment.findUnique({
+    where: { slug: hotelSlug },
+    select: { enableDogOption: true },
+  });
+
+  // Préparer les filtres pour les chambres
+  const roomFilters: {
+    hotelSlug: string;
+    isActive: boolean;
+    allowDogs?: boolean;
+  } = {
+    hotelSlug,
+    isActive: true,
+  };
+
+  // Si l'option chien est activée dans l'établissement, filtrer selon le choix du client
+  if (establishment?.enableDogOption) {
+    if (hasDog === true) {
+      // Client avec chien : montrer seulement les chambres qui acceptent les chiens
+      roomFilters.allowDogs = true;
+    } else if (hasDog === false) {
+      // Client sans chien : montrer seulement les chambres qui n'acceptent PAS les chiens
+      roomFilters.allowDogs = false;
+    }
+    // Si hasDog est undefined, on ne filtre pas (affiche toutes les chambres)
+  }
+
+  // Récupérer les chambres actives de l'hôtel avec les filtres appropriés
   const rooms = await prisma.room.findMany({
-    where: {
-      hotelSlug,
-      isActive: true,
-    },
+    where: roomFilters,
   });
 
   if (rooms.length === 0) {

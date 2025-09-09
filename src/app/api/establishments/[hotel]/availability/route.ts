@@ -17,6 +17,13 @@ export async function GET(request: NextRequest, context: Context) {
     const checkOutDate = searchParams.get("checkOutDate");
     const hasDog = searchParams.get("hasDog") === "true";
 
+    console.log("DEBUG: Availability request params:", {
+      checkInDate,
+      checkOutDate,
+      hasDog: searchParams.get("hasDog"),
+      hasDogParsed: hasDog,
+    });
+
     if (!checkInDate || !checkOutDate) {
       return NextResponse.json(
         { error: "checkInDate and checkOutDate are required" },
