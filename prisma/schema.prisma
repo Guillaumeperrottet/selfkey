@@ -140,6 +140,9 @@ model Establishment {
   showOnMap                           Boolean                 @default(true)
   confirmationEmailTemplateWithDog    String?
   confirmationEmailTemplateWithoutDog String?
+  confirmationEmailDesign             Json?
+  confirmationEmailDesignWithDog      Json?
+  confirmationEmailDesignWithoutDog   Json?
   hidePlatformFees                    Boolean                 @default(false)
   users                               UserEstablishment[]
   bookings                            Booking[]

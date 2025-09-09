@@ -11,7 +11,7 @@ interface Params {
 
 interface TestEmailRequest {
   testEmail: string;
-  templateType?: "normal" | "withDog"; // Nouveau paramètre pour choisir le type de template
+  templateType?: "general" | "withDogs"; // Types cohérents avec le front
   settings: {
     confirmationEmailTemplate: string;
     confirmationEmailTemplateWithDog?: string;
@@ -91,7 +91,7 @@ export async function POST(request: NextRequest, { params }: Params) {
     // Sélectionner le bon template selon le type demandé
     let emailTemplate: string;
     if (
-      templateType === "withDog" &&
+      templateType === "withDogs" &&
       settings.confirmationEmailTemplateWithDog
     ) {
       emailTemplate = settings.confirmationEmailTemplateWithDog;
@@ -131,7 +131,8 @@ export async function POST(request: NextRequest, { params }: Params) {
     }
 
     // Préparer le sujet selon le type de template
-    const templateTypeLabel = templateType === "withDog" ? " - Avec chien" : "";
+    const templateTypeLabel =
+      templateType === "withDogs" ? " - Avec chien" : "";
     const emailSubject = `Confirmation de réservation - Test${templateTypeLabel} (${hotel})`;
 
     // Envoyer l'email via Resend
