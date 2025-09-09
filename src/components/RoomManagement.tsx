@@ -5,7 +5,6 @@ import { useState, useEffect, useCallback } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import {
   Table,
   TableBody,
@@ -43,6 +42,7 @@ import {
 import { useEstablishmentFees } from "@/hooks/useEstablishmentFees";
 import { calculateFees } from "@/lib/fee-calculator";
 import { toastUtils } from "@/lib/toast-utils";
+import { RoomFormModal } from "@/components/modals/RoomFormModal";
 
 interface Room {
   id: string;
@@ -68,8 +68,7 @@ interface Props {
 
 export function RoomManagement({ hotelSlug, currency }: Props) {
   const [rooms, setRooms] = useState<Room[]>([]);
-  const [isLoading, setIsLoading] = useState(false);
-  const [showAddForm, setShowAddForm] = useState(false);
+  const [showRoomModal, setShowRoomModal] = useState(false);
   const [editingRoom, setEditingRoom] = useState<Room | null>(null);
   const [establishmentSettings, setEstablishmentSettings] = useState<{
     enableDogOption?: boolean;
@@ -88,13 +87,6 @@ export function RoomManagement({ hotelSlug, currency }: Props) {
     room: Room;
     bookingInfo: RoomBookingInfo | null;
   } | null>(null);
-
-  // Formulaire d'ajout/édition
-  const [formData, setFormData] = useState({
-    name: "",
-    price: "",
-    allowDogs: false,
-  });
 
   // États pour la recherche et le tri
   const [searchTerm, setSearchTerm] = useState("");
@@ -136,56 +128,24 @@ export function RoomManagement({ hotelSlug, currency }: Props) {
     loadEstablishmentSettings();
   }, [loadRooms, loadEstablishmentSettings]);
 
-  const resetForm = () => {
-    setFormData({ name: "", price: "", allowDogs: false });
-    setShowAddForm(false);
+  // Fonctions pour gérer les modales
+  const handleAddRoom = () => {
+    setEditingRoom(null);
+    setShowRoomModal(true);
+  };
+
+  const handleEditRoom = (room: Room) => {
+    setEditingRoom(room);
+    setShowRoomModal(true);
+  };
+
+  const handleModalClose = () => {
+    setShowRoomModal(false);
     setEditingRoom(null);
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setIsLoading(true);
-
-    const loadingToast = toastUtils.loading(
-      editingRoom ? "Modification en cours..." : "Création en cours..."
-    );
-
-    try {
-      const url = editingRoom
-        ? `/api/admin/rooms/${editingRoom.id}`
-        : "/api/admin/rooms";
-
-      const method = editingRoom ? "PUT" : "POST";
-
-      const body = editingRoom ? formData : { ...formData, hotelSlug };
-
-      const response = await fetch(url, {
-        method,
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(body),
-      });
-
-      const data = await response.json();
-
-      toastUtils.dismiss(loadingToast);
-
-      if (data.success) {
-        const entity = editingRoom ? "Place modifiée" : "Place créée";
-        toastUtils.crud.created(entity);
-        resetForm();
-        loadRooms();
-      } else {
-        toastUtils.error(data.error || "Erreur lors de la sauvegarde");
-      }
-    } catch (error) {
-      toastUtils.dismiss(loadingToast);
-      toastUtils.error("Erreur lors de la sauvegarde");
-      console.error("Erreur sauvegarde:", error);
-    } finally {
-      setIsLoading(false);
-    }
+  const handleModalSuccess = () => {
+    loadRooms(); // Recharger la liste des places
   };
 
   const checkRoomBookings = async (
@@ -282,13 +242,7 @@ export function RoomManagement({ hotelSlug, currency }: Props) {
   };
 
   const handleEdit = (room: Room) => {
-    setEditingRoom(room);
-    setFormData({
-      name: room.name,
-      price: room.price.toString(),
-      allowDogs: room.allowDogs || false,
-    });
-    setShowAddForm(true);
+    handleEditRoom(room);
   };
 
   const handleDelete = async (roomId: string, roomName: string) => {
@@ -403,7 +357,7 @@ export function RoomManagement({ hotelSlug, currency }: Props) {
             />
           </div>
           <Button
-            onClick={() => setShowAddForm(true)}
+            onClick={handleAddRoom}
             className="bg-primary hover:bg-primary/90"
           >
             <Plus className="h-4 w-4 mr-2" />
@@ -488,199 +442,16 @@ export function RoomManagement({ hotelSlug, currency }: Props) {
         </DialogContent>
       </Dialog>
 
-      {/* Formulaire d'ajout/édition */}
-      {showAddForm && (
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              {editingRoom ? (
-                <Edit className="h-5 w-5" />
-              ) : (
-                <Plus className="h-5 w-5" />
-              )}
-              {editingRoom ? "Modifier la place" : "Ajouter une nouvelle place"}
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <form onSubmit={handleSubmit} className="space-y-4">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <Label htmlFor="name">Nom de la place *</Label>
-                  <Input
-                    id="name"
-                    value={formData.name}
-                    onChange={(e) =>
-                      setFormData((prev) => ({ ...prev, name: e.target.value }))
-                    }
-                    placeholder="Ex: Place Standard, Suite Deluxe..."
-                    required
-                  />
-                </div>
-
-                <div className="space-y-2">
-                  <Label htmlFor="price">Prix ({currency}) *</Label>
-                  <Input
-                    id="price"
-                    type="number"
-                    value={formData.price}
-                    onChange={(e) =>
-                      setFormData((prev) => ({
-                        ...prev,
-                        price: e.target.value,
-                      }))
-                    }
-                    placeholder="120"
-                    min="1"
-                    step="0.01"
-                    required
-                  />
-                </div>
-
-                <div className="space-y-2">
-                  {establishmentSettings.enableDogOption ? (
-                    <>
-                      <div className="flex items-center space-x-2">
-                        <input
-                          id="allowDogs"
-                          type="checkbox"
-                          checked={formData.allowDogs}
-                          onChange={(e) =>
-                            setFormData((prev) => ({
-                              ...prev,
-                              allowDogs: e.target.checked,
-                            }))
-                          }
-                          className="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
-                        />
-                        <Label htmlFor="allowDogs">
-                          🐕 Cette place autorise les chiens
-                        </Label>
-                      </div>
-                      <p className="text-xs text-muted-foreground">
-                        Si activé, cette place sera proposée aux clients qui
-                        voyagent avec un chien
-                      </p>
-                    </>
-                  ) : (
-                    <div className="bg-gray-50 border border-gray-200 rounded-lg p-3">
-                      <div className="flex items-center space-x-2 text-gray-500">
-                        <input
-                          type="checkbox"
-                          disabled
-                          className="h-4 w-4 rounded border-gray-300 cursor-not-allowed opacity-50"
-                        />
-                        <Label className="text-sm opacity-50 cursor-not-allowed">
-                          🐕 Option chien désactivée
-                        </Label>
-                      </div>
-                      <p className="text-xs text-gray-500 mt-1">
-                        L&apos;option chien n&apos;est pas activée pour cet
-                        établissement. Allez dans les paramètres pour
-                        l&apos;activer.
-                      </p>
-                    </div>
-                  )}
-                </div>
-              </div>
-
-              {/* Aperçu en temps réel des frais */}
-              {formData.price &&
-                parseFloat(formData.price) > 0 &&
-                !feesLoading && (
-                  <div className="bg-muted/30 border border-muted rounded-lg p-4 space-y-3">
-                    <h4 className="font-medium text-sm text-foreground flex items-center gap-2">
-                      <span className="text-muted-foreground">💰</span>
-                      Aperçu des frais et revenus
-                    </h4>
-
-                    {(() => {
-                      const price = parseFloat(formData.price);
-                      const calculation = calculateFees(
-                        price,
-                        commissionRate / 100,
-                        fixedFee
-                      );
-
-                      return (
-                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
-                          {/* Prix affiché au client */}
-                          <div className="bg-background border border-border rounded-md p-3">
-                            <div className="font-medium text-foreground mb-1 flex items-center gap-1">
-                              <span className="text-muted-foreground">💳</span>
-                              Prix client
-                            </div>
-                            <div className="text-lg font-bold text-foreground">
-                              {price.toFixed(2)} {currency}
-                            </div>
-                            <div className="text-muted-foreground text-xs mt-1">
-                              Montant facturé
-                            </div>
-                          </div>
-
-                          {/* Frais SelfKey - Seulement si il y a des frais */}
-                          <div className="bg-background border border-border rounded-md p-3">
-                            <div className="font-medium text-foreground mb-1 flex items-center gap-1">
-                              <span className="text-muted-foreground">🏢</span>
-                              Frais SelfKey
-                            </div>
-                            {calculation.totalFees > 0 ? (
-                              <div className="space-y-1 text-muted-foreground">
-                                {/* Commission - seulement si > 0 */}
-                                {calculation.commission > 0 && (
-                                  <div className="flex justify-between">
-                                    <span>Commission ({commissionRate}%):</span>
-                                    <span>
-                                      {calculation.commission.toFixed(2)}{" "}
-                                      {currency}
-                                    </span>
-                                  </div>
-                                )}
-                                {/* Frais fixes - seulement si > 0 */}
-                                {calculation.fixedFee > 0 && (
-                                  <div className="flex justify-between">
-                                    <span>Frais fixes:</span>
-                                    <span>
-                                      {calculation.fixedFee.toFixed(2)}{" "}
-                                      {currency}
-                                    </span>
-                                  </div>
-                                )}
-                                <div className="flex justify-between font-medium text-foreground border-t border-border pt-1">
-                                  <span>Total:</span>
-                                  <span>
-                                    {calculation.totalFees.toFixed(2)}{" "}
-                                    {currency}
-                                  </span>
-                                </div>
-                              </div>
-                            ) : (
-                              <div className="text-lg font-bold text-foreground">
-                                0.00 {currency}
-                              </div>
-                            )}
-                          </div>
-                        </div>
-                      );
-                    })()}
-                  </div>
-                )}
-
-              <div className="flex gap-3 pt-4">
-                <Button type="submit" disabled={isLoading}>
-                  {isLoading
-                    ? "Sauvegarde..."
-                    : editingRoom
-                      ? "Modifier"
-                      : "Ajouter"}
-                </Button>
-                <Button type="button" variant="outline" onClick={resetForm}>
-                  Annuler
-                </Button>
-              </div>
-            </form>
-          </CardContent>
-        </Card>
-      )}
+      {/* Modal pour l'ajout/modification de place */}
+      <RoomFormModal
+        isOpen={showRoomModal}
+        onClose={handleModalClose}
+        onSuccess={handleModalSuccess}
+        editingRoom={editingRoom}
+        hotelSlug={hotelSlug}
+        currency={currency}
+        establishmentSettings={establishmentSettings}
+      />
 
       {/* Liste des places */}
       {rooms.length > 0 ? (
@@ -916,7 +687,6 @@ export function RoomManagement({ hotelSlug, currency }: Props) {
                             variant="outline"
                             size="sm"
                             onClick={() => handleDelete(room.id, room.name)}
-                            disabled={isLoading}
                             className="text-red-600 hover:text-red-700 border-muted hover:border-red-500/50"
                             title="Supprimer définitivement cette place"
                           >
@@ -961,7 +731,7 @@ export function RoomManagement({ hotelSlug, currency }: Props) {
             <p className="text-sm text-muted-foreground mb-4">
               Commencez par ajouter vos premières places
             </p>
-            <Button onClick={() => setShowAddForm(true)}>
+            <Button onClick={handleAddRoom}>
               <Plus className="h-4 w-4 mr-2" />
               Ajouter une place
             </Button>
