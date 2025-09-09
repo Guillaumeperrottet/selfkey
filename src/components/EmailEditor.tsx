@@ -19,6 +19,7 @@ import {
 } from "lucide-react";
 import { EditorRef } from "react-email-editor";
 import { getDefaultTemplate, TemplateType } from "@/lib/unlayer-templates";
+import { toastUtils } from "@/lib/toast-utils";
 
 // Import dynamique pour éviter les problèmes SSR
 const EmailEditorComponent = dynamic(() => import("react-email-editor"), {
@@ -183,15 +184,10 @@ export function EmailEditor({
     const editor = emailEditorRef.current?.editor;
     if (!editor || !editor.loadDesign) return;
 
-    if (
-      confirm(
-        "Êtes-vous sûr de vouloir réinitialiser l'éditeur ? Toutes les modifications non sauvegardées seront perdues."
-      )
-    ) {
-      // Recharger le template par défaut
-      const defaultTemplate = getDefaultTemplate(templateType || "general");
-      editor.loadDesign(defaultTemplate);
-    }
+    // Recharger le template par défaut
+    const defaultTemplate = getDefaultTemplate(templateType || "general");
+    editor.loadDesign(defaultTemplate);
+    toastUtils.success("Éditeur réinitialisé avec le template par défaut");
   }, [templateType]);
 
   const handleLoadDefaultTemplate = useCallback(() => {
@@ -200,15 +196,10 @@ export function EmailEditor({
     const editor = emailEditorRef.current?.editor;
     if (!editor) return;
 
-    if (
-      confirm(
-        "Charger le template par défaut ? Toutes les modifications non sauvegardées seront perdues."
-      )
-    ) {
-      const defaultTemplate = getDefaultTemplate(templateType);
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      editor.loadDesign(defaultTemplate as any);
-    }
+    const defaultTemplate = getDefaultTemplate(templateType);
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    editor.loadDesign(defaultTemplate as any);
+    toastUtils.success("Template par défaut chargé avec succès !");
   }, [templateType]);
 
   return (
