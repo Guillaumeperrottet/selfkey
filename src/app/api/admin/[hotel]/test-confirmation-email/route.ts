@@ -135,33 +135,13 @@ export async function POST(request: NextRequest, { params }: Params) {
       templateType === "withDogs" ? " - Avec chien" : "";
     const emailSubject = `Confirmation de réservation - Test${templateTypeLabel} (${hotel})`;
 
-    // Envoyer l'email via Resend
+    // Envoyer l'email via Resend - HTML pur d'Unlayer sans wrapper
     const emailResult = await sendEmail({
       to: testEmail,
       from: settings.confirmationEmailFrom,
       subject: emailSubject,
       bcc: bccAddresses.length > 0 ? bccAddresses : undefined,
-      html: `
-        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
-          <div style="background-color: #f8f9fa; padding: 15px; border-radius: 8px; margin-bottom: 20px;">
-            <h2 style="color: #1976d2; margin: 0 0 10px 0;">📧 Email de test - Confirmation de réservation</h2>
-            <p style="margin: 0; color: #666; font-size: 14px;">
-              Ceci est un email de test envoyé depuis votre panneau d'administration SelfKey.
-            </p>
-          </div>
-          
-          <div style="background-color: white; padding: 20px; border: 1px solid #e0e0e0; border-radius: 8px;">
-            ${htmlContent}
-          </div>
-          
-          <div style="margin-top: 20px; padding: 15px; background-color: #f0f7ff; border-radius: 8px; border-left: 4px solid #1976d2;">
-            <p style="margin: 0; font-size: 12px; color: #666;">
-              <strong>Note :</strong> Cet email a été généré automatiquement par SelfKey avec des données d'exemple. 
-              Vos vrais emails de confirmation auront les vraies informations de réservation.
-            </p>
-          </div>
-        </div>
-      `,
+      html: htmlContent, // HTML pur généré par Unlayer
     });
 
     if (!emailResult.success) {
