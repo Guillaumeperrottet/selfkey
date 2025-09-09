@@ -306,7 +306,12 @@ export function ClassicBookingPaymentForm({
                 </div>
                 <div className="text-right">
                   <div className="text-2xl font-bold text-gray-900">
-                    {bookingData.amount} {bookingData.currency}
+                    {(
+                      bookingData.amount +
+                      (bookingData.pricingOptionsTotal || 0) +
+                      (bookingData.touristTaxTotal || 0)
+                    ).toFixed(2)}{" "}
+                    {bookingData.currency}
                   </div>
                 </div>
               </div>
