@@ -25,9 +25,7 @@ interface ClassicBookingData {
   clientPhone: string;
   clientVehicleNumber: string;
   selectedDuration: string;
-  amount: number; // Montant final avec frais de plateforme
-  baseAmount?: number; // Montant de base sans frais
-  platformFeesTotal?: number; // Total des frais de plateforme
+  amount: number;
   currency: string;
   checkInDate: string;
   checkOutDate: string;
