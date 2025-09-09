@@ -85,74 +85,70 @@ model UserEstablishment {
 }
 
 model Establishment {
-  id                            String                  @id @default(cuid())
-  slug                          String                  @unique
-  name                          String
-  stripeAccountId               String?
-  stripeOnboarded               Boolean                 @default(false)
-  commissionRate                Float                   @default(0)
-  fixedFee                      Float                   @default(3.00)
-  createdAt                     DateTime                @default(now())
-  
-  // Géolocalisation
-  address                       String?
-  city                          String?
-  postalCode                    String?
-  country                       String?                 @default("Switzerland")
-  latitude                      Float?
-  longitude                     Float?
-  
-  // Informations pour la carte
-  mapTitle                      String?                 // Titre affiché sur la carte
-  mapDescription                String?                 // Description brève pour la carte
-  mapImage                      String?                 // URL de l'image pour la carte
-  showOnMap                     Boolean                 @default(true) // Afficher sur la carte publique
-  
-  accessCodeType                String                  @default("room")
-  accessInstructions            String?
-  generalAccessCode             String?
-  maxBookingDays                Int                     @default(4)
-  confirmationEmailEnabled       Boolean                 @default(true)
-  confirmationEmailFrom          String?
-  confirmationEmailTemplate      String?
+  id                                  String                  @id @default(cuid())
+  slug                                String                  @unique
+  name                                String
+  stripeAccountId                     String?
+  stripeOnboarded                     Boolean                 @default(false)
+  commissionRate                      Float                   @default(0)
+  fixedFee                            Float                   @default(3.00)
+  createdAt                           DateTime                @default(now())
+  accessCodeType                      String                  @default("room")
+  accessInstructions                  String?
+  generalAccessCode                   String?
+  maxBookingDays                      Int                     @default(4)
+  confirmationEmailEnabled            Boolean                 @default(true)
+  confirmationEmailFrom               String?
+  confirmationEmailTemplate           String?
+  confirmationWhatsappEnabled         Boolean                 @default(false)
+  confirmationWhatsappFrom            String?
+  confirmationWhatsappTemplate        String?
+  allowFutureBookings                 Boolean                 @default(false)
+  cutoffTime                          String?                 @default("22:00")
+  enableCutoffTime                    Boolean                 @default(false)
+  reopenTime                          String?                 @default("00:00")
+  hotelContactEmail                   String?
+  hotelContactPhone                   String?
+  dayParkingTarif1h                   Float?                  @default(5.00)
+  dayParkingTarif2h                   Float?                  @default(8.00)
+  dayParkingTarif3h                   Float?                  @default(12.00)
+  dayParkingTarif4h                   Float?                  @default(15.00)
+  dayParkingTarifFullDay              Float?                  @default(35.00)
+  dayParkingTarifHalfDay              Float?                  @default(20.00)
+  enableDayParking                    Boolean                 @default(false)
+  dayParkingCommissionRate            Float                   @default(5.0)
+  dayParkingEmailTemplate             String?
+  formConfig                          Json?                   @default("{}")
+  checkinTime                         String?                 @default("12:05")
+  checkoutTime                        String?                 @default("12:00")
+  parkingOnlyMode                     Boolean                 @default(false)
+  touristTaxAmount                    Float                   @default(3.00)
+  touristTaxEnabled                   Boolean                 @default(true)
+  dayParkingFixedFee                  Float                   @default(0.00)
+  enableDogOption                     Boolean                 @default(false)
+  enableEmailCopyOnConfirmation       Boolean                 @default(false)
+  emailCopyAddresses                  String[]
+  address                             String?
+  city                                String?
+  country                             String?                 @default("Switzerland")
+  latitude                            Float?
+  longitude                           Float?
+  postalCode                          String?
+  mapDescription                      String?
+  mapImage                            String?
+  mapTitle                            String?
+  showOnMap                           Boolean                 @default(true)
   confirmationEmailTemplateWithDog    String?
   confirmationEmailTemplateWithoutDog String?
-  confirmationWhatsappEnabled    Boolean                 @default(false)
-  confirmationWhatsappFrom       String?
-  confirmationWhatsappTemplate   String?
-  allowFutureBookings           Boolean                 @default(false)
-  cutoffTime                    String?                 @default("22:00")
-  enableCutoffTime              Boolean                 @default(false)
-  reopenTime                    String?                 @default("00:00")
-  hotelContactEmail             String?
-  hotelContactPhone             String?
-  dayParkingTarif1h             Float?                  @default(5.00)
-  dayParkingTarif2h             Float?                  @default(8.00)
-  dayParkingTarif3h             Float?                  @default(12.00)
-  dayParkingTarif4h             Float?                  @default(15.00)
-  dayParkingTarifFullDay        Float?                  @default(35.00)
-  dayParkingTarifHalfDay        Float?                  @default(20.00)
-  enableDayParking              Boolean                 @default(false)
-  dayParkingCommissionRate      Float                   @default(5.0)
-  dayParkingEmailTemplate       String?
-  formConfig                    Json?                   @default("{}")
-  checkinTime                   String?                 @default("12:05")
-  checkoutTime                  String?                 @default("12:00")
-  parkingOnlyMode               Boolean                 @default(false)
-  touristTaxAmount              Float                   @default(3.00)
-  touristTaxEnabled             Boolean                 @default(true)
-  dayParkingFixedFee            Float                   @default(0.00)
-  enableDogOption               Boolean                 @default(false)
-  enableEmailCopyOnConfirmation Boolean                 @default(false)
-  emailCopyAddresses            String[]
-  users                         UserEstablishment[]
-  bookings                      Booking[]
-  transfers                     EstablishmentTransfer[]
-  excelExports                  ExcelExportHistory[]
-  integrations                  Integration[]
-  pricingOptions                PricingOption[]
-  rooms                         Room[]
-  emailImages                   EmailImage[]
+  hidePlatformFees                    Boolean                 @default(false)
+  users                               UserEstablishment[]
+  bookings                            Booking[]
+  emailImages                         EmailImage[]
+  transfers                           EstablishmentTransfer[]
+  excelExports                        ExcelExportHistory[]
+  integrations                        Integration[]
+  pricingOptions                      PricingOption[]
+  rooms                               Room[]
 
   @@map("establishments")
 }

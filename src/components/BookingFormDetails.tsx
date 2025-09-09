@@ -18,6 +18,11 @@ import { toastUtils } from "@/lib/toast-utils";
 import { calculateStayDuration } from "@/lib/availability";
 import { useFormConfig } from "@/hooks/useFormConfig";
 import { calculateTouristTax } from "@/lib/fee-calculator";
+import {
+  calculatePricingOptionsTotal,
+  fetchPricingOptions,
+  type PricingOption,
+} from "@/lib/pricing-options-calculator";
 
 interface Room {
   id: string;
@@ -117,6 +122,10 @@ export function BookingFormDetails({
   const [touristTaxAmount, setTouristTaxAmount] = useState(3.0);
   const [touristTaxTotal, setTouristTaxTotal] = useState(0);
 
+  // États pour les options de prix
+  const [pricingOptions, setPricingOptions] = useState<PricingOption[]>([]);
+  const [pricingOptionsTotal, setPricingOptionsTotal] = useState(0);
+
   const [bookingInProgress, setBookingInProgress] = useState(false);
 
   const duration = calculateStayDuration(
@@ -167,6 +176,33 @@ export function BookingFormDetails({
     );
     setTouristTaxTotal(taxCalculation.totalTax);
   }, [adults, duration, touristTaxEnabled, touristTaxAmount]);
+
+  // Charger les options de prix
+  useEffect(() => {
+    const loadPricingOptions = async () => {
+      try {
+        const options = await fetchPricingOptions(hotelSlug);
+        setPricingOptions(options);
+      } catch (error) {
+        console.error("Erreur lors du chargement des options de prix:", error);
+      }
+    };
+
+    loadPricingOptions();
+  }, [hotelSlug]);
+
+  // Calculer le total des options de prix sélectionnées
+  useEffect(() => {
+    if (initialSelectedPricingOptions && pricingOptions.length > 0) {
+      const total = calculatePricingOptionsTotal(
+        initialSelectedPricingOptions,
+        pricingOptions
+      );
+      setPricingOptionsTotal(total);
+    } else {
+      setPricingOptionsTotal(0);
+    }
+  }, [initialSelectedPricingOptions, pricingOptions]);
 
   const handleConfirmBooking = async () => {
     // Validation des champs obligatoires
@@ -276,7 +312,8 @@ export function BookingFormDetails({
     const loadingToast = toastUtils.loading("Creating your booking...");
 
     try {
-      const totalPrice = selectedRoom.price * duration + touristTaxTotal;
+      const totalPrice =
+        selectedRoom.price * duration + pricingOptionsTotal + touristTaxTotal;
 
       const bookingData = {
         hotelSlug,
@@ -302,6 +339,7 @@ export function BookingFormDetails({
         amount: totalPrice,
         currency: "CHF",
         selectedPricingOptions: initialSelectedPricingOptions || {},
+        pricingOptionsTotal,
         touristTaxTotal,
         touristTaxPerPersonPerNight: touristTaxAmount,
         guests: adults + children,

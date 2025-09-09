@@ -23,6 +23,7 @@ export async function GET(
         touristTaxEnabled: true,
         touristTaxAmount: true,
         enableDogOption: true,
+        hidePlatformFees: true,
       },
     });
 
@@ -73,6 +74,7 @@ export async function PUT(
       touristTaxEnabled,
       touristTaxAmount,
       enableDogOption,
+      hidePlatformFees,
     } = body;
 
     // Validation
@@ -175,6 +177,7 @@ export async function PUT(
         touristTaxEnabled: touristTaxEnabled ?? true,
         touristTaxAmount: touristTaxAmount || 3.0,
         enableDogOption: enableDogOption ?? false,
+        hidePlatformFees: hidePlatformFees ?? false,
       },
       select: {
         id: true,
@@ -189,6 +192,7 @@ export async function PUT(
         touristTaxEnabled: true,
         touristTaxAmount: true,
         enableDogOption: true,
+        hidePlatformFees: true,
       },
     });
 

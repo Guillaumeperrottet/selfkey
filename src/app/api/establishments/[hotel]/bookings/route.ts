@@ -194,13 +194,47 @@ export async function POST(
     const calculatedPrice =
       basePrice + validatedPricingOptionsTotal + touristTaxCalculation.totalTax;
 
-    // Vérifier que le prix correspond
-    if (expectedPrice !== calculatedPrice) {
+    // Calculer les commissions sur le prix de base (avant frais de plateforme)
+    const platformCommission = Math.round(
+      (calculatedPrice * establishment.commissionRate) / 100 +
+        establishment.fixedFee
+    );
+
+    // Le prix final que paie le client inclut les frais de plateforme
+    const finalPrice = calculatedPrice + platformCommission;
+
+    console.log("=== DEBUG PRICE CALCULATION ===");
+    console.log("Base price (room * nights):", basePrice);
+    console.log(
+      "Validated pricing options total:",
+      validatedPricingOptionsTotal
+    );
+    console.log("Tourist tax total:", touristTaxCalculation.totalTax);
+    console.log("Calculated price (without platform fees):", calculatedPrice);
+    console.log("Platform commission:", platformCommission);
+    console.log("Final price (with platform fees):", finalPrice);
+    console.log("Expected price (frontend):", expectedPrice);
+    console.log("Selected pricing options:", selectedPricingOptions);
+    console.log("==================================");
+
+    // Vérifier que le prix correspond (avec tolérance pour les arrondis)
+    const priceDifference = Math.abs(expectedPrice - calculatedPrice);
+    const tolerance = 0.01; // Tolérance de 1 centime pour les arrondis
+
+    if (priceDifference > tolerance) {
       return NextResponse.json(
         {
           error: "Prix incorrect",
           expected: calculatedPrice,
           received: expectedPrice,
+          difference: priceDifference,
+          breakdown: {
+            basePrice,
+            validatedPricingOptionsTotal,
+            touristTaxTotal: touristTaxCalculation.totalTax,
+            platformCommission,
+            finalPrice,
+          },
         },
         { status: 400 }
       );
@@ -231,17 +265,14 @@ export async function POST(
       );
     }
 
-    // Calculer les commissions
-    const platformCommission = Math.round(
-      (calculatedPrice * establishment.commissionRate) / 100 +
-        establishment.fixedFee
-    );
+    // Le ownerAmount est basé sur le prix sans frais de plateforme
     const ownerAmount = calculatedPrice - platformCommission;
 
     // Créer le Payment Intent Stripe AVANT la réservation (pour éviter les réservations fantômes)
+    // Le client paie le prix final (incluant les frais de plateforme)
     // Stocker toutes les données dans les metadata pour création après paiement
     const paymentIntent = await createPaymentIntentWithCommission(
-      calculatedPrice,
+      finalPrice, // Le client paie le prix final
       "chf", // Devise par défaut
       establishment.stripeAccountId,
       establishment.commissionRate,
@@ -269,7 +300,7 @@ export async function POST(
         adults: adults.toString(),
         children: children.toString(),
         guests: (adults + children).toString(),
-        amount: calculatedPrice.toString(),
+        amount: finalPrice.toString(),
         platform_commission: platformCommission.toString(),
         owner_amount: ownerAmount.toString(),
         selected_pricing_options: JSON.stringify(selectedPricingOptions || {}),

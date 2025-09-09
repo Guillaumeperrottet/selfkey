@@ -119,6 +119,9 @@ export function BookingSummary({ bookingId }: BookingSummaryProps) {
     total: number;
   }>({ fixedFee: 0, commission: 0, total: 0 });
 
+  // État pour masquer les frais de plateforme
+  const [hidePlatformFees, setHidePlatformFees] = useState<boolean>(false);
+
   // Liste des pays avec codes ISO
   const countries = [
     { name: "Suisse", code: "CH" },
@@ -146,6 +149,26 @@ export function BookingSummary({ bookingId }: BookingSummaryProps) {
   useEffect(() => {
     toastUtils.dismissAll();
   }, []);
+
+  // Charger les paramètres de l'établissement
+  useEffect(() => {
+    if (booking) {
+      const loadEstablishmentSettings = async () => {
+        try {
+          const settingsResponse = await fetch(
+            `/api/establishments/${booking.hotelSlug}/settings`
+          );
+          if (settingsResponse.ok) {
+            const settingsData = await settingsResponse.json();
+            setHidePlatformFees(settingsData.hidePlatformFees || false);
+          }
+        } catch (error) {
+          console.error("Erreur lors du chargement des paramètres:", error);
+        }
+      };
+      loadEstablishmentSettings();
+    }
+  }, [booking]);
 
   useEffect(() => {
     const loadBooking = async () => {
@@ -1018,7 +1041,7 @@ export function BookingSummary({ bookingId }: BookingSummaryProps) {
                 )}
 
                 {/* Platform Fees - SelfKey */}
-                {platformFees.total > 0 && (
+                {!hidePlatformFees && platformFees.total > 0 && (
                   <div className="flex justify-between items-center">
                     <span className="text-sm text-gray-600">
                       Frais Plateforme
@@ -1035,7 +1058,8 @@ export function BookingSummary({ bookingId }: BookingSummaryProps) {
               <div className="flex justify-between items-center">
                 <span className="text-base font-semibold">Total</span>
                 <span className="text-xl font-bold text-gray-900">
-                  {booking.amount} {booking.currency}
+                  {(booking.amount + platformFees.total).toFixed(2)}{" "}
+                  {booking.currency}
                 </span>
               </div>
 

@@ -62,6 +62,9 @@ export function SettingsManager({ hotelSlug }: SettingsManagerProps) {
   // État pour l'option chien
   const [enableDogOption, setEnableDogOption] = useState<boolean>(false);
 
+  // État pour masquer les frais de plateforme
+  const [hidePlatformFees, setHidePlatformFees] = useState<boolean>(false);
+
   // Active tab state
   const [activeTab, setActiveTab] = useState("booking");
 
@@ -85,6 +88,7 @@ export function SettingsManager({ hotelSlug }: SettingsManagerProps) {
           setTouristTaxEnabled(data.touristTaxEnabled ?? true);
           setTouristTaxAmount(data.touristTaxAmount || 3.0);
           setEnableDogOption(data.enableDogOption || false);
+          setHidePlatformFees(data.hidePlatformFees || false);
         } else {
           toastUtils.error("Erreur lors du chargement des paramètres");
         }
@@ -144,6 +148,7 @@ export function SettingsManager({ hotelSlug }: SettingsManagerProps) {
             touristTaxEnabled,
             touristTaxAmount,
             enableDogOption,
+            hidePlatformFees,
           }),
         }
       );
@@ -478,6 +483,47 @@ export function SettingsManager({ hotelSlug }: SettingsManagerProps) {
                         <>
                           <strong>ℹ️ Option désactivée :</strong> Aucune option
                           relative aux chiens lors des réservations.
+                        </>
+                      )}
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              <Separator />
+
+              {/* Frais de plateforme */}
+              <div className="space-y-3">
+                <div className="flex items-center gap-2">
+                  <DollarSign className="h-4 w-4 text-green-500" />
+                  <Label className="font-medium">Frais de plateforme</Label>
+                </div>
+                <div className="space-y-3">
+                  <div className="flex items-center space-x-3">
+                    <Switch
+                      id="hidePlatformFees"
+                      checked={hidePlatformFees}
+                      onCheckedChange={setHidePlatformFees}
+                    />
+                    <Label htmlFor="hidePlatformFees" className="text-sm">
+                      Masquer les frais de plateforme et les inclure dans le
+                      prix de base
+                    </Label>
+                  </div>
+                  <div className="ml-6 p-3 rounded-lg bg-green-50">
+                    <p className="text-sm text-green-800">
+                      {hidePlatformFees ? (
+                        <>
+                          <strong>💰 Frais masqués :</strong> Les frais de
+                          plateforme sont inclus dans le prix affiché sans ligne
+                          séparée. Le client voit un prix &quot;tout
+                          compris&quot;.
+                        </>
+                      ) : (
+                        <>
+                          <strong>📋 Frais visibles :</strong> Les frais de
+                          plateforme sont affichés séparément dans le
+                          récapitulatif de commande pour plus de transparence.
                         </>
                       )}
                     </p>
