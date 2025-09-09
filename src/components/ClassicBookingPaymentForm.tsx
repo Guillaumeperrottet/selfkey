@@ -261,12 +261,7 @@ export function ClassicBookingPaymentForm({
   const options = {
     clientSecret: bookingData.clientSecret,
     appearance,
-    paymentMethodTypes: ["card", "apple_pay", "twint"],
-    paymentMethodConfiguration: {
-      applePay: {
-        merchantId: "pmd_1S5LTUA99kUqhk9kdHaO3kO8",
-      },
-    },
+    paymentMethodTypes: ["card", "twint"], // Apple Pay s'ajoute automatiquement si disponible
   };
 
   return (
