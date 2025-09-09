@@ -164,6 +164,22 @@ export function DateSelector({
       return;
     }
 
+    // Valider les options de prix obligatoires
+    for (const option of pricingOptions) {
+      if (option.isRequired) {
+        const selectedValue = selectedPricingOptions[option.id];
+
+        if (
+          !selectedValue ||
+          (Array.isArray(selectedValue) && selectedValue.length === 0) ||
+          (typeof selectedValue === "string" && selectedValue.trim() === "")
+        ) {
+          toastUtils.error(`L'option "${option.name}" est obligatoire`);
+          return;
+        }
+      }
+    }
+
     if (!checkOutDate) {
       toastUtils.error("Veuillez sélectionner la date de départ");
       return;
