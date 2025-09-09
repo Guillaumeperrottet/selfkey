@@ -38,6 +38,9 @@ export async function GET(request: Request, { params }: Props) {
             confirmationEmailTemplate: true,
             confirmationEmailTemplateWithDog: true,
             confirmationEmailTemplateWithoutDog: true,
+            confirmationEmailDesign: true,
+            confirmationEmailDesignWithDog: true,
+            confirmationEmailDesignWithoutDog: true,
             confirmationWhatsappTemplate: true,
             hotelContactEmail: true,
             hotelContactPhone: true,
@@ -100,6 +103,9 @@ export async function POST(request: Request, { params }: Props) {
       confirmationEmailTemplate,
       confirmationEmailTemplateWithDog,
       confirmationEmailTemplateWithoutDog,
+      confirmationEmailDesign,
+      confirmationEmailDesignWithDog,
+      confirmationEmailDesignWithoutDog,
       confirmationWhatsappTemplate,
       hotelContactEmail,
       hotelContactPhone,
@@ -161,6 +167,10 @@ export async function POST(request: Request, { params }: Props) {
           confirmationEmailTemplateWithDog?.trim() || null,
         confirmationEmailTemplateWithoutDog:
           confirmationEmailTemplateWithoutDog?.trim() || null,
+        confirmationEmailDesign: confirmationEmailDesign || null,
+        confirmationEmailDesignWithDog: confirmationEmailDesignWithDog || null,
+        confirmationEmailDesignWithoutDog:
+          confirmationEmailDesignWithoutDog || null,
         confirmationWhatsappTemplate:
           confirmationWhatsappTemplate?.trim() || null,
         hotelContactEmail: hotelContactEmail?.trim() || null,
