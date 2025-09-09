@@ -88,7 +88,7 @@ export const defaultUnlayerTemplates = {
                         Votre réservation n° <strong>{bookingNumber}</strong> à <strong>{establishmentName}</strong> a été confirmée avec succès !
                       </p>
                       
-                      <div style="background-color: #f8f9fa; padding: 20px; border-radius: 8px; margin: 20px 0;">
+                      <div style="background-color: #ffffff; padding: 20px; border: 1px solid #e0e0e0; border-radius: 8px; margin: 20px 0;">
                         <h3 style="color: #3554c1; margin-top: 0; margin-bottom: 15px;">📋 Détails de votre réservation</h3>
                         <p style="margin: 8px 0; font-size: 15px;"><strong>Chambre :</strong> {roomName}</p>
                         <p style="margin: 8px 0; font-size: 15px;"><strong>Arrivée :</strong> {checkInDate}</p>
@@ -96,7 +96,7 @@ export const defaultUnlayerTemplates = {
                         <p style="margin: 8px 0; font-size: 15px;"><strong>Code d'accès :</strong> <span style="background: #3554c1; color: white; padding: 4px 8px; border-radius: 4px; font-weight: bold;">{accessCode}</span></p>
                       </div>
                       
-                      <div style="background-color: #e8f4f8; padding: 20px; border-radius: 8px; margin: 20px 0;">
+                      <div style="background-color: #ffffff; padding: 20px; border: 1px solid #e0e0e0; border-radius: 8px; margin: 20px 0;">
                         <h3 style="color: #3554c1; margin-top: 0; margin-bottom: 15px;">📞 Contact</h3>
                         <p style="margin: 8px 0; font-size: 15px;">📧 <strong>Email :</strong> {hotelContactEmail}</p>
                         <p style="margin: 8px 0; font-size: 15px;">� <strong>Téléphone :</strong> {hotelContactPhone}</p>
@@ -180,7 +180,7 @@ export const defaultUnlayerTemplates = {
                         Ihre Reservierung Nr. <strong>{bookingNumber}</strong> im <strong>{establishmentName}</strong> wurde erfolgreich bestätigt!
                       </p>
                       
-                      <div style="background-color: #f8f9fa; padding: 20px; border-radius: 8px; margin: 20px 0;">
+                      <div style="background-color: #ffffff; padding: 20px; border: 1px solid #e0e0e0; border-radius: 8px; margin: 20px 0;">
                         <h3 style="color: #3554c1; margin-top: 0; margin-bottom: 15px;">📋 Details Ihrer Reservierung</h3>
                         <p style="margin: 8px 0; font-size: 15px;"><strong>Zimmer :</strong> {roomName}</p>
                         <p style="margin: 8px 0; font-size: 15px;"><strong>Ankunft :</strong> {checkInDate}</p>
@@ -188,7 +188,7 @@ export const defaultUnlayerTemplates = {
                         <p style="margin: 8px 0; font-size: 15px;"><strong>Zugangscode :</strong> <span style="background: #3554c1; color: white; padding: 4px 8px; border-radius: 4px; font-weight: bold;">{accessCode}</span></p>
                       </div>
                       
-                      <div style="background-color: #e8f4f8; padding: 20px; border-radius: 8px; margin: 20px 0;">
+                      <div style="background-color: #ffffff; padding: 20px; border: 1px solid #e0e0e0; border-radius: 8px; margin: 20px 0;">
                         <h3 style="color: #3554c1; margin-top: 0; margin-bottom: 15px;">📞 Kontakt</h3>
                         <p style="margin: 8px 0; font-size: 15px;">📧 <strong>E-Mail :</strong> {hotelContactEmail}</p>
                         <p style="margin: 8px 0; font-size: 15px;">� <strong>Telefon :</strong> {hotelContactPhone}</p>
@@ -370,7 +370,7 @@ export const defaultUnlayerTemplates = {
                         </ul>
                       </div>
                       
-                      <div style="background-color: #e8f4f8; padding: 20px; border-radius: 8px; margin: 20px 0;">
+                      <div style="background-color: #ffffff; padding: 20px; border: 1px solid #e0e0e0; border-radius: 8px; margin: 20px 0;">
                         <h3 style="color: #2d7d32; margin-top: 0; margin-bottom: 15px;">📞 Contact</h3>
                         <p style="margin: 8px 0; font-size: 15px;">📧 <strong>Email :</strong> {hotelContactEmail}</p>
                         <p style="margin: 8px 0; font-size: 15px;">� <strong>Téléphone :</strong> {hotelContactPhone}</p>
@@ -472,7 +472,7 @@ export const defaultUnlayerTemplates = {
                         </ul>
                       </div>
                       
-                      <div style="background-color: #e8f4f8; padding: 20px; border-radius: 8px; margin: 20px 0;">
+                      <div style="background-color: #ffffff; padding: 20px; border: 1px solid #e0e0e0; border-radius: 8px; margin: 20px 0;">
                         <h3 style="color: #2d7d32; margin-top: 0; margin-bottom: 15px;">📞 Kontakt</h3>
                         <p style="margin: 8px 0; font-size: 15px;">📧 <strong>E-Mail :</strong> {hotelContactEmail}</p>
                         <p style="margin: 8px 0; font-size: 15px;">� <strong>Telefon :</strong> {hotelContactPhone}</p>

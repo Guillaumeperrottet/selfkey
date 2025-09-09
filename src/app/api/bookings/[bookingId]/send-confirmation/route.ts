@@ -309,8 +309,22 @@ async function sendEmailConfirmation(
     booking.establishment.id
   );
 
-  // Créer le contenu HTML pour l'email
-  const htmlContent = `
+  // Détecter si c'est du HTML Unlayer (contient des balises HTML complexes)
+  const isUnlayerHtml =
+    emailContent.includes("<table") ||
+    emailContent.includes("<!DOCTYPE") ||
+    emailContent.includes("<html") ||
+    (emailContent.includes("<div") && emailContent.includes("style="));
+
+  let htmlContent: string;
+
+  if (isUnlayerHtml) {
+    // C'est du HTML Unlayer, l'utiliser tel quel
+    htmlContent = emailContent;
+    console.log("📧 Template HTML Unlayer détecté - utilisation directe");
+  } else {
+    // C'est du texte simple, l'emballer dans un template de base
+    htmlContent = `
     <!DOCTYPE html>
     <html>
     <head>
@@ -345,6 +359,8 @@ async function sendEmailConfirmation(
     </body>
     </html>
   `;
+    console.log("📧 Template texte simple détecté - emballage HTML appliqué");
+  }
 
   try {
     // Logique intelligente pour l'adresse email de destination

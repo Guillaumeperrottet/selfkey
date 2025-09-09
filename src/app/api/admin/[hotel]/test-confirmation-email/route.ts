@@ -112,10 +112,8 @@ export async function POST(request: NextRequest, { params }: Params) {
       establishment.id
     );
 
-    // Convertir le texte en HTML simple (remplacer les retours à la ligne par <br>)
-    const htmlContent = emailContent
-      .replace(/\n/g, "<br>")
-      .replace(/\t/g, "&nbsp;&nbsp;&nbsp;&nbsp;");
+    // Le contenu est déjà du HTML d'Unlayer, pas besoin de conversion
+    const htmlContent = emailContent;
 
     // Préparer les adresses en copie si activées
     let bccAddresses: string[] = [];
