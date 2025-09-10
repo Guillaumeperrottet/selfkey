@@ -48,6 +48,8 @@ function MapPageContent() {
   const [mapZoom, setMapZoom] = useState<number>(6);
   const [showingNearbyEstablishments, setShowingNearbyEstablishments] =
     useState(false);
+  const [showSidebar, setShowSidebar] = useState(false); // État pour contrôler l'affichage sidebar mobile
+  const [isMobile, setIsMobile] = useState(false);
 
   // Gérer les paramètres URL pour les recherches depuis la homepage
   const searchParams = useSearchParams();
@@ -144,6 +146,16 @@ function MapPageContent() {
 
   useEffect(() => {
     fetchEstablishments();
+
+    // Détection mobile
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth <= 768);
+    };
+
+    checkMobile();
+    window.addEventListener("resize", checkMobile);
+
+    return () => window.removeEventListener("resize", checkMobile);
   }, []);
 
   useEffect(() => {
@@ -322,22 +334,48 @@ function MapPageContent() {
   }
 
   return (
-    <div className="h-screen bg-[#212215] flex overflow-hidden">
-      {/* Left Sidebar */}
-      <div className="w-96 bg-white border-r flex flex-col">
+    <div className="h-screen bg-[#212215] flex overflow-hidden relative">
+      {/* Left Sidebar - Responsive */}
+      <div
+        className={`
+        ${
+          isMobile
+            ? showSidebar
+              ? "w-full translate-x-0"
+              : "w-full -translate-x-full"
+            : "w-96 translate-x-0"
+        }
+        bg-white border-r flex flex-col 
+        ${isMobile ? "absolute z-50 h-full" : "relative"}
+        transition-transform duration-300 ease-in-out
+      `}
+      >
         {/* Header */}
         <div className="p-4 border-b bg-white flex-shrink-0">
           <div className="flex items-center justify-between mb-4">
-            <Link href="/">
-              <Button
-                variant="ghost"
-                size="sm"
-                className="flex items-center gap-2"
-              >
-                <ArrowLeft className="h-4 w-4" />
-                Retour
-              </Button>
-            </Link>
+            <div className="flex items-center gap-2">
+              <Link href="/">
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="flex items-center gap-2"
+                >
+                  <ArrowLeft className="h-4 w-4" />
+                  Retour
+                </Button>
+              </Link>
+              {/* Bouton fermer sur mobile */}
+              {isMobile && (
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => setShowSidebar(false)}
+                  className="flex items-center gap-2 md:hidden"
+                >
+                  ✕
+                </Button>
+              )}
+            </div>
             <a
               href="https://selfcamp.ch"
               className="hover:opacity-80 transition-opacity"
@@ -350,29 +388,9 @@ function MapPageContent() {
 
           {/* Enhanced Search Bar */}
           <div className="mb-4">
-            <EnhancedSearchBar
-              value={searchQuery}
-              onChange={setSearchQuery}
-              onLocationSelect={(location) => {
-                setMapCenter({ lat: location.lat, lng: location.lng });
-                setMapZoom(location.name === "Ma position" ? 15 : 12);
-              }}
-              onEstablishmentSelect={(establishment) => {
-                centerMapOnEstablishment({
-                  ...establishment,
-                  price: "",
-                  type: "",
-                  amenities: [],
-                  description: "",
-                  image: "",
-                  rating: 0,
-                  reviews: 0,
-                  slug: establishment.id,
-                  address: establishment.location,
-                });
-              }}
-              placeholder="Rechercher par nom, ville, description..."
-            />
+            <div className="text-center p-4 text-gray-500">
+              <p>Utilisez la barre de recherche sur la carte</p>
+            </div>
           </div>
         </div>
 
@@ -530,7 +548,12 @@ function MapPageContent() {
       </div>
 
       {/* Right Map Container */}
-      <div className="flex-1 h-full">
+      <div
+        className={`
+        ${isMobile ? (showSidebar ? "hidden" : "w-full") : "flex-1"} 
+        h-full relative
+      `}
+      >
         <InteractiveMap
           establishments={establishments} // Afficher TOUS les établissements sur la carte
           fullHeight
@@ -541,14 +564,119 @@ function MapPageContent() {
           zoom={mapZoom}
         />
 
-        {/* Debug info */}
-        {process.env.NODE_ENV === "development" && (
-          <div className="fixed bottom-4 right-4 bg-black text-white p-2 text-xs rounded z-50">
-            Establishments: {filteredEstablishments.length} | Loading:{" "}
-            {loading.toString()}
+        {/* Barre de recherche flottante au centre en haut */}
+        <div
+          className="search-bar-overlay absolute top-4 left-1/2 transform -translate-x-1/2 w-full max-w-xs px-6"
+          style={{ zIndex: 1000 }}
+        >
+          <div
+            className="search-bar-container bg-white rounded-lg shadow-xl border-2"
+            style={{ zIndex: 1001 }}
+          >
+            <EnhancedSearchBar
+              value={searchQuery}
+              onChange={(query: string) => {
+                setSearchQuery(query);
+                // Fonction de recherche inline
+                if (query.trim() === "") {
+                  setFilteredEstablishments(establishments);
+                  setShowingNearbyEstablishments(false);
+                  return;
+                }
+
+                let filtered = establishments.filter(
+                  (establishment) =>
+                    establishment.name
+                      .toLowerCase()
+                      .includes(query.toLowerCase()) ||
+                    establishment.location
+                      .toLowerCase()
+                      .includes(query.toLowerCase()) ||
+                    establishment.description
+                      .toLowerCase()
+                      .includes(query.toLowerCase())
+                );
+
+                if (filtered.length === 0 && mapCenter) {
+                  // Si pas de résultats, afficher les établissements les plus proches
+                  setShowingNearbyEstablishments(true);
+                  const establishmentsWithDistance = establishments.map(
+                    (establishment) => ({
+                      ...establishment,
+                      distance: calculateDistance(
+                        mapCenter.lat,
+                        mapCenter.lng,
+                        establishment.latitude,
+                        establishment.longitude
+                      ),
+                    })
+                  );
+                  filtered = establishmentsWithDistance
+                    .sort((a, b) => a.distance - b.distance)
+                    .slice(0, 5);
+                } else {
+                  setShowingNearbyEstablishments(false);
+                }
+
+                setFilteredEstablishments(filtered);
+              }}
+              onLocationSelect={(location) => {
+                setMapCenter({ lat: location.lat, lng: location.lng });
+                setMapZoom(location.name === "Ma position" ? 15 : 12);
+              }}
+              onEstablishmentSelect={(establishment) => {
+                centerMapOnEstablishment({
+                  ...establishment,
+                  price: "",
+                  type: "",
+                  amenities: [],
+                  description: "",
+                  image: "",
+                  rating: 0,
+                  reviews: 0,
+                  slug: establishment.id,
+                  address: establishment.location,
+                });
+              }}
+              placeholder="Rechercher par nom, ville, description..."
+            />
           </div>
+        </div>
+
+        {/* Bouton flottant pour toggle sidebar sur mobile */}
+        {isMobile && (
+          <button
+            onClick={() => setShowSidebar(!showSidebar)}
+            className="fixed bottom-6 left-6 z-40 bg-[#9EA173] text-white p-3 rounded-full shadow-lg hover:bg-[#8a9165] transition-colors touch-action-manipulation"
+          >
+            <svg
+              width="24"
+              height="24"
+              viewBox="0 0 24 24"
+              fill="none"
+              xmlns="http://www.w3.org/2000/svg"
+              className={showSidebar ? "rotate-180" : ""}
+              style={{ transition: "transform 0.3s ease" }}
+            >
+              <path
+                d="M3 12h18m-9-9l9 9-9 9"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              />
+            </svg>
+          </button>
         )}
       </div>
+
+      {/* Debug info */}
+      {process.env.NODE_ENV === "development" && (
+        <div className="fixed bottom-4 right-4 bg-black text-white p-2 text-xs rounded z-50">
+          Establishments: {filteredEstablishments.length} | Loading:{" "}
+          {loading.toString()}
+        </div>
+      )}
     </div>
   );
 }
