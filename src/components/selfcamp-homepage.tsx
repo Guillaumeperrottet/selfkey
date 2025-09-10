@@ -82,24 +82,30 @@ export function SelfcampHomepage() {
         {/* Header */}
         <header className="relative z-40 bg-transparent backdrop-blur-sm">
           <div className="container mx-auto px-4 py-3">
-            <div className="flex items-center justify-between text-lg">
+            <div className="flex items-center justify-between">
               {/* Desktop header */}
               <div className="hidden lg:flex items-center justify-between w-full">
-                <div className="text-white font-bold uppercase tracking-wide text-sm lg:text-lg">
+                <div className="text-white font-bold uppercase tracking-wide text-sm lg:text-lg hover:text-yellow-300 transition-colors cursor-pointer">
                   24H/24 - 7J/7
                 </div>
-                <div className="text-white font-bold uppercase tracking-wide text-sm lg:text-lg">
+                <div className="text-white font-bold uppercase tracking-wide text-sm lg:text-lg hover:text-yellow-300 transition-colors cursor-pointer">
                   ENREGISTREMENT AUTOMATIQUE
                 </div>
-                <div className="text-white font-bold uppercase tracking-wide text-sm lg:text-lg">
+                <div className="text-white font-bold uppercase tracking-wide text-sm lg:text-lg hover:text-yellow-300 transition-colors cursor-pointer">
                   CONTACTEZ-NOUS
                 </div>
               </div>
 
-              {/* Mobile header - simplified */}
-              <div className="flex lg:hidden items-center justify-center w-full">
+              {/* Mobile header - same structure as desktop */}
+              <div className="flex lg:hidden items-center justify-between w-full">
+                <div className="text-white font-bold uppercase tracking-wide text-xs">
+                  24H/24 - 7J/7
+                </div>
                 <div className="text-white font-bold uppercase tracking-wide text-xs text-center">
-                  SELFCAMP.CH • 24H/24 - 7J/7
+                  AUTOMATISATION
+                </div>
+                <div className="text-white font-bold uppercase tracking-wide text-xs">
+                  CONTACTEZ-NOUS
                 </div>
               </div>
             </div>
@@ -110,7 +116,7 @@ export function SelfcampHomepage() {
         <section className="relative z-30 text-white text-center py-12 md:py-24 px-4">
           <div className="container mx-auto">
             <div className="flex flex-col items-center justify-center min-h-[35vh]">
-              <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-8xl font-bold mb-4 md:mb-6 text-white">
+              <h1 className="text-5xl sm:text-6xl md:text-7xl lg:text-8xl font-bold mb-4 md:mb-6 text-white">
                 Selfcamp.ch
               </h1>
               <div className="text-base sm:text-lg md:text-xl lg:text-2xl mb-6 md:mb-8 text-white max-w-4xl mx-auto leading-relaxed text-center font-medium px-2">
