@@ -9,6 +9,7 @@ import {
   DollarSign,
   MessageSquare,
   Users,
+  User,
   Settings,
   QrCode,
   ExternalLink,
@@ -305,6 +306,18 @@ export function AdminSidebar({
           <Link href="/establishments">
             <LogOut className="mr-2 h-4 w-4" />
             Retour aux établissements
+          </Link>
+        </Button>
+
+        <Button
+          variant="outline"
+          size="sm"
+          className="w-full justify-start"
+          asChild
+        >
+          <Link href="/profile">
+            <User className="mr-2 h-4 w-4" />
+            Mon Profil
           </Link>
         </Button>
       </div>

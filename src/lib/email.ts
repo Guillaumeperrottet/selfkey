@@ -337,3 +337,38 @@ Das {establishmentName} Team`;
     throw error;
   }
 }
+
+// Fonction générique pour envoyer des emails (utilisée par Better Auth)
+interface EmailOptions {
+  to: string;
+  subject: string;
+  html: string;
+}
+
+export async function sendEmail({ to, subject, html }: EmailOptions) {
+  if (!resend) {
+    console.warn("⚠️ Resend non configuré - simulation envoi email");
+    console.log(`📧 Email simulé - À: ${to}, Sujet: ${subject}`);
+    return { id: "simulated-email" };
+  }
+
+  try {
+    const { data, error } = await resend.emails.send({
+      from: process.env.RESEND_FROM_EMAIL || "SelfKey <noreply@selfkey.ch>",
+      to,
+      subject,
+      html,
+    });
+
+    if (error) {
+      console.error("Erreur envoi email:", error);
+      throw new Error(`Erreur envoi email: ${error.message}`);
+    }
+
+    console.log("📧 Email envoyé avec succès:", data);
+    return data;
+  } catch (error) {
+    console.error("Erreur lors de l'envoi de l'email:", error);
+    throw error;
+  }
+}

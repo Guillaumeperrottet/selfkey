@@ -33,6 +33,14 @@ function LoginContent() {
 
   const searchParams = useSearchParams();
   const callbackUrl = searchParams.get("callbackUrl") || "/admin";
+  const message = searchParams.get("message");
+
+  // Messages de succès prédéfinis
+  const successMessages = {
+    "password-reset-success":
+      "Votre mot de passe a été réinitialisé avec succès ! Vous pouvez maintenant vous connecter avec votre nouveau mot de passe.",
+    "email-verified": "Votre adresse email a été vérifiée avec succès !",
+  };
 
   // Validation des champs
   const validateEmail = (email: string) => {
@@ -430,6 +438,16 @@ function LoginContent() {
               </Alert>
             )}
 
+            {/* Message de succès */}
+            {message &&
+              successMessages[message as keyof typeof successMessages] && (
+                <Alert className="border-green-200 bg-green-50">
+                  <AlertDescription className="text-green-800">
+                    {successMessages[message as keyof typeof successMessages]}
+                  </AlertDescription>
+                </Alert>
+              )}
+
             <form onSubmit={handleSubmit} className="space-y-4">
               {!isLogin && (
                 <div className="space-y-2">
@@ -496,6 +514,19 @@ function LoginContent() {
                     ? "Se connecter"
                     : "S'inscrire"}
               </Button>
+
+              {/* Lien mot de passe oublié - affiché seulement en mode connexion */}
+              {isLogin && (
+                <div className="text-center">
+                  <Button
+                    variant="link"
+                    asChild
+                    className="text-sm text-gray-600 hover:text-gray-900"
+                  >
+                    <Link href="/forgot-password">Mot de passe oublié ?</Link>
+                  </Button>
+                </div>
+              )}
             </form>
 
             <div className="space-y-4">
