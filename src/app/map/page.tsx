@@ -562,6 +562,7 @@ function MapPageContent() {
           onMarkerClick={scrollToEstablishment}
           center={mapCenter}
           zoom={mapZoom}
+          availabilityData={availabilityData}
         />
 
         {/* Barre de recherche flottante au centre en haut */}

@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { MapContainer, TileLayer, Marker, Popup, useMap } from "react-leaflet";
 import L from "leaflet";
+import Image from "next/image";
 import "leaflet/dist/leaflet.css";
 import "@/styles/mobile-map.css";
 
@@ -105,6 +106,7 @@ L.Icon.Default.mergeOptions({
 
 interface Establishment {
   id: string;
+  slug: string;
   name: string;
   location: string;
   latitude: number;
@@ -112,6 +114,8 @@ interface Establishment {
   price: string;
   type: string;
   description: string;
+  image?: string;
+  amenities?: string[];
 }
 
 interface DirectMapProps {
@@ -120,6 +124,15 @@ interface DirectMapProps {
   onMarkerClick?: (establishmentId: string) => void;
   center?: { lat: number; lng: number } | null;
   zoom?: number;
+  availabilityData?: Record<
+    string,
+    {
+      availableRooms: number;
+      totalRooms: number;
+      status: "available" | "limited" | "full";
+      nextAvailable?: string | null;
+    }
+  >;
 }
 
 // Composant pour mettre à jour la carte quand les props changent
@@ -153,15 +166,86 @@ const EstablishmentMarker = ({
   establishment,
   isHovered,
   onMarkerClick,
+  availabilityData,
 }: {
   establishment: Establishment;
   isHovered: boolean;
   onMarkerClick?: (establishmentId: string) => void;
+  availabilityData?: Record<
+    string,
+    {
+      availableRooms: number;
+      totalRooms: number;
+      status: "available" | "limited" | "full";
+      nextAvailable?: string | null;
+    }
+  >;
 }) => {
   const handleClick = () => {
     if (onMarkerClick) {
       onMarkerClick(establishment.id);
     }
+  };
+
+  const mobile =
+    typeof window !== "undefined" &&
+    (window.innerWidth <= 768 || "ontouchstart" in window);
+
+  // Récupérer les données de disponibilité pour cet établissement
+  const availability = availabilityData?.[establishment.slug];
+
+  const getAvailabilityInfo = () => {
+    if (!availability) {
+      return {
+        text: "Information non disponible",
+        color: "text-gray-500",
+        emoji: "ℹ️",
+      };
+    }
+
+    const { availableRooms, totalRooms, status, nextAvailable } = availability;
+
+    switch (status) {
+      case "available":
+        return {
+          text: `${availableRooms}/${totalRooms} places disponibles`,
+          color: "text-green-600 font-medium",
+          emoji: "✅",
+        };
+      case "limited":
+        return {
+          text: `${availableRooms}/${totalRooms} places disponibles`,
+          color: "text-orange-600 font-medium",
+          emoji: "⚠️",
+        };
+      case "full":
+        return nextAvailable
+          ? {
+              text: `Complet - Libre le ${nextAvailable}`,
+              color: "text-red-600",
+              emoji: "📅",
+            }
+          : { text: "Complet", color: "text-red-600", emoji: "❌" };
+      default:
+        return { text: "Statut inconnu", color: "text-gray-500", emoji: "❓" };
+    }
+  };
+
+  const availabilityInfo = getAvailabilityInfo();
+
+  // Fonction pour ouvrir Google Maps avec les coordonnées
+  const openGoogleMaps = (e: React.MouseEvent) => {
+    e.stopPropagation(); // Empêcher la propagation vers le popup
+    const url = `https://www.google.com/maps/dir/?api=1&destination=${establishment.latitude},${establishment.longitude}&destination_place_id=${encodeURIComponent(establishment.name)}`;
+    window.open(url, "_blank");
+  };
+
+  // Fonction pour ouvrir la page de réservation
+  const openBookingPage = (e: React.MouseEvent) => {
+    e.stopPropagation(); // Empêcher la propagation vers le popup
+    // Créer l'URL de réservation avec le slug de l'établissement
+    const bookingUrl = `/${establishment.slug}`;
+    window.open(bookingUrl, "_blank");
   };
 
   return (
@@ -177,25 +261,112 @@ const EstablishmentMarker = ({
         autoClose={false}
         autoPan={true}
         // Configuration mobile-friendly pour les popups
-        maxWidth={300}
-        minWidth={200}
+        maxWidth={mobile ? 280 : 300}
+        minWidth={mobile ? 250 : 200}
         className="mobile-popup"
       >
-        <div className="text-center p-2">
-          <h3 className="font-semibold text-[#9EA173] text-base mb-2">
+        <div className={`${mobile ? "p-1" : "p-2"}`}>
+          {/* Image de l'établissement */}
+          {establishment.image && (
+            <div className="mb-3">
+              <Image
+                src={establishment.image}
+                alt={establishment.name}
+                width={280}
+                height={96}
+                className="w-full h-24 object-cover rounded-lg"
+                onError={(e) => {
+                  // Image de fallback si l'image principale ne charge pas
+                  e.currentTarget.src = "/selfcamp_logo.png";
+                }}
+              />
+            </div>
+          )}
+
+          <h3 className="font-semibold text-[#9EA173] text-base mb-2 leading-tight">
             {establishment.name}
           </h3>
-          <p className="text-sm text-gray-600 mb-2 line-clamp-2">
+
+          {/* Informations de disponibilité */}
+          <div
+            className={`text-sm mb-2 ${availabilityInfo.color} flex items-center gap-1`}
+          >
+            <span>{availabilityInfo.emoji}</span>
+            <span>{availabilityInfo.text}</span>
+          </div>
+
+          <div className="flex items-center gap-1 text-xs text-gray-600 mb-2">
+            <span>📍</span>
+            <span>{establishment.location}</span>
+          </div>
+
+          <p className="text-sm text-gray-600 mb-3 line-clamp-2">
             {establishment.description}
           </p>
-          <p className="text-xs text-gray-500 mb-3">{establishment.location}</p>
-          {/* Bouton mobile-friendly pour voir plus de détails */}
-          <button
-            onClick={handleClick}
-            className="w-full bg-[#9EA173] text-white px-3 py-2 rounded-lg text-sm font-medium hover:bg-[#8a9165] transition-colors touch-action-manipulation"
-          >
-            Voir les détails
-          </button>
+
+          {/* Amenities si disponibles */}
+          {establishment.amenities && establishment.amenities.length > 0 && (
+            <div className="flex flex-wrap gap-1 mb-3">
+              {establishment.amenities.slice(0, 2).map((amenity, index) => (
+                <span
+                  key={index}
+                  className="text-xs bg-blue-100 text-blue-700 px-2 py-1 rounded-full"
+                >
+                  {amenity === "wifi" && "📶"}
+                  {amenity === "shower" && "🚿"}
+                  {amenity === "douche" && "🚿"}
+                  {amenity === "toilet" && "🚻"}
+                  {amenity === "electricity" && "⚡"}
+                  {![
+                    "wifi",
+                    "shower",
+                    "douche",
+                    "toilet",
+                    "electricity",
+                  ].includes(amenity) && amenity}
+                </span>
+              ))}
+            </div>
+          )}
+
+          {/* Information de réservation */}
+          <div className="bg-green-50 border border-green-200 rounded-lg p-3 mb-3">
+            <div className="flex items-center gap-2 mb-2">
+              <span className="text-green-600">📅</span>
+              <span className="text-sm font-medium text-green-800">
+                Réservation en ligne possible
+              </span>
+            </div>
+            <p className="text-xs text-green-700 mb-2">
+              Réservation possible pour le jour même selon disponibilité
+            </p>
+            <button
+              onClick={openBookingPage}
+              className="w-full bg-green-600 text-white px-3 py-2 rounded-md text-sm font-medium hover:bg-green-700 transition-colors touch-action-manipulation"
+            >
+              Réserver maintenant
+            </button>
+          </div>
+
+          {/* Boutons d'action */}
+          <div className="flex gap-2">
+            {/* Bouton GPS */}
+            <button
+              onClick={openGoogleMaps}
+              className="flex-1 bg-blue-600 text-white px-3 py-2 rounded-lg text-sm font-medium hover:bg-blue-700 transition-colors touch-action-manipulation flex items-center justify-center gap-2"
+            >
+              <span>🧭</span>
+              <span>GPS</span>
+            </button>
+
+            {/* Bouton détails */}
+            <button
+              onClick={handleClick}
+              className="flex-1 bg-[#9EA173] text-white px-3 py-2 rounded-lg text-sm font-medium hover:bg-[#8a9165] transition-colors touch-action-manipulation"
+            >
+              Voir détails
+            </button>
+          </div>
         </div>
       </Popup>
     </Marker>
@@ -259,6 +430,7 @@ export default function DirectMap({
   onMarkerClick,
   center,
   zoom = 6,
+  availabilityData,
 }: DirectMapProps) {
   const [mounted, setMounted] = useState(false);
 
@@ -332,6 +504,7 @@ export default function DirectMap({
           establishment={establishment}
           isHovered={hoveredEstablishmentId === establishment.id}
           onMarkerClick={onMarkerClick}
+          availabilityData={availabilityData}
         />
       ))}
     </MapContainer>

@@ -196,3 +196,133 @@
     box-shadow: 0 6px 16px rgba(0, 0, 0, 0.6) !important;
   }
 }
+
+/* Styles pour les popups enrichis */
+.mobile-popup-content {
+  font-size: 14px !important;
+  line-height: 1.5 !important;
+}
+
+.popup-image-container img {
+  border-radius: 8px !important;
+  object-fit: cover !important;
+}
+
+/* Amélioration des badges de disponibilité dans les popups */
+.popup-availability-badge {
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 4px !important;
+  font-size: 12px !important;
+  font-weight: 600 !important;
+  padding: 4px 8px !important;
+  border-radius: 6px !important;
+  margin-bottom: 8px !important;
+}
+
+/* Touch targets optimisés pour mobile */
+@media (max-width: 768px) {
+  .touch-optimized {
+    min-height: 44px !important;
+    min-width: 44px !important;
+    touch-action: manipulation !important;
+  }
+
+  .popup-button {
+    min-height: 40px !important;
+    font-size: 14px !important;
+    font-weight: 600 !important;
+    border-radius: 8px !important;
+    touch-action: manipulation !important;
+  }
+}
+
+/* Styles pour la section de réservation dans les popups */
+.booking-section {
+  background: rgb(240 253 244) !important;
+  border: 1px solid rgb(187 247 208) !important;
+  border-radius: 8px !important;
+  padding: 12px !important;
+  margin-bottom: 12px !important;
+}
+
+.booking-section .booking-title {
+  display: flex !important;
+  align-items: center !important;
+  gap: 8px !important;
+  margin-bottom: 8px !important;
+  font-size: 14px !important;
+  font-weight: 600 !important;
+  color: rgb(22 101 52) !important;
+}
+
+.booking-section .booking-description {
+  font-size: 12px !important;
+  color: rgb(21 128 61) !important;
+  margin-bottom: 8px !important;
+  line-height: 1.4 !important;
+}
+
+.booking-button {
+  width: 100% !important;
+  background: rgb(22 163 74) !important;
+  color: white !important;
+  padding: 8px 12px !important;
+  border-radius: 6px !important;
+  font-size: 14px !important;
+  font-weight: 600 !important;
+  border: none !important;
+  cursor: pointer !important;
+  transition: background-color 0.2s ease !important;
+  touch-action: manipulation !important;
+}
+
+.booking-button:hover {
+  background: rgb(21 128 61) !important;
+}
+
+/* Styles pour les boutons d'action (GPS et détails) */
+.action-buttons {
+  display: flex !important;
+  gap: 8px !important;
+}
+
+.gps-button {
+  flex: 1 !important;
+  background: rgb(37 99 235) !important;
+  color: white !important;
+  padding: 8px 12px !important;
+  border-radius: 8px !important;
+  font-size: 14px !important;
+  font-weight: 600 !important;
+  border: none !important;
+  cursor: pointer !important;
+  transition: background-color 0.2s ease !important;
+  touch-action: manipulation !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 6px !important;
+}
+
+.gps-button:hover {
+  background: rgb(29 78 216) !important;
+}
+
+.details-button {
+  flex: 1 !important;
+  background: #9ea173 !important;
+  color: white !important;
+  padding: 8px 12px !important;
+  border-radius: 8px !important;
+  font-size: 14px !important;
+  font-weight: 600 !important;
+  border: none !important;
+  cursor: pointer !important;
+  transition: background-color 0.2s ease !important;
+  touch-action: manipulation !important;
+}
+
+.details-button:hover {
+  background: #8a9165 !important;
+}

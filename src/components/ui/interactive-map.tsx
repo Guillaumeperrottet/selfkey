@@ -5,6 +5,7 @@ import dynamic from "next/dynamic";
 
 interface Establishment {
   id: string;
+  slug: string;
   name: string;
   location: string;
   latitude: number;
@@ -12,6 +13,8 @@ interface Establishment {
   price: string;
   type: string;
   description: string;
+  image?: string;
+  amenities?: string[];
 }
 
 interface InteractiveMapProps {
@@ -22,6 +25,15 @@ interface InteractiveMapProps {
   onMarkerClick?: (establishmentId: string) => void;
   center?: { lat: number; lng: number } | null;
   zoom?: number;
+  availabilityData?: Record<
+    string,
+    {
+      availableRooms: number;
+      totalRooms: number;
+      status: "available" | "limited" | "full";
+      nextAvailable?: string | null;
+    }
+  >;
 }
 
 // Composant Map dynamique pour éviter les problèmes SSR
@@ -42,6 +54,7 @@ export default function InteractiveMap({
   onMarkerClick,
   center,
   zoom,
+  availabilityData,
 }: InteractiveMapProps) {
   const [mounted, setMounted] = useState(false);
 
@@ -85,6 +98,7 @@ export default function InteractiveMap({
           onMarkerClick={onMarkerClick}
           center={center}
           zoom={zoom}
+          availabilityData={availabilityData}
         />
       </div>
     </div>
