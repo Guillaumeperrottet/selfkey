@@ -95,7 +95,7 @@ export function SelfcampHomepage() {
                   CONTACTEZ-NOUS
                 </div>
               </div>
-              
+
               {/* Mobile header - simplified */}
               <div className="flex lg:hidden items-center justify-center w-full">
                 <div className="text-white font-bold uppercase tracking-wide text-xs text-center">
@@ -236,7 +236,12 @@ export function SelfcampHomepage() {
                           className="w-2 h-2 rounded-full mt-2 flex-shrink-0"
                           style={{ backgroundColor: "#F8F6F3" }}
                         ></div>
-                        <p className="text-sm md:text-base" style={{ color: "#F8F6F3" }}>{item}</p>
+                        <p
+                          className="text-sm md:text-base"
+                          style={{ color: "#F8F6F3" }}
+                        >
+                          {item}
+                        </p>
                       </div>
                     ))}
                   </div>
@@ -245,7 +250,10 @@ export function SelfcampHomepage() {
                 {/* Camping sauvage */}
                 <div className="space-y-4 md:space-y-6">
                   <div className="flex items-center space-x-3 md:space-x-4 mb-4 md:mb-6">
-                    <Users className="h-6 w-6 md:h-8 md:w-8 flex-shrink-0" style={{ color: "#F8F6F3" }} />
+                    <Users
+                      className="h-6 w-6 md:h-8 md:w-8 flex-shrink-0"
+                      style={{ color: "#F8F6F3" }}
+                    />
                     <h3
                       className="text-lg md:text-2xl font-bold"
                       style={{ color: "#C4A484" }}
@@ -265,7 +273,12 @@ export function SelfcampHomepage() {
                           className="w-2 h-2 rounded-full mt-2 flex-shrink-0"
                           style={{ backgroundColor: "#F8F6F3" }}
                         ></div>
-                        <p className="text-sm md:text-base" style={{ color: "#F8F6F3" }}>{item}</p>
+                        <p
+                          className="text-sm md:text-base"
+                          style={{ color: "#F8F6F3" }}
+                        >
+                          {item}
+                        </p>
                       </div>
                     ))}
                   </div>
@@ -297,7 +310,12 @@ export function SelfcampHomepage() {
                           className="w-2 h-2 rounded-full mt-2 flex-shrink-0"
                           style={{ backgroundColor: "#F8F6F3" }}
                         ></div>
-                        <p className="text-sm md:text-base" style={{ color: "#F8F6F3" }}>{item}</p>
+                        <p
+                          className="text-sm md:text-base"
+                          style={{ color: "#F8F6F3" }}
+                        >
+                          {item}
+                        </p>
                       </div>
                     ))}
                   </div>
@@ -306,7 +324,10 @@ export function SelfcampHomepage() {
                 {/* Impact global */}
                 <div className="space-y-4 md:space-y-6">
                   <div className="flex items-center space-x-3 md:space-x-4 mb-4 md:mb-6">
-                    <Globe className="h-6 w-6 md:h-8 md:w-8 flex-shrink-0" style={{ color: "#F8F6F3" }} />
+                    <Globe
+                      className="h-6 w-6 md:h-8 md:w-8 flex-shrink-0"
+                      style={{ color: "#F8F6F3" }}
+                    />
                     <h3
                       className="text-lg md:text-2xl font-bold"
                       style={{ color: "#C4A484" }}
@@ -325,7 +346,12 @@ export function SelfcampHomepage() {
                           className="w-2 h-2 rounded-full mt-2 flex-shrink-0"
                           style={{ backgroundColor: "#F8F6F3" }}
                         ></div>
-                        <p className="text-sm md:text-base" style={{ color: "#F8F6F3" }}>{item}</p>
+                        <p
+                          className="text-sm md:text-base"
+                          style={{ color: "#F8F6F3" }}
+                        >
+                          {item}
+                        </p>
                       </div>
                     ))}
                   </div>
@@ -407,7 +433,12 @@ export function SelfcampHomepage() {
                   >
                     {item.title}
                   </h3>
-                  <p className="text-sm md:text-base" style={{ color: "#F8F6F3" }}>{item.description}</p>
+                  <p
+                    className="text-sm md:text-base"
+                    style={{ color: "#F8F6F3" }}
+                  >
+                    {item.description}
+                  </p>
                 </div>
               ))}
             </div>
@@ -451,7 +482,12 @@ export function SelfcampHomepage() {
                   >
                     {item.title}
                   </h3>
-                  <p className="text-sm md:text-base" style={{ color: "#F8F6F3" }}>{item.description}</p>
+                  <p
+                    className="text-sm md:text-base"
+                    style={{ color: "#F8F6F3" }}
+                  >
+                    {item.description}
+                  </p>
                 </div>
               ))}
             </div>
@@ -512,7 +548,10 @@ export function SelfcampHomepage() {
                     className="h-5 w-5 md:h-6 md:w-6 flex-shrink-0"
                     style={{ color: "#F8F6F3" }}
                   />
-                  <p className="text-sm md:text-lg" style={{ color: "#F8F6F3" }}>
+                  <p
+                    className="text-sm md:text-lg"
+                    style={{ color: "#F8F6F3" }}
+                  >
                     {service}
                   </p>
                 </div>
@@ -624,7 +663,10 @@ export function SelfcampHomepage() {
                           className="w-2 h-2 rounded-full mt-2 flex-shrink-0"
                           style={{ backgroundColor: "#C4A484" }}
                         ></div>
-                        <p className="text-xs md:text-sm leading-relaxed" style={{ color: "#F8F6F3" }}>
+                        <p
+                          className="text-xs md:text-sm leading-relaxed"
+                          style={{ color: "#F8F6F3" }}
+                        >
                           {point}
                         </p>
                       </div>
@@ -698,13 +740,21 @@ export function SelfcampHomepage() {
                   >
                     {item.title}
                   </h3>
-                  <p className="text-sm md:text-base" style={{ color: "#F8F6F3" }}>{item.description}</p>
+                  <p
+                    className="text-sm md:text-base"
+                    style={{ color: "#F8F6F3" }}
+                  >
+                    {item.description}
+                  </p>
                 </div>
               ))}
             </div>
 
             <div className="text-center px-4">
-              <p className="mb-6 md:mb-8 text-base md:text-lg" style={{ color: "#C4A484" }}>
+              <p
+                className="mb-6 md:mb-8 text-base md:text-lg"
+                style={{ color: "#C4A484" }}
+              >
                 Rejoignez les entrepreneurs qui ont choisi l&apos;indépendance
               </p>
               <div className="flex flex-col sm:flex-row gap-3 md:gap-4 justify-center items-center">
@@ -773,13 +823,19 @@ export function SelfcampHomepage() {
                     SelfCamp
                   </span>
                 </div>
-                <p className="text-sm md:text-base" style={{ color: "#C4A484" }}>
+                <p
+                  className="text-sm md:text-base"
+                  style={{ color: "#C4A484" }}
+                >
                   Le camping du futur, disponible dès aujourd&apos;hui.
                 </p>
               </div>
 
               <div className="text-center md:text-left">
-                <h4 className="font-semibold mb-3 md:mb-4 text-base md:text-lg" style={{ color: "#C4A484" }}>
+                <h4
+                  className="font-semibold mb-3 md:mb-4 text-base md:text-lg"
+                  style={{ color: "#C4A484" }}
+                >
                   Services
                 </h4>
                 <ul className="space-y-1 md:space-y-2 text-sm md:text-base">
@@ -811,7 +867,10 @@ export function SelfcampHomepage() {
               </div>
 
               <div className="text-center md:text-left">
-                <h4 className="font-semibold mb-3 md:mb-4 text-base md:text-lg" style={{ color: "#C4A484" }}>
+                <h4
+                  className="font-semibold mb-3 md:mb-4 text-base md:text-lg"
+                  style={{ color: "#C4A484" }}
+                >
                   Contact
                 </h4>
                 <div className="space-y-1 md:space-y-2 text-sm md:text-base">
