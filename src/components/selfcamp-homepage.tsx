@@ -83,27 +83,37 @@ export function SelfcampHomepage() {
         <header className="relative z-40 bg-transparent backdrop-blur-sm">
           <div className="container mx-auto px-4 py-3">
             <div className="flex items-center justify-between text-lg">
-              <div className="text-white font-bold uppercase tracking-wide">
-                24H/24 - 7J/7
+              {/* Desktop header */}
+              <div className="hidden lg:flex items-center justify-between w-full">
+                <div className="text-white font-bold uppercase tracking-wide text-sm lg:text-lg">
+                  24H/24 - 7J/7
+                </div>
+                <div className="text-white font-bold uppercase tracking-wide text-sm lg:text-lg">
+                  ENREGISTREMENT AUTOMATIQUE
+                </div>
+                <div className="text-white font-bold uppercase tracking-wide text-sm lg:text-lg">
+                  CONTACTEZ-NOUS
+                </div>
               </div>
-              <div className="text-white font-bold uppercase tracking-wide">
-                ENREGISTREMENT AUTOMATIQUE
-              </div>
-              <div className="text-white font-bold uppercase tracking-wide">
-                CONTACTEZ-NOUS
+              
+              {/* Mobile header - simplified */}
+              <div className="flex lg:hidden items-center justify-center w-full">
+                <div className="text-white font-bold uppercase tracking-wide text-xs text-center">
+                  SELFCAMP.CH • 24H/24 - 7J/7
+                </div>
               </div>
             </div>
           </div>
         </header>
 
         {/* Hero Section */}
-        <section className="relative z-30 text-white text-center py-24 px-4">
+        <section className="relative z-30 text-white text-center py-12 md:py-24 px-4">
           <div className="container mx-auto">
             <div className="flex flex-col items-center justify-center min-h-[35vh]">
-              <h1 className="text-6xl md:text-8xl font-bold mb-6 text-white">
+              <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-8xl font-bold mb-4 md:mb-6 text-white">
                 Selfcamp.ch
               </h1>
-              <div className="text-xl md:text-2xl mb-8 text-white max-w-4xl mx-auto leading-relaxed text-center font-medium">
+              <div className="text-base sm:text-lg md:text-xl lg:text-2xl mb-6 md:mb-8 text-white max-w-4xl mx-auto leading-relaxed text-center font-medium px-2">
                 <TextType
                   text="Solution d'accès intelligent pour le tourisme de véhicules de loisirs hors zone camping"
                   typingSpeed={50}
@@ -123,8 +133,8 @@ export function SelfcampHomepage() {
         <section className="relative z-20 px-4">
           <div className="container mx-auto">
             <div className="max-w-4xl mx-auto">
-              <div className="p-4">
-                <h2 className="text-2xl font-bold text-white mb-4 text-center">
+              <div className="p-2 md:p-4">
+                <h2 className="text-lg md:text-2xl font-bold text-white mb-3 md:mb-4 text-center">
                   Trouvez votre emplacement idéal
                 </h2>
                 <SearchBar />
@@ -175,18 +185,18 @@ export function SelfcampHomepage() {
 
         {/* Problems Section */}
         <section
-          className="py-20 px-4 relative z-10 -mt-1"
+          className="py-12 md:py-20 px-4 relative z-10 -mt-1"
           style={{ backgroundColor: "#292D1C" }}
         >
           <div className="container mx-auto">
-            <div className="text-center mb-16">
+            <div className="text-center mb-12 md:mb-16">
               <h2
-                className="text-4xl md:text-5xl font-bold mb-6"
+                className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold mb-4 md:mb-6"
                 style={{ color: "#C4A484" }}
               >
                 Les problématiques{" "}
                 <span
-                  className="px-4 py-2 rounded-lg border"
+                  className="px-2 md:px-4 py-1 md:py-2 rounded-lg border text-sm md:text-base inline-block mt-2 md:mt-0"
                   style={{
                     backgroundColor: "rgba(196, 164, 132, 0.1)",
                     color: "#F8F6F3",
@@ -199,22 +209,22 @@ export function SelfcampHomepage() {
             </div>
 
             <div className="max-w-6xl mx-auto">
-              <div className="grid md:grid-cols-2 gap-x-16 gap-y-12 items-start">
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 md:gap-x-16 md:gap-y-12 items-start">
                 {/* Taxes de séjour */}
-                <div className="space-y-6">
-                  <div className="flex items-center space-x-4 mb-6">
+                <div className="space-y-4 md:space-y-6">
+                  <div className="flex items-center space-x-3 md:space-x-4 mb-4 md:mb-6">
                     <AlertTriangle
-                      className="h-8 w-8"
+                      className="h-6 w-6 md:h-8 md:w-8 flex-shrink-0"
                       style={{ color: "#F8F6F3" }}
                     />
                     <h3
-                      className="text-2xl font-bold"
+                      className="text-lg md:text-2xl font-bold"
                       style={{ color: "#C4A484" }}
                     >
                       Taxes de séjour
                     </h3>
                   </div>
-                  <div className="space-y-4">
+                  <div className="space-y-3 md:space-y-4">
                     {[
                       "Non-paiement ou déclarations incomplètes",
                       "Perte de revenus significative pour les structures du canton",
@@ -226,24 +236,24 @@ export function SelfcampHomepage() {
                           className="w-2 h-2 rounded-full mt-2 flex-shrink-0"
                           style={{ backgroundColor: "#F8F6F3" }}
                         ></div>
-                        <p style={{ color: "#F8F6F3" }}>{item}</p>
+                        <p className="text-sm md:text-base" style={{ color: "#F8F6F3" }}>{item}</p>
                       </div>
                     ))}
                   </div>
                 </div>
 
                 {/* Camping sauvage */}
-                <div className="space-y-6">
-                  <div className="flex items-center space-x-4 mb-6">
-                    <Users className="h-8 w-8" style={{ color: "#F8F6F3" }} />
+                <div className="space-y-4 md:space-y-6">
+                  <div className="flex items-center space-x-3 md:space-x-4 mb-4 md:mb-6">
+                    <Users className="h-6 w-6 md:h-8 md:w-8 flex-shrink-0" style={{ color: "#F8F6F3" }} />
                     <h3
-                      className="text-2xl font-bold"
+                      className="text-lg md:text-2xl font-bold"
                       style={{ color: "#C4A484" }}
                     >
                       Camping sauvage
                     </h3>
                   </div>
-                  <div className="space-y-4">
+                  <div className="space-y-3 md:space-y-4">
                     {[
                       "Augmentation des campements non autorisés",
                       "Dégradation des sites naturels",
@@ -255,27 +265,27 @@ export function SelfcampHomepage() {
                           className="w-2 h-2 rounded-full mt-2 flex-shrink-0"
                           style={{ backgroundColor: "#F8F6F3" }}
                         ></div>
-                        <p style={{ color: "#F8F6F3" }}>{item}</p>
+                        <p className="text-sm md:text-base" style={{ color: "#F8F6F3" }}>{item}</p>
                       </div>
                     ))}
                   </div>
                 </div>
 
                 {/* Infrastructure */}
-                <div className="space-y-6">
-                  <div className="flex items-center space-x-4 mb-6">
+                <div className="space-y-4 md:space-y-6">
+                  <div className="flex items-center space-x-3 md:space-x-4 mb-4 md:mb-6">
                     <Building
-                      className="h-8 w-8"
+                      className="h-6 w-6 md:h-8 md:w-8 flex-shrink-0"
                       style={{ color: "#F8F6F3" }}
                     />
                     <h3
-                      className="text-2xl font-bold"
+                      className="text-lg md:text-2xl font-bold"
                       style={{ color: "#C4A484" }}
                     >
                       Infrastructure et stationnement
                     </h3>
                   </div>
-                  <div className="space-y-4">
+                  <div className="space-y-3 md:space-y-4">
                     {[
                       "Saturation des parkings en haute saison",
                       "Manque de coordination entre hébergements",
@@ -287,24 +297,24 @@ export function SelfcampHomepage() {
                           className="w-2 h-2 rounded-full mt-2 flex-shrink-0"
                           style={{ backgroundColor: "#F8F6F3" }}
                         ></div>
-                        <p style={{ color: "#F8F6F3" }}>{item}</p>
+                        <p className="text-sm md:text-base" style={{ color: "#F8F6F3" }}>{item}</p>
                       </div>
                     ))}
                   </div>
                 </div>
 
                 {/* Impact global */}
-                <div className="space-y-6">
-                  <div className="flex items-center space-x-4 mb-6">
-                    <Globe className="h-8 w-8" style={{ color: "#F8F6F3" }} />
+                <div className="space-y-4 md:space-y-6">
+                  <div className="flex items-center space-x-3 md:space-x-4 mb-4 md:mb-6">
+                    <Globe className="h-6 w-6 md:h-8 md:w-8 flex-shrink-0" style={{ color: "#F8F6F3" }} />
                     <h3
-                      className="text-2xl font-bold"
+                      className="text-lg md:text-2xl font-bold"
                       style={{ color: "#C4A484" }}
                     >
                       Impact global
                     </h3>
                   </div>
-                  <div className="space-y-4">
+                  <div className="space-y-3 md:space-y-4">
                     {[
                       "Manque de données fiables sur la fréquentation réelle",
                       "Difficultés de planification et d&apos;investissement",
@@ -315,7 +325,7 @@ export function SelfcampHomepage() {
                           className="w-2 h-2 rounded-full mt-2 flex-shrink-0"
                           style={{ backgroundColor: "#F8F6F3" }}
                         ></div>
-                        <p style={{ color: "#F8F6F3" }}>{item}</p>
+                        <p className="text-sm md:text-base" style={{ color: "#F8F6F3" }}>{item}</p>
                       </div>
                     ))}
                   </div>
@@ -327,18 +337,18 @@ export function SelfcampHomepage() {
 
         {/* Solution Section */}
         <section
-          className="py-20 px-4 relative z-10"
+          className="py-12 md:py-20 px-4 relative z-10"
           style={{ backgroundColor: "#292D1C" }}
         >
           <div className="container mx-auto">
-            <div className="text-center mb-16">
+            <div className="text-center mb-12 md:mb-16">
               <h2
-                className="text-4xl md:text-5xl font-bold mb-6"
+                className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold mb-4 md:mb-6"
                 style={{ color: "#C4A484" }}
               >
                 Notre{" "}
                 <span
-                  className="px-4 py-2 rounded-lg border"
+                  className="px-2 md:px-4 py-1 md:py-2 rounded-lg border text-sm md:text-base inline-block mt-2 md:mt-0"
                   style={{
                     backgroundColor: "rgba(196, 164, 132, 0.1)",
                     color: "#F8F6F3",
@@ -349,7 +359,7 @@ export function SelfcampHomepage() {
                 </span>
               </h2>
               <p
-                className="text-xl max-w-4xl mx-auto"
+                className="text-base md:text-xl max-w-4xl mx-auto leading-relaxed px-2"
                 style={{ color: "#F8F6F3" }}
               >
                 En collaboration avec les communes nous équipons les aires mise
@@ -359,7 +369,7 @@ export function SelfcampHomepage() {
               </p>
             </div>
 
-            <div className="grid md:grid-cols-3 gap-8 mb-16">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 md:gap-8 mb-12 md:mb-16">
               {[
                 {
                   title: "Infrastructure",
@@ -381,28 +391,28 @@ export function SelfcampHomepage() {
               ].map((item, index) => (
                 <div
                   key={index}
-                  className="backdrop-blur-sm rounded-xl p-8 border transition-all duration-300"
+                  className="backdrop-blur-sm rounded-xl p-6 md:p-8 border transition-all duration-300"
                   style={{
                     backgroundColor: "transparent",
                     borderColor: "rgba(248, 246, 243, 0.1)",
                   }}
                 >
                   <item.icon
-                    className="h-12 w-12 mb-6"
+                    className="h-10 w-10 md:h-12 md:w-12 mb-4 md:mb-6"
                     style={{ color: "#F8F6F3" }}
                   />
                   <h3
-                    className="text-xl font-bold mb-4"
+                    className="text-lg md:text-xl font-bold mb-3 md:mb-4"
                     style={{ color: "#C4A484" }}
                   >
                     {item.title}
                   </h3>
-                  <p style={{ color: "#F8F6F3" }}>{item.description}</p>
+                  <p className="text-sm md:text-base" style={{ color: "#F8F6F3" }}>{item.description}</p>
                 </div>
               ))}
             </div>
 
-            <div className="grid md:grid-cols-3 gap-8">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 md:gap-8">
               {[
                 {
                   title: "Tableau de bord",
@@ -425,23 +435,23 @@ export function SelfcampHomepage() {
               ].map((item, index) => (
                 <div
                   key={index}
-                  className="backdrop-blur-sm rounded-xl p-8 border transition-all duration-300"
+                  className="backdrop-blur-sm rounded-xl p-6 md:p-8 border transition-all duration-300"
                   style={{
                     backgroundColor: "transparent",
                     borderColor: "rgba(248, 246, 243, 0.1)",
                   }}
                 >
                   <item.icon
-                    className="h-12 w-12 mb-6"
+                    className="h-10 w-10 md:h-12 md:w-12 mb-4 md:mb-6"
                     style={{ color: "#F8F6F3" }}
                   />
                   <h3
-                    className="text-xl font-bold mb-4"
+                    className="text-lg md:text-xl font-bold mb-3 md:mb-4"
                     style={{ color: "#C4A484" }}
                   >
                     {item.title}
                   </h3>
-                  <p style={{ color: "#F8F6F3" }}>{item.description}</p>
+                  <p className="text-sm md:text-base" style={{ color: "#F8F6F3" }}>{item.description}</p>
                 </div>
               ))}
             </div>
@@ -450,18 +460,18 @@ export function SelfcampHomepage() {
 
         {/* Services Section */}
         <section
-          className="py-20 px-4 relative z-10"
+          className="py-12 md:py-20 px-4 relative z-10"
           style={{ backgroundColor: "#292D1C" }}
         >
           <div className="container mx-auto">
-            <div className="text-center mb-16">
+            <div className="text-center mb-12 md:mb-16">
               <h2
-                className="text-4xl md:text-5xl font-bold mb-6"
+                className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold mb-4 md:mb-6"
                 style={{ color: "#C4A484" }}
               >
                 Nos{" "}
                 <span
-                  className="px-4 py-2 rounded-lg border"
+                  className="px-2 md:px-4 py-1 md:py-2 rounded-lg border text-sm md:text-base inline-block mt-2 md:mt-0"
                   style={{
                     backgroundColor: "rgba(196, 164, 132, 0.1)",
                     color: "#F8F6F3",
@@ -472,7 +482,7 @@ export function SelfcampHomepage() {
                 </span>
               </h2>
               <p
-                className="text-xl max-w-4xl mx-auto mb-8"
+                className="text-base md:text-xl max-w-4xl mx-auto mb-6 md:mb-8 leading-relaxed px-2"
                 style={{ color: "#F8F6F3" }}
               >
                 Nous offrons une solution d&apos;enregistrement, mais nous
@@ -492,17 +502,17 @@ export function SelfcampHomepage() {
               ].map((service, index) => (
                 <div
                   key={index}
-                  className="flex items-center space-x-4 mb-6 p-4 rounded-lg border"
+                  className="flex items-center space-x-3 md:space-x-4 mb-4 md:mb-6 p-3 md:p-4 rounded-lg border"
                   style={{
                     backgroundColor: "transparent",
                     borderColor: "rgba(248, 246, 243, 0.1)",
                   }}
                 >
                   <CheckCircle
-                    className="h-6 w-6 flex-shrink-0"
+                    className="h-5 w-5 md:h-6 md:w-6 flex-shrink-0"
                     style={{ color: "#F8F6F3" }}
                   />
-                  <p className="text-lg" style={{ color: "#F8F6F3" }}>
+                  <p className="text-sm md:text-lg" style={{ color: "#F8F6F3" }}>
                     {service}
                   </p>
                 </div>
@@ -513,18 +523,18 @@ export function SelfcampHomepage() {
 
         {/* Advantages Section */}
         <section
-          className="py-20 px-4 relative z-10"
+          className="py-12 md:py-20 px-4 relative z-10"
           style={{ backgroundColor: "#292D1C" }}
         >
           <div className="container mx-auto">
-            <div className="text-center mb-16">
+            <div className="text-center mb-12 md:mb-16">
               <h2
-                className="text-4xl md:text-5xl font-bold mb-6"
+                className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold mb-4 md:mb-6"
                 style={{ color: "#C4A484" }}
               >
                 Avantages{" "}
                 <span
-                  className="px-4 py-2 rounded-lg border"
+                  className="px-2 md:px-4 py-1 md:py-2 rounded-lg border text-sm md:text-base inline-block mt-2 md:mt-0"
                   style={{
                     backgroundColor: "rgba(196, 164, 132, 0.1)",
                     color: "#F8F6F3",
@@ -533,9 +543,9 @@ export function SelfcampHomepage() {
                 >
                   utilisateurs
                 </span>{" "}
-                &
+                &{" "}
                 <span
-                  className="px-4 py-2 rounded-lg border ml-2"
+                  className="px-2 md:px-4 py-1 md:py-2 rounded-lg border text-sm md:text-base inline-block mt-2 md:mt-0"
                   style={{
                     backgroundColor: "rgba(196, 164, 132, 0.1)",
                     color: "#F8F6F3",
@@ -547,7 +557,7 @@ export function SelfcampHomepage() {
               </h2>
             </div>
 
-            <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 md:gap-8">
               {[
                 {
                   title: "Flexibilité",
@@ -588,23 +598,23 @@ export function SelfcampHomepage() {
               ].map((advantage, index) => (
                 <div
                   key={index}
-                  className="backdrop-blur-sm rounded-xl p-6 border transition-all duration-300"
+                  className="backdrop-blur-sm rounded-xl p-4 md:p-6 border transition-all duration-300"
                   style={{
                     backgroundColor: "transparent",
                     borderColor: "rgba(248, 246, 243, 0.1)",
                   }}
                 >
                   <advantage.icon
-                    className="h-10 w-10 mb-4"
+                    className="h-8 w-8 md:h-10 md:w-10 mb-3 md:mb-4"
                     style={{ color: "#F8F6F3" }}
                   />
                   <h3
-                    className="text-xl font-bold mb-4"
+                    className="text-lg md:text-xl font-bold mb-3 md:mb-4"
                     style={{ color: "#C4A484" }}
                   >
                     {advantage.title}
                   </h3>
-                  <div className="space-y-3">
+                  <div className="space-y-2 md:space-y-3">
                     {advantage.points.map((point, pointIndex) => (
                       <div
                         key={pointIndex}
@@ -614,7 +624,7 @@ export function SelfcampHomepage() {
                           className="w-2 h-2 rounded-full mt-2 flex-shrink-0"
                           style={{ backgroundColor: "#C4A484" }}
                         ></div>
-                        <p className="text-sm" style={{ color: "#F8F6F3" }}>
+                        <p className="text-xs md:text-sm leading-relaxed" style={{ color: "#F8F6F3" }}>
                           {point}
                         </p>
                       </div>
@@ -628,19 +638,19 @@ export function SelfcampHomepage() {
 
         {/* SelfKey Platform Section */}
         <section
-          className="py-20 px-4 relative z-10"
+          className="py-12 md:py-20 px-4 relative z-10"
           style={{ backgroundColor: "#292D1C" }}
         >
           <div className="container mx-auto">
-            <div className="text-center mb-16">
+            <div className="text-center mb-12 md:mb-16">
               <h2
-                className="text-3xl md:text-5xl font-bold mb-8"
+                className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold mb-6 md:mb-8 leading-tight"
                 style={{ color: "#C4A484" }}
               >
                 Créez votre propre solution avec SelfKey.ch
               </h2>
               <p
-                className="text-xl max-w-4xl mx-auto"
+                className="text-base md:text-xl max-w-4xl mx-auto leading-relaxed px-2"
                 style={{ color: "#F8F6F3" }}
               >
                 Vous avez un parking, un hôtel, un camping, ou tout autre
@@ -649,7 +659,7 @@ export function SelfcampHomepage() {
               </p>
             </div>
 
-            <div className="grid md:grid-cols-3 gap-8 mb-16">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 md:gap-8 mb-12 md:mb-16">
               {[
                 {
                   title: "Parking Autonome",
@@ -672,36 +682,36 @@ export function SelfcampHomepage() {
               ].map((item, index) => (
                 <div
                   key={index}
-                  className="rounded-xl p-8 border transition-all duration-300"
+                  className="rounded-xl p-6 md:p-8 border transition-all duration-300"
                   style={{
                     backgroundColor: "rgba(196, 164, 132, 0.3)",
                     borderColor: "rgba(248, 246, 243, 0.3)",
                   }}
                 >
                   <item.icon
-                    className="h-12 w-12 mb-6"
+                    className="h-10 w-10 md:h-12 md:w-12 mb-4 md:mb-6"
                     style={{ color: "#F8F6F3" }}
                   />
                   <h3
-                    className="text-xl font-bold mb-4"
+                    className="text-lg md:text-xl font-bold mb-3 md:mb-4"
                     style={{ color: "#C4A484" }}
                   >
                     {item.title}
                   </h3>
-                  <p style={{ color: "#F8F6F3" }}>{item.description}</p>
+                  <p className="text-sm md:text-base" style={{ color: "#F8F6F3" }}>{item.description}</p>
                 </div>
               ))}
             </div>
 
-            <div className="text-center">
-              <p className="mb-8 text-lg" style={{ color: "#C4A484" }}>
+            <div className="text-center px-4">
+              <p className="mb-6 md:mb-8 text-base md:text-lg" style={{ color: "#C4A484" }}>
                 Rejoignez les entrepreneurs qui ont choisi l&apos;indépendance
               </p>
-              <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
+              <div className="flex flex-col sm:flex-row gap-3 md:gap-4 justify-center items-center">
                 <Button
                   size="lg"
                   asChild
-                  className="px-6 py-3 rounded-lg font-medium transition-all duration-200 hover:opacity-90"
+                  className="w-full sm:w-auto px-4 md:px-6 py-2 md:py-3 rounded-lg font-medium transition-all duration-200 hover:opacity-90 text-sm md:text-base"
                   style={{
                     backgroundColor: "#C4A484",
                     color: "#2D4A34",
@@ -710,7 +720,7 @@ export function SelfcampHomepage() {
                 >
                   <Link
                     href={DOMAINS.SELFKEY}
-                    className="inline-flex items-center space-x-2"
+                    className="inline-flex items-center justify-center space-x-2"
                   >
                     <span>Découvrir SelfKey.ch</span>
                     <ArrowRight className="h-4 w-4" />
@@ -720,7 +730,7 @@ export function SelfcampHomepage() {
                   size="lg"
                   variant="outline"
                   asChild
-                  className="px-6 py-3 rounded-lg font-medium transition-all duration-200 hover:bg-white/10"
+                  className="w-full sm:w-auto px-4 md:px-6 py-2 md:py-3 rounded-lg font-medium transition-all duration-200 hover:bg-white/10 text-sm md:text-base"
                   style={{
                     borderColor: "#C4A484",
                     color: "#C4A484",
@@ -729,7 +739,7 @@ export function SelfcampHomepage() {
                 >
                   <Link
                     href="/contact"
-                    className="inline-flex items-center space-x-2"
+                    className="inline-flex items-center justify-center space-x-2"
                   >
                     <span>Être rappelé</span>
                     <Users className="h-4 w-4" />
@@ -742,37 +752,37 @@ export function SelfcampHomepage() {
 
         {/* Footer */}
         <footer
-          className="py-12 px-4 relative z-10"
+          className="py-8 md:py-12 px-4 relative z-10"
           style={{ backgroundColor: "#292D1C" }}
         >
           <div className="container mx-auto">
-            <div className="grid md:grid-cols-3 gap-8">
-              <div>
-                <div className="flex items-center space-x-3 mb-4">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 md:gap-8">
+              <div className="text-center md:text-left">
+                <div className="flex items-center justify-center md:justify-start space-x-3 mb-3 md:mb-4">
                   <Image
                     src="/logo.png"
                     alt="SelfCamp"
-                    width={32}
-                    height={32}
-                    className="rounded"
+                    width={28}
+                    height={28}
+                    className="rounded md:w-8 md:h-8"
                   />
                   <span
-                    className="text-xl font-bold"
+                    className="text-lg md:text-xl font-bold"
                     style={{ color: "#F8F6F3" }}
                   >
                     SelfCamp
                   </span>
                 </div>
-                <p style={{ color: "#C4A484" }}>
+                <p className="text-sm md:text-base" style={{ color: "#C4A484" }}>
                   Le camping du futur, disponible dès aujourd&apos;hui.
                 </p>
               </div>
 
-              <div>
-                <h4 className="font-semibold mb-4" style={{ color: "#C4A484" }}>
+              <div className="text-center md:text-left">
+                <h4 className="font-semibold mb-3 md:mb-4 text-base md:text-lg" style={{ color: "#C4A484" }}>
                   Services
                 </h4>
-                <ul className="space-y-2">
+                <ul className="space-y-1 md:space-y-2 text-sm md:text-base">
                   <li
                     className="transition-colors duration-300"
                     style={{ color: "#F8F6F3" }}
@@ -800,22 +810,22 @@ export function SelfcampHomepage() {
                 </ul>
               </div>
 
-              <div>
-                <h4 className="font-semibold mb-4" style={{ color: "#C4A484" }}>
+              <div className="text-center md:text-left">
+                <h4 className="font-semibold mb-3 md:mb-4 text-base md:text-lg" style={{ color: "#C4A484" }}>
                   Contact
                 </h4>
-                <div className="space-y-2">
+                <div className="space-y-1 md:space-y-2 text-sm md:text-base">
                   <div
-                    className="flex items-center space-x-2 transition-colors duration-300"
+                    className="flex items-center justify-center md:justify-start space-x-2 transition-colors duration-300"
                     style={{ color: "#F8F6F3" }}
                   >
-                    <MapPin className="h-4 w-4" />
+                    <MapPin className="h-3 w-3 md:h-4 md:w-4 flex-shrink-0" />
                     <span>Canton de Fribourg, Suisse</span>
                   </div>
                   <div>
                     <a
                       href={DOMAINS.SELFKEY}
-                      className="transition-colors duration-300"
+                      className="transition-colors duration-300 text-sm md:text-base"
                       style={{ color: "#C4A484" }}
                     >
                       Système de réservation
@@ -826,7 +836,7 @@ export function SelfcampHomepage() {
             </div>
 
             <div
-              className="border-t mt-8 pt-8 text-center"
+              className="border-t mt-6 md:mt-8 pt-6 md:pt-8 text-center text-xs md:text-sm"
               style={{ borderColor: "#2D4A34", color: "#C4A484" }}
             >
               <p>
