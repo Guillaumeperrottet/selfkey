@@ -218,6 +218,47 @@ export function ConfirmationManager({ hotelSlug }: ConfirmationManagerProps) {
     }));
   };
 
+  // Fonctions de copie entre templates
+  const copyGeneralToWithDog = async () => {
+    if (
+      !settings.confirmationEmailTemplate &&
+      !settings.confirmationEmailDesign
+    ) {
+      toastUtils.error("Aucun template général à copier");
+      return;
+    }
+
+    const newSettings = {
+      ...settings,
+      confirmationEmailTemplateWithDog: settings.confirmationEmailTemplate,
+      confirmationEmailDesignWithDog: settings.confirmationEmailDesign,
+    };
+
+    setSettings(newSettings);
+    await handleSaveWithUpdate(newSettings);
+    toastUtils.success("Template général copié vers le template avec chiens !");
+  };
+
+  const copyWithDogToGeneral = async () => {
+    if (
+      !settings.confirmationEmailTemplateWithDog &&
+      !settings.confirmationEmailDesignWithDog
+    ) {
+      toastUtils.error("Aucun template avec chiens à copier");
+      return;
+    }
+
+    const newSettings = {
+      ...settings,
+      confirmationEmailTemplate: settings.confirmationEmailTemplateWithDog,
+      confirmationEmailDesign: settings.confirmationEmailDesignWithDog,
+    };
+
+    setSettings(newSettings);
+    await handleSaveWithUpdate(newSettings);
+    toastUtils.success("Template avec chiens copié vers le template général !");
+  };
+
   // Test d'email
   const handleTestEmail = async (templateType: "general" | "withDogs") => {
     if (!testEmail) {
@@ -505,6 +546,82 @@ export function ConfirmationManager({ hotelSlug }: ConfirmationManagerProps) {
               </div>
             </CardContent>
           </Card>
+
+          {/* Copie entre templates */}
+          {settings.enableDogOption && (
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Copy className="h-5 w-5" />
+                  Copie entre Templates
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <p className="text-sm text-muted-foreground">
+                  Copiez rapidement un template d&apos;email vers l&apos;autre
+                  pour éviter de recréer le design.
+                </p>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="space-y-3">
+                    <h4 className="font-medium">
+                      Template Général → Avec Chiens
+                    </h4>
+                    <p className="text-sm text-muted-foreground">
+                      Copie le template général vers le template avec chiens
+                    </p>
+                    <Button
+                      onClick={copyGeneralToWithDog}
+                      disabled={
+                        isLoading ||
+                        (!settings.confirmationEmailTemplate &&
+                          !settings.confirmationEmailDesign)
+                      }
+                      variant="outline"
+                      className="w-full"
+                    >
+                      <Copy className="h-4 w-4 mr-2" />
+                      Copier Général → Chiens
+                    </Button>
+                  </div>
+
+                  <div className="space-y-3">
+                    <h4 className="font-medium">
+                      Template Avec Chiens → Général
+                    </h4>
+                    <p className="text-sm text-muted-foreground">
+                      Copie le template avec chiens vers le template général
+                    </p>
+                    <Button
+                      onClick={copyWithDogToGeneral}
+                      disabled={
+                        isLoading ||
+                        (!settings.confirmationEmailTemplateWithDog &&
+                          !settings.confirmationEmailDesignWithDog)
+                      }
+                      variant="outline"
+                      className="w-full"
+                    >
+                      <Copy className="h-4 w-4 mr-2" />
+                      Copier Chiens → Général
+                    </Button>
+                  </div>
+                </div>
+
+                <div className="p-4 bg-blue-50 rounded-lg border border-blue-200">
+                  <div className="flex items-start gap-2">
+                    <div className="text-blue-600 mt-0.5">ℹ️</div>
+                    <div className="text-sm text-blue-700">
+                      <strong>Conseil :</strong> Après avoir copié un template,
+                      vous pouvez le modifier dans l&apos;onglet correspondant
+                      pour l&apos;adapter aux spécificités de chaque type de
+                      réservation.
+                    </div>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          )}
         </TabsContent>
       </Tabs>
     </div>
