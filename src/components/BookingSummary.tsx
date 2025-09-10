@@ -476,7 +476,7 @@ export function BookingSummary({ bookingId }: BookingSummaryProps) {
             clientPhone: booking.clientPhone,
             clientVehicleNumber: booking.clientVehicleNumber || "Non renseigné",
             selectedDuration: `${duration} nuit${duration > 1 ? "s" : ""}`,
-            amount: booking.amount,
+            amount: booking.amount + platformFees.total, // Montant final avec frais de plateforme
             currency: booking.currency,
             checkInDate: booking.checkInDate,
             checkOutDate: booking.checkOutDate,
@@ -488,6 +488,12 @@ export function BookingSummary({ bookingId }: BookingSummaryProps) {
             pricingOptionsTotal: booking.pricingOptionsTotal,
             touristTaxTotal: booking.touristTaxTotal,
             touristTaxPerPersonPerNight: booking.touristTaxPerPersonPerNight,
+            // Ajouter les frais de plateforme
+            platformFees: {
+              fixedFee: platformFees.fixedFee,
+              commission: platformFees.commission,
+              total: platformFees.total,
+            },
             // Métadonnées supplémentaires
             paymentIntentId: data.paymentIntentId,
             hotelSlug: booking.hotelSlug,

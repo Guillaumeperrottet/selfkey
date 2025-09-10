@@ -136,7 +136,7 @@ export function ClassicBookingPaymentForm({
   const [isInitializing, setIsInitializing] = useState(true);
 
   useEffect(() => {
-    const loadBookingData = () => {
+    const loadBookingData = async () => {
       try {
         const storedData = sessionStorage.getItem(`payment_${paymentIntentId}`);
         if (!storedData) {
@@ -306,12 +306,7 @@ export function ClassicBookingPaymentForm({
                 </div>
                 <div className="text-right">
                   <div className="text-2xl font-bold text-gray-900">
-                    {(
-                      bookingData.amount +
-                      (bookingData.pricingOptionsTotal || 0) +
-                      (bookingData.touristTaxTotal || 0)
-                    ).toFixed(2)}{" "}
-                    {bookingData.currency}
+                    {bookingData.amount.toFixed(2)} {bookingData.currency}
                   </div>
                 </div>
               </div>
