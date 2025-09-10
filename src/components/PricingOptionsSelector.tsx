@@ -14,6 +14,7 @@ import {
 } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
 import { Settings, ChevronLeft } from "lucide-react";
+import { CompactBookingCart } from "@/components/CompactBookingCart";
 
 interface PricingOptionValue {
   id: string;
@@ -42,6 +43,13 @@ interface PricingOptionsSelectorProps {
   onOptionsConfirmed: (options: Record<string, string | string[]>) => void;
   onBack: () => void;
   initialOptions?: Record<string, string | string[]>;
+  // Nouvelles props pour le panier
+  selectedRoom?: {
+    id: string;
+    name: string;
+    price: number;
+  };
+  showCart?: boolean;
 }
 
 export function PricingOptionsSelector({
@@ -52,11 +60,18 @@ export function PricingOptionsSelector({
   onOptionsConfirmed,
   onBack,
   initialOptions = {},
+  selectedRoom,
+  showCart = false,
 }: PricingOptionsSelectorProps) {
   const [pricingOptions, setPricingOptions] = useState<PricingOption[]>([]);
   const [selectedOptions, setSelectedOptions] =
     useState<Record<string, string | string[]>>(initialOptions);
   const [loading, setLoading] = useState(true);
+
+  // Scroll vers le haut au montage du composant
+  useEffect(() => {
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  }, []);
 
   // Charger les options de prix
   useEffect(() => {
@@ -166,22 +181,33 @@ export function PricingOptionsSelector({
     <Card>
       <CardHeader>
         <div className="flex items-center justify-between">
-          <CardTitle className="flex items-center gap-2">
-            <Settings className="h-5 w-5" />
-            Additional Options
-            <Badge variant="secondary" className="ml-2">
-              {formatDates(checkInDate, checkOutDate)}
-              {hasDog && <span className="ml-1">🐕</span>}
-            </Badge>
-          </CardTitle>
           <Button variant="outline" onClick={onBack}>
             <ChevronLeft className="h-4 w-4 mr-1" />
             Back
           </Button>
+          <div className="flex-1 text-center">
+            <CardTitle className="flex items-center justify-center gap-2">
+              <Settings className="h-5 w-5" />
+              Additional Options
+              <Badge variant="secondary" className="ml-2">
+                {formatDates(checkInDate, checkOutDate)}
+                {hasDog && <span className="ml-1">🐕</span>}
+              </Badge>
+            </CardTitle>
+            <p className="text-sm text-gray-600 mt-1">
+              Personnalisez votre séjour avec nos options supplémentaires
+            </p>
+          </div>
+          {showCart && selectedRoom && (
+            <CompactBookingCart
+              room={selectedRoom}
+              checkInDate={checkInDate}
+              checkOutDate={checkOutDate}
+              selectedPricingOptions={selectedOptions}
+              pricingOptions={pricingOptions}
+            />
+          )}
         </div>
-        <p className="text-sm text-gray-600">
-          Personnalisez votre séjour avec nos options supplémentaires
-        </p>
       </CardHeader>
       <CardContent>
         <div className="space-y-6">
@@ -234,6 +260,12 @@ export function PricingOptionsSelector({
                         .map((value) => (
                           <SelectItem key={value.id} value={value.id}>
                             {value.label}
+                            {value.priceModifier !== 0 && (
+                              <span className="text-gray-500 ml-2">
+                                ({value.priceModifier > 0 ? "+" : ""}
+                                {value.priceModifier.toFixed(2)} CHF)
+                              </span>
+                            )}
                           </SelectItem>
                         ))}
                     </SelectContent>
@@ -277,6 +309,12 @@ export function PricingOptionsSelector({
                             className="text-sm cursor-pointer flex-1"
                           >
                             {value.label}
+                            {value.priceModifier !== 0 && (
+                              <span className="text-gray-500 ml-2">
+                                ({value.priceModifier > 0 ? "+" : ""}
+                                {value.priceModifier.toFixed(2)} CHF)
+                              </span>
+                            )}
                           </Label>
                         </div>
                       ))}
@@ -308,6 +346,12 @@ export function PricingOptionsSelector({
                           </div>
                           <Label className="text-sm cursor-pointer flex-1">
                             {value.label}
+                            {value.priceModifier !== 0 && (
+                              <span className="text-gray-500 ml-2">
+                                ({value.priceModifier > 0 ? "+" : ""}
+                                {value.priceModifier.toFixed(2)} CHF)
+                              </span>
+                            )}
                           </Label>
                         </div>
                       ))}
