@@ -23,6 +23,7 @@ import {
   fetchPricingOptions,
   type PricingOption,
 } from "@/lib/pricing-options-calculator";
+import { CompactBookingCart } from "@/components/CompactBookingCart";
 
 interface Room {
   id: string;
@@ -132,6 +133,11 @@ export function BookingFormDetails({
     new Date(checkInDate),
     new Date(checkOutDate)
   );
+
+  // Scroll vers le haut au montage du composant
+  useEffect(() => {
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  }, []);
 
   // Charger les paramètres de taxe de séjour
   useEffect(() => {
@@ -368,18 +374,26 @@ export function BookingFormDetails({
     <Card className="max-w-4xl mx-auto border border-gray-200 shadow-sm">
       <CardHeader className="border-b border-gray-200 bg-white">
         <div className="flex items-center justify-between">
-          <div>
-            <CardTitle className="text-xl font-medium text-gray-900">
-              Contact details
-            </CardTitle>
-          </div>
           <Button
             variant="outline"
             onClick={onBack}
             className="text-gray-700 border-gray-300 hover:bg-gray-50"
           >
-            ← Change Place
+            ← Place
           </Button>
+          <div className="flex-1 text-center">
+            <CardTitle className="text-xl font-medium text-gray-900">
+              Contact details
+            </CardTitle>
+          </div>
+          <CompactBookingCart
+            room={selectedRoom}
+            checkInDate={checkInDate}
+            checkOutDate={checkOutDate}
+            selectedPricingOptions={initialSelectedPricingOptions || {}}
+            pricingOptions={pricingOptions}
+            touristTaxTotal={touristTaxTotal}
+          />
         </div>
       </CardHeader>
 
