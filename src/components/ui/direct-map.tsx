@@ -265,7 +265,7 @@ const EstablishmentMarker = ({
         minWidth={mobile ? 250 : 200}
         className="mobile-popup"
       >
-        <div className={`${mobile ? "p-1" : "p-2"}`}>
+        <div className={`${mobile ? "p-2" : "p-4"}`}>
           {/* Image de l'établissement */}
           {establishment.image && (
             <div className="mb-3">
