@@ -385,13 +385,6 @@ function MapPageContent() {
               </h1>
             </a>
           </div>
-
-          {/* Enhanced Search Bar */}
-          <div className="mb-4">
-            <div className="text-center p-4 text-gray-500">
-              <p>Utilisez la barre de recherche sur la carte</p>
-            </div>
-          </div>
         </div>
 
         {/* Results */}
@@ -453,7 +446,7 @@ function MapPageContent() {
               <Card
                 key={spot.id}
                 id={`establishment-card-${spot.id}`}
-                className={`cursor-pointer transition-all duration-300 ${
+                className={`cursor-pointer transition-all duration-300 p-0 overflow-hidden ${
                   hoveredEstablishment === spot.id
                     ? "shadow-lg scale-[1.02] border-blue-300"
                     : "hover:shadow-md"
@@ -462,13 +455,13 @@ function MapPageContent() {
                 onMouseLeave={() => setHoveredEstablishment(null)}
                 onClick={() => centerMapOnEstablishment(spot)}
               >
-                <div className="relative h-32 bg-gray-200 rounded-t-lg overflow-hidden">
+                <div className="relative h-32 bg-gray-200 overflow-hidden">
                   <Image
                     src={spot.image}
                     alt={spot.name}
                     width={320}
                     height={128}
-                    className="w-full h-full object-cover"
+                    className="w-full h-full object-cover rounded-t-lg"
                   />
                   {/* Badge de disponibilité */}
                   <div className="absolute top-2 left-2">
@@ -565,9 +558,9 @@ function MapPageContent() {
           availabilityData={availabilityData}
         />
 
-        {/* Barre de recherche flottante au centre en haut */}
+        {/* Barre de recherche flottante au centre en haut - responsive */}
         <div
-          className="search-bar-overlay absolute top-4 left-1/2 transform -translate-x-1/2 w-full max-w-xs px-6"
+          className="search-bar-overlay absolute top-4 left-1/2 transform -translate-x-1/2 w-full max-w-xs md:max-w-md lg:max-w-lg px-6"
           style={{ zIndex: 1000 }}
         >
           <div

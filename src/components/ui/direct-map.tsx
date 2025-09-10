@@ -282,89 +282,77 @@ const EstablishmentMarker = ({
               />
             </div>
           )}
-
           <h3 className="font-semibold text-[#9EA173] text-base mb-2 leading-tight">
             {establishment.name}
           </h3>
-
-          {/* Informations de disponibilité */}
-          <div
-            className={`text-sm mb-2 ${availabilityInfo.color} flex items-center gap-1`}
-          >
-            <span>{availabilityInfo.emoji}</span>
-            <span>{availabilityInfo.text}</span>
-          </div>
-
+          {/* Informations de disponibilité - design harmonisé Selfcamp */}
+          <div className="flex items-center gap-2 mb-2">
+            <div
+              className={`inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium ${
+                availabilityInfo.text.includes("26/26")
+                  ? "bg-green-100 text-green-700"
+                  : availabilityInfo.text.includes("Complet")
+                    ? "bg-red-100 text-red-700"
+                    : "bg-orange-100 text-orange-700"
+              }`}
+            >
+              <span>{availabilityInfo.emoji}</span>
+              <span>{availabilityInfo.text}</span>
+            </div>
+          </div>{" "}
           <div className="flex items-center gap-1 text-xs text-gray-600 mb-2">
             <span>📍</span>
             <span>{establishment.location}</span>
           </div>
-
           <p className="text-sm text-gray-600 mb-3 line-clamp-2">
             {establishment.description}
           </p>
-
-          {/* Amenities si disponibles */}
-          {establishment.amenities && establishment.amenities.length > 0 && (
-            <div className="flex flex-wrap gap-1 mb-3">
-              {establishment.amenities.slice(0, 2).map((amenity, index) => (
-                <span
-                  key={index}
-                  className="text-xs bg-blue-100 text-blue-700 px-2 py-1 rounded-full"
-                >
-                  {amenity === "wifi" && "📶"}
-                  {amenity === "shower" && "🚿"}
-                  {amenity === "douche" && "🚿"}
-                  {amenity === "toilet" && "🚻"}
-                  {amenity === "electricity" && "⚡"}
-                  {![
-                    "wifi",
-                    "shower",
-                    "douche",
-                    "toilet",
-                    "electricity",
-                  ].includes(amenity) && amenity}
-                </span>
-              ))}
-            </div>
-          )}
-
-          {/* Information de réservation */}
-          <div className="bg-green-50 border border-green-200 rounded-lg p-3 mb-3">
-            <div className="flex items-center gap-2 mb-2">
-              <span className="text-green-600">📅</span>
-              <span className="text-sm font-medium text-green-800">
-                Réservation en ligne possible
-              </span>
-            </div>
-            <p className="text-xs text-green-700 mb-2">
-              Réservation possible pour le jour même selon disponibilité
-            </p>
-            <button
-              onClick={openBookingPage}
-              className="w-full bg-green-600 text-white px-3 py-2 rounded-md text-sm font-medium hover:bg-green-700 transition-colors touch-action-manipulation"
-            >
-              Réserver maintenant
-            </button>
+          {/* Petite note discrète sur la réservation avec style Selfcamp */}
+          <div
+            className="text-xs mb-3 flex items-center gap-1"
+            style={{ color: "#C4A484" }}
+          >
+            <span>ℹ️</span>
+            <span>Réservation en ligne disponible</span>
           </div>
-
           {/* Boutons d'action */}
           <div className="flex gap-2">
-            {/* Bouton GPS */}
+            {/* Bouton GPS avec style Selfcamp */}
             <button
               onClick={openGoogleMaps}
-              className="flex-1 bg-blue-600 text-white px-3 py-2 rounded-lg text-sm font-medium hover:bg-blue-700 transition-colors touch-action-manipulation flex items-center justify-center gap-2"
+              className="flex-1 px-3 py-2 rounded-lg text-sm font-medium transition-colors touch-action-manipulation flex items-center justify-center gap-2"
+              style={{
+                backgroundColor: "#2D4A34",
+                color: "#C4A484",
+                border: "1px solid #C4A484",
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.backgroundColor = "#1e3d3d";
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.backgroundColor = "#2D4A34";
+              }}
             >
               <span>🧭</span>
               <span>GPS</span>
             </button>
 
-            {/* Bouton détails */}
+            {/* Bouton réserver avec style Selfcamp */}
             <button
-              onClick={handleClick}
-              className="flex-1 bg-[#9EA173] text-white px-3 py-2 rounded-lg text-sm font-medium hover:bg-[#8a9165] transition-colors touch-action-manipulation"
+              onClick={openBookingPage}
+              className="flex-1 px-3 py-2 rounded-lg text-sm font-medium transition-colors touch-action-manipulation"
+              style={{
+                backgroundColor: "#C4A484",
+                color: "#2D4A34",
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.backgroundColor = "#B5987A";
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.backgroundColor = "#C4A484";
+              }}
             >
-              Voir détails
+              Réserver
             </button>
           </div>
         </div>
