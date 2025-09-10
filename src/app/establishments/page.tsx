@@ -35,6 +35,7 @@ import {
   CheckCircle,
   AlertCircle,
   LogOut,
+  User,
   Trash2,
   Edit,
   UserPlus,
@@ -527,6 +528,17 @@ export default function EstablishmentsPage() {
               <span className="text-sm text-muted-foreground">
                 Bonjour, {user?.name || user?.email}
               </span>
+              <Button
+                variant="ghost"
+                size="sm"
+                asChild
+                className="flex items-center gap-2"
+              >
+                <Link href="/profile">
+                  <User className="h-4 w-4" />
+                  Mon Profil
+                </Link>
+              </Button>
               <Button
                 variant="ghost"
                 size="sm"
