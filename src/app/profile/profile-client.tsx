@@ -29,7 +29,6 @@ import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { changePassword, sendVerificationEmail } from "@/lib/auth-client";
 import { toastUtils } from "@/lib/toast-utils";
-import TestAuth from "./test-auth";
 
 interface User {
   id: string;
@@ -267,9 +266,6 @@ export default function ProfileClient({ user }: ProfileClientProps) {
   return (
     <div className="min-h-screen bg-gray-50 p-4">
       <div className="max-w-2xl mx-auto space-y-6">
-        {/* Test Component - Temporary */}
-        <TestAuth />
-
         {/* Header */}
         <div className="flex items-center gap-4">
           <Button
