@@ -126,59 +126,64 @@ export async function generateQRCodeWithLogo(
       const logoY = (finalWidth - finalLogoSize) / 2;
 
       // Dessiner un fond blanc avec des angles arrondis pour le logo (adapté à la résolution)
-      const logoRadius = 8 * scale;
-      const logoPadding = 4 * scale;
-      const logoBackgroundSize = finalLogoSize + logoPadding * 2;
-      const logoBackgroundX = logoX - logoPadding;
-      const logoBackgroundY = logoY - logoPadding;
+      // SEULEMENT si ce n'est pas une version transparente
+      if (!transparent) {
+        const logoRadius = 8 * scale;
+        const logoPadding = 4 * scale;
+        const logoBackgroundSize = finalLogoSize + logoPadding * 2;
+        const logoBackgroundX = logoX - logoPadding;
+        const logoBackgroundY = logoY - logoPadding;
 
-      ctx.save();
-      ctx.beginPath();
-      ctx.moveTo(logoBackgroundX + logoRadius, logoBackgroundY);
-      ctx.lineTo(
-        logoBackgroundX + logoBackgroundSize - logoRadius,
-        logoBackgroundY
-      );
-      ctx.quadraticCurveTo(
-        logoBackgroundX + logoBackgroundSize,
-        logoBackgroundY,
-        logoBackgroundX + logoBackgroundSize,
-        logoBackgroundY + logoRadius
-      );
-      ctx.lineTo(
-        logoBackgroundX + logoBackgroundSize,
-        logoBackgroundY + logoBackgroundSize - logoRadius
-      );
-      ctx.quadraticCurveTo(
-        logoBackgroundX + logoBackgroundSize,
-        logoBackgroundY + logoBackgroundSize,
-        logoBackgroundX + logoBackgroundSize - logoRadius,
-        logoBackgroundY + logoBackgroundSize
-      );
-      ctx.lineTo(
-        logoBackgroundX + logoRadius,
-        logoBackgroundY + logoBackgroundSize
-      );
-      ctx.quadraticCurveTo(
-        logoBackgroundX,
-        logoBackgroundY + logoBackgroundSize,
-        logoBackgroundX,
-        logoBackgroundY + logoBackgroundSize - logoRadius
-      );
-      ctx.lineTo(logoBackgroundX, logoBackgroundY + logoRadius);
-      ctx.quadraticCurveTo(
-        logoBackgroundX,
-        logoBackgroundY,
-        logoBackgroundX + logoRadius,
-        logoBackgroundY
-      );
-      ctx.closePath();
-      ctx.fillStyle = "#FFFFFF";
-      ctx.fill();
-      ctx.restore();
+        ctx.save();
+        ctx.beginPath();
+        ctx.moveTo(logoBackgroundX + logoRadius, logoBackgroundY);
+        ctx.lineTo(
+          logoBackgroundX + logoBackgroundSize - logoRadius,
+          logoBackgroundY
+        );
+        ctx.quadraticCurveTo(
+          logoBackgroundX + logoBackgroundSize,
+          logoBackgroundY,
+          logoBackgroundX + logoBackgroundSize,
+          logoBackgroundY + logoRadius
+        );
+        ctx.lineTo(
+          logoBackgroundX + logoBackgroundSize,
+          logoBackgroundY + logoBackgroundSize - logoRadius
+        );
+        ctx.quadraticCurveTo(
+          logoBackgroundX + logoBackgroundSize,
+          logoBackgroundY + logoBackgroundSize,
+          logoBackgroundX + logoBackgroundSize - logoRadius,
+          logoBackgroundY + logoBackgroundSize
+        );
+        ctx.lineTo(
+          logoBackgroundX + logoRadius,
+          logoBackgroundY + logoBackgroundSize
+        );
+        ctx.quadraticCurveTo(
+          logoBackgroundX,
+          logoBackgroundY + logoBackgroundSize,
+          logoBackgroundX,
+          logoBackgroundY + logoBackgroundSize - logoRadius
+        );
+        ctx.lineTo(logoBackgroundX, logoBackgroundY + logoRadius);
+        ctx.quadraticCurveTo(
+          logoBackgroundX,
+          logoBackgroundY,
+          logoBackgroundX + logoRadius,
+          logoBackgroundY
+        );
+        ctx.closePath();
+        ctx.fillStyle = "#FFFFFF";
+        ctx.fill();
+        ctx.restore();
+      }
 
       // Dessiner le logo avec des angles arrondis (utiliser les dimensions finales)
       if (logoImage.complete && logoImage.naturalWidth > 0) {
+        const logoRadius = 8 * scale;
+
         ctx.save();
         ctx.beginPath();
         ctx.moveTo(logoX + logoRadius, logoY);

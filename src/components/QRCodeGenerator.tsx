@@ -240,7 +240,7 @@ export function QRCodeGenerator({
                       Avec logo
                     </div>
                     <div className="text-xs text-gray-500">
-                      Esthétique professionnel
+                      Logo sur fond blanc · Contraste optimal
                     </div>
                   </button>
 
@@ -256,7 +256,7 @@ export function QRCodeGenerator({
                       Sans logo, transparent
                     </div>
                     <div className="text-xs text-gray-500">
-                      Fond transparent
+                      Fond transparent · Intégration libre
                     </div>
                   </button>
 
@@ -272,7 +272,7 @@ export function QRCodeGenerator({
                       Avec logo, transparent
                     </div>
                     <div className="text-xs text-gray-500">
-                      Logo + fond transparent
+                      Logo sans fond · Prévoir fond sombre
                     </div>
                   </button>
                 </div>
