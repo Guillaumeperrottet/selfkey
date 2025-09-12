@@ -12,6 +12,7 @@ interface QRCodeWithLogoOptions {
   borderRadius?: number;
   quality?: "low" | "medium" | "high" | "print"; // Nouveau paramètre de qualité
   scale?: number; // Facteur de mise à l'échelle pour la haute définition
+  transparent?: boolean; // Option pour fond transparent
 }
 
 export async function generateQRCodeWithLogo(
@@ -27,6 +28,7 @@ export async function generateQRCodeWithLogo(
     borderRadius = 16,
     quality = "medium",
     scale = quality === "print" ? 4 : quality === "high" ? 2 : 1, // Facteur de mise à l'échelle basé sur la qualité
+    transparent = false,
   } = options;
 
   // Calculer les dimensions finales
@@ -34,12 +36,17 @@ export async function generateQRCodeWithLogo(
   const finalLogoSize = logoSize * scale;
   const finalBorderRadius = borderRadius * scale;
 
+  // Ajuster la couleur de fond si transparent
+  const backgroundColorOptions = transparent
+    ? { dark: color.dark || "#000000", light: "#00000000" }
+    : color;
+
   try {
     // Générer le QR code de base avec une résolution plus élevée
     const qrCodeDataUrl = await QRCode.toDataURL(text, {
       width: finalWidth,
       margin,
-      color,
+      color: backgroundColorOptions,
       errorCorrectionLevel:
         quality === "print" ? "H" : quality === "high" ? "M" : "L", // Correction d'erreur adaptative
     });

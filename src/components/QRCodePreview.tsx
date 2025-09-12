@@ -1,7 +1,6 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { generateQRCodeWithLogo } from "@/lib/qrcode-with-logo";
 import Image from "next/image";
 
 interface QRCodePreviewProps {
@@ -17,18 +16,24 @@ export function QRCodePreview({ hotelSlug }: QRCodePreviewProps) {
     const url = `${window.location.origin}/${hotelSlug}`;
     setBookingUrl(url);
 
-    // Générer le code QR avec logo
-    generateQRCodeWithLogo(url, {
-      width: 128,
-      margin: 1,
-      borderRadius: 12,
-    })
-      .then((dataUrl: string) => {
-        setQrCodeUrl(dataUrl);
+    // Générer un QR code simple SANS logo pour un meilleur scan
+    import("qrcode").then((QRCode) => {
+      QRCode.toDataURL(url, {
+        width: 200, // Taille augmentée pour un meilleur scan
+        margin: 2,
+        color: {
+          dark: "#000000",
+          light: "#FFFFFF",
+        },
+        errorCorrectionLevel: "M", // Niveau de correction d'erreur moyen
       })
-      .catch((error: Error) => {
-        console.error("Erreur lors de la génération du QR Code:", error);
-      });
+        .then((dataUrl: string) => {
+          setQrCodeUrl(dataUrl);
+        })
+        .catch((error: Error) => {
+          console.error("Erreur lors de la génération du QR Code:", error);
+        });
+    });
   }, [hotelSlug]);
 
   if (!qrCodeUrl) {
@@ -84,18 +89,29 @@ export function QRCodePreview({ hotelSlug }: QRCodePreviewProps) {
       </h3>
 
       <div className="flex-1 flex flex-col items-center justify-center space-y-6 bg-gradient-to-br from-slate-50 to-gray-100 rounded-xl p-6">
-        {/* QR Code avec style moderne */}
+        {/* QR Code optimisé pour le scan (sans logo) */}
         <div className="relative group">
           <div className="absolute -inset-2 bg-gradient-to-r from-indigo-500 to-purple-500 rounded-xl blur opacity-25 group-hover:opacity-40 transition duration-200"></div>
           <div className="relative bg-white rounded-xl p-4 shadow-lg">
             <Image
               src={qrCodeUrl}
               alt="QR Code pour réservation"
-              width={128}
-              height={128}
-              className="w-32 h-32 rounded-lg"
+              width={200}
+              height={200}
+              className="w-50 h-50 rounded-lg"
             />
           </div>
+        </div>
+
+        {/* Message informatif */}
+        <div className="text-center">
+          <p className="text-sm text-gray-600 bg-blue-50 border border-blue-200 rounded-lg p-3">
+            <span className="font-medium text-blue-800">
+              ✓ QR Code optimisé pour le scan
+            </span>
+            <br />
+            Sans logo pour une meilleure lisibilité
+          </p>
         </div>
 
         {/* URL avec style moderne */}
@@ -115,7 +131,7 @@ export function QRCodePreview({ hotelSlug }: QRCodePreviewProps) {
           href={`/admin/${hotelSlug}/qr-code`}
           className="group bg-gradient-to-r from-indigo-500 to-purple-500 text-white px-6 py-3 rounded-xl hover:from-indigo-600 hover:to-purple-600 flex items-center space-x-2 transition-all duration-200 transform hover:scale-105 shadow-lg hover:shadow-xl font-semibold"
         >
-          <span>Gérer et imprimer</span>
+          <span>Télécharger en HQ avec logo</span>
           <svg
             className="w-4 h-4 group-hover:translate-x-1 transition-transform"
             fill="none"
