@@ -98,19 +98,19 @@ export async function sendBookingConfirmation(
       return { id: "simulated-email" };
     }
 
-    const { data, error } = await resend.emails.send({
+    // Utiliser la fonction sendEmail centralisée
+    const result = await sendEmail({
+      to: booking.clientEmail,
       from: `${hotelConfig.name} <noreply@selfkey.ch>`,
-      to: [booking.clientEmail],
       subject: `Confirmation de réservation - ${hotelConfig.name}`,
       html: htmlContent,
     });
 
-    if (error) {
-      console.error("Erreur envoi email:", error);
-      throw error;
+    if (!result.success) {
+      throw new Error(result.error || "Erreur lors de l'envoi de l'email");
     }
 
-    return data;
+    return result.data;
   } catch (error) {
     console.error("Erreur lors de l'envoi de l'email:", error);
     throw error;
@@ -318,47 +318,166 @@ Das {establishmentName} Team`;
       return { id: "simulated-email-day-parking" };
     }
 
-    const { data, error } = await resend.emails.send({
+    // Utiliser la fonction sendEmail centralisée
+    const result = await sendEmail({
+      to: booking.clientEmail,
       from: `${booking.establishmentName} <noreply@selfkey.ch>`,
-      to: [booking.clientEmail],
       subject: `🚗 Parking Jour Confirmé - ${booking.establishmentName}`,
       html: htmlContent,
     });
 
-    if (error) {
-      console.error("Erreur envoi email parking jour:", error);
-      throw error;
+    if (!result.success) {
+      throw new Error(result.error || "Erreur lors de l'envoi de l'email");
     }
 
-    console.log("✅ Email parking jour envoyé avec succès:", data?.id);
-    return data;
+    console.log("✅ Email parking jour envoyé avec succès:", result.data?.id);
+    return result.data;
   } catch (error) {
     console.error("Erreur lors de l'envoi de l'email parking jour:", error);
     throw error;
   }
 }
 
+// Fonction utilitaire pour nettoyer les adresses email non-ASCII
+function sanitizeEmailAddress(email: string): string {
+  // Remplacer les caractères non-ASCII courants par leurs équivalents ASCII
+  const replacements: { [key: string]: string } = {
+    à: "a",
+    á: "a",
+    â: "a",
+    ã: "a",
+    ä: "a",
+    å: "a",
+    è: "e",
+    é: "e",
+    ê: "e",
+    ë: "e",
+    ì: "i",
+    í: "i",
+    î: "i",
+    ï: "i",
+    ò: "o",
+    ó: "o",
+    ô: "o",
+    õ: "o",
+    ö: "o",
+    ù: "u",
+    ú: "u",
+    û: "u",
+    ü: "u",
+    ç: "c",
+    ñ: "n",
+    À: "A",
+    Á: "A",
+    Â: "A",
+    Ã: "A",
+    Ä: "A",
+    Å: "A",
+    È: "E",
+    É: "E",
+    Ê: "E",
+    Ë: "E",
+    Ì: "I",
+    Í: "I",
+    Î: "I",
+    Ï: "I",
+    Ò: "O",
+    Ó: "O",
+    Ô: "O",
+    Õ: "O",
+    Ö: "O",
+    Ù: "U",
+    Ú: "U",
+    Û: "U",
+    Ü: "U",
+    Ç: "C",
+    Ñ: "N",
+  };
+
+  let sanitized = email;
+  for (const [nonAscii, ascii] of Object.entries(replacements)) {
+    sanitized = sanitized.replace(new RegExp(nonAscii, "g"), ascii);
+  }
+
+  return sanitized;
+}
+
 // Fonction générique pour envoyer des emails (utilisée par Better Auth)
 interface EmailOptions {
   to: string;
+  from?: string;
   subject: string;
   html: string;
+  bcc?: string[];
 }
 
-export async function sendEmail({ to, subject, html }: EmailOptions) {
+export async function sendEmail({
+  to,
+  from,
+  subject,
+  html,
+  bcc,
+}: EmailOptions) {
   if (!resend) {
     console.warn("⚠️ Resend non configuré - simulation envoi email");
     console.log(`📧 Email simulé - À: ${to}, Sujet: ${subject}`);
-    return { id: "simulated-email" };
+    if (bcc && bcc.length > 0) {
+      console.log(`📧 BCC simulé: ${bcc.join(", ")}`);
+    }
+    return { success: true, id: "simulated-email" };
   }
 
   try {
-    const { data, error } = await resend.emails.send({
-      from: process.env.RESEND_FROM_EMAIL || "SelfKey <noreply@selfkey.ch>",
-      to,
+    // Nettoyer l'adresse principale
+    const sanitizedTo = sanitizeEmailAddress(to);
+
+    // Nettoyer les adresses BCC si présentes
+    let sanitizedBcc: string[] | undefined;
+    if (bcc && bcc.length > 0) {
+      sanitizedBcc = bcc.map((email) => sanitizeEmailAddress(email));
+
+      // Vérifier si des adresses ont été modifiées
+      const modifiedAddresses = bcc.filter(
+        (original, index) => original !== sanitizedBcc![index]
+      );
+      if (modifiedAddresses.length > 0) {
+        console.warn(
+          `⚠️ Adresses BCC contenant des caractères non-ASCII nettoyées:`,
+          {
+            originales: modifiedAddresses,
+            nettoyees: modifiedAddresses.map((email) =>
+              sanitizeEmailAddress(email)
+            ),
+          }
+        );
+      }
+    }
+
+    if (sanitizedTo !== to) {
+      console.warn(
+        `⚠️ Adresse principale contenant des caractères non-ASCII nettoyée: ${to} -> ${sanitizedTo}`
+      );
+    }
+
+    const emailData: {
+      from: string;
+      to: string;
+      subject: string;
+      html: string;
+      bcc?: string[];
+    } = {
+      from:
+        from || process.env.RESEND_FROM_EMAIL || "SelfKey <noreply@selfkey.ch>",
+      to: sanitizedTo,
       subject,
       html,
-    });
+    };
+
+    if (sanitizedBcc && sanitizedBcc.length > 0) {
+      emailData.bcc = sanitizedBcc;
+    }
+
+    const { data, error } = await resend.emails.send(emailData);
 
     if (error) {
       console.error("Erreur envoi email:", error);
@@ -366,9 +485,12 @@ export async function sendEmail({ to, subject, html }: EmailOptions) {
     }
 
     console.log("📧 Email envoyé avec succès:", data);
-    return data;
+    return { success: true, data };
   } catch (error) {
     console.error("Erreur lors de l'envoi de l'email:", error);
-    throw error;
+    return {
+      success: false,
+      error: error instanceof Error ? error.message : String(error),
+    };
   }
 }
