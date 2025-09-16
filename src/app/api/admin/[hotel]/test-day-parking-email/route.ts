@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { auth } from "@/lib/auth";
 import { headers } from "next/headers";
-import { sendEmail } from "@/lib/resend";
+import { sendEmail } from "@/lib/email";
 
 interface Props {
   params: Promise<{ hotel: string }>;

@@ -1,6 +1,6 @@
 import { prisma } from "@/lib/prisma";
 import { NextResponse } from "next/server";
-import { sendEmail } from "@/lib/resend";
+import { sendEmail } from "@/lib/email";
 import { isRateLimited } from "@/lib/rate-limiter";
 import { replaceImagePlaceholders } from "@/lib/image-utils";
 
