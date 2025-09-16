@@ -18,6 +18,7 @@ import { BookingsTable } from "@/components/BookingsTable";
 import { DashboardCharts } from "@/components/DashboardCharts";
 import { DashboardPublicAccess } from "@/components/DashboardPublicAccess";
 import { ChartColorSelector } from "@/components/ChartColorSelector";
+import { TouristTaxDashboard } from "@/components/TouristTaxDashboard";
 import ExcelExportManager from "@/components/ExcelExportManager";
 import {
   Card,
@@ -35,6 +36,7 @@ import {
   Users,
   Bed,
   CheckCircle,
+  Euro,
 } from "lucide-react";
 
 interface ChartColors {
@@ -176,6 +178,14 @@ export function AdminDashboard({
       offset: { x: 20, y: 0 },
     },
     {
+      target: '[data-tutorial="nav-tourist-tax"]',
+      title: "Taxes de séjour",
+      content:
+        "Consultez et gérez toutes les taxes de séjour collectées. Statistiques détaillées et export Excel pour les déclarations.",
+      position: "right" as const,
+      offset: { x: 20, y: 0 },
+    },
+    {
       target: '[data-tutorial="nav-settings"]',
       title: "Paramètres",
       content:
@@ -279,7 +289,7 @@ export function AdminDashboard({
         return (
           <div className="space-y-6">
             {finalIsStripeConfigured && dbRooms.length > 0 ? (
-              <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-4">
+              <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
                 {/* Statistiques */}
                 <Card className="stats-card">
                   <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
@@ -365,6 +375,13 @@ export function AdminDashboard({
                           (sum: number, b) => sum + b.amount,
                           0
                         );
+
+                        // Déduire les taxes de séjour du montant brut
+                        const totalTouristTax = todayBookings.reduce(
+                          (sum: number, b) => sum + (b.touristTaxTotal || 0),
+                          0
+                        );
+
                         const totalCommissions = todayBookings.reduce(
                           (sum: number, booking) => {
                             const commission = Math.round(
@@ -376,13 +393,52 @@ export function AdminDashboard({
                           },
                           0
                         );
-                        const netRevenue = totalGross - totalCommissions;
+
+                        // Revenus nets = montant brut - taxes de séjour - commissions
+                        const netRevenue =
+                          totalGross - totalTouristTax - totalCommissions;
                         return netRevenue.toFixed(2);
                       })()}{" "}
                       CHF
                     </div>
                     <p className="text-xs text-muted-foreground">
-                      après déduction des frais
+                      après déduction des frais et taxes de séjour
+                    </p>
+                  </CardContent>
+                </Card>
+
+                <Card className="stats-card">
+                  <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                    <CardTitle className="text-sm font-medium">
+                      Taxes de séjour du jour
+                    </CardTitle>
+                    <Euro className="h-4 w-4 text-muted-foreground" />
+                  </CardHeader>
+                  <CardContent>
+                    <div className="text-2xl font-bold">
+                      {(() => {
+                        const today = new Date();
+                        today.setHours(0, 0, 0, 0);
+                        const tomorrow = new Date(today);
+                        tomorrow.setDate(today.getDate() + 1);
+
+                        const todayBookings = allBookings.filter((booking) => {
+                          const bookingDate = new Date(booking.bookingDate);
+                          return bookingDate >= today && bookingDate < tomorrow;
+                        });
+
+                        const totalTouristTax = todayBookings.reduce(
+                          (sum: number, booking) =>
+                            sum + (booking.touristTaxTotal || 0),
+                          0
+                        );
+
+                        return totalTouristTax.toFixed(2);
+                      })()}{" "}
+                      CHF
+                    </div>
+                    <p className="text-xs text-muted-foreground">
+                      collectées aujourd&apos;hui
                     </p>
                   </CardContent>
                 </Card>
@@ -577,6 +633,13 @@ export function AdminDashboard({
         return (
           <div className="max-w-4xl mx-auto">
             <ExcelExportManager hotelSlug={hotel} />
+          </div>
+        );
+
+      case "tourist-tax":
+        return (
+          <div className="max-w-6xl mx-auto">
+            <TouristTaxDashboard bookings={allBookings} />
           </div>
         );
 

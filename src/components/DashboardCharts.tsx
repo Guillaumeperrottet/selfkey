@@ -76,7 +76,7 @@ export function DashboardCharts({
   colors,
   establishment,
 }: DashboardChartsProps) {
-  // Fonction pour calculer le revenu net après commissions
+  // Fonction pour calculer le revenu net après commissions et taxes de séjour
   const calculateNetRevenue = useCallback(
     (bookings: Booking[]) => {
       if (!establishment) {
@@ -88,7 +88,8 @@ export function DashboardCharts({
           (booking.amount * establishment.commissionRate) / 100 +
             establishment.fixedFee
         );
-        return sum + (booking.amount - commission);
+        const touristTax = booking.touristTaxTotal || 0;
+        return sum + (booking.amount - commission - touristTax);
       }, 0);
     },
     [establishment]

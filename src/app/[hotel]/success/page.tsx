@@ -93,15 +93,43 @@ export default async function SuccessPage({ params, searchParams }: Props) {
           <h1 className="text-3xl font-bold text-gray-900 mb-2">
             Réservation confirmée ! / Booking Confirmed!
           </h1>
-          <p className="text-gray-600">
-            Votre paiement a été traité avec succès. Vous recevrez une
-            confirmation par email sous peu.
-            <br />
-            <em>
-              Your payment has been processed successfully. You will receive an
-              email confirmation shortly.
-            </em>
-          </p>
+          <div className="space-y-4">
+            <p className="text-gray-600">
+              Votre paiement a été traité avec succès.
+              <br />
+              <em className="text-sm">
+                Your payment has been processed successfully.
+              </em>
+            </p>
+
+            {/* Message email en évidence */}
+            <div className="bg-blue-50 border-2 border-blue-200 rounded-lg p-4 mx-auto max-w-lg">
+              <div className="text-center">
+                <Mail className="h-8 w-8 text-blue-600 mx-auto mb-2" />
+                <p className="text-lg font-bold text-blue-900 mb-2">
+                  📧 EMAIL DE CONFIRMATION EN ROUTE !
+                </p>
+                <p className="text-blue-800 font-semibold">
+                  Vous recevrez un email avec tous les détails d&apos;accès sous
+                  peu.
+                </p>
+                <p className="text-sm text-blue-700 mt-1">
+                  <em>
+                    You will receive an email with all access details shortly.
+                  </em>
+                </p>
+
+                <div className="mt-3 bg-amber-100 border border-amber-300 rounded-lg p-3">
+                  <p className="text-amber-800 font-bold text-sm">
+                    ⚠️ IMPORTANT : Vérifiez vos SPAMS !
+                  </p>
+                  <p className="text-amber-700 text-xs">
+                    Don&apos;t forget to check your spam folder!
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
 
         {/* Détails de la réservation */}
@@ -195,16 +223,41 @@ export default async function SuccessPage({ params, searchParams }: Props) {
                 </div>
               </div>
             </div>
-            <div className="text-sm text-gray-600 bg-blue-50 p-3 rounded-lg">
-              <strong>Note :</strong> Un email de confirmation avec tous les
-              détails de votre réservation et les instructions d&apos;accès vous
-              sera envoyé sous peu à {booking.clientEmail}
-              <br />
-              <em>
-                <strong>Note:</strong> A confirmation email with all booking
-                details and access instructions will be sent shortly to{" "}
-                {booking.clientEmail}
-              </em>
+            <div className="bg-green-50 border-2 border-green-200 p-4 rounded-lg">
+              <div className="flex items-start gap-3">
+                <Mail className="h-6 w-6 text-green-600 mt-1" />
+                <div className="flex-1">
+                  <p className="font-bold text-green-900 text-base mb-2">
+                    📧 EMAIL DE CONFIRMATION
+                  </p>
+                  <p className="text-green-800 font-semibold mb-2">
+                    Un email avec tous les détails de votre réservation et les
+                    instructions d&apos;accès sera envoyé à :
+                  </p>
+                  <div className="bg-white border border-green-300 p-2 rounded text-center">
+                    <p className="font-bold text-green-900 text-lg">
+                      {booking.clientEmail}
+                    </p>
+                  </div>
+
+                  <div className="mt-3 bg-amber-50 border border-amber-300 rounded p-2">
+                    <p className="text-amber-800 font-bold text-sm text-center">
+                      ⚠️ PENSEZ À VÉRIFIER VOS SPAMS !
+                    </p>
+                    <p className="text-amber-700 text-xs text-center mt-1">
+                      Check your spam folder too!
+                    </p>
+                  </div>
+
+                  <p className="text-green-700 text-sm mt-2">
+                    <em>
+                      <strong>Note:</strong> A confirmation email with all
+                      booking details and access instructions will be sent
+                      shortly.
+                    </em>
+                  </p>
+                </div>
+              </div>
             </div>
           </CardContent>
         </Card>
@@ -226,11 +279,11 @@ export default async function SuccessPage({ params, searchParams }: Props) {
                   </div>
                   <div className="text-sm text-gray-600">
                     Vous recevrez un email avec votre code d&apos;accès et les
-                    instructions détaillées.
+                    instructions détaillées. Vérifiez aussi vos spams !
                     <br />
                     <em>
                       You will receive an email with your access code and
-                      detailed instructions.
+                      detailed instructions. Check your spam folder too!
                     </em>
                   </div>
                 </div>
@@ -376,6 +429,15 @@ Type: day_parking`}
           <h1 className="text-3xl font-bold text-gray-900 mb-2">
             Paiement confirmé !
           </h1>
+          <p className="text-gray-600">
+            Votre parking a été réservé avec succès. Vous recevrez une
+            confirmation par email avec tous les détails.
+            <br />
+            <span className="inline-block mt-2 text-sm font-medium text-amber-700 bg-amber-50 px-3 py-1 rounded-full">
+              ⚠️ Pensez à vérifier vos spams / Don&apos;t forget to check your
+              spam folder
+            </span>
+          </p>
         </div>
 
         {/* Détails de la réservation */}
@@ -582,11 +644,16 @@ async function ClassicBookingSuccessPage({
           </h1>
           <p className="text-gray-600">
             Votre paiement a été traité avec succès. Vous recevrez une
-            confirmation par email sous peu.
+            confirmation par email avec tous les détails d&apos;accès sous peu.
             <br />
-            <em>
+            <span className="inline-block mt-2 text-sm font-medium text-amber-700 bg-amber-50 px-3 py-1 rounded-full">
+              ⚠️ Pensez à vérifier vos spams / Don&apos;t forget to check your
+              spam folder
+            </span>
+            <br />
+            <em className="text-sm mt-2 block">
               Your payment has been processed successfully. You will receive an
-              email confirmation shortly.
+              email confirmation with all access details shortly.
             </em>
           </p>
         </div>
