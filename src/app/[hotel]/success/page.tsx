@@ -6,6 +6,7 @@ import { Badge } from "@/components/ui/badge";
 import { CheckCircle, Calendar, MapPin, Mail, Phone } from "lucide-react";
 import Link from "next/link";
 import { AutoEmailConfirmation } from "@/components/AutoEmailConfirmation";
+import { ConfirmationDetails } from "@/components/ConfirmationDetails";
 
 interface Props {
   params: Promise<{ hotel: string }>;
@@ -62,28 +63,13 @@ export default async function SuccessPage({ params, searchParams }: Props) {
     redirect(`/${hotel}/payment?booking=${bookingId}`);
   }
 
-  const duration = Math.ceil(
-    (new Date(booking.checkOutDate).getTime() -
-      new Date(booking.checkInDate).getTime()) /
-      (1000 * 60 * 60 * 24)
-  );
-
-  const formatDate = (date: Date) => {
-    return date.toLocaleDateString("fr-FR", {
-      weekday: "long",
-      year: "numeric",
-      month: "long",
-      day: "numeric",
-    });
-  };
-
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Composant invisible pour déclencher l'envoi d'email automatique */}
       <AutoEmailConfirmation bookingId={bookingId} />
 
       <div className="container mx-auto px-4 py-8 max-w-2xl">
-        {/* Header de succès */}
+        {/* Header de succès simplifié */}
         <div className="text-center mb-8">
           <div className="flex justify-center mb-4">
             <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center">
@@ -93,247 +79,15 @@ export default async function SuccessPage({ params, searchParams }: Props) {
           <h1 className="text-3xl font-bold text-gray-900 mb-2">
             Réservation confirmée ! / Booking Confirmed!
           </h1>
-          <div className="space-y-4">
-            <p className="text-gray-600">
-              Votre paiement a été traité avec succès.
-              <br />
-              <em className="text-sm">
-                Your payment has been processed successfully.
-              </em>
-            </p>
-
-            {/* Message email en évidence */}
-            <div className="bg-blue-50 border-2 border-blue-200 rounded-lg p-4 mx-auto max-w-lg">
-              <div className="text-center">
-                <Mail className="h-8 w-8 text-blue-600 mx-auto mb-2" />
-                <p className="text-lg font-bold text-blue-900 mb-2">
-                  📧 EMAIL DE CONFIRMATION EN ROUTE !
-                </p>
-                <p className="text-blue-800 font-semibold">
-                  Vous recevrez un email avec tous les détails d&apos;accès sous
-                  peu.
-                </p>
-                <p className="text-sm text-blue-700 mt-1">
-                  <em>
-                    You will receive an email with all access details shortly.
-                  </em>
-                </p>
-
-                <div className="mt-3 bg-amber-100 border border-amber-300 rounded-lg p-3">
-                  <p className="text-amber-800 font-bold text-sm">
-                    ⚠️ IMPORTANT : Vérifiez vos SPAMS !
-                  </p>
-                  <p className="text-amber-700 text-xs">
-                    Don&apos;t forget to check your spam folder!
-                  </p>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        {/* Détails de la réservation */}
-        <Card className="mb-6">
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Calendar className="h-5 w-5" />
-              Détails de votre séjour / Stay Details
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="flex items-center gap-3 p-4 bg-blue-50 rounded-lg">
-              <MapPin className="h-5 w-5 text-blue-600" />
-              <div className="flex-1">
-                <div className="font-medium text-blue-900">
-                  {booking.establishment.name}
-                </div>
-                <div className="text-sm text-blue-700">
-                  Place: {booking.room ? booking.room.name : "Parking jour"}
-                </div>
-              </div>
-              <Badge variant="secondary">
-                {duration} nuit{duration > 1 ? "s" : ""}
-              </Badge>
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div className="p-3 bg-gray-50 rounded-lg">
-                <div className="text-sm font-medium text-gray-700 mb-1">
-                  Arrivée / Check-in
-                </div>
-                <div className="text-sm text-gray-900">
-                  {formatDate(booking.checkInDate)}
-                </div>
-                <div className="text-xs text-gray-500 mt-1">
-                  À partir de 15h00 / From 3:00 PM
-                </div>
-              </div>
-              <div className="p-3 bg-gray-50 rounded-lg">
-                <div className="text-sm font-medium text-gray-700 mb-1">
-                  Départ / Check-out
-                </div>
-                <div className="text-sm text-gray-900">
-                  {formatDate(booking.checkOutDate)}
-                </div>
-                <div className="text-xs text-gray-500 mt-1">
-                  Avant 11h00 / Before 11:00 AM
-                </div>
-              </div>
-            </div>
-
-            <div className="border-t pt-4">
-              <div className="flex justify-between items-center">
-                <span className="font-medium">Total payé / Total Paid</span>
-                <span className="text-xl font-bold text-green-600">
-                  {booking.amount} {booking.currency}
-                </span>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-
-        {/* Informations du client */}
-        <Card className="mb-6">
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Mail className="h-5 w-5" />
-              Vos informations / Your Information
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-3">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div className="flex items-center gap-3">
-                <Mail className="h-4 w-4 text-gray-500" />
-                <div>
-                  <div className="text-sm font-medium text-gray-700">Email</div>
-                  <div className="text-sm text-gray-900">
-                    {booking.clientEmail}
-                  </div>
-                </div>
-              </div>
-              <div className="flex items-center gap-3">
-                <Phone className="h-4 w-4 text-gray-500" />
-                <div>
-                  <div className="text-sm font-medium text-gray-700">
-                    Téléphone / Phone
-                  </div>
-                  <div className="text-sm text-gray-900">
-                    {booking.clientPhone}
-                  </div>
-                </div>
-              </div>
-            </div>
-            <div className="bg-green-50 border-2 border-green-200 p-4 rounded-lg">
-              <div className="flex items-start gap-3">
-                <Mail className="h-6 w-6 text-green-600 mt-1" />
-                <div className="flex-1">
-                  <p className="font-bold text-green-900 text-base mb-2">
-                    📧 EMAIL DE CONFIRMATION
-                  </p>
-                  <p className="text-green-800 font-semibold mb-2">
-                    Un email avec tous les détails de votre réservation et les
-                    instructions d&apos;accès sera envoyé à :
-                  </p>
-                  <div className="bg-white border border-green-300 p-2 rounded text-center">
-                    <p className="font-bold text-green-900 text-lg">
-                      {booking.clientEmail}
-                    </p>
-                  </div>
-
-                  <div className="mt-3 bg-amber-50 border border-amber-300 rounded p-2">
-                    <p className="text-amber-800 font-bold text-sm text-center">
-                      ⚠️ PENSEZ À VÉRIFIER VOS SPAMS !
-                    </p>
-                    <p className="text-amber-700 text-xs text-center mt-1">
-                      Check your spam folder too!
-                    </p>
-                  </div>
-
-                  <p className="text-green-700 text-sm mt-2">
-                    <em>
-                      <strong>Note:</strong> A confirmation email with all
-                      booking details and access instructions will be sent
-                      shortly.
-                    </em>
-                  </p>
-                </div>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-
-        {/* Prochaines étapes */}
-        <Card className="mb-6">
-          <CardHeader>
-            <CardTitle>Prochaines étapes / Next Steps</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-3">
-              <div className="flex items-start gap-3">
-                <div className="w-6 h-6 bg-blue-100 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
-                  <span className="text-xs font-medium text-blue-600">1</span>
-                </div>
-                <div>
-                  <div className="font-medium text-gray-900">
-                    Confirmation par email / Email Confirmation
-                  </div>
-                  <div className="text-sm text-gray-600">
-                    Vous recevrez un email avec votre code d&apos;accès et les
-                    instructions détaillées. Vérifiez aussi vos spams !
-                    <br />
-                    <em>
-                      You will receive an email with your access code and
-                      detailed instructions. Check your spam folder too!
-                    </em>
-                  </div>
-                </div>
-              </div>
-              <div className="flex items-start gap-3">
-                <div className="w-6 h-6 bg-blue-100 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
-                  <span className="text-xs font-medium text-blue-600">3</span>
-                </div>
-                <div>
-                  <div className="font-medium text-gray-900">
-                    Profitez de votre séjour ! / Enjoy Your Stay!
-                  </div>
-                  <div className="text-sm text-gray-600">
-                    N&apos;hésitez pas à nous contacter si vous avez des
-                    questions.
-                    <br />
-                    <em>
-                      Don&apos;t hesitate to contact us if you have any
-                      questions.
-                    </em>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-
-        {/* Actions */}
-        <div className="flex flex-col sm:flex-row gap-4">
-          <Button asChild className="flex-1">
-            <Link href={`/${hotel}`}>
-              Retour à l&apos;accueil / Back to Home
-            </Link>
-          </Button>
-        </div>
-
-        {/* Note de bas de page */}
-        <div className="mt-8 text-center text-sm text-gray-500">
-          <p>
-            Numéro de réservation / Booking Number :{" "}
-            <span className="font-mono">
-              {booking.id.slice(-8).toUpperCase()}
-            </span>
-          </p>
-          <p className="mt-1">
-            Conservez ce numéro pour toute correspondance future.
+          <p className="text-gray-600">
+            Vous avez reçu un email de confirmation
             <br />
-            <em>Keep this number for future correspondence.</em>
+            <em className="text-sm">You have received a confirmation email</em>
           </p>
         </div>
+
+        {/* Détails complets de la confirmation (identique à l'email) */}
+        <ConfirmationDetails bookingId={bookingId} />
       </div>
     </div>
   );
