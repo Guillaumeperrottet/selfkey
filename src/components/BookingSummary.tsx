@@ -596,9 +596,9 @@ export function BookingSummary({ bookingId }: BookingSummaryProps) {
   }) => (
     <div className="flex items-center justify-between p-1 bg-gray-50 rounded-lg">
       <div className="flex items-center gap-1 flex-1 min-w-0">
-        <Icon className="h-3 w-3 text-gray-500 flex-shrink-0" />
+        <Icon className="h-4 w-4 text-gray-500 flex-shrink-0" />
         <div className="flex-1 min-w-0">
-          <div className="text-xs font-medium text-gray-700">{label}</div>
+          <div className="text-sm font-medium text-gray-700">{label}</div>
           {editingField === field ? (
             <div className="flex items-center gap-0.5 mt-0.5">
               {field === "clientCountry" ? (
@@ -611,7 +611,7 @@ export function BookingSummary({ bookingId }: BookingSummaryProps) {
                     }))
                   }
                 >
-                  <SelectTrigger className="h-5 text-xs">
+                  <SelectTrigger className="h-8 text-sm">
                     <SelectValue placeholder="Sélectionnez un pays" />
                   </SelectTrigger>
                   <SelectContent>
@@ -632,13 +632,13 @@ export function BookingSummary({ bookingId }: BookingSummaryProps) {
                       [field]: e.target.value,
                     }))
                   }
-                  className="h-5 text-xs"
+                  className="h-8 text-sm"
                 />
               )}
               <Button
                 size="sm"
                 onClick={() => handleSaveField(field)}
-                className="h-5 px-0.5 text-xs"
+                className="h-8 px-2 text-sm"
               >
                 ✓
               </Button>
@@ -646,13 +646,13 @@ export function BookingSummary({ bookingId }: BookingSummaryProps) {
                 size="sm"
                 variant="outline"
                 onClick={handleCancelEdit}
-                className="h-5 px-0.5 text-xs"
+                className="h-8 px-2 text-sm"
               >
                 ✕
               </Button>
             </div>
           ) : (
-            <div className="text-xs text-gray-900 truncate">{value}</div>
+            <div className="text-sm text-gray-900 truncate">{value}</div>
           )}
         </div>
       </div>
@@ -661,9 +661,9 @@ export function BookingSummary({ bookingId }: BookingSummaryProps) {
           size="sm"
           variant="ghost"
           onClick={() => handleEditField(field)}
-          className="h-4 w-4 p-0 flex-shrink-0"
+          className="h-6 w-6 p-0 flex-shrink-0"
         >
-          <Edit className="h-3 w-3" />
+          <Edit className="h-4 w-4" />
         </Button>
       )}
     </div>
@@ -714,10 +714,10 @@ export function BookingSummary({ bookingId }: BookingSummaryProps) {
             <span className="hidden sm:inline">Back</span>
           </Button>
           <div>
-            <h1 className="text-base sm:text-lg font-bold text-gray-900">
+            <h1 className="text-xl sm:text-2xl font-bold text-gray-900">
               Booking Summary
             </h1>
-            <p className="text-xs text-gray-600">
+            <p className="text-base text-gray-600">
               Check your information before payment
             </p>
           </div>
@@ -732,31 +732,31 @@ export function BookingSummary({ bookingId }: BookingSummaryProps) {
             {/* Stay Information */}
             <Card>
               <CardHeader className="pb-1">
-                <CardTitle className="flex items-center gap-2 text-sm">
-                  <Calendar className="h-4 w-4" />
+                <CardTitle className="flex items-center gap-2 text-base md:text-lg">
+                  <Calendar className="h-5 w-5" />
                   Details
                 </CardTitle>
               </CardHeader>
               <CardContent className="space-y-1.5">
                 <div className="grid grid-cols-2 gap-1.5">
                   <div className="flex items-center gap-1.5 p-1.5 bg-gray-50 rounded-lg">
-                    <Clock className="h-3 w-3 text-gray-600" />
+                    <Clock className="h-4 w-4 text-gray-600" />
                     <div>
-                      <div className="text-xs font-medium text-gray-700">
+                      <div className="text-sm font-medium text-gray-700">
                         Check-in
                       </div>
-                      <div className="text-xs text-gray-900">
+                      <div className="text-base text-gray-900">
                         {formatDate(booking.checkInDate)}
                       </div>
                     </div>
                   </div>
                   <div className="flex items-center gap-1.5 p-1.5 bg-gray-50 rounded-lg">
-                    <Clock className="h-3 w-3 text-gray-600" />
+                    <Clock className="h-4 w-4 text-gray-600" />
                     <div>
-                      <div className="text-xs font-medium text-gray-700">
+                      <div className="text-sm font-medium text-gray-700">
                         Check-out
                       </div>
-                      <div className="text-xs text-gray-900">
+                      <div className="text-base text-gray-900">
                         {formatDate(booking.checkOutDate)}
                       </div>
                     </div>
@@ -764,19 +764,19 @@ export function BookingSummary({ bookingId }: BookingSummaryProps) {
                 </div>
 
                 <div className="flex items-center gap-1.5 p-1.5 bg-gray-50 rounded-lg">
-                  <MapPin className="h-3 w-3 text-gray-600" />
+                  <MapPin className="h-4 w-4 text-gray-600" />
                   <div className="flex-1">
-                    <div className="text-xs font-medium text-gray-700">
+                    <div className="text-sm font-medium text-gray-700">
                       Établissement
                     </div>
-                    <div className="text-sm text-gray-900">
+                    <div className="text-base text-gray-900">
                       {booking.establishment.name}
                     </div>
-                    <div className="text-xs text-gray-700">
+                    <div className="text-sm text-gray-700">
                       Place: {booking.room.name}
                     </div>
                   </div>
-                  <Badge variant="secondary" className="text-xs">
+                  <Badge variant="secondary" className="text-sm">
                     {duration} night{duration > 1 ? "s" : ""}
                   </Badge>
                 </div>
@@ -786,42 +786,42 @@ export function BookingSummary({ bookingId }: BookingSummaryProps) {
             {/* Invités - Carte séparée pour plus de visibilité */}
             <Card>
               <CardHeader className="pb-1">
-                <CardTitle className="flex items-center gap-2 text-sm">
-                  <User className="h-4 w-4" />
+                <CardTitle className="flex items-center gap-2 text-base md:text-lg">
+                  <User className="h-5 w-5" />
                   Guests
                 </CardTitle>
               </CardHeader>
               <CardContent>
                 <div className="grid grid-cols-3 gap-1.5">
                   <div className="flex items-center gap-1 p-1.5 bg-gray-50 rounded-lg">
-                    <User className="h-3 w-3 text-gray-600" />
+                    <User className="h-4 w-4 text-gray-600" />
                     <div>
-                      <div className="text-xs font-medium text-gray-700">
+                      <div className="text-sm font-medium text-gray-700">
                         Adults
                       </div>
-                      <div className="text-sm font-semibold text-gray-900">
+                      <div className="text-base font-semibold text-gray-900">
                         {booking.adults}
                       </div>
                     </div>
                   </div>
                   <div className="flex items-center gap-1 p-1.5 bg-gray-50 rounded-lg">
-                    <User className="h-3 w-3 text-gray-600" />
+                    <User className="h-4 w-4 text-gray-600" />
                     <div>
-                      <div className="text-xs font-medium text-gray-700">
+                      <div className="text-sm font-medium text-gray-700">
                         Children
                       </div>
-                      <div className="text-sm font-semibold text-gray-900">
+                      <div className="text-base font-semibold text-gray-900">
                         {booking.children}
                       </div>
                     </div>
                   </div>
                   <div className="flex items-center gap-1 p-1.5 bg-gray-100 rounded-lg">
-                    <User className="h-3 w-3 text-gray-600" />
+                    <User className="h-4 w-4 text-gray-600" />
                     <div>
-                      <div className="text-xs font-medium text-gray-700">
+                      <div className="text-sm font-medium text-gray-700">
                         Total
                       </div>
-                      <div className="text-sm font-semibold text-gray-900">
+                      <div className="text-base font-semibold text-gray-900">
                         {booking.adults + booking.children}
                       </div>
                     </div>
@@ -834,10 +834,10 @@ export function BookingSummary({ bookingId }: BookingSummaryProps) {
           {/* Customer Information - Optimized Layout */}
           <Card>
             <CardHeader className="pb-1">
-              <CardTitle className="flex items-center gap-2 text-sm">
-                <User className="h-4 w-4" />
+              <CardTitle className="flex items-center gap-2 text-base md:text-lg">
+                <User className="h-5 w-5" />
                 Your Information
-                <Badge variant="outline" className="ml-auto text-xs">
+                <Badge variant="outline" className="ml-auto text-sm">
                   Editable
                 </Badge>
               </CardTitle>
@@ -845,7 +845,7 @@ export function BookingSummary({ bookingId }: BookingSummaryProps) {
             <CardContent className="space-y-2">
               {/* Personal Information - Optimized Grid Layout */}
               <div>
-                <h4 className="font-medium text-xs text-gray-700 mb-1">
+                <h4 className="font-medium text-sm text-gray-700 mb-1">
                   Personal Information
                 </h4>
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-1">
@@ -883,7 +883,7 @@ export function BookingSummary({ bookingId }: BookingSummaryProps) {
 
               {/* Contact - Layout compact */}
               <div>
-                <h4 className="font-medium text-xs text-gray-700 mb-1">
+                <h4 className="font-medium text-sm text-gray-700 mb-1">
                   Contact
                 </h4>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-1">
@@ -906,7 +906,7 @@ export function BookingSummary({ bookingId }: BookingSummaryProps) {
 
               {/* Address - Inline Layout */}
               <div>
-                <h4 className="font-medium text-xs text-gray-700 mb-1">
+                <h4 className="font-medium text-sm text-gray-700 mb-1">
                   Address
                 </h4>
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-1">
@@ -965,19 +965,19 @@ export function BookingSummary({ bookingId }: BookingSummaryProps) {
         <div className="lg:col-span-1">
           <Card className="lg:sticky lg:top-4">
             <CardHeader className="pb-2">
-              <CardTitle className="flex items-center gap-2 text-base">
+              <CardTitle className="flex items-center gap-2 text-base md:text-lg">
                 Reservation
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-3">
               <div className="space-y-2">
                 <div className="flex justify-between items-center">
-                  <span className="text-sm text-gray-600">
+                  <span className="text-base text-gray-600">
                     {booking.room.name} ({duration} night
                     {duration > 1 ? "s" : ""})
                   </span>
                   {booking.room.price > 0 && (
-                    <span className="text-base font-medium">
+                    <span className="text-base md:text-lg font-medium">
                       {booking.room.price * duration} {booking.currency}
                     </span>
                   )}
@@ -1021,11 +1021,11 @@ export function BookingSummary({ bookingId }: BookingSummaryProps) {
                               key={key}
                               className="flex justify-between items-center"
                             >
-                              <span className="text-sm text-gray-600">
+                              <span className="text-base text-gray-600">
                                 {getOptionDisplayName(key, value)}
                               </span>
                               {optionPrice > 0 && (
-                                <span className="text-base font-medium">
+                                <span className="text-base md:text-lg font-medium">
                                   {optionPrice} {booking.currency}
                                 </span>
                               )}
@@ -1039,8 +1039,8 @@ export function BookingSummary({ bookingId }: BookingSummaryProps) {
                 {/* Tourist Tax */}
                 {touristTaxSettings.enabled && touristTaxSettings.total > 0 && (
                   <div className="flex justify-between items-center">
-                    <span className="text-sm text-gray-600">Tourist tax</span>
-                    <span className="text-base font-medium">
+                    <span className="text-base text-gray-600">Tourist tax</span>
+                    <span className="text-base md:text-lg font-medium">
                       {touristTaxSettings.total.toFixed(2)} {booking.currency}
                     </span>
                   </div>
@@ -1049,10 +1049,10 @@ export function BookingSummary({ bookingId }: BookingSummaryProps) {
                 {/* Platform Fees - SelfKey */}
                 {!hidePlatformFees && platformFees.total > 0 && (
                   <div className="flex justify-between items-center">
-                    <span className="text-sm text-gray-600">
+                    <span className="text-base text-gray-600">
                       Frais Plateforme
                     </span>
-                    <span className="text-base font-medium">
+                    <span className="text-base md:text-lg font-medium">
                       {platformFees.total.toFixed(2)} {booking.currency}
                     </span>
                   </div>
@@ -1062,8 +1062,8 @@ export function BookingSummary({ bookingId }: BookingSummaryProps) {
               <Separator />
 
               <div className="flex justify-between items-center">
-                <span className="text-base font-semibold">Total</span>
-                <span className="text-xl font-bold text-gray-900">
+                <span className="text-lg font-semibold">Total</span>
+                <span className="text-2xl font-bold text-gray-900">
                   {(booking.amount + platformFees.total).toFixed(2)}{" "}
                   {booking.currency}
                 </span>
@@ -1071,19 +1071,28 @@ export function BookingSummary({ bookingId }: BookingSummaryProps) {
 
               {/* TVA incluse */}
               <div className="flex justify-start">
-                <span className="text-xs text-gray-500">
-                  (TVA 8.1% {((booking.amount * 8.1) / 100).toFixed(2)}{" "}
+                <span className="text-sm text-gray-500">
+                  (TVA 8.1%{" "}
+                  {(
+                    ((booking.amount +
+                      platformFees.total -
+                      (touristTaxSettings.enabled
+                        ? touristTaxSettings.total
+                        : 0)) *
+                      8.1) /
+                    100
+                  ).toFixed(2)}{" "}
                   {booking.currency} compris)
                 </span>
               </div>
 
               <div className="space-y-1">
-                <div className="flex items-center gap-2 text-sm text-gray-600">
-                  <Shield className="h-4 w-4" />
+                <div className="flex items-center gap-2 text-base text-gray-600">
+                  <Shield className="h-5 w-5" />
                   <span>Paiement 100% sécurisé</span>
                 </div>
-                <div className="flex items-center gap-2 text-sm text-gray-600">
-                  <CreditCard className="h-4 w-4" />
+                <div className="flex items-center gap-2 text-base text-gray-600">
+                  <CreditCard className="h-5 w-5" />
                   <span>Visa, Mastercard, TWINT</span>
                 </div>
               </div>
@@ -1104,7 +1113,7 @@ export function BookingSummary({ bookingId }: BookingSummaryProps) {
                   <div className="flex-1">
                     <Label
                       htmlFor="terms"
-                      className="text-sm cursor-pointer leading-relaxed"
+                      className="text-base cursor-pointer leading-relaxed"
                     >
                       I accept the{" "}
                       <Dialog>
@@ -1182,7 +1191,7 @@ export function BookingSummary({ bookingId }: BookingSummaryProps) {
               <Button
                 onClick={handleProceedToPayment}
                 disabled={!acceptedTerms || processingPayment}
-                className="w-full"
+                className="w-full text-base md:text-lg"
                 size="lg"
               >
                 {processingPayment ? (
@@ -1190,7 +1199,7 @@ export function BookingSummary({ bookingId }: BookingSummaryProps) {
                 ) : (
                   <>
                     Proceed to Payment
-                    <ChevronRight className="h-4 w-4 ml-2" />
+                    <ChevronRight className="h-5 w-5 ml-2" />
                   </>
                 )}
               </Button>
