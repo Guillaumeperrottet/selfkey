@@ -272,7 +272,7 @@ export function DateSelector({
       <div className="space-y-4 mb-6">
         {pricingOptions.map((option) => (
           <div key={option.id} className="space-y-2">
-            <label className="text-sm font-medium">
+            <label className="text-base md:text-lg font-medium">
               {option.name}
               {option.isRequired && (
                 <span className="text-red-500 ml-1">*</span>
@@ -300,11 +300,11 @@ export function DateSelector({
             )}
 
             {option.type === "radio" && (
-              <div className="space-y-2">
+              <div className="space-y-3">
                 {option.values.map((optionValue) => (
                   <div
                     key={optionValue.id}
-                    className="flex items-center space-x-2"
+                    className="flex items-center space-x-3"
                   >
                     <input
                       type="radio"
@@ -317,11 +317,11 @@ export function DateSelector({
                       onChange={(e) =>
                         handlePricingOptionChange(option.id, e.target.value)
                       }
-                      className="w-4 h-4"
+                      className="w-5 h-5"
                     />
                     <label
                       htmlFor={`${option.id}-${optionValue.id}`}
-                      className="text-sm"
+                      className="text-base md:text-lg font-medium cursor-pointer"
                     >
                       {optionValue.label}
                     </label>
@@ -331,11 +331,11 @@ export function DateSelector({
             )}
 
             {option.type === "checkbox" && (
-              <div className="space-y-2">
+              <div className="space-y-3">
                 {option.values.map((optionValue) => (
                   <div
                     key={optionValue.id}
-                    className="flex items-center space-x-2"
+                    className="flex items-center space-x-3"
                   >
                     <Checkbox
                       id={`${option.id}-${optionValue.id}`}
