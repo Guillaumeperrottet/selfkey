@@ -134,10 +134,10 @@ export function HotelLanding({ hotelSlug, establishment }: HotelLandingProps) {
       <div className="min-h-screen bg-gray-50">
         <div className="container mx-auto px-4 py-8 max-w-2xl">
           <div className="text-center mb-8">
-            <h1 className="text-3xl font-bold text-gray-900 mb-2">
+            <h1 className="text-4xl md:text-5xl font-bold text-gray-900 mb-2">
               {establishment.name}
             </h1>
-            <p className="text-gray-600">Chargement...</p>
+            <p className="text-xl text-gray-600">Chargement...</p>
           </div>
           <div className="flex justify-center">
             <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
@@ -153,10 +153,10 @@ export function HotelLanding({ hotelSlug, establishment }: HotelLandingProps) {
       <div className="min-h-screen bg-gray-50">
         <div className="container mx-auto px-4 py-8 max-w-2xl">
           <div className="text-center mb-8">
-            <h1 className="text-3xl font-bold text-gray-900 mb-2">
+            <h1 className="text-4xl md:text-5xl font-bold text-gray-900 mb-2">
               {establishment.name}
             </h1>
-            <p className="text-gray-600">Night</p>
+            <p className="text-xl text-gray-600">Night</p>
           </div>
 
           <BookingFormModern

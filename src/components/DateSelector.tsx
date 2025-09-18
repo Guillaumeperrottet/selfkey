@@ -384,8 +384,8 @@ export function DateSelector({
   return (
     <Card>
       <CardHeader>
-        <CardTitle className="flex items-center gap-2">
-          <Calendar className="h-5 w-5" />
+        <CardTitle className="flex items-center gap-2 text-xl md:text-2xl">
+          <Calendar className="h-6 w-6" />
           Dates de séjour / Stay Dates
         </CardTitle>
       </CardHeader>
@@ -395,12 +395,12 @@ export function DateSelector({
           <div className="flex items-start gap-3 p-4 bg-red-50 border border-red-200 rounded-lg">
             <AlertTriangle className="h-5 w-5 text-red-600 mt-0.5 flex-shrink-0" />
             <div className="space-y-1">
-              <p className="text-sm font-medium text-red-800">
+              <p className="text-base font-medium text-red-800">
                 Réservations fermées / Bookings Closed
               </p>
-              <p className="text-sm text-red-700">{cutoffResult.message}</p>
+              <p className="text-base text-red-700">{cutoffResult.message}</p>
               {cutoffResult.nextAvailableTime && (
-                <p className="text-xs text-red-600">
+                <p className="text-sm text-red-600">
                   Prochaine ouverture / Next opening:{" "}
                   {formatTimeForDisplay(cutoffResult.nextAvailableTime)}
                 </p>
@@ -416,25 +416,30 @@ export function DateSelector({
             <div className="flex items-start gap-3 p-4 bg-blue-50 border border-blue-200 rounded-lg">
               <Clock className="h-5 w-5 text-blue-600 mt-0.5 flex-shrink-0" />
               <div>
-                <p className="text-sm font-medium text-blue-800">
+                <p className="text-base font-medium text-blue-800">
                   Réservations ouvertes jusqu&apos;à {establishment.cutoffTime}{" "}
                   / Bookings open until {establishment.cutoffTime}
                 </p>
-                <p className="text-xs text-blue-600">{cutoffResult.message}</p>
+                <p className="text-sm text-blue-600">{cutoffResult.message}</p>
               </div>
             </div>
           )}
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>
-            <Label htmlFor="checkIn">Check-in Date</Label>
+            <Label
+              htmlFor="checkIn"
+              className="text-base md:text-lg font-medium"
+            >
+              Check-in Date
+            </Label>
             <Input
               id="checkIn"
               type="date"
               value={checkInDate}
               onChange={(e) => handleCheckInChange(e.target.value)}
               disabled={!establishment.allowFutureBookings}
-              className={`mt-1 ${
+              className={`mt-1 h-12 text-base ${
                 !establishment.allowFutureBookings
                   ? "bg-gray-50 cursor-not-allowed opacity-60"
                   : ""
@@ -457,12 +462,18 @@ export function DateSelector({
             />
           </div>
           <div>
-            <Label htmlFor="checkOut">Check-out Date</Label>
+            <Label
+              htmlFor="checkOut"
+              className="text-base md:text-lg font-medium"
+            >
+              Check-out Date
+            </Label>
             <Input
               id="checkOut"
               type="date"
               value={checkOutDate}
               onChange={(e) => setCheckOutDate(e.target.value)}
+              className="mt-1 h-12 text-base"
               min={(() => {
                 const minDate = new Date(checkInDate);
                 minDate.setDate(minDate.getDate() + 1);
@@ -484,25 +495,28 @@ export function DateSelector({
                   return maxCheckOut.toISOString().split("T")[0];
                 }
               })()}
-              className="mt-1"
               title={`Date de départ maximum : ${establishment.maxBookingDays} nuit${establishment.maxBookingDays > 1 ? "s" : ""} après l'arrivée`}
             />
           </div>
         </div>
 
         {/* Option chien - seulement si activée pour l'établissement */}
+        {/* Option chien - seulement si activée pour l'établissement */}
         {establishment.enableDogOption && (
-          <div className="flex items-center space-x-2 mt-4">
+          <div className="flex items-center space-x-3 mt-4">
             <input
               id="hasDog"
               type="checkbox"
               checked={hasDog}
               onChange={(e) => setHasDog(e.target.checked)}
-              className="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+              className="h-5 w-5 text-blue-600 rounded focus:ring-blue-500"
             />
-            <Label htmlFor="hasDog" className="text-sm text-gray-600">
+            <label
+              htmlFor="hasDog"
+              className="text-base md:text-lg font-medium text-gray-700 flex items-center cursor-pointer"
+            >
               🐕 Avec chien / With dog
-            </Label>
+            </label>
           </div>
         )}
 
@@ -510,8 +524,8 @@ export function DateSelector({
         {renderPricingOptions()}
 
         {duration > 0 && (
-          <div className="flex items-center gap-2 text-sm text-gray-600">
-            <Clock className="h-4 w-4" />
+          <div className="flex items-center gap-2 text-base md:text-lg text-gray-700">
+            <Clock className="h-5 w-5" />
             <span>
               Durée du séjour / Stay Duration : {duration} nuit
               {duration > 1 ? "s" : ""} / night{duration > 1 ? "s" : ""}
@@ -519,8 +533,8 @@ export function DateSelector({
           </div>
         )}
 
-        <div className="flex gap-2 text-xs text-gray-500 bg-gray-50 p-2 rounded-md">
-          <Info className="h-3 w-3 text-gray-400 mt-0.5 flex-shrink-0" />
+        <div className="flex gap-3 text-sm md:text-base text-gray-600 bg-gray-50 p-3 rounded-md">
+          <Info className="h-4 w-4 text-gray-500 mt-0.5 flex-shrink-0" />
           <div>
             {establishment.allowFutureBookings ? (
               <>
@@ -553,7 +567,7 @@ export function DateSelector({
         <Button
           onClick={handleSearch}
           disabled={loading || !checkOutDate || cutoffResult.isAfterCutoff}
-          className="w-full"
+          className="w-full text-base md:text-lg h-12 md:h-14"
           size="lg"
         >
           {cutoffResult.isAfterCutoff

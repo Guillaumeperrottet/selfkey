@@ -4,7 +4,6 @@ import { useState, useEffect } from "react";
 import { DateSelector } from "@/components/DateSelector";
 import { RoomSelector } from "@/components/RoomSelector";
 import { BookingFormDetails } from "@/components/BookingFormDetails";
-import { BookingSteps } from "@/components/BookingSteps";
 
 interface Room {
   id: string;
@@ -118,24 +117,8 @@ export function BookingFormModern({
     setSelectedRoom(null);
   };
 
-  const getCurrentStepNumber = () => {
-    switch (currentStep) {
-      case "dates":
-        return 1;
-      case "rooms":
-        return 2;
-      case "details":
-        return 3;
-      default:
-        return 1;
-    }
-  };
-
   return (
     <div className="space-y-6">
-      {/* Indicateur d'étapes */}
-      <BookingSteps currentStep={getCurrentStepNumber()} />
-
       {/* Contenu selon l'étape actuelle */}
       {currentStep === "dates" && (
         <DateSelector
