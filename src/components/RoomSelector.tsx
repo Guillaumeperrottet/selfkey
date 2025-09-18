@@ -70,7 +70,18 @@ export function RoomSelector({
 
           const data = await response.json();
           console.log("DEBUG: API response:", data);
-          setAvailableRooms(data.availableRooms || []);
+
+          // Trier les chambres par ordre naturel (comprend les numéros)
+          const sortedRooms = (data.availableRooms || []).sort(
+            (a: Room, b: Room) => {
+              return a.name.localeCompare(b.name, undefined, {
+                numeric: true,
+                sensitivity: "base",
+              });
+            }
+          );
+
+          setAvailableRooms(sortedRooms);
 
           // Afficher le message informatif si aucune chambre n'est disponible
           if (data.message) {
