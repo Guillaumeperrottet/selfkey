@@ -29,6 +29,13 @@ import {
 } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import {
   CreditCard,
   Hotel,
   Settings,
@@ -37,6 +44,8 @@ import {
   Bed,
   CheckCircle,
   Euro,
+  Calendar,
+  Filter,
 } from "lucide-react";
 
 interface ChartColors {
@@ -111,6 +120,9 @@ export function AdminDashboard({
 
   const [activeTab, setActiveTab] = useState(getInitialTab());
   const [enableDayParking, setEnableDayParking] = useState(false);
+  const [periodFilter, setPeriodFilter] = useState<
+    "today" | "month" | "quarter" | "all"
+  >("today");
   const [chartColors, setChartColors] = useState<ChartColors>({
     chart1: "#3b82f6",
     chart2: "#10b981",
@@ -118,6 +130,63 @@ export function AdminDashboard({
     chart4: "#ef4444",
     chart5: "#8b5cf6",
   });
+
+  // Fonctions utilitaires pour filtrer les données par période
+  const getDateRange = (period: "today" | "month" | "quarter" | "all") => {
+    const now = new Date();
+    const startOfDay = new Date(now);
+    startOfDay.setHours(0, 0, 0, 0);
+    const endOfDay = new Date(now);
+    endOfDay.setHours(23, 59, 59, 999);
+
+    switch (period) {
+      case "today":
+        return { start: startOfDay, end: endOfDay };
+      case "month":
+        const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+        const endOfMonth = new Date(
+          now.getFullYear(),
+          now.getMonth() + 1,
+          0,
+          23,
+          59,
+          59,
+          999
+        );
+        return { start: startOfMonth, end: endOfMonth };
+      case "quarter":
+        const currentQuarter = Math.floor(now.getMonth() / 3);
+        const startOfQuarter = new Date(
+          now.getFullYear(),
+          currentQuarter * 3,
+          1
+        );
+        const endOfQuarter = new Date(
+          now.getFullYear(),
+          currentQuarter * 3 + 3,
+          0,
+          23,
+          59,
+          59,
+          999
+        );
+        return { start: startOfQuarter, end: endOfQuarter };
+      case "all":
+        return { start: new Date(2020, 0, 1), end: now }; // Depuis le début de la plateforme
+      default:
+        return { start: startOfDay, end: endOfDay };
+    }
+  };
+
+  const getFilteredBookings = () => {
+    const { start, end } = getDateRange(periodFilter);
+    return allBookings.filter((booking) => {
+      const bookingDate = new Date(booking.bookingDate);
+      return bookingDate >= start && bookingDate <= end;
+    });
+  };
+
+  const filteredBookings = getFilteredBookings();
 
   // Configuration du tutorial pour l'admin - focus sur la sidebar
   const adminTutorialSteps = [
@@ -289,189 +358,233 @@ export function AdminDashboard({
         return (
           <div className="space-y-6">
             {finalIsStripeConfigured && dbRooms.length > 0 ? (
-              <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
-                {/* Statistiques */}
-                <Card className="stats-card">
-                  <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                    <CardTitle className="text-sm font-medium">
-                      Places disponibles
-                    </CardTitle>
-                    <Bed className="h-4 w-4 text-muted-foreground" />
-                  </CardHeader>
-                  <CardContent>
-                    <div className="text-2xl font-bold">
-                      {roomsWithInventory.filter((r) => r.inventory > 0).length}
-                    </div>
-                    <p className="text-xs text-muted-foreground">
-                      sur {roomsWithInventory.length} places
+              <>
+                {/* Sélecteur de période */}
+                <div className="flex items-center justify-between">
+                  <div>
+                    <h2 className="text-2xl font-bold text-gray-900">
+                      Vue d&apos;ensemble
+                    </h2>
+                    <p className="text-gray-600">
+                      Statistiques de votre établissement
                     </p>
-                  </CardContent>
-                </Card>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <Filter className="h-4 w-4 text-gray-500" />
+                    <Select
+                      value={periodFilter}
+                      onValueChange={(
+                        value: "today" | "month" | "quarter" | "all"
+                      ) => setPeriodFilter(value)}
+                    >
+                      <SelectTrigger className="w-48">
+                        <SelectValue placeholder="Sélectionner une période" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="today">
+                          <div className="flex items-center gap-2">
+                            <Calendar className="h-4 w-4" />
+                            Aujourd&apos;hui
+                          </div>
+                        </SelectItem>
+                        <SelectItem value="month">
+                          <div className="flex items-center gap-2">
+                            <Calendar className="h-4 w-4" />
+                            Ce mois
+                          </div>
+                        </SelectItem>
+                        <SelectItem value="quarter">
+                          <div className="flex items-center gap-2">
+                            <Calendar className="h-4 w-4" />
+                            Ce trimestre
+                          </div>
+                        </SelectItem>
+                        <SelectItem value="all">
+                          <div className="flex items-center gap-2">
+                            <Calendar className="h-4 w-4" />
+                            Total depuis le début
+                          </div>
+                        </SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                </div>
 
-                <Card className="stats-card">
-                  <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                    <CardTitle className="text-sm font-medium">
-                      Réservations aujourd&apos;hui
-                    </CardTitle>
-                    <Users className="h-4 w-4 text-muted-foreground" />
-                  </CardHeader>
-                  <CardContent>
-                    <div className="text-2xl font-bold">
-                      {(() => {
-                        const today = new Date();
-                        today.setHours(0, 0, 0, 0);
-                        const tomorrow = new Date(today);
-                        tomorrow.setDate(today.getDate() + 1);
+                <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
+                  {/* Statistiques */}
+                  <Card className="stats-card">
+                    <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                      <CardTitle className="text-sm font-medium">
+                        Places disponibles
+                      </CardTitle>
+                      <Bed className="h-4 w-4 text-muted-foreground" />
+                    </CardHeader>
+                    <CardContent>
+                      <div className="text-2xl font-bold">
+                        {
+                          roomsWithInventory.filter((r) => r.inventory > 0)
+                            .length
+                        }
+                      </div>
+                      <p className="text-xs text-muted-foreground">
+                        sur {roomsWithInventory.length} places
+                      </p>
+                    </CardContent>
+                  </Card>
 
-                        const todayBookings = allBookings.filter((booking) => {
-                          const bookingDate = new Date(booking.bookingDate);
-                          return bookingDate >= today && bookingDate < tomorrow;
-                        });
-                        return todayBookings.length;
-                      })()}
-                    </div>
-                    <p className="text-xs text-muted-foreground">
-                      {(() => {
-                        const today = new Date();
-                        today.setHours(0, 0, 0, 0);
-                        const tomorrow = new Date(today);
-                        tomorrow.setDate(today.getDate() + 1);
-
-                        const todayBookings = allBookings.filter((booking) => {
-                          const bookingDate = new Date(booking.bookingDate);
-                          return bookingDate >= today && bookingDate < tomorrow;
-                        });
-                        return todayBookings.reduce(
+                  <Card className="stats-card">
+                    <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                      <CardTitle className="text-sm font-medium">
+                        Réservations{" "}
+                        {periodFilter === "today"
+                          ? "aujourd'hui"
+                          : periodFilter === "month"
+                            ? "ce mois"
+                            : periodFilter === "quarter"
+                              ? "ce trimestre"
+                              : "totales"}
+                      </CardTitle>
+                      <Users className="h-4 w-4 text-muted-foreground" />
+                    </CardHeader>
+                    <CardContent>
+                      <div className="text-2xl font-bold">
+                        {filteredBookings.length}
+                      </div>
+                      <p className="text-xs text-muted-foreground">
+                        {filteredBookings.reduce(
                           (sum: number, b) => sum + b.guests,
                           0
-                        );
-                      })()}{" "}
-                      clients
-                    </p>
-                  </CardContent>
-                </Card>
+                        )}{" "}
+                        clients
+                      </p>
+                    </CardContent>
+                  </Card>
 
-                <Card className="stats-card">
-                  <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                    <CardTitle className="text-sm font-medium">
-                      Revenus nets du jour
-                    </CardTitle>
-                    <CreditCard className="h-4 w-4 text-muted-foreground" />
-                  </CardHeader>
-                  <CardContent>
-                    <div className="text-2xl font-bold">
-                      {(() => {
-                        const today = new Date();
-                        today.setHours(0, 0, 0, 0);
-                        const tomorrow = new Date(today);
-                        tomorrow.setDate(today.getDate() + 1);
+                  <Card className="stats-card">
+                    <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                      <CardTitle className="text-sm font-medium">
+                        Revenus nets{" "}
+                        {periodFilter === "today"
+                          ? "du jour"
+                          : periodFilter === "month"
+                            ? "du mois"
+                            : periodFilter === "quarter"
+                              ? "du trimestre"
+                              : "totaux"}
+                      </CardTitle>
+                      <CreditCard className="h-4 w-4 text-muted-foreground" />
+                    </CardHeader>
+                    <CardContent>
+                      <div className="text-2xl font-bold">
+                        {(() => {
+                          const totalGross = filteredBookings.reduce(
+                            (sum: number, b) => sum + b.amount,
+                            0
+                          );
 
-                        const todayBookings = allBookings.filter((booking) => {
-                          const bookingDate = new Date(booking.bookingDate);
-                          return bookingDate >= today && bookingDate < tomorrow;
-                        });
+                          // Déduire les taxes de séjour du montant brut
+                          const totalTouristTax = filteredBookings.reduce(
+                            (sum: number, b) => sum + (b.touristTaxTotal || 0),
+                            0
+                          );
 
-                        const totalGross = todayBookings.reduce(
-                          (sum: number, b) => sum + b.amount,
-                          0
-                        );
+                          const totalCommissions = filteredBookings.reduce(
+                            (sum: number, booking) => {
+                              const commission = Math.round(
+                                (booking.amount *
+                                  establishment.commissionRate) /
+                                  100 +
+                                  establishment.fixedFee
+                              );
+                              return sum + commission;
+                            },
+                            0
+                          );
 
-                        // Déduire les taxes de séjour du montant brut
-                        const totalTouristTax = todayBookings.reduce(
-                          (sum: number, b) => sum + (b.touristTaxTotal || 0),
-                          0
-                        );
+                          // Revenus nets = montant brut - taxes de séjour - commissions
+                          const netRevenue =
+                            totalGross - totalTouristTax - totalCommissions;
+                          return netRevenue.toFixed(2);
+                        })()}{" "}
+                        CHF
+                      </div>
+                      <p className="text-xs text-muted-foreground">
+                        après déduction des frais et taxes de séjour
+                      </p>
+                    </CardContent>
+                  </Card>
 
-                        const totalCommissions = todayBookings.reduce(
-                          (sum: number, booking) => {
-                            const commission = Math.round(
-                              (booking.amount * establishment.commissionRate) /
-                                100 +
-                                establishment.fixedFee
-                            );
-                            return sum + commission;
-                          },
-                          0
-                        );
+                  <Card className="stats-card">
+                    <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                      <CardTitle className="text-sm font-medium">
+                        Taxes de séjour{" "}
+                        {periodFilter === "today"
+                          ? "du jour"
+                          : periodFilter === "month"
+                            ? "du mois"
+                            : periodFilter === "quarter"
+                              ? "du trimestre"
+                              : "totales"}
+                      </CardTitle>
+                      <Euro className="h-4 w-4 text-muted-foreground" />
+                    </CardHeader>
+                    <CardContent>
+                      <div className="text-2xl font-bold">
+                        {(() => {
+                          const totalTouristTax = filteredBookings.reduce(
+                            (sum: number, booking) =>
+                              sum + (booking.touristTaxTotal || 0),
+                            0
+                          );
 
-                        // Revenus nets = montant brut - taxes de séjour - commissions
-                        const netRevenue =
-                          totalGross - totalTouristTax - totalCommissions;
-                        return netRevenue.toFixed(2);
-                      })()}{" "}
-                      CHF
-                    </div>
-                    <p className="text-xs text-muted-foreground">
-                      après déduction des frais et taxes de séjour
-                    </p>
-                  </CardContent>
-                </Card>
+                          return totalTouristTax.toFixed(2);
+                        })()}{" "}
+                        CHF
+                      </div>
+                      <p className="text-xs text-muted-foreground">
+                        collectées{" "}
+                        {periodFilter === "today"
+                          ? "aujourd&apos;hui"
+                          : periodFilter === "month"
+                            ? "ce mois"
+                            : periodFilter === "quarter"
+                              ? "ce trimestre"
+                              : "au total"}
+                      </p>
+                    </CardContent>
+                  </Card>
 
-                <Card className="stats-card">
-                  <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                    <CardTitle className="text-sm font-medium">
-                      Taxes de séjour du jour
-                    </CardTitle>
-                    <Euro className="h-4 w-4 text-muted-foreground" />
-                  </CardHeader>
-                  <CardContent>
-                    <div className="text-2xl font-bold">
-                      {(() => {
-                        const today = new Date();
-                        today.setHours(0, 0, 0, 0);
-                        const tomorrow = new Date(today);
-                        tomorrow.setDate(today.getDate() + 1);
-
-                        const todayBookings = allBookings.filter((booking) => {
-                          const bookingDate = new Date(booking.bookingDate);
-                          return bookingDate >= today && bookingDate < tomorrow;
-                        });
-
-                        const totalTouristTax = todayBookings.reduce(
-                          (sum: number, booking) =>
-                            sum + (booking.touristTaxTotal || 0),
-                          0
-                        );
-
-                        return totalTouristTax.toFixed(2);
-                      })()}{" "}
-                      CHF
-                    </div>
-                    <p className="text-xs text-muted-foreground">
-                      collectées aujourd&apos;hui
-                    </p>
-                  </CardContent>
-                </Card>
-
-                <Card className="stats-card">
-                  <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                    <CardTitle className="text-sm font-medium">
-                      Taux d&apos;occupation
-                    </CardTitle>
-                    <BarChart3 className="h-4 w-4 text-muted-foreground" />
-                  </CardHeader>
-                  <CardContent>
-                    <div className="text-2xl font-bold">
-                      {roomsWithInventory.length > 0
-                        ? Math.round(
-                            (roomsWithInventory.filter((r) => r.inventory === 0)
-                              .length /
-                              roomsWithInventory.length) *
-                              100
-                          )
-                        : 0}
-                      %
-                    </div>
-                    <p className="text-xs text-muted-foreground">
-                      {
-                        roomsWithInventory.filter((r) => r.inventory === 0)
-                          .length
-                      }{" "}
-                      places occupées
-                    </p>
-                  </CardContent>
-                </Card>
-              </div>
+                  <Card className="stats-card">
+                    <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                      <CardTitle className="text-sm font-medium">
+                        Taux d&apos;occupation
+                      </CardTitle>
+                      <BarChart3 className="h-4 w-4 text-muted-foreground" />
+                    </CardHeader>
+                    <CardContent>
+                      <div className="text-2xl font-bold">
+                        {roomsWithInventory.length > 0
+                          ? Math.round(
+                              (roomsWithInventory.filter(
+                                (r) => r.inventory === 0
+                              ).length /
+                                roomsWithInventory.length) *
+                                100
+                            )
+                          : 0}
+                        %
+                      </div>
+                      <p className="text-xs text-muted-foreground">
+                        {
+                          roomsWithInventory.filter((r) => r.inventory === 0)
+                            .length
+                        }{" "}
+                        places occupées
+                      </p>
+                    </CardContent>
+                  </Card>
+                </div>
+              </>
             ) : (
               <Card>
                 <CardContent className="flex flex-col items-center justify-center py-16">
