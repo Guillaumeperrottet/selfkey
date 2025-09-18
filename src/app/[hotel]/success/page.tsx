@@ -105,10 +105,19 @@ async function DayParkingSuccessPage({
   hotel: string;
   paymentIntent: string;
 }) {
+  // Récupérer les informations de l'établissement pour le téléphone
+  const establishment = await prisma.establishment.findUnique({
+    where: { slug: hotel },
+    select: {
+      name: true,
+      hotelContactPhone: true,
+    },
+  });
+
   // Retry logic pour attendre que le webhook crée la réservation
   let dayParkingBooking = null;
   let attempts = 0;
-  const maxAttempts = 10; // 10 tentatives maximum
+  const maxAttempts = 5; // 5 tentatives maximum (5 secondes)
 
   while (!dayParkingBooking && attempts < maxAttempts) {
     attempts++;
@@ -157,29 +166,59 @@ async function DayParkingSuccessPage({
     return (
       <div className="min-h-screen bg-gray-50 py-8">
         <div className="max-w-2xl mx-auto px-4">
-          <Card>
-            <CardContent className="p-6 text-center">
-              <h1 className="text-xl font-bold text-red-600 mb-4">
-                Réservation non trouvée
-              </h1>
-              <p className="text-gray-600 mb-4">
-                Nous n&apos;avons pas pu trouver votre réservation parking jour.
-              </p>
-              <details className="text-left mb-4">
-                <summary className="text-sm cursor-pointer text-gray-500">
-                  Informations de debug
-                </summary>
-                <pre className="text-xs mt-2 bg-gray-100 p-2 rounded">
-                  {`PaymentIntent: ${paymentIntent}
-Hotel: ${hotel}
-Type: day_parking`}
-                </pre>
-              </details>
-              <Button asChild>
-                <Link href={`/${hotel}`}>Retour à l&apos;accueil</Link>
-              </Button>
-            </CardContent>
-          </Card>
+          <div className="text-center">
+            <div className="flex justify-center mb-4">
+              <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center">
+                <div className="w-8 h-8 text-red-600 text-2xl">⚠️</div>
+              </div>
+            </div>
+            <h1 className="text-3xl font-bold text-gray-900 mb-2">
+              Problème système temporaire
+            </h1>
+            <p className="text-gray-600 mb-6">
+              Votre paiement a été accepté, mais nous rencontrons un problème
+              technique temporaire.
+              <br />
+              <br />
+              <strong>Que faire ?</strong>
+            </p>
+
+            <div className="space-y-4 mb-6">
+              <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                <h3 className="font-semibold text-blue-800 mb-2">
+                  🔄 Option 1 : Réessayer
+                </h3>
+                <p className="text-sm text-blue-700 mb-3">
+                  Retournez au formulaire et tentez une nouvelle réservation
+                </p>
+                <Button asChild className="w-full">
+                  <Link href={`/${hotel}`}>Faire une nouvelle réservation</Link>
+                </Button>
+              </div>
+
+              <div className="bg-green-50 border border-green-200 rounded-lg p-4">
+                <h3 className="font-semibold text-green-800 mb-2">
+                  📞 Option 2 : Contacter l&apos;établissement
+                </h3>
+                <p className="text-sm text-green-700 mb-2">
+                  Pour une assistance immédiate, contactez directement
+                  l&apos;établissement avec votre numéro de paiement :
+                </p>
+                <code className="bg-green-100 px-2 py-1 rounded text-xs block mb-3">
+                  {paymentIntent}
+                </code>
+                <p className="text-sm font-medium text-green-800">
+                  📞 Téléphone de l&apos;établissement :{" "}
+                  {establishment?.hotelContactPhone ||
+                    "Contactez l'établissement"}
+                </p>
+              </div>
+            </div>
+
+            <Button asChild variant="outline">
+              <Link href={`/${hotel}`}>Retour à l&apos;accueil</Link>
+            </Button>
+          </div>
         </div>
       </div>
     );
@@ -310,10 +349,19 @@ async function ClassicBookingSuccessPage({
   hotel: string;
   paymentIntent: string;
 }) {
+  // Récupérer les informations de l'établissement pour le téléphone
+  const establishment = await prisma.establishment.findUnique({
+    where: { slug: hotel },
+    select: {
+      name: true,
+      hotelContactPhone: true,
+    },
+  });
+
   // Retry logic pour attendre que le webhook crée la réservation
   let classicBooking = null;
   let attempts = 0;
-  const maxAttempts = 10; // 10 tentatives maximum
+  const maxAttempts = 5; // 5 tentatives maximum (5 secondes)
 
   while (!classicBooking && attempts < maxAttempts) {
     attempts++;
@@ -359,23 +407,60 @@ async function ClassicBookingSuccessPage({
       attempts,
     });
 
+    // Après 5 tentatives, c'est probablement une erreur système
     return (
       <div className="min-h-screen bg-gray-50">
         <div className="container mx-auto px-4 py-8 max-w-2xl">
           <div className="text-center">
             <div className="flex justify-center mb-4">
-              <div className="w-16 h-16 bg-yellow-100 rounded-full flex items-center justify-center">
-                <CheckCircle className="w-8 h-8 text-yellow-600" />
+              <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center">
+                <div className="w-8 h-8 text-red-600 text-2xl">⚠️</div>
               </div>
             </div>
             <h1 className="text-3xl font-bold text-gray-900 mb-2">
-              Paiement en cours de traitement
+              Problème système temporaire
             </h1>
             <p className="text-gray-600 mb-6">
-              Votre paiement a été accepté et est en cours de traitement. Votre
-              réservation sera confirmée sous peu par email.
+              Votre paiement a été accepté, mais nous rencontrons un problème
+              technique temporaire.
+              <br />
+              <br />
+              <strong>Que faire ?</strong>
             </p>
-            <Button asChild>
+
+            <div className="space-y-4 mb-6">
+              <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                <h3 className="font-semibold text-blue-800 mb-2">
+                  🔄 Option 1 : Réessayer
+                </h3>
+                <p className="text-sm text-blue-700 mb-3">
+                  Retournez au formulaire et tentez une nouvelle réservation
+                </p>
+                <Button asChild className="w-full">
+                  <Link href={`/${hotel}`}>Faire une nouvelle réservation</Link>
+                </Button>
+              </div>
+
+              <div className="bg-green-50 border border-green-200 rounded-lg p-4">
+                <h3 className="font-semibold text-green-800 mb-2">
+                  📞 Option 2 : Contacter l&apos;établissement
+                </h3>
+                <p className="text-sm text-green-700 mb-2">
+                  Pour une assistance immédiate, contactez directement
+                  l&apos;établissement avec votre numéro de paiement :
+                </p>
+                <code className="bg-green-100 px-2 py-1 rounded text-xs block mb-3">
+                  {paymentIntent}
+                </code>
+                <p className="text-sm font-medium text-green-800">
+                  📞 Téléphone de l&apos;établissement :{" "}
+                  {establishment?.hotelContactPhone ||
+                    "Contactez l'établissement"}
+                </p>
+              </div>
+            </div>
+
+            <Button asChild variant="outline">
               <Link href={`/${hotel}`}>Retour à l&apos;accueil</Link>
             </Button>
           </div>
