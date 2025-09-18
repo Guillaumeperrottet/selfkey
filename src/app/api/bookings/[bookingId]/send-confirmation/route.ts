@@ -23,6 +23,7 @@ interface TemplateData {
 
 interface BookingWithDetails {
   id: string;
+  bookingNumber: number;
   hotelSlug: string;
   roomId: string | null;
   clientEmail: string;
@@ -102,8 +103,35 @@ export async function POST(request: Request, { params }: Props) {
     // Récupérer la réservation complète
     const booking: BookingWithDetails | null = await prisma.booking.findUnique({
       where: { id: bookingId },
-      include: {
-        room: true,
+      select: {
+        id: true,
+        bookingNumber: true,
+        hotelSlug: true,
+        roomId: true,
+        clientEmail: true,
+        clientFirstName: true,
+        clientLastName: true,
+        clientPhone: true,
+        amount: true,
+        currency: true,
+        checkInDate: true,
+        checkOutDate: true,
+        stripePaymentIntentId: true,
+        confirmationSent: true,
+        confirmationSentAt: true,
+        bookingType: true,
+        dayParkingDuration: true,
+        dayParkingStartTime: true,
+        dayParkingEndTime: true,
+        hasDog: true,
+        room: {
+          select: {
+            id: true,
+            name: true,
+            allowDogs: true,
+            accessCode: true,
+          },
+        },
         establishment: {
           select: {
             id: true,
@@ -237,7 +265,7 @@ export async function POST(request: Request, { params }: Props) {
         booking.establishment.hotelContactEmail || "Non renseigné",
       hotelContactPhone:
         booking.establishment.hotelContactPhone || "Non renseigné",
-      bookingNumber: booking.id,
+      bookingNumber: booking.bookingNumber.toString(),
     };
 
     // Envoyer la confirmation selon la méthode choisie

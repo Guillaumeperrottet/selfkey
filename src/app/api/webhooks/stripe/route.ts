@@ -212,6 +212,10 @@ async function createDayParkingBookingFromMetadata(
         checkInDate: new Date(), // Date actuelle pour parking jour
         checkOutDate: new Date(Date.now() + 24 * 60 * 60 * 1000), // +24h par défaut
       },
+      select: {
+        id: true,
+        bookingNumber: true,
+      },
     });
 
     console.log(
@@ -234,6 +238,7 @@ async function createDayParkingBookingFromMetadata(
           currency: "CHF",
           establishmentName: establishment.name,
           bookingId: booking.id,
+          bookingNumber: booking.bookingNumber.toString(),
           hotelSlug: metadata.hotel_slug, // Ajouté pour le lien d'extension
         };
 
@@ -321,6 +326,10 @@ async function createNightParkingBookingFromMetadata(
         stripePaymentIntentId: paymentIntent.id,
         bookingType: "night_parking", // ou null selon votre schéma
       },
+      select: {
+        id: true,
+        bookingNumber: true,
+      },
     });
 
     console.log(
@@ -403,6 +412,10 @@ async function createClassicBookingFromMetadata(
         paymentStatus: "succeeded",
         stripePaymentIntentId: paymentIntent.id,
         bookingType: "classic_booking", // Type payment-first pour réservations classiques
+      },
+      select: {
+        id: true,
+        bookingNumber: true,
       },
     });
 

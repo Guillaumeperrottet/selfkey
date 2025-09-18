@@ -174,6 +174,10 @@ export async function POST(request: NextRequest, { params }: Props) {
           dayParkingEndTime: new Date(dayParkingEndTime),
           emailConfirmation,
         },
+        select: {
+          id: true,
+          bookingNumber: true,
+        },
       });
 
       console.log(
@@ -194,6 +198,7 @@ export async function POST(request: NextRequest, { params }: Props) {
           currency: "CHF",
           establishmentName: establishment.name,
           bookingId: dayParkingBooking.id,
+          bookingNumber: dayParkingBooking.bookingNumber.toString(),
           hotelSlug: hotel, // Ajouter le hotelSlug manquant
         };
 

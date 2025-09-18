@@ -43,7 +43,11 @@ export default async function SuccessPage({ params, searchParams }: Props) {
   // Récupérer la réservation avec tous les détails
   const booking = await prisma.booking.findUnique({
     where: { id: bookingId },
-    include: {
+    select: {
+      id: true,
+      bookingNumber: true,
+      stripePaymentIntentId: true,
+      hotelSlug: true,
       room: true,
       establishment: {
         select: {
@@ -115,7 +119,16 @@ async function DayParkingSuccessPage({
         stripePaymentIntentId: paymentIntent,
         bookingType: "day_parking",
       },
-      include: {
+      select: {
+        id: true,
+        bookingNumber: true,
+        clientFirstName: true,
+        clientLastName: true,
+        clientVehicleNumber: true,
+        dayParkingDuration: true,
+        dayParkingStartTime: true,
+        dayParkingEndTime: true,
+        amount: true,
         establishment: {
           select: {
             name: true,
@@ -277,10 +290,8 @@ Type: day_parking`}
         {/* Note de bas de page */}
         <div className="mt-8 text-center text-sm text-gray-500">
           <p>
-            Numéro de transaction :{" "}
-            <span className="font-mono">
-              {dayParkingBooking.id.slice(-8).toUpperCase()}
-            </span>
+            Numéro de réservation :{" "}
+            <span className="font-mono">{dayParkingBooking.bookingNumber}</span>
           </p>
           <p className="mt-1">
             Conservez ce numéro pour toute correspondance future.
@@ -313,7 +324,15 @@ async function ClassicBookingSuccessPage({
         stripePaymentIntentId: paymentIntent,
         bookingType: "classic_booking",
       },
-      include: {
+      select: {
+        id: true,
+        bookingNumber: true,
+        checkInDate: true,
+        checkOutDate: true,
+        clientEmail: true,
+        clientPhone: true,
+        amount: true,
+        currency: true,
         room: true,
         establishment: {
           select: {
@@ -501,9 +520,7 @@ async function ClassicBookingSuccessPage({
         <div className="mt-8 text-center text-sm text-gray-500">
           <p>
             Numéro de réservation :{" "}
-            <span className="font-mono">
-              {classicBooking.id.slice(-8).toUpperCase()}
-            </span>
+            <span className="font-mono">{classicBooking.bookingNumber}</span>
           </p>
           <p className="mt-1">
             Conservez ce numéro pour toute correspondance future.

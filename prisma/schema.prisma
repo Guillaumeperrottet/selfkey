@@ -173,6 +173,7 @@ model Room {
 
 model Booking {
   id                     String        @id @default(cuid())
+  bookingNumber          Int           @unique @default(dbgenerated("nextval('booking_number_seq')"))
   hotelSlug              String
   roomId                 String?
   clientEmail            String

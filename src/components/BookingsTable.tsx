@@ -36,6 +36,7 @@ import {
 
 interface Booking {
   id: string;
+  bookingNumber: number;
   clientFirstName: string;
   clientLastName: string;
   clientEmail: string;
@@ -55,6 +56,7 @@ interface Booking {
   selectedPricingOptions?: Record<string, string | string[]>;
   pricingOptionsTotal?: number;
   stripePaymentIntentId?: string | null;
+  paymentStatus?: string;
   confirmationSent?: boolean;
   confirmationSentAt?: Date | null;
   confirmationMethod?: string | null;
@@ -251,6 +253,10 @@ export function BookingsTable({ bookings }: BookingsTableProps) {
               <h2>Informations du séjour</h2>
             </div>
             <div class="grid">
+              <div class="flex">
+                <span>N° de réservation :</span>
+                <span class="font-medium">${booking.bookingNumber}</span>
+              </div>
               <div class="flex">
                 <span>Chambre :</span>
                 <span class="font-medium">${booking.room ? booking.room.name : "Parking jour"}</span>
@@ -696,7 +702,7 @@ export function BookingsTable({ bookings }: BookingsTableProps) {
 
       {/* Dialog des détails */}
       <Dialog open={showDetails} onOpenChange={setShowDetails}>
-        <DialogContent className="max-w-6xl max-h-[90vh] overflow-y-auto">
+        <DialogContent className="!w-[900px] !max-w-[95vw] max-h-[90vh] overflow-y-auto">
           <DialogHeader>
             <div className="flex items-center justify-between">
               <div>
@@ -735,7 +741,15 @@ export function BookingsTable({ bookings }: BookingsTableProps) {
                   </h3>
                   <div className="space-y-2 text-sm">
                     <div className="flex justify-between">
-                      <span className="text-muted-foreground">Chambre :</span>
+                      <span className="text-muted-foreground">
+                        N° de réservation :
+                      </span>
+                      <span className="font-medium">
+                        {selectedBooking.bookingNumber}
+                      </span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-muted-foreground">Place :</span>
                       <span className="font-medium">
                         {selectedBooking.room
                           ? selectedBooking.room.name
@@ -942,9 +956,13 @@ export function BookingsTable({ bookings }: BookingsTableProps) {
                         Statut paiement :
                       </span>
                       <span
-                        className={`font-medium ${selectedBooking.stripePaymentIntentId ? "text-green-600" : "text-orange-600"}`}
+                        className={`font-medium ${
+                          selectedBooking.paymentStatus === "succeeded"
+                            ? "text-green-600"
+                            : "text-orange-600"
+                        }`}
                       >
-                        {selectedBooking.stripePaymentIntentId
+                        {selectedBooking.paymentStatus === "succeeded"
                           ? "✓ Payé"
                           : "⏳ En attente"}
                       </span>

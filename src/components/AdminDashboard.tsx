@@ -77,6 +77,7 @@ interface AdminDashboardProps {
   }>;
   allBookings: Array<{
     id: string;
+    bookingNumber: number;
     clientFirstName: string;
     clientLastName: string;
     clientEmail: string;
@@ -85,6 +86,11 @@ interface AdminDashboardProps {
     checkInDate: Date;
     checkOutDate: Date;
     bookingDate: Date;
+    paymentStatus?: string;
+    stripePaymentIntentId?: string | null;
+    confirmationSent?: boolean;
+    confirmationSentAt?: Date | null;
+    confirmationMethod?: string | null;
     touristTaxTotal?: number;
     room: {
       name: string;

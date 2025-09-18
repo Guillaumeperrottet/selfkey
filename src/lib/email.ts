@@ -13,6 +13,7 @@ const resend = process.env.RESEND_API_KEY
 
 interface BookingConfirmationData {
   id: string; // ID de la réservation
+  bookingNumber?: number; // Numéro de réservation séquentiel
   clientName: string;
   clientEmail: string;
   roomName: string;
@@ -62,7 +63,7 @@ export async function sendBookingConfirmation(
           
           <div class="booking-details">
             <h3>Détails de votre réservation :</h3>
-            <p><strong>📋 Numéro de réservation :</strong> ${booking.id}</p>
+            <p><strong>📋 Numéro de réservation :</strong> ${booking.bookingNumber || booking.id}</p>
             <p><strong>Chambre :</strong> ${booking.roomName} (N° ${booking.roomId})</p>
             <p><strong>Date :</strong> ${booking.bookingDate.toLocaleDateString("fr-CH")}</p>
             <p><strong>Montant payé :</strong> ${booking.amount} ${booking.currency}</p>
@@ -129,6 +130,7 @@ interface DayParkingBookingData {
   currency: string;
   establishmentName: string;
   bookingId: string;
+  bookingNumber: string;
   hotelSlug: string; // Ajouté pour générer le lien d'extension
 }
 
@@ -276,7 +278,7 @@ Das {establishmentName} Team`;
       .replace(/{extendParkingUrl}/g, extendParkingUrl)
       .replace(/{hotelContactEmail}/g, establishment.hotelContactEmail || "")
       .replace(/{hotelContactPhone}/g, establishment.hotelContactPhone || "")
-      .replace(/{bookingId}/g, booking.bookingId);
+      .replace(/{bookingId}/g, booking.bookingNumber);
 
     // Convertir le contenu en HTML simple
     const htmlContent = `
@@ -302,7 +304,7 @@ Das {establishmentName} Team`;
         </div>
         <div class="footer">
           <p>Cette confirmation a été générée automatiquement.</p>
-          <p>Numéro de réservation : ${booking.bookingId.slice(-8).toUpperCase()}</p>
+          <p>Numéro de réservation : ${booking.bookingNumber}</p>
         </div>
       </body>
       </html>

@@ -69,8 +69,28 @@ export default async function AdminPage({ params }: Props) {
         },
       },
     },
-    include: {
-      room: true, // Inclure les détails de la chambre
+    select: {
+      id: true,
+      bookingNumber: true,
+      clientFirstName: true,
+      clientLastName: true,
+      clientEmail: true,
+      amount: true,
+      guests: true,
+      checkInDate: true,
+      checkOutDate: true,
+      bookingDate: true,
+      paymentStatus: true,
+      stripePaymentIntentId: true,
+      confirmationSent: true,
+      confirmationSentAt: true,
+      confirmationMethod: true,
+      touristTaxTotal: true,
+      room: {
+        select: {
+          name: true,
+        },
+      },
     },
     orderBy: {
       checkInDate: "desc", // Plus récentes en premier

@@ -15,6 +15,7 @@ export interface TemplateData {
 
 export interface BookingWithDetails {
   id: string;
+  bookingNumber?: number;
   clientFirstName: string;
   clientLastName: string;
   clientEmail: string;
@@ -105,7 +106,7 @@ export function generateTemplateData(
       booking.establishment.hotelContactEmail || "Non renseigné",
     hotelContactPhone:
       booking.establishment.hotelContactPhone || "Non renseigné",
-    bookingNumber: booking.id,
+    bookingNumber: booking.bookingNumber?.toString() || booking.id,
   };
 }
 
