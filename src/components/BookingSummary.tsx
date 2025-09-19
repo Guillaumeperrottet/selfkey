@@ -789,50 +789,29 @@ export function BookingSummary({ bookingId }: BookingSummaryProps) {
                       {duration} night{duration > 1 ? "s" : ""}
                     </Badge>
                   </div>
-                </div>
-              </CardContent>
-            </Card>
 
-            {/* Invités - Carte séparée pour plus de visibilité */}
-            <Card>
-              <CardHeader className="pb-1">
-                <CardTitle className="flex items-center gap-2 text-base md:text-lg">
-                  <User className="h-5 w-5" />
-                  Guests
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="grid grid-cols-3 gap-1.5">
-                  <div className="flex items-center gap-1 p-1.5 bg-gray-50 rounded-lg">
-                    <User className="h-4 w-4 text-gray-600" />
-                    <div>
-                      <div className="text-sm font-medium text-gray-700">
-                        Adults
-                      </div>
-                      <div className="text-base font-semibold text-gray-900">
-                        {booking.adults}
+                  {/* Invités intégrés dans la même carte */}
+                  <div className="grid grid-cols-2 gap-2 mt-3">
+                    <div className="flex items-center gap-2 p-2 bg-white border border-gray-200 rounded-lg">
+                      <User className="h-4 w-4 text-gray-600" />
+                      <div>
+                        <div className="text-sm font-medium text-gray-700">
+                          Adults
+                        </div>
+                        <div className="text-base font-semibold text-gray-900">
+                          {booking.adults}
+                        </div>
                       </div>
                     </div>
-                  </div>
-                  <div className="flex items-center gap-1 p-1.5 bg-gray-50 rounded-lg">
-                    <User className="h-4 w-4 text-gray-600" />
-                    <div>
-                      <div className="text-sm font-medium text-gray-700">
-                        Children
-                      </div>
-                      <div className="text-base font-semibold text-gray-900">
-                        {booking.children}
-                      </div>
-                    </div>
-                  </div>
-                  <div className="flex items-center gap-1 p-1.5 bg-gray-100 rounded-lg">
-                    <User className="h-4 w-4 text-gray-600" />
-                    <div>
-                      <div className="text-sm font-medium text-gray-700">
-                        Total
-                      </div>
-                      <div className="text-base font-semibold text-gray-900">
-                        {booking.adults + booking.children}
+                    <div className="flex items-center gap-2 p-2 bg-white border border-gray-200 rounded-lg">
+                      <User className="h-4 w-4 text-gray-600" />
+                      <div>
+                        <div className="text-sm font-medium text-gray-700">
+                          Children
+                        </div>
+                        <div className="text-base font-semibold text-gray-900">
+                          {booking.children}
+                        </div>
                       </div>
                     </div>
                   </div>
