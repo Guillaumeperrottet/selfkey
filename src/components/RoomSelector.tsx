@@ -51,16 +51,11 @@ export function RoomSelector({
     const timeoutId = setTimeout(() => {
       const searchRooms = async () => {
         setLoading(true);
-        const loadingToast = toastUtils.loading(
-          "Recherche de disponibilités..."
-        );
 
         try {
           const response = await fetch(
             `/api/establishments/${hotelSlug}/availability?checkInDate=${checkInDate}&checkOutDate=${checkOutDate}${hasDog !== undefined ? `&hasDog=${hasDog}` : ""}`
           );
-
-          toastUtils.dismiss(loadingToast);
 
           if (!response.ok) {
             throw new Error(
@@ -89,7 +84,6 @@ export function RoomSelector({
             toastUtils.info(data.message);
           }
         } catch (err) {
-          toastUtils.dismiss(loadingToast);
           toastUtils.error(
             err instanceof Error
               ? err.message
