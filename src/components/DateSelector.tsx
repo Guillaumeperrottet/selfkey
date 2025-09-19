@@ -94,6 +94,7 @@ export function DateSelector({
   const [checkOutDate, setCheckOutDate] = useState(initialCheckOutDate || "");
   const [hasDog, setHasDog] = useState(initialHasDog || false);
   const [loading, setLoading] = useState(false);
+  const [isCalendarOpen, setIsCalendarOpen] = useState(false);
 
   // États pour les options de prix
   const [pricingOptions, setPricingOptions] = useState<PricingOption[]>([]);
@@ -482,7 +483,7 @@ export function DateSelector({
             >
               Check-out Date
             </Label>
-            <Popover>
+            <Popover open={isCalendarOpen} onOpenChange={setIsCalendarOpen}>
               <PopoverTrigger asChild>
                 <Button
                   variant="outline"
@@ -505,26 +506,59 @@ export function DateSelector({
                   selected={checkOutDate ? new Date(checkOutDate) : undefined}
                   onSelect={(date) => {
                     if (date) {
-                      setCheckOutDate(date.toISOString().split("T")[0]);
+                      // Utiliser une méthode qui évite les problèmes de fuseau horaire
+                      const year = date.getFullYear();
+                      const month = String(date.getMonth() + 1).padStart(
+                        2,
+                        "0"
+                      );
+                      const day = String(date.getDate()).padStart(2, "0");
+                      setCheckOutDate(`${year}-${month}-${day}`);
+                      // Fermer le calendrier après sélection
+                      setIsCalendarOpen(false);
                     }
                   }}
                   disabled={(date) => {
-                    if (!checkInDate) return true;
+                    // Utiliser la même méthode pour éviter les problèmes de fuseau horaire
+                    const year = date.getFullYear();
+                    const month = String(date.getMonth() + 1).padStart(2, "0");
+                    const day = String(date.getDate()).padStart(2, "0");
+                    const dateStr = `${year}-${month}-${day}`;
 
-                    const checkIn = new Date(checkInDate);
+                    // Calculer la date minimum (lendemain du check-in)
+                    const checkIn = new Date(checkInDate + "T00:00:00");
                     const minCheckOut = new Date(checkIn);
                     minCheckOut.setDate(minCheckOut.getDate() + 1);
+                    const minYear = minCheckOut.getFullYear();
+                    const minMonth = String(
+                      minCheckOut.getMonth() + 1
+                    ).padStart(2, "0");
+                    const minDay = String(minCheckOut.getDate()).padStart(
+                      2,
+                      "0"
+                    );
+                    const minCheckOutStr = `${minYear}-${minMonth}-${minDay}`;
 
+                    // Calculer la date maximum
                     const maxCheckOut = new Date(checkIn);
                     maxCheckOut.setDate(
                       maxCheckOut.getDate() + establishment.maxBookingDays
                     );
+                    const maxYear = maxCheckOut.getFullYear();
+                    const maxMonth = String(
+                      maxCheckOut.getMonth() + 1
+                    ).padStart(2, "0");
+                    const maxDay = String(maxCheckOut.getDate()).padStart(
+                      2,
+                      "0"
+                    );
+                    const maxCheckOutStr = `${maxYear}-${maxMonth}-${maxDay}`;
 
-                    // Vérifier si la date est avant le minimum
-                    if (date < minCheckOut) return true;
+                    // Vérifier si la date est avant le minimum autorisé (utiliser les strings)
+                    if (dateStr < minCheckOutStr) return true;
 
-                    // Vérifier si la date dépasse la limite de jours
-                    if (date > maxCheckOut) return true;
+                    // Vérifier si la date dépasse la limite de jours (utiliser les strings)
+                    if (dateStr > maxCheckOutStr) return true;
 
                     // Vérifier les restrictions futures si applicable
                     if (establishment.allowFutureBookings) {
@@ -532,15 +566,43 @@ export function DateSelector({
                       maxFutureDate.setFullYear(
                         maxFutureDate.getFullYear() + 1
                       );
-                      if (date > maxFutureDate) return true;
+                      const futureYear = maxFutureDate.getFullYear();
+                      const futureMonth = String(
+                        maxFutureDate.getMonth() + 1
+                      ).padStart(2, "0");
+                      const futureDay = String(
+                        maxFutureDate.getDate()
+                      ).padStart(2, "0");
+                      const maxFutureDateStr = `${futureYear}-${futureMonth}-${futureDay}`;
+                      if (dateStr > maxFutureDateStr) return true;
                     } else {
                       // Si pas de réservations futures, limiter à quelques mois
                       const maxDate = new Date();
                       maxDate.setMonth(maxDate.getMonth() + 6);
-                      if (date > maxDate) return true;
+                      const limitYear = maxDate.getFullYear();
+                      const limitMonth = String(
+                        maxDate.getMonth() + 1
+                      ).padStart(2, "0");
+                      const limitDay = String(maxDate.getDate()).padStart(
+                        2,
+                        "0"
+                      );
+                      const maxDateStr = `${limitYear}-${limitMonth}-${limitDay}`;
+                      if (dateStr > maxDateStr) return true;
                     }
 
                     return false;
+                  }}
+                  modifiers={{
+                    checkInDay: new Date(checkInDate + "T00:00:00"),
+                  }}
+                  modifiersStyles={{
+                    checkInDay: {
+                      backgroundColor: "#dbeafe",
+                      color: "#1e40af",
+                      fontWeight: "bold",
+                      border: "2px solid #3b82f6",
+                    },
                   }}
                   initialFocus
                 />
