@@ -71,7 +71,7 @@ const DEFAULT_FORM_FIELDS: FormField[] = [
   {
     id: "clientBirthDate",
     label: "Date de naissance / Date of Birth",
-    required: false,
+    required: true,
     enabled: true,
     description:
       "Information pour l'identification / Information for identification",
