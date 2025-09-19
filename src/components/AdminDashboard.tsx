@@ -43,7 +43,6 @@ import {
   Users,
   Bed,
   CheckCircle,
-  Euro,
   Calendar,
   Filter,
 } from "lucide-react";
@@ -516,46 +515,6 @@ export function AdminDashboard({
                       </div>
                       <p className="text-xs text-muted-foreground">
                         après déduction des frais et taxes de séjour
-                      </p>
-                    </CardContent>
-                  </Card>
-
-                  <Card className="stats-card">
-                    <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                      <CardTitle className="text-sm font-medium">
-                        Taxes de séjour{" "}
-                        {periodFilter === "today"
-                          ? "du jour"
-                          : periodFilter === "month"
-                            ? "du mois"
-                            : periodFilter === "quarter"
-                              ? "du trimestre"
-                              : "totales"}
-                      </CardTitle>
-                      <Euro className="h-4 w-4 text-muted-foreground" />
-                    </CardHeader>
-                    <CardContent>
-                      <div className="text-2xl font-bold">
-                        {(() => {
-                          const totalTouristTax = filteredBookings.reduce(
-                            (sum: number, booking) =>
-                              sum + (booking.touristTaxTotal || 0),
-                            0
-                          );
-
-                          return totalTouristTax.toFixed(2);
-                        })()}{" "}
-                        CHF
-                      </div>
-                      <p className="text-xs text-muted-foreground">
-                        collectées{" "}
-                        {periodFilter === "today"
-                          ? "aujourd&apos;hui"
-                          : periodFilter === "month"
-                            ? "ce mois"
-                            : periodFilter === "quarter"
-                              ? "ce trimestre"
-                              : "au total"}
                       </p>
                     </CardContent>
                   </Card>
