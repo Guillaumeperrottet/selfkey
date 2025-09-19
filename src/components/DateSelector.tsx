@@ -6,6 +6,14 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
+import { Calendar as CalendarComponent } from "@/components/ui/calendar";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import { format } from "date-fns";
+import { fr } from "date-fns/locale";
 import {
   Select,
   SelectContent,
@@ -13,7 +21,13 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Calendar, Clock, Info, AlertTriangle } from "lucide-react";
+import {
+  Calendar,
+  Clock,
+  Info,
+  AlertTriangle,
+  CalendarIcon,
+} from "lucide-react";
 import { toastUtils } from "@/lib/toast-utils";
 import {
   validateBookingDates,
@@ -468,35 +482,70 @@ export function DateSelector({
             >
               Check-out Date
             </Label>
-            <Input
-              id="checkOut"
-              type="date"
-              value={checkOutDate}
-              onChange={(e) => setCheckOutDate(e.target.value)}
-              className="mt-1 h-12 text-base"
-              min={(() => {
-                const minDate = new Date(checkInDate);
-                minDate.setDate(minDate.getDate() + 1);
-                return minDate.toISOString().split("T")[0];
-              })()}
-              max={(() => {
-                const maxCheckOut = new Date(checkInDate);
-                maxCheckOut.setDate(
-                  maxCheckOut.getDate() + establishment.maxBookingDays
-                );
+            <Popover>
+              <PopoverTrigger asChild>
+                <Button
+                  variant="outline"
+                  className="w-full justify-start text-left font-normal h-12 text-base mt-1"
+                  disabled={!checkInDate}
+                >
+                  <CalendarIcon className="mr-2 h-4 w-4" />
+                  {checkOutDate ? (
+                    format(new Date(checkOutDate), "EEEE dd MMMM yyyy", {
+                      locale: fr,
+                    })
+                  ) : (
+                    <span>Sélectionnez une date</span>
+                  )}
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent className="w-auto p-0" align="start">
+                <CalendarComponent
+                  mode="single"
+                  selected={checkOutDate ? new Date(checkOutDate) : undefined}
+                  onSelect={(date) => {
+                    if (date) {
+                      setCheckOutDate(date.toISOString().split("T")[0]);
+                    }
+                  }}
+                  disabled={(date) => {
+                    if (!checkInDate) return true;
 
-                if (establishment.allowFutureBookings) {
-                  const maxFutureDate = new Date();
-                  maxFutureDate.setFullYear(maxFutureDate.getFullYear() + 1);
-                  return maxCheckOut > maxFutureDate
-                    ? maxFutureDate.toISOString().split("T")[0]
-                    : maxCheckOut.toISOString().split("T")[0];
-                } else {
-                  return maxCheckOut.toISOString().split("T")[0];
-                }
-              })()}
-              title={`Date de départ maximum : ${establishment.maxBookingDays} nuit${establishment.maxBookingDays > 1 ? "s" : ""} après l'arrivée`}
-            />
+                    const checkIn = new Date(checkInDate);
+                    const minCheckOut = new Date(checkIn);
+                    minCheckOut.setDate(minCheckOut.getDate() + 1);
+
+                    const maxCheckOut = new Date(checkIn);
+                    maxCheckOut.setDate(
+                      maxCheckOut.getDate() + establishment.maxBookingDays
+                    );
+
+                    // Vérifier si la date est avant le minimum
+                    if (date < minCheckOut) return true;
+
+                    // Vérifier si la date dépasse la limite de jours
+                    if (date > maxCheckOut) return true;
+
+                    // Vérifier les restrictions futures si applicable
+                    if (establishment.allowFutureBookings) {
+                      const maxFutureDate = new Date();
+                      maxFutureDate.setFullYear(
+                        maxFutureDate.getFullYear() + 1
+                      );
+                      if (date > maxFutureDate) return true;
+                    } else {
+                      // Si pas de réservations futures, limiter à quelques mois
+                      const maxDate = new Date();
+                      maxDate.setMonth(maxDate.getMonth() + 6);
+                      if (date > maxDate) return true;
+                    }
+
+                    return false;
+                  }}
+                  initialFocus
+                />
+              </PopoverContent>
+            </Popover>
           </div>
         </div>
 
