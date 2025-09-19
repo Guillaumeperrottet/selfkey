@@ -257,7 +257,7 @@ export default function SearchBar() {
             onFocus={handleFocus}
             onBlur={handleBlur}
             placeholder="Rechercher un emplacement, ville, camping..."
-            className="w-full pl-12 pr-12 py-4 text-lg border-2 border-vintage-gray rounded-xl focus:outline-none focus:border-vintage-teal transition-colors bg-white shadow-lg"
+            className="w-full pl-12 pr-12 py-4 text-lg border-2 border-gray-300 rounded-xl focus:outline-none focus:border-[#84994F] transition-colors shadow-lg bg-white"
           />
 
           {/* Clear button */}
@@ -281,17 +281,17 @@ export default function SearchBar() {
 
       {/* Suggestions Dropdown */}
       {isOpen && (
-        <div className="absolute top-full left-0 right-0 mt-2 bg-white rounded-xl shadow-xl border border-vintage-gray-light z-50 max-h-96 overflow-y-auto">
+        <div className="absolute top-full left-0 right-0 mt-2 bg-white rounded-xl shadow-xl border border-gray-300 z-50 max-h-96 overflow-y-auto">
           {/* Use the map suggestion */}
           <Link
             href="/map"
-            className="flex items-center gap-4 p-4 hover:bg-vintage-gray-light/70 hover:shadow-sm transition-all duration-200 ease-in-out border-b border-vintage-gray-light cursor-pointer group"
+            className="flex items-center gap-4 p-4 hover:bg-gray-50 hover:shadow-sm transition-all duration-200 ease-in-out border-b border-gray-200 cursor-pointer group"
           >
-            <div className="w-10 h-10 bg-vintage-teal/10 rounded-lg flex items-center justify-center group-hover:bg-vintage-teal/20 transition-colors duration-200">
-              <Map className="w-5 h-5 text-vintage-teal" />
+            <div className="w-10 h-10 bg-[#84994F]/10 rounded-lg flex items-center justify-center group-hover:bg-[#84994F]/20 transition-colors duration-200">
+              <Map className="w-5 h-5 text-[#84994F]" />
             </div>
             <div>
-              <div className="font-medium text-vintage-black group-hover:text-vintage-teal transition-colors duration-200">
+              <div className="font-medium text-gray-900 group-hover:text-[#84994F] transition-colors duration-200">
                 Voir la carte
               </div>
               <div className="text-sm text-gray-600">
@@ -304,12 +304,12 @@ export default function SearchBar() {
           {suggestions.length > 0 && (
             <>
               {!searchValue.trim() && recentSearches.length > 0 && (
-                <div className="px-4 py-3 text-sm font-medium text-gray-500 bg-vintage-gray-light/50">
+                <div className="px-4 py-3 text-sm font-medium text-gray-500 bg-gray-50">
                   Recherches récentes
                 </div>
               )}
               {searchValue.trim() && (
-                <div className="px-4 py-3 text-sm font-medium text-gray-500 bg-vintage-gray-light/50">
+                <div className="px-4 py-3 text-sm font-medium text-gray-500 bg-gray-50">
                   Résultats de recherche
                 </div>
               )}
@@ -317,17 +317,17 @@ export default function SearchBar() {
               {suggestions.map((suggestion) => (
                 <div
                   key={suggestion.id}
-                  className="w-full flex items-center gap-4 p-4 hover:bg-vintage-gray-light/70 hover:shadow-sm transition-all duration-200 ease-in-out group"
+                  className="w-full flex items-center gap-4 p-4 hover:bg-gray-50 hover:shadow-sm transition-all duration-200 ease-in-out group"
                 >
                   <button
                     className="flex items-center gap-4 flex-1 text-left cursor-pointer transform hover:translate-x-1 transition-transform duration-200"
                     onClick={() => handleSuggestionClick(suggestion)}
                   >
-                    <div className="w-10 h-10 bg-vintage-gray/20 rounded-lg flex items-center justify-center group-hover:bg-vintage-gray/30 group-hover:scale-105 transition-all duration-200">
+                    <div className="w-10 h-10 bg-gray-100 rounded-lg flex items-center justify-center group-hover:bg-[#84994F]/20 group-hover:scale-105 transition-all duration-200">
                       {getIcon(suggestion.icon, suggestion.type)}
                     </div>
                     <div className="flex-1">
-                      <div className="font-medium text-vintage-black group-hover:text-vintage-teal transition-colors duration-200">
+                      <div className="font-medium text-gray-900 group-hover:text-[#84994F] transition-colors duration-200">
                         {suggestion.title}
                       </div>
                       {suggestion.subtitle && (
