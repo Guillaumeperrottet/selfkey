@@ -631,7 +631,7 @@ export function DateSelector({
           <div className="flex items-center gap-2 text-base md:text-lg text-gray-700">
             <Clock className="h-5 w-5" />
             <span>
-              Durée du séjour / Stay Duration : {duration} nuit
+              {duration} nuit
               {duration > 1 ? "s" : ""} / night{duration > 1 ? "s" : ""}
             </span>
           </div>
