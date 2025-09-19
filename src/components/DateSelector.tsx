@@ -227,13 +227,10 @@ export function DateSelector({
     }
 
     setLoading(true);
-    const loadingToast = toastUtils.loading("Validation des dates...");
 
     try {
       // Simuler une petite validation
       await new Promise((resolve) => setTimeout(resolve, 300));
-
-      toastUtils.dismiss(loadingToast);
 
       onDatesConfirmed(
         checkInDate,
@@ -242,7 +239,6 @@ export function DateSelector({
         selectedPricingOptions
       );
     } catch {
-      toastUtils.dismiss(loadingToast);
       toastUtils.error("Erreur lors de la validation des dates");
     } finally {
       setLoading(false);
