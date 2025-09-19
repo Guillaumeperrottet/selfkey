@@ -647,7 +647,7 @@ export function DateSelector({
             ? "Réservations fermées / Bookings Closed"
             : loading
               ? "Validation en cours... / Validating..."
-              : "Rechercher disponibilité / Search Availability"}
+              : "Rechercher / Search "}
         </Button>
       </CardContent>
     </Card>

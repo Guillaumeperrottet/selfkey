@@ -103,6 +103,17 @@ export function RoomSelector({
 
   const handleRoomSelect = (room: Room) => {
     setSelectedRoom(room);
+
+    // Scroll automatique vers le bouton Continue
+    setTimeout(() => {
+      const continueButton = document.getElementById("continue-button");
+      if (continueButton) {
+        continueButton.scrollIntoView({
+          behavior: "smooth",
+          block: "center",
+        });
+      }
+    }, 100); // Petit délai pour laisser le DOM se mettre à jour
   };
 
   const handleContinue = () => {
@@ -193,8 +204,13 @@ export function RoomSelector({
             })}
 
             {selectedRoom && (
-              <div className="pt-4 border-t">
-                <Button onClick={handleContinue} className="w-full" size="lg">
+              <div className="pt-4 border-t" id="continue-section">
+                <Button
+                  id="continue-button"
+                  onClick={handleContinue}
+                  className="w-full"
+                  size="lg"
+                >
                   Continue with {selectedRoom.name}
                 </Button>
               </div>
