@@ -152,6 +152,13 @@ function CheckoutForm({ booking }: Pick<PaymentFormProps, "booking">) {
       }
     } catch (error) {
       console.error("Erreur confirmation paiement:", error);
+      
+      // Log détaillé pour le debug TWINT
+      if (error && typeof error === 'object' && 'payment_intent' in error) {
+        const errorObj = error as { payment_intent?: unknown };
+        console.log("PaymentIntent error details:", errorObj.payment_intent);
+      }
+      
       setError("Erreur lors du traitement du paiement");
       setIsLoading(false);
     }
