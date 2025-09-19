@@ -2,8 +2,7 @@ import { notFound, redirect } from "next/navigation";
 import { prisma } from "@/lib/prisma";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import { CheckCircle, Calendar, MapPin, Mail, Phone } from "lucide-react";
+import { CheckCircle, MapPin } from "lucide-react";
 import Link from "next/link";
 import { AutoEmailConfirmation } from "@/components/AutoEmailConfirmation";
 import { ConfirmationDetails } from "@/components/ConfirmationDetails";
@@ -469,28 +468,13 @@ async function ClassicBookingSuccessPage({
     );
   }
 
-  const duration = Math.ceil(
-    (new Date(classicBooking.checkOutDate).getTime() -
-      new Date(classicBooking.checkInDate).getTime()) /
-      (1000 * 60 * 60 * 24)
-  );
-
-  const formatDate = (date: Date) => {
-    return date.toLocaleDateString("fr-FR", {
-      weekday: "long",
-      year: "numeric",
-      month: "long",
-      day: "numeric",
-    });
-  };
-
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Composant invisible pour déclencher l'envoi d'email automatique */}
       <AutoEmailConfirmation bookingId={classicBooking.id} />
 
       <div className="container mx-auto px-4 py-8 max-w-2xl">
-        {/* Header de succès */}
+        {/* Header de succès simplifié */}
         <div className="text-center mb-8">
           <div className="flex justify-center mb-4">
             <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center">
@@ -501,116 +485,14 @@ async function ClassicBookingSuccessPage({
             Réservation confirmée ! / Booking Confirmed!
           </h1>
           <p className="text-gray-600">
-            Votre paiement a été traité avec succès. Vous recevrez une
-            confirmation par email avec tous les détails d&apos;accès sous peu.
+            Vous avez reçu un email de confirmation
             <br />
-            <span className="inline-block mt-2 text-sm font-medium text-amber-700 bg-amber-50 px-3 py-1 rounded-full">
-              ⚠️ Pensez à vérifier vos spams / Don&apos;t forget to check your
-              spam folder
-            </span>
-            <br />
-            <em className="text-sm mt-2 block">
-              Your payment has been processed successfully. You will receive an
-              email confirmation with all access details shortly.
-            </em>
+            <em className="text-sm">You have received a confirmation email</em>
           </p>
         </div>
 
-        {/* Détails de la réservation */}
-        <Card className="mb-6">
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <CheckCircle className="w-5 h-5 text-green-600" />
-              Détails de votre réservation
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            {/* Établissement et chambre */}
-            <div className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg">
-              <MapPin className="w-5 h-5 text-gray-600" />
-              <div className="flex-1">
-                <div className="font-medium text-gray-900">
-                  {classicBooking.establishment.name}
-                </div>
-                <div className="text-sm text-gray-600">
-                  Chambre: {classicBooking.room?.name || "Standard"}
-                </div>
-              </div>
-              <Badge variant="secondary">
-                {duration} nuit{duration > 1 ? "s" : ""}
-              </Badge>
-            </div>
-
-            {/* Dates */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg">
-                <Calendar className="w-5 h-5 text-gray-600" />
-                <div>
-                  <div className="text-sm font-medium text-gray-700">
-                    Arrivée
-                  </div>
-                  <div className="text-sm text-gray-900">
-                    {formatDate(classicBooking.checkInDate)}
-                  </div>
-                </div>
-              </div>
-              <div className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg">
-                <Calendar className="w-5 h-5 text-gray-600" />
-                <div>
-                  <div className="text-sm font-medium text-gray-700">
-                    Départ
-                  </div>
-                  <div className="text-sm text-gray-900">
-                    {formatDate(classicBooking.checkOutDate)}
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            {/* Informations client */}
-            <div className="space-y-2">
-              <h4 className="font-medium text-gray-900">Informations client</h4>
-              <div className="space-y-2 text-sm">
-                <div className="flex items-center gap-2">
-                  <Mail className="w-4 h-4 text-gray-500" />
-                  <span>{classicBooking.clientEmail}</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <Phone className="w-4 h-4 text-gray-500" />
-                  <span>{classicBooking.clientPhone}</span>
-                </div>
-              </div>
-            </div>
-
-            {/* Montant payé */}
-            <div className="border-t pt-4">
-              <div className="flex justify-between items-center">
-                <span className="font-semibold text-gray-900">Total payé</span>
-                <span className="text-xl font-bold text-green-600">
-                  {classicBooking.amount} {classicBooking.currency}
-                </span>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-
-        {/* Actions */}
-        <div className="flex flex-col sm:flex-row gap-4">
-          <Button asChild className="flex-1">
-            <Link href={`/${hotel}`}>Retour à l&apos;accueil</Link>
-          </Button>
-        </div>
-
-        {/* Note de bas de page */}
-        <div className="mt-8 text-center text-sm text-gray-500">
-          <p>
-            Numéro de réservation :{" "}
-            <span className="font-mono">{classicBooking.bookingNumber}</span>
-          </p>
-          <p className="mt-1">
-            Conservez ce numéro pour toute correspondance future.
-          </p>
-        </div>
+        {/* Détails complets de la confirmation (identique à l'email) */}
+        <ConfirmationDetails bookingId={classicBooking.id} />
       </div>
     </div>
   );
