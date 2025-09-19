@@ -21,13 +21,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import {
-  Calendar,
-  Clock,
-  Info,
-  AlertTriangle,
-  CalendarIcon,
-} from "lucide-react";
+import { Calendar, Clock, AlertTriangle, CalendarIcon } from "lucide-react";
 import { toastUtils } from "@/lib/toast-utils";
 import {
   validateBookingDates,
@@ -612,7 +606,6 @@ export function DateSelector({
         </div>
 
         {/* Option chien - seulement si activée pour l'établissement */}
-        {/* Option chien - seulement si activée pour l'établissement */}
         {establishment.enableDogOption && (
           <div className="flex items-center space-x-3 mt-4">
             <input
@@ -643,37 +636,6 @@ export function DateSelector({
             </span>
           </div>
         )}
-
-        <div className="flex gap-3 text-sm md:text-base text-gray-600 bg-gray-50 p-3 rounded-md">
-          <Info className="h-4 w-4 text-gray-500 mt-0.5 flex-shrink-0" />
-          <div>
-            {establishment.allowFutureBookings ? (
-              <>
-                Vous pouvez réserver jusqu&apos;à 1 an à l&apos;avance. Durée
-                maximale de séjour : {establishment.maxBookingDays} nuit
-                {establishment.maxBookingDays > 1 ? "s" : ""}.
-                <br />
-                <em>
-                  You can book up to 1 year in advance. Maximum stay:{" "}
-                  {establishment.maxBookingDays} night
-                  {establishment.maxBookingDays > 1 ? "s" : ""}.
-                </em>
-              </>
-            ) : (
-              <>
-                Les réservations dans le futur ne sont pas autorisées. Durée
-                maximale : {establishment.maxBookingDays} nuit
-                {establishment.maxBookingDays > 1 ? "s" : ""}.
-                <br />
-                <em>
-                  Future bookings are not allowed. Maximum stay:{" "}
-                  {establishment.maxBookingDays} night
-                  {establishment.maxBookingDays > 1 ? "s" : ""}.
-                </em>
-              </>
-            )}
-          </div>
-        </div>
 
         <Button
           onClick={handleSearch}
