@@ -41,6 +41,20 @@ export async function GET(request: Request) {
     });
   } catch (error) {
     console.error("Erreur lors de la vérification des capabilities:", error);
-    return NextResponse.json({ error: "Erreur serveur" }, { status: 500 });
+
+    // Log plus détaillé de l'erreur
+    if (error instanceof Stripe.errors.StripeError) {
+      console.error("Type d'erreur Stripe:", error.type);
+      console.error("Code d'erreur:", error.code);
+      console.error("Message d'erreur:", error.message);
+    }
+
+    return NextResponse.json(
+      {
+        error: "Erreur serveur",
+        details: error instanceof Error ? error.message : "Erreur inconnue",
+      },
+      { status: 500 }
+    );
   }
 }
