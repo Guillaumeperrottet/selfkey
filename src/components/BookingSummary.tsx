@@ -737,48 +737,58 @@ export function BookingSummary({ bookingId }: BookingSummaryProps) {
                   Details
                 </CardTitle>
               </CardHeader>
-              <CardContent className="space-y-1.5">
-                <div className="grid grid-cols-2 gap-1.5">
-                  <div className="flex items-center gap-1.5 p-1.5 bg-gray-50 rounded-lg">
-                    <Clock className="h-4 w-4 text-gray-600" />
-                    <div>
-                      <div className="text-sm font-medium text-gray-700">
-                        Check-in
-                      </div>
-                      <div className="text-base text-gray-900">
-                        {formatDate(booking.checkInDate)}
-                      </div>
-                    </div>
-                  </div>
-                  <div className="flex items-center gap-1.5 p-1.5 bg-gray-50 rounded-lg">
-                    <Clock className="h-4 w-4 text-gray-600" />
-                    <div>
-                      <div className="text-sm font-medium text-gray-700">
-                        Check-out
-                      </div>
-                      <div className="text-base text-gray-900">
-                        {formatDate(booking.checkOutDate)}
+              <CardContent className="space-y-3">
+                <div className="grid grid-cols-1 gap-3">
+                  {/* Check-in et Check-out en une seule ligne plus visible */}
+                  <div className="flex items-center justify-between p-3 bg-gray-50 border border-gray-200 rounded-lg">
+                    <div className="flex items-center gap-2">
+                      <Clock className="h-5 w-5 text-gray-600" />
+                      <div>
+                        <div className="text-sm font-medium text-gray-700">
+                          Check-in
+                        </div>
+                        <div className="text-base font-semibold text-gray-900">
+                          {formatDate(booking.checkInDate)}
+                        </div>
                       </div>
                     </div>
-                  </div>
-                </div>
 
-                <div className="flex items-center gap-1.5 p-1.5 bg-gray-50 rounded-lg">
-                  <MapPin className="h-4 w-4 text-gray-600" />
-                  <div className="flex-1">
-                    <div className="text-sm font-medium text-gray-700">
-                      Établissement
-                    </div>
-                    <div className="text-base text-gray-900">
-                      {booking.establishment.name}
-                    </div>
-                    <div className="text-sm text-gray-700">
-                      Place: {booking.room.name}
+                    <div className="text-2xl text-gray-400 mx-4">→</div>
+
+                    <div className="flex items-center gap-2">
+                      <Clock className="h-5 w-5 text-gray-600" />
+                      <div>
+                        <div className="text-sm font-medium text-gray-700">
+                          Check-out
+                        </div>
+                        <div className="text-base font-semibold text-gray-900">
+                          {formatDate(booking.checkOutDate)}
+                        </div>
+                      </div>
                     </div>
                   </div>
-                  <Badge variant="secondary" className="text-sm">
-                    {duration} night{duration > 1 ? "s" : ""}
-                  </Badge>
+
+                  {/* Établissement et place plus visible */}
+                  <div className="flex items-center gap-3 p-3 bg-gray-50 border border-gray-200 rounded-lg">
+                    <MapPin className="h-5 w-5 text-gray-600" />
+                    <div className="flex-1">
+                      <div className="text-sm font-medium text-gray-700">
+                        Établissement
+                      </div>
+                      <div className="text-lg font-semibold text-gray-900">
+                        {booking.establishment.name}
+                      </div>
+                      <div className="text-base text-gray-700 font-medium">
+                        Place: {booking.room.name}
+                      </div>
+                    </div>
+                    <Badge
+                      variant="secondary"
+                      className="text-base px-3 py-1 bg-gray-100 text-gray-800 border-gray-300"
+                    >
+                      {duration} night{duration > 1 ? "s" : ""}
+                    </Badge>
+                  </div>
                 </div>
               </CardContent>
             </Card>
