@@ -1,200 +1,62 @@
-/* Palette de couleurs Vintage Vert */
+/* Couleurs vintage pour compatibility */
 :root {
-  /* Couleurs principales de la palette */
-  --vintage-teal: #2d5a5a;
-  --vintage-teal-light: #4a7c7c;
-  --vintage-teal-dark: #1e3d3d;
+  --vintage-teal: #84994f;
+  --vintage-teal-light: #9aaf65;
+  --vintage-teal-dark: #6f7f42;
 
   --vintage-gray: #e8e8e8;
   --vintage-gray-light: #f5f5f5;
   --vintage-gray-dark: #d0d0d0;
 
-  --vintage-yellow: #f4d03f;
-  --vintage-yellow-light: #f7dc6f;
-  --vintage-yellow-dark: #f1c40f;
+  --vintage-yellow: #84994f;
+  --vintage-yellow-light: #9aaf65;
+  --vintage-yellow-dark: #6f7f42;
 
-  --vintage-orange: #e67e22;
-  --vintage-orange-light: #eb984e;
-  --vintage-orange-dark: #d35400;
+  --vintage-orange: #84994f;
+  --vintage-orange-light: #9aaf65;
+  --vintage-orange-dark: #6f7f42;
 
-  /* Couleurs secondaires */
   --vintage-white: #fefefe;
   --vintage-black: #2c3e50;
-
-  /* Gradients */
-  --gradient-primary: linear-gradient(
-    135deg,
-    var(--vintage-teal) 0%,
-    var(--vintage-teal-light) 100%
-  );
-  --gradient-secondary: linear-gradient(
-    135deg,
-    var(--vintage-yellow) 0%,
-    var(--vintage-orange) 100%
-  );
-  --gradient-background: linear-gradient(
-    135deg,
-    var(--vintage-gray-light) 0%,
-    var(--vintage-white) 50%,
-    var(--vintage-gray) 100%
-  );
 }
 
-/* Classes utilitaires pour la nouvelle palette */
+/* Classes utilitaires - couleurs unifiées avec votre marque */
+.text-vintage-teal {
+  color: #84994f;
+}
+
+.text-vintage-teal-light {
+  color: #9aaf65;
+}
+
+.text-vintage-yellow {
+  color: #84994f;
+}
+
+.text-vintage-orange {
+  color: #84994f;
+}
+
 .bg-vintage-teal {
-  background-color: var(--vintage-teal);
+  background-color: #84994f;
 }
+
 .bg-vintage-teal-light {
-  background-color: var(--vintage-teal-light);
-}
-.bg-vintage-teal-dark {
-  background-color: var(--vintage-teal-dark);
+  background-color: #9aaf65;
 }
 
 .bg-vintage-yellow {
-  background-color: var(--vintage-yellow);
+  background-color: #84994f;
 }
-.bg-vintage-yellow-light {
-  background-color: var(--vintage-yellow-light);
-}
+
 .bg-vintage-orange {
-  background-color: var(--vintage-orange);
+  background-color: #84994f;
 }
 
 .bg-vintage-gray {
-  background-color: var(--vintage-gray);
+  background-color: #e8e8e8;
 }
+
 .bg-vintage-gray-light {
-  background-color: var(--vintage-gray-light);
-}
-
-.text-vintage-teal {
-  color: var(--vintage-teal);
-}
-.text-vintage-teal-light {
-  color: var(--vintage-teal-light);
-}
-.text-vintage-yellow {
-  color: var(--vintage-yellow);
-}
-.text-vintage-orange {
-  color: var(--vintage-orange);
-}
-
-.border-vintage-teal {
-  border-color: var(--vintage-teal);
-}
-.border-vintage-yellow {
-  border-color: var(--vintage-yellow);
-}
-
-/* Gradients personnalisés */
-.bg-gradient-vintage-primary {
-  background: var(--gradient-primary);
-}
-
-.bg-gradient-vintage-secondary {
-  background: var(--gradient-secondary);
-}
-
-.bg-gradient-vintage-background {
-  background: var(--gradient-background);
-}
-
-/* Gradient de texte spécifique */
-.text-gradient-vintage-primary {
-  background: var(--gradient-primary);
-  background-clip: text;
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  color: transparent;
-}
-
-.text-gradient-vintage-secondary {
-  background: var(--gradient-secondary);
-  background-clip: text;
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  color: transparent;
-}
-
-/* Effets hover avec la nouvelle palette */
-.hover-vintage-teal:hover {
-  background-color: var(--vintage-teal);
-  color: white;
-  transition: all 0.3s ease;
-}
-
-.hover-vintage-yellow:hover {
-  background-color: var(--vintage-yellow);
-  color: var(--vintage-teal);
-  transition: all 0.3s ease;
-}
-
-/* Boutons avec la nouvelle palette */
-.btn-vintage-primary {
-  background: var(--gradient-primary);
-  color: white;
-  border: none;
-  transition: all 0.3s ease;
-}
-
-.btn-vintage-primary:hover {
-  background: var(--vintage-teal-dark);
-  transform: translateY(-2px);
-  box-shadow: 0 8px 25px rgba(45, 90, 90, 0.3);
-}
-
-.btn-vintage-secondary {
-  background: var(--gradient-secondary);
-  color: white;
-  border: none;
-  transition: all 0.3s ease;
-}
-
-.btn-vintage-secondary:hover {
-  background: var(--vintage-orange-dark);
-  transform: translateY(-2px);
-  box-shadow: 0 8px 25px rgba(230, 126, 34, 0.3);
-}
-
-/* Cartes avec la nouvelle palette */
-.card-vintage {
-  background: rgba(254, 254, 254, 0.9);
-  border: 1px solid var(--vintage-gray);
-  backdrop-filter: blur(10px);
-  transition: all 0.3s ease;
-}
-
-.card-vintage:hover {
-  border-color: var(--vintage-teal);
-  box-shadow: 0 10px 30px rgba(45, 90, 90, 0.15);
-  transform: translateY(-5px);
-}
-
-/* Background animé avec la nouvelle palette */
-.vintage-background {
-  background: var(--gradient-background);
-}
-
-.vintage-particles .particle {
-  background: var(--vintage-teal);
-}
-
-.vintage-particles .particle:nth-child(2n) {
-  background: var(--vintage-yellow);
-}
-
-.vintage-particles .particle:nth-child(3n) {
-  background: var(--vintage-orange);
-}
-
-/* Sections avec la nouvelle palette */
-.section-vintage-accent {
-  background: linear-gradient(
-    135deg,
-    rgba(45, 90, 90, 0.1) 0%,
-    rgba(244, 208, 63, 0.1) 50%,
-    rgba(230, 126, 34, 0.1) 100%
-  );
+  background-color: #f5f5f5;
 }

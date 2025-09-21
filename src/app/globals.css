@@ -2,6 +2,7 @@
 @import "tw-animate-css";
 @import "../styles/animations.css";
 @import "../styles/vintage-palette.css";
+@import "../styles/mobile-map.css";
 @import "../styles/leaflet.css";
 
 @custom-variant dark (&:is(.dark *));

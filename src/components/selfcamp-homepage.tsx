@@ -13,78 +13,6 @@ export function SelfcampHomepage() {
   // Données pour la timeline de développement de SelfCamp
   const timelineData = [
     {
-      title: "Nos Prestations",
-      content: (
-        <div className="py-8">
-          <div className="max-w-5xl mx-auto">
-            <h3 className="text-3xl md:text-4xl font-bold text-gray-900 mb-8">
-              Nos <span className="text-[#84994F]">prestations</span>
-            </h3>
-
-            <p className="text-lg text-gray-700 mb-12 leading-relaxed max-w-4xl">
-              Nous offrons une solution d&apos;enregistrement, mais nous
-              apportons également notre expertise sur l&apos;organisation du
-              parking soit :
-            </p>
-
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-              <div className="space-y-6">
-                <div className="flex items-start space-x-4">
-                  <div className="w-3 h-3 bg-[#84994F] rounded-full mt-2 flex-shrink-0"></div>
-                  <p className="text-lg text-gray-800">
-                    Délimitation de la zone et des places
-                  </p>
-                </div>
-                <div className="flex items-start space-x-4">
-                  <div className="w-3 h-3 bg-[#84994F] rounded-full mt-2 flex-shrink-0"></div>
-                  <p className="text-lg text-gray-800">
-                    Mise en place de la signalétique
-                  </p>
-                </div>
-                <div className="flex items-start space-x-4">
-                  <div className="w-3 h-3 bg-[#84994F] rounded-full mt-2 flex-shrink-0"></div>
-                  <p className="text-lg text-gray-800">
-                    Mise en place du système d&apos;enregistrement (Totem et QR
-                    code)
-                  </p>
-                </div>
-              </div>
-              <div className="space-y-6">
-                <div className="flex items-start space-x-4">
-                  <div className="w-3 h-3 bg-[#84994F] rounded-full mt-2 flex-shrink-0"></div>
-                  <p className="text-lg text-gray-800">
-                    Solution de vidange (sur place ou dans campings partenaires)
-                  </p>
-                </div>
-                <div className="flex items-start space-x-4">
-                  <div className="w-3 h-3 bg-[#84994F] rounded-full mt-2 flex-shrink-0"></div>
-                  <p className="text-lg text-gray-800">
-                    Promotion sur site internet
-                  </p>
-                </div>
-                <div className="flex items-start space-x-4">
-                  <div className="w-3 h-3 bg-[#84994F] rounded-full mt-2 flex-shrink-0"></div>
-                  <p className="text-lg text-gray-800">
-                    Promotion sur réseaux sociaux
-                  </p>
-                </div>
-              </div>
-            </div>
-
-            <div className="mt-12 bg-[#f2f4ed] p-8 rounded-2xl border border-[#84994F]/20">
-              <h4 className="text-2xl font-bold text-[#84994F] mb-4">
-                Solution Complète Clé en Main
-              </h4>
-              <p className="text-gray-700 text-lg leading-relaxed">
-                De la conception à la promotion, nous prenons en charge tous les
-                aspects de votre aire de camping-car pour garantir son succès.
-              </p>
-            </div>
-          </div>
-        </div>
-      ),
-    },
-    {
       title: "Avantages Prestataires",
       content: (
         <div className="py-8">
@@ -232,6 +160,79 @@ export function SelfcampHomepage() {
       ),
     },
     {
+      title: "Nos Prestations",
+      content: (
+        <div className="py-8">
+          <div className="max-w-5xl mx-auto">
+            <h3 className="text-3xl md:text-4xl font-bold text-gray-900 mb-8">
+              Nos <span className="text-[#84994F]">prestations</span>
+            </h3>
+
+            <p className="text-lg text-gray-700 mb-12 leading-relaxed max-w-4xl">
+              Nous offrons une solution d&apos;enregistrement, mais nous
+              apportons également notre expertise sur l&apos;organisation du
+              parking soit :
+            </p>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+              <div className="space-y-6">
+                <div className="flex items-start space-x-4">
+                  <div className="w-3 h-3 bg-[#84994F] rounded-full mt-2 flex-shrink-0"></div>
+                  <p className="text-lg text-gray-800">
+                    Délimitation de la zone et des places
+                  </p>
+                </div>
+                <div className="flex items-start space-x-4">
+                  <div className="w-3 h-3 bg-[#84994F] rounded-full mt-2 flex-shrink-0"></div>
+                  <p className="text-lg text-gray-800">
+                    Mise en place de la signalétique
+                  </p>
+                </div>
+                <div className="flex items-start space-x-4">
+                  <div className="w-3 h-3 bg-[#84994F] rounded-full mt-2 flex-shrink-0"></div>
+                  <p className="text-lg text-gray-800">
+                    Mise en place du système d&apos;enregistrement (Totem et QR
+                    code)
+                  </p>
+                </div>
+              </div>
+
+              <div className="space-y-6">
+                <div className="flex items-start space-x-4">
+                  <div className="w-3 h-3 bg-[#84994F] rounded-full mt-2 flex-shrink-0"></div>
+                  <p className="text-lg text-gray-800">
+                    Solution de vidange (sur place ou dans campings partenaires)
+                  </p>
+                </div>
+                <div className="flex items-start space-x-4">
+                  <div className="w-3 h-3 bg-[#84994F] rounded-full mt-2 flex-shrink-0"></div>
+                  <p className="text-lg text-gray-800">
+                    Promotion sur site internet
+                  </p>
+                </div>
+                <div className="flex items-start space-x-4">
+                  <div className="w-3 h-3 bg-[#84994F] rounded-full mt-2 flex-shrink-0"></div>
+                  <p className="text-lg text-gray-800">
+                    Promotion sur réseaux sociaux
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            <div className="mt-12 bg-[#f2f4ed] p-8 rounded-2xl border border-[#84994F]/20">
+              <h4 className="text-2xl font-bold text-[#84994F] mb-4">
+                Solution Complète Clé en Main
+              </h4>
+              <p className="text-gray-700 text-lg leading-relaxed">
+                De la conception à la promotion, nous prenons en charge tous les
+                aspects de votre aire de camping-car pour garantir son succès.
+              </p>
+            </div>
+          </div>
+        </div>
+      ),
+    },
+    {
       title: "Soutien aux Régions",
       content: (
         <div className="py-8">
@@ -340,7 +341,7 @@ export function SelfcampHomepage() {
           background-color: #f8f9f6;
         }
         .bg-search-light {
-          background-color: #f2f4ed;
+          background-color: #f5f7f3;
         }
       `}</style>
       <div className="min-h-screen">
@@ -419,7 +420,7 @@ export function SelfcampHomepage() {
         </section>
 
         {/* Search Section - mieux aérée */}
-        <section className="relative bg-search-light px-4 pb-20 -mt-4">
+        <section className="relative bg-search-light px-4 pb-12 -mt-4">
           <div className="container mx-auto">
             <div className="max-w-4xl mx-auto">
               <div className="pt-8 p-6 md:p-8">
@@ -435,16 +436,16 @@ export function SelfcampHomepage() {
         </section>
 
         {/* Timeline Section - Notre Histoire */}
-        <section className="bg-white py-20">
+        <section className="bg-hero-light py-16">
           <div className="container mx-auto px-4">
             <div className="text-center mb-16">
               <h2 className="text-4xl md:text-5xl font-bold text-gray-900 mb-6">
-                Pourquoi Choisir SelfCamp
+                Pourquoi choisir Selfcamp
               </h2>
               <p className="text-xl text-gray-600 max-w-3xl mx-auto">
                 Découvrez notre approche complète pour créer des aires de
-                camping-car premium qui bénéficient à tous : prestataires,
-                régions et camping-caristes.
+                camping qui bénéficient à tous : prestataires, régions et
+                vanlife.
               </p>
             </div>
             <Timeline data={timelineData} />
@@ -452,7 +453,7 @@ export function SelfcampHomepage() {
         </section>
 
         {/* Notre Solution Section */}
-        <section className="py-20 px-4 bg-gray-50">
+        <section className="py-20 px-4 bg-hero-light">
           <div className="container mx-auto max-w-7xl">
             <motion.div
               initial={{ opacity: 0, y: 30 }}

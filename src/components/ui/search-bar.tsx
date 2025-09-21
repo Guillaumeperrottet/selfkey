@@ -227,18 +227,18 @@ export default function SearchBar() {
   const getIcon = (iconType: string, suggestionType?: string) => {
     switch (iconType) {
       case "map":
-        return <Map className="w-5 h-5 text-vintage-teal" />;
+        return <Map className="w-5 h-5 text-[#84994F]" />;
       case "location":
         // Différencier les établissements des lieux géographiques
         if (suggestionType === "establishment") {
-          return <Navigation className="w-5 h-5 text-vintage-yellow" />;
+          return <Navigation className="w-5 h-5 text-[#84994F]" />;
         } else {
-          return <Map className="w-5 h-5 text-vintage-teal" />;
+          return <Map className="w-5 h-5 text-[#84994F]" />;
         }
       case "recent":
         return <Search className="w-5 h-5 text-gray-400" />;
       default:
-        return <Search className="w-5 h-5 text-vintage-teal" />;
+        return <Search className="w-5 h-5 text-[#84994F]" />;
     }
   };
 
