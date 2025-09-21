@@ -18,6 +18,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { VanLoading } from "@/components/ui/van-loading";
 import { useState, useEffect, useCallback } from "react";
 
 interface Establishment {
@@ -128,8 +129,8 @@ export default function MapPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-[#212215] flex items-center justify-center">
-        <div className="text-white">Chargement de la carte...</div>
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <VanLoading message="Exploration des campings..." size="lg" />
       </div>
     );
   }

@@ -8,6 +8,7 @@ import { ArrowLeft, MapPin, ShowerHead, Navigation } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { AvailabilityBadge } from "@/components/ui/availability-badge";
+import { VanLoading } from "@/components/ui/van-loading";
 import { useAvailability } from "@/hooks/useAvailability";
 import { useState, useEffect, useMemo, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
@@ -327,8 +328,8 @@ function MapPageContent() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-[#212215] flex items-center justify-center">
-        <div className="text-white">Chargement de la carte...</div>
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <VanLoading message="Découverte des spots de camping..." size="lg" />
       </div>
     );
   }
@@ -680,11 +681,8 @@ export default function MapPage() {
   return (
     <Suspense
       fallback={
-        <div className="min-h-screen flex items-center justify-center bg-vintage-gray-light">
-          <div className="text-center">
-            <div className="animate-spin h-8 w-8 border-2 border-vintage-teal border-t-transparent rounded-full mx-auto mb-4"></div>
-            <p className="text-vintage-black">Chargement de la carte...</p>
-          </div>
+        <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+          <VanLoading message="Chargement de la carte..." size="lg" />
         </div>
       }
     >

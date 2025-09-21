@@ -273,7 +273,7 @@ export default function SearchBar() {
 
           {isLoading && (
             <div className="absolute inset-y-0 right-0 pr-4 flex items-center pointer-events-none">
-              <div className="animate-spin h-4 w-4 border-2 border-vintage-teal border-t-transparent rounded-full"></div>
+              <div className="animate-spin h-4 w-4 border-2 border-[#84994F] border-t-transparent rounded-full"></div>
             </div>
           )}
         </div>

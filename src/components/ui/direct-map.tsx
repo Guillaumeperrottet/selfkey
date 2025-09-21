@@ -2,6 +2,8 @@
 
 import { useEffect, useState } from "react";
 import { MapContainer, TileLayer, Marker, Popup, useMap } from "react-leaflet";
+import { MapPin } from "lucide-react";
+import { VanLoading } from "@/components/ui/van-loading";
 import L from "leaflet";
 import Image from "next/image";
 import "leaflet/dist/leaflet.css";
@@ -36,7 +38,7 @@ const createAnimatedIcon = (isHovered: boolean) => {
           left: 50%;
           width: ${iconSize[0] + 20}px;
           height: ${iconSize[0] + 20}px;
-          border: 2px solid #3b82f6;
+          border: 2px solid #84994F;
           border-radius: 50%;
           transform: translate(-50%, -50%);
           opacity: ${pulseOpacity};
@@ -48,9 +50,9 @@ const createAnimatedIcon = (isHovered: boolean) => {
           width: ${iconSize[0]}px;
           height: ${iconSize[1]}px;
           background: white;
-          border: 3px solid #3b82f6;
+          border: 3px solid #84994F;
           border-radius: 50%;
-          box-shadow: 0 4px 12px rgba(59, 130, 246, 0.4);
+          box-shadow: 0 4px 12px rgba(132, 153, 79, 0.3);
           position: relative;
           display: flex;
           align-items: center;
@@ -282,75 +284,58 @@ const EstablishmentMarker = ({
               />
             </div>
           )}
-          <h3 className="font-semibold text-[#9EA173] text-base mb-2 leading-tight">
+          <h3 className="font-bold text-gray-900 text-lg mb-3 leading-tight">
             {establishment.name}
           </h3>
-          {/* Informations de disponibilité - design harmonisé Selfcamp */}
-          <div className="flex items-center gap-2 mb-2">
+
+          {/* Informations de disponibilité - design simplifié */}
+          <div className="flex items-center gap-2 mb-3">
             <div
-              className={`inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium ${
-                availabilityInfo.text.includes("26/26")
-                  ? "bg-green-100 text-green-700"
+              className={`inline-flex items-center gap-2 px-3 py-1.5 rounded-lg text-sm font-medium ${
+                availabilityInfo.text.includes("26/26") ||
+                availabilityInfo.text.includes("28/28")
+                  ? "bg-green-50 text-green-700 border border-green-200"
                   : availabilityInfo.text.includes("Complet")
-                    ? "bg-red-100 text-red-700"
-                    : "bg-orange-100 text-orange-700"
+                    ? "bg-red-50 text-red-700 border border-red-200"
+                    : "bg-[#84994F]/10 text-[#84994F] border border-[#84994F]/20"
               }`}
             >
-              <span>{availabilityInfo.emoji}</span>
+              <span className="w-2 h-2 rounded-full bg-current"></span>
               <span>{availabilityInfo.text}</span>
             </div>
-          </div>{" "}
-          <div className="flex items-center gap-1 text-xs text-gray-600 mb-2">
-            <span>📍</span>
+          </div>
+
+          <div className="flex items-center gap-2 text-sm text-gray-600 mb-3">
+            <MapPin className="w-4 h-4" />
             <span>{establishment.location}</span>
           </div>
-          <p className="text-sm text-gray-600 mb-3 line-clamp-2">
+
+          <p className="text-sm text-gray-700 mb-4 leading-relaxed">
             {establishment.description}
           </p>
-          {/* Petite note discrète sur la réservation avec style Selfcamp */}
-          <div
-            className="text-xs mb-3 flex items-center gap-1"
-            style={{ color: "#C4A484" }}
-          >
-            <span>ℹ️</span>
+
+          {/* Note sur la réservation */}
+          <div className="text-sm mb-4 flex items-center gap-2 text-[#84994F] bg-[#84994F]/5 px-3 py-2 rounded-lg">
+            <div className="w-4 h-4 rounded-full bg-[#84994F]/20 flex items-center justify-center text-xs">
+              <span>ℹ️</span>
+            </div>
             <span>Réservation en ligne disponible</span>
           </div>
-          {/* Boutons d'action */}
-          <div className="flex gap-2">
-            {/* Bouton GPS avec style Selfcamp */}
+          {/* Boutons d'action - design moderne et simple */}
+          <div className="flex gap-3">
+            {/* Bouton GPS */}
             <button
               onClick={openGoogleMaps}
-              className="flex-1 px-3 py-2 rounded-lg text-sm font-medium transition-colors touch-action-manipulation flex items-center justify-center gap-2"
-              style={{
-                backgroundColor: "#2D4A34",
-                color: "#C4A484",
-                border: "1px solid #C4A484",
-              }}
-              onMouseEnter={(e) => {
-                e.currentTarget.style.backgroundColor = "#1e3d3d";
-              }}
-              onMouseLeave={(e) => {
-                e.currentTarget.style.backgroundColor = "#2D4A34";
-              }}
+              className="flex-1 px-4 py-2.5 bg-white border-2 border-[#84994F] text-[#84994F] rounded-lg text-sm font-semibold hover:bg-[#84994F] hover:text-white transition-all duration-200 flex items-center justify-center gap-2"
             >
-              <span>🧭</span>
+              <span className="text-base">🧭</span>
               <span>GPS</span>
             </button>
 
-            {/* Bouton réserver avec style Selfcamp */}
+            {/* Bouton réserver */}
             <button
               onClick={openBookingPage}
-              className="flex-1 px-3 py-2 rounded-lg text-sm font-medium transition-colors touch-action-manipulation"
-              style={{
-                backgroundColor: "#C4A484",
-                color: "#2D4A34",
-              }}
-              onMouseEnter={(e) => {
-                e.currentTarget.style.backgroundColor = "#B5987A";
-              }}
-              onMouseLeave={(e) => {
-                e.currentTarget.style.backgroundColor = "#C4A484";
-              }}
+              className="flex-1 px-4 py-2.5 bg-[#84994F] text-white rounded-lg text-sm font-semibold hover:bg-[#84994F]/90 transition-all duration-200"
             >
               Réserver
             </button>
@@ -360,6 +345,10 @@ const EstablishmentMarker = ({
     </Marker>
   );
 };
+
+interface TaggedLayer extends L.Layer {
+  _myTag?: string;
+}
 
 // Composant de géolocalisation pour mobile - utilise la géolocalisation native de Leaflet
 const MobileLocationComponent = () => {
@@ -378,18 +367,126 @@ const MobileLocationComponent = () => {
         enableHighAccuracy: true,
       });
 
-      // Gérer la géolocalisation réussie - laisser Leaflet gérer l'affichage
+      // Gérer la géolocalisation réussie - marqueur style Google Maps avec camping-car
       const onLocationFound = (e: L.LocationEvent) => {
-        // Utiliser le cercle de géolocalisation natif de Leaflet (rond bleu)
-        L.circleMarker([e.latlng.lat, e.latlng.lng], {
-          color: "#3b82f6",
-          fillColor: "#3b82f6",
-          fillOpacity: 0.8,
-          radius: 8,
-          weight: 2,
-        })
-          .addTo(map)
-          .bindPopup("Votre position actuelle");
+        console.log("Position trouvée:", e.latlng, "Précision:", e.accuracy);
+
+        // Créer un icône camping-car stylé
+        const campingCarIcon = L.divIcon({
+          html: `
+            <div style="
+              width: 32px;
+              height: 32px;
+              position: relative;
+              display: flex;
+              align-items: center;
+              justify-content: center;
+            ">
+              <!-- Ombre portée -->
+              <div style="
+                position: absolute;
+                bottom: -2px;
+                left: 50%;
+                transform: translateX(-50%);
+                width: 24px;
+                height: 8px;
+                background: rgba(0,0,0,0.2);
+                border-radius: 50%;
+                filter: blur(2px);
+              "></div>
+              
+              <!-- Cercle de fond style Google Maps -->
+              <div style="
+                position: absolute;
+                width: 28px;
+                height: 28px;
+                background: white;
+                border: 3px solid #84994F;
+                border-radius: 50%;
+                box-shadow: 0 2px 8px rgba(132, 153, 79, 0.3);
+              "></div>
+              
+              <!-- Camping-car emoji -->
+              <div style="
+                position: relative;
+                z-index: 10;
+                font-size: 16px;
+                line-height: 1;
+                filter: drop-shadow(0 1px 2px rgba(0,0,0,0.1));
+              ">🚐</div>
+              
+              <!-- Point de direction (flèche) -->
+              <div style="
+                position: absolute;
+                bottom: -8px;
+                left: 50%;
+                transform: translateX(-50%);
+                width: 0;
+                height: 0;
+                border-left: 6px solid transparent;
+                border-right: 6px solid transparent;
+                border-top: 8px solid #84994F;
+                z-index: 5;
+              "></div>
+            </div>
+          `,
+          className: "user-location-camping-car",
+          iconSize: [32, 40],
+          iconAnchor: [16, 32],
+          popupAnchor: [0, -35],
+        });
+
+        // Supprimer les anciens marqueurs de position si ils existent
+        map.eachLayer((layer) => {
+          const taggedLayer = layer as TaggedLayer;
+          if (taggedLayer._myTag === "userPosition") {
+            map.removeLayer(layer);
+          }
+        });
+
+        // Ajouter le marqueur camping-car
+        const userMarker = L.marker([e.latlng.lat, e.latlng.lng], {
+          icon: campingCarIcon,
+        }).addTo(map);
+
+        // Marquer ce layer comme position utilisateur
+        (userMarker as TaggedLayer)._myTag = "userPosition";
+
+        // Ajouter un cercle de précision discret
+        const accuracyCircle = L.circle([e.latlng.lat, e.latlng.lng], {
+          color: "#84994F",
+          fillColor: "#84994F",
+          fillOpacity: 0.08,
+          radius: e.accuracy,
+          weight: 1,
+          opacity: 0.3,
+        }).addTo(map);
+
+        // Marquer ce layer aussi
+        (accuracyCircle as TaggedLayer)._myTag = "userPosition";
+
+        // Popup style Google Maps
+        userMarker.bindPopup(`
+          <div style="text-align: center; padding: 10px; font-family: system-ui, sans-serif; min-width: 180px;">
+            <div style="font-weight: 600; color: #84994F; margin-bottom: 6px; font-size: 15px;">
+              📍 Votre position
+            </div>
+            <div style="font-size: 13px; color: #666; margin-bottom: 4px;">
+              Vous êtes ici avec votre camping-car
+            </div>
+            <div style="font-size: 11px; color: #999;">
+              Précision: ~${Math.round(e.accuracy)}m
+            </div>
+          </div>
+        `);
+
+        // Centrer la carte sur la position avec une animation douce
+        map.setView([e.latlng.lat, e.latlng.lng], Math.max(map.getZoom(), 15), {
+          animate: true,
+          duration: 1.0,
+        });
+
+        console.log("Marqueur camping-car ajouté avec succès");
       };
 
       // Gérer les erreurs de géolocalisation
@@ -438,8 +535,8 @@ export default function DirectMap({
   // Ne pas rendre côté serveur
   if (!mounted || typeof window === "undefined") {
     return (
-      <div className="w-full h-full bg-gray-100 flex items-center justify-center rounded-lg">
-        <div className="text-gray-500">Chargement de la carte...</div>
+      <div className="w-full h-full bg-gray-50 flex items-center justify-center rounded-lg">
+        <VanLoading message="Initialisation de la carte..." size="md" />
       </div>
     );
   }

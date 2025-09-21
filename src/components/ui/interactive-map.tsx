@@ -1,7 +1,8 @@
 "use client";
 
-import { useEffect, useState } from "react";
 import dynamic from "next/dynamic";
+import { useState, useEffect } from "react";
+import { VanLoading } from "@/components/ui/van-loading";
 
 interface Establishment {
   id: string;
@@ -40,8 +41,8 @@ interface InteractiveMapProps {
 const DirectMap = dynamic(() => import("@/components/ui/direct-map"), {
   ssr: false,
   loading: () => (
-    <div className="w-full h-full bg-gray-100 flex items-center justify-center rounded-lg">
-      <div className="text-gray-500">Chargement de la carte...</div>
+    <div className="w-full h-full bg-gray-50 flex items-center justify-center rounded-lg">
+      <VanLoading message="Chargement de la carte..." size="md" />
     </div>
   ),
 });
@@ -75,9 +76,9 @@ export default function InteractiveMap({
   if (!mounted) {
     return (
       <div
-        className={`w-full ${fullHeight ? "h-screen" : "h-96"} bg-gray-100 flex items-center justify-center rounded-lg`}
+        className={`w-full ${fullHeight ? "h-screen" : "h-96"} bg-gray-50 flex items-center justify-center rounded-lg`}
       >
-        <div className="text-gray-500">Chargement de la carte...</div>
+        <VanLoading message="Préparation de votre carte..." size="md" />
       </div>
     );
   }
