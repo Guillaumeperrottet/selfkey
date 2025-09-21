@@ -20,7 +20,7 @@ export async function GET(request: NextRequest) {
     const paymentIntent = await stripe.paymentIntents.retrieve(
       paymentIntentId,
       {
-        expand: ['latest_charge', 'latest_charge.balance_transaction'],
+        expand: ["latest_charge", "latest_charge.balance_transaction"],
       }
     );
 
@@ -32,32 +32,33 @@ export async function GET(request: NextRequest) {
       payment_method_types: paymentIntent.payment_method_types,
       last_payment_error: paymentIntent.last_payment_error,
       cancellation_reason: paymentIntent.cancellation_reason,
-      latest_charge: paymentIntent.latest_charge && typeof paymentIntent.latest_charge === 'object' ? {
-        id: paymentIntent.latest_charge.id,
-        status: paymentIntent.latest_charge.status,
-        failure_code: paymentIntent.latest_charge.failure_code,
-        failure_message: paymentIntent.latest_charge.failure_message,
-        outcome: paymentIntent.latest_charge.outcome,
-      } : null,
+      latest_charge:
+        paymentIntent.latest_charge &&
+        typeof paymentIntent.latest_charge === "object"
+          ? {
+              id: paymentIntent.latest_charge.id,
+              status: paymentIntent.latest_charge.status,
+              failure_code: paymentIntent.latest_charge.failure_code,
+              failure_message: paymentIntent.latest_charge.failure_message,
+              outcome: paymentIntent.latest_charge.outcome,
+            }
+          : null,
       created: paymentIntent.created,
       metadata: paymentIntent.metadata,
     });
   } catch (error) {
     console.error("Erreur lors de la récupération du PaymentIntent:", error);
-    
+
     if (error instanceof Error) {
       return NextResponse.json(
-        { 
+        {
           error: "Erreur serveur",
-          details: error.message 
+          details: error.message,
         },
         { status: 500 }
       );
     }
-    
-    return NextResponse.json(
-      { error: "Erreur inconnue" },
-      { status: 500 }
-    );
+
+    return NextResponse.json({ error: "Erreur inconnue" }, { status: 500 });
   }
 }

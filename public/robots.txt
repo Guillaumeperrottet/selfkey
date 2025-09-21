@@ -1,4 +1,34 @@
+# robots.txt for SelfCamp
+
 User-agent: *
 Allow: /
 
-Sitemap: https://www.selfkey.ch/sitemap.xml
+# Sitemap location
+Sitemap: https://selfcamp.ch/sitemap.xml
+
+# Crawl-delay for better server performance
+Crawl-delay: 1
+
+# Disallow admin areas
+Disallow: /admin/
+Disallow: /super-admin/
+Disallow: /api/
+Disallow: /_next/
+Disallow: /private/
+
+# Allow important pages for SEO
+Allow: /
+Allow: /establishments
+Allow: /help
+Allow: /login
+Allow: /map
+
+# Special instructions for different bots
+User-agent: Googlebot
+Allow: /
+
+User-agent: Bingbot
+Allow: /
+
+User-agent: facebookexternalhit
+Allow: /

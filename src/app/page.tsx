@@ -4,39 +4,68 @@ import { SelfcampHomepage } from "@/components/selfcamp-homepage";
 import { SelfkeyHomepage } from "@/components/selfkey-homepage";
 
 export const metadata: Metadata = {
-  title: "SelfKey - Check-in automatique 24h/24 pour votre établissement",
+  title: "SelfCamp - L'App de Camping-Car en Suisse | Aires de Qualité 24h/24",
   description:
-    "Automatisez vos check-ins avec SelfKey ! Solution suisse pour hôtels, campings, parkings, locations. QR code, paiement Stripe sécurisé, accès instantané. Aucun abonnement.",
+    "Découvrez des aires de camping-car avec SelfCamp ! Accès spontané sans réservation, paiement sécurisé, emplacements de qualité créés par nos soins. La liberté de camper en toute sérénité en Suisse.",
   keywords: [
-    "check-in automatique",
-    "QR code hotel",
-    "paiement automatique camping",
-    "location saisonnière automation",
-    "Stripe Connect Suisse",
-    "accès automatique chambre",
-    "parking automatisé",
-    "contrôle accès parking",
-    "selfkey",
+    "camping-car Suisse",
+    "aires camping-car",
+    "stationnement camping-car",
+    "camping spontané Suisse",
+    "aires de services camping-car",
+    "tourisme camping-car",
+    "emplacements camping-car qualité",
+    "camping sans réservation",
+    "paiement camping numérique",
     "selfcamp",
-    "camping automatisé",
+    "motorhome parking Switzerland",
+    "aires camping-car 24h",
+    "camping-car montagne",
+    "vignobles camping-car",
+    "fermes camping-car",
+    "tourisme local Suisse",
   ],
   openGraph: {
-    title: "SelfKey - Check-in automatique 24h/24",
+    title: "SelfCamp - Aires de Camping-Car en Suisse",
     description:
-      "Automatisez vos check-ins avec QR code et paiement sécurisé. Solution suisse sans abonnement pour hôtels, campings, parkings et locations.",
+      "Accédez à des aires de camping-car de qualité supérieure sans réservation. Spontané, sécurisé, légal. Découvrez la Suisse autrement avec des emplacements créés pour vous.",
     images: [
       {
-        url: "/logo.png",
+        url: "/logo_map.png",
         width: 1200,
         height: 630,
-        alt: "SelfKey - Check-in automatique",
+        alt: "SelfCamp - Aires de camping-car en Suisse",
       },
     ],
+    siteName: "SelfCamp",
+    type: "website",
+    locale: "fr_CH",
   },
   twitter: {
-    title: "SelfKey - Check-in automatique 24h/24",
+    card: "summary_large_image",
+    title: "SelfCamp - Aires de Camping-Car en Suisse",
     description:
-      "Automatisez vos check-ins avec QR code et paiement sécurisé. Solution suisse sans abonnement pour hôtels, campings et parkings.",
+      "Découvrez des aires de camping-car de qualité supérieure en Suisse. Accès spontané, paiement sécurisé, emplacements.",
+    images: ["/logo_map.png"],
+  },
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+      "max-video-preview": -1,
+      "max-image-preview": "large",
+      "max-snippet": -1,
+    },
+  },
+  alternates: {
+    canonical: "https://selfcamp.ch",
+    languages: {
+      "fr-CH": "https://selfcamp.ch",
+      "de-CH": "https://selfcamp.ch/de",
+      "en-CH": "https://selfcamp.ch/en",
+    },
   },
 };
 

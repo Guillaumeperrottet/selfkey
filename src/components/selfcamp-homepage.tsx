@@ -13,10 +13,12 @@ import {
 import SearchBar from "@/components/ui/search-bar";
 import TextType from "@/components/ui/text-type";
 import { DOMAINS } from "@/lib/domains";
+import { StructuredData } from "@/components/structured-data";
 
 export function SelfcampHomepage() {
   return (
     <>
+      <StructuredData />
       <style jsx>{`
         .ease-bounce {
           transition-timing-function: cubic-bezier(0.68, -0.55, 0.265, 1.55);
@@ -51,9 +53,7 @@ export function SelfcampHomepage() {
                 <div className="text-gray-800 font-bold uppercase tracking-wide text-sm lg:text-lg hover:text-[#84994F] transition-colors cursor-pointer">
                   24H/24 - 7J/7
                 </div>
-                <div className="text-gray-800 font-bold uppercase tracking-wide text-sm lg:text-lg hover:text-[#84994F] transition-colors cursor-pointer">
-                  La liberté de camper
-                </div>
+                <div className="text-gray-800 font-bold uppercase tracking-wide text-sm lg:text-lg hover:text-[#84994F] transition-colors cursor-pointer"></div>
                 <div className="text-gray-800 font-bold uppercase tracking-wide text-sm lg:text-lg hover:text-[#84994F] transition-colors cursor-pointer">
                   CONTACTEZ-NOUS
                 </div>
@@ -64,9 +64,7 @@ export function SelfcampHomepage() {
                 <div className="text-gray-800 font-bold uppercase tracking-wide text-xs">
                   24H/24 - 7J/7
                 </div>
-                <div className="text-gray-800 font-bold uppercase tracking-wide text-xs text-center">
-                  liberté
-                </div>
+                <div className="text-gray-800 font-bold uppercase tracking-wide text-xs text-center"></div>
                 <div className="text-gray-800 font-bold uppercase tracking-wide text-xs">
                   CONTACT
                 </div>
@@ -75,27 +73,27 @@ export function SelfcampHomepage() {
           </header>
 
           {/* Contenu Hero */}
-          <div className="text-center py-12 md:py-24 px-4">
+          <div className="text-center py-6 md:py-12 px-4">
             <div className="container mx-auto">
-              <div className="flex flex-col items-center justify-center min-h-[35vh]">
-                {/* Logo en haut */}
-                <div className="mb-6">
+              <div className="flex flex-col items-center justify-center min-h-[25vh]">
+                {/* Logo en haut - agrandi et remonté */}
+                <div className="mb-1">
                   <Image
                     src="/logo_map.png"
                     alt="SelfCamp Logo"
-                    width={120}
-                    height={120}
+                    width={180}
+                    height={180}
                     className="mx-auto"
                   />
                 </div>
 
-                <h1 className="text-5xl sm:text-6xl md:text-7xl lg:text-8xl font-bold mb-4 md:mb-6 text-gray-900">
+                <h1 className="text-5xl sm:text-6xl md:text-7xl lg:text-8xl font-bold mb-8 md:mb-16 text-gray-900">
                   Selfcamp.ch
                 </h1>
                 <p className="text-xl sm:text-2xl md:text-3xl font-semibold text-[#84994F] mb-4">
                   Développons le tourisme local ensemble
                 </p>
-                <div className="text-base sm:text-lg md:text-xl lg:text-2xl mb-6 md:mb-8 max-w-4xl mx-auto leading-relaxed text-center font-bold px-2">
+                <div className="text-base sm:text-lg md:text-xl lg:text-2xl mb-4 md:mb-6 max-w-4xl mx-auto leading-relaxed text-center font-bold px-2">
                   <TextType
                     text="Spontané. Facile. Légal."
                     typingSpeed={80}
@@ -109,7 +107,7 @@ export function SelfcampHomepage() {
                     startOnVisible={true}
                   />
                 </div>
-                <p className="text-lg text-gray-600 max-w-3xl mx-auto mb-4">
+                <p className="text-lg text-gray-600 max-w-3xl mx-auto mb-2">
                   Solution d&apos;accès pour le tourisme de véhicules de
                   loisirs. Accédez aux emplacements, enregistrez-vous en
                   quelques secondes, et profitez de votre séjour.
@@ -119,15 +117,17 @@ export function SelfcampHomepage() {
           </div>
         </section>
 
-        {/* Search Section */}
-        <section className="relative bg-search-light px-4 pb-24 -mt-8">
+        {/* Search Section - mieux aérée */}
+        <section className="relative bg-search-light px-4 pb-20 -mt-4">
           <div className="container mx-auto">
             <div className="max-w-4xl mx-auto">
-              <div className="pt-12 p-6 md:p-8">
-                <h2 className="text-2xl md:text-3xl lg:text-4xl font-bold text-gray-900 mb-8 text-center">
+              <div className="pt-8 p-6 md:p-8">
+                <h2 className="text-2xl md:text-3xl lg:text-4xl font-bold text-gray-900 mb-10 text-center">
                   Trouvez votre emplacement idéal
                 </h2>
-                <SearchBar />
+                <div className="mb-4">
+                  <SearchBar />
+                </div>
               </div>
             </div>
           </div>

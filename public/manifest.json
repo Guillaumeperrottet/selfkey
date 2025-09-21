@@ -1,14 +1,15 @@
 {
-  "name": "SelfKey - Check-in automatique",
-  "short_name": "SelfKey",
-  "description": "Solution suisse de check-in automatique 24h/24 pour hôtels, campings, et locations",
+  "name": "SelfCamp - Aires Camping-Car Suisse",
+  "short_name": "SelfCamp",
+  "description": "Découvrez les plus belles aires de camping-car en Suisse. Accès spontané, paiement sécurisé, emplacements de qualité.",
   "start_url": "/",
   "display": "standalone",
-  "background_color": "#ffffff",
-  "theme_color": "#000000",
+  "background_color": "#f8f9f6",
+  "theme_color": "#84994f",
   "orientation": "portrait",
   "scope": "/",
-  "lang": "fr",
+  "lang": "fr-CH",
+  "categories": ["travel", "lifestyle", "navigation"],
   "icons": [
     {
       "src": "/icons/icon-96.png",
@@ -29,13 +30,19 @@
       "purpose": "any maskable"
     }
   ],
-  "categories": ["business", "productivity", "travel"],
   "shortcuts": [
     {
-      "name": "Mes établissements",
-      "short_name": "Établissements",
-      "description": "Gérer mes établissements",
+      "name": "Rechercher aires",
+      "short_name": "Rechercher",
+      "description": "Trouver des aires",
       "url": "/establishments",
+      "icons": [{ "src": "/icons/icon-96.png", "sizes": "96x96" }]
+    },
+    {
+      "name": "Carte interactive",
+      "short_name": "Carte",
+      "description": "Explorer la carte",
+      "url": "/map",
       "icons": [{ "src": "/icons/icon-96.png", "sizes": "96x96" }]
     }
   ]
