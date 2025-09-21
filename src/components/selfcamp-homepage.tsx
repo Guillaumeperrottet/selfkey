@@ -343,6 +343,9 @@ export function SelfcampHomepage() {
         .bg-search-light {
           background-color: #f5f7f3;
         }
+        .bg-footer-dark {
+          background-color: #2d3d1f;
+        }
       `}</style>
       <div className="min-h-screen">
         {/* Hero Section */}
@@ -604,81 +607,29 @@ export function SelfcampHomepage() {
         </section>
 
         {/* Footer */}
-        <footer className="py-12 px-4 bg-gray-900 text-white">
+        <footer className="py-12 px-4 bg-footer-dark text-white">
           <div className="container mx-auto max-w-6xl">
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
               <div className="text-center md:text-left">
-                <div className="flex items-center justify-center md:justify-start space-x-3 mb-4">
+                <div className="flex items-center justify-center md:justify-start mb-4">
                   <Image
-                    src="/logo_map.png"
-                    alt="SelfCamp"
-                    width={32}
-                    height={32}
-                    className="rounded"
+                    src="/selfcamp_logo_fribourg.png"
+                    alt="SelfCamp Fribourg"
+                    width={120}
+                    height={60}
+                    className="object-contain"
                   />
-                  <span className="text-xl font-bold">SelfCamp</span>
                 </div>
                 <p className="text-gray-400 mb-4">
-                  L&apos;App de stationnement pour camping-cars en Suisse.
+                  L&apos;accès de stationnement pour camping-cars en Suisse.
                 </p>
-                <div className="flex justify-center md:justify-start space-x-4">
-                  <button className="bg-[#84994F] hover:bg-[#6d7d3f] text-white px-4 py-2 rounded-lg transition-colors duration-300">
-                    Télécharger l&apos;App
-                  </button>
-                </div>
-              </div>
-
-              <div className="text-center md:text-left">
-                <h4 className="font-semibold mb-4 text-lg text-white">
-                  Navigation
-                </h4>
-                <ul className="space-y-2 text-gray-400">
-                  <li className="hover:text-[#84994F] transition-colors duration-300 cursor-pointer">
-                    Télécharger l&apos;App
-                  </li>
-                  <li className="hover:text-[#84994F] transition-colors duration-300 cursor-pointer">
-                    Acheter une carte annuelle
-                  </li>
-                  <li className="hover:text-[#84994F] transition-colors duration-300 cursor-pointer">
-                    Acquérir du crédit
-                  </li>
-                  <li className="hover:text-[#84994F] transition-colors duration-300 cursor-pointer">
-                    Devenir hôte
-                  </li>
-                  <li className="hover:text-[#84994F] transition-colors duration-300 cursor-pointer">
-                    Pour les municipalités
-                  </li>
-                </ul>
-              </div>
-
-              <div className="text-center md:text-left">
-                <h4 className="font-semibold mb-4 text-lg text-white">
-                  Centre d&apos;aide
-                </h4>
-                <ul className="space-y-2 text-gray-400">
-                  <li className="hover:text-[#84994F] transition-colors duration-300 cursor-pointer">
-                    Informations générales
-                  </li>
-                  <li className="hover:text-[#84994F] transition-colors duration-300 cursor-pointer">
-                    FAQ Campeurs
-                  </li>
-                  <li className="hover:text-[#84994F] transition-colors duration-300 cursor-pointer">
-                    FAQ Hôtes
-                  </li>
-                  <li className="hover:text-[#84994F] transition-colors duration-300 cursor-pointer">
-                    Conditions d&apos;utilisation
-                  </li>
-                  <li className="hover:text-[#84994F] transition-colors duration-300 cursor-pointer">
-                    Protection des données
-                  </li>
-                </ul>
               </div>
 
               <div className="text-center md:text-left">
                 <h4 className="font-semibold mb-4 text-lg text-white">
                   Contact
                 </h4>
-                <div className="space-y-2 text-gray-400 mb-4">
+                <div className="space-y-2 text-gray-400">
                   <div className="flex items-center justify-center md:justify-start space-x-2">
                     <MapPin className="h-4 w-4 flex-shrink-0 text-[#84994F]" />
                     <span>Canton de Fribourg, Suisse</span>
@@ -688,7 +639,26 @@ export function SelfcampHomepage() {
                       href="mailto:support@selfcamp.ch"
                       className="text-[#84994F] hover:text-[#6d7d3f] transition-colors duration-300"
                     >
-                      support@selfcamp.ch
+                      gp@webbing.ch
+                    </a>
+                  </div>
+                </div>
+              </div>
+
+              <div className="text-center md:text-left">
+                <h4 className="font-semibold mb-4 text-lg text-white">
+                  Développement
+                </h4>
+                <div className="space-y-2 text-gray-400">
+                  <p>Informatique & Solutions digitales :</p>
+                  <div>
+                    <a
+                      href="https://www.webbing.ch/"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-[#84994F] hover:text-[#6d7d3f] transition-colors duration-300 font-medium"
+                    >
+                      Webbing.ch
                     </a>
                   </div>
                   <div>
@@ -696,17 +666,24 @@ export function SelfcampHomepage() {
                       href={DOMAINS.SELFKEY}
                       className="text-[#84994F] hover:text-[#6d7d3f] transition-colors duration-300"
                     >
-                      Système de réservation
+                      Système SelfKey
                     </a>
                   </div>
                 </div>
               </div>
             </div>
 
-            <div className="border-t border-gray-800 mt-8 pt-8 text-center text-sm text-gray-400">
+            <div className="border-t border-gray-700 mt-8 pt-8 text-center text-sm text-gray-400">
               <p>
-                &copy; 2025 SelfCamp. Tous droits réservés. Propulsé par
-                SelfKey.
+                &copy; 2025 SelfCamp. Tous droits réservés. Développé par{" "}
+                <a
+                  href="https://www.webbing.ch/"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-[#84994F] hover:text-[#6d7d3f] transition-colors duration-300"
+                >
+                  Webbing.ch
+                </a>
               </p>
             </div>
           </div>
