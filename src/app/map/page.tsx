@@ -561,8 +561,11 @@ function MapPageContent() {
 
         {/* Barre de recherche flottante au centre en haut - responsive */}
         <div
-          className="search-bar-overlay absolute top-4 left-1/2 transform -translate-x-1/2 w-full max-w-xs md:max-w-md lg:max-w-lg px-6"
-          style={{ zIndex: 1000 }}
+          className="search-bar-overlay absolute left-1/2 transform -translate-x-1/2 w-full max-w-xs md:max-w-md lg:max-w-lg px-6"
+          style={{
+            zIndex: 1000,
+            top: "max(env(safe-area-inset-top, 0px) + 16px, 16px)",
+          }}
         >
           <div
             className="search-bar-container bg-white rounded-lg shadow-xl border-2"
@@ -642,7 +645,10 @@ function MapPageContent() {
         {isMobile && (
           <button
             onClick={() => setShowSidebar(!showSidebar)}
-            className="fixed bottom-6 left-6 z-40 bg-[#9EA173] text-white p-3 rounded-full shadow-lg hover:bg-[#8a9165] transition-colors touch-action-manipulation"
+            className="mobile-toggle-btn"
+            style={{
+              bottom: `max(env(safe-area-inset-bottom, 0px) + 24px, 24px)`,
+            }}
           >
             <svg
               width="24"

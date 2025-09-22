@@ -41,6 +41,14 @@ export const metadata: Metadata = {
     address: false,
     telephone: false,
   },
+  // Configuration viewport pour la safe area iOS
+  viewport: {
+    width: "device-width",
+    initialScale: 1,
+    maximumScale: 5,
+    userScalable: true,
+    viewportFit: "cover", // Important pour iOS safe area
+  },
   metadataBase: new URL("https://www.selfkey.ch"), // Votre domaine officiel
   alternates: {
     canonical: "/",

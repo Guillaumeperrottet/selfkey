@@ -5,6 +5,8 @@
   z-index: 1000 !important;
   position: absolute !important;
   pointer-events: none !important;
+  /* Ajout de la safe area pour iOS avec fallback */
+  top: max(env(safe-area-inset-top, 0px) + 16px, 24px) !important;
 }
 
 .search-bar-container {
@@ -35,7 +37,8 @@
 @media (max-width: 768px) {
   .leaflet-control-zoom {
     margin-left: 10px !important;
-    margin-top: 10px !important;
+    /* Ajout de la safe area pour iOS + marge supplémentaire */
+    margin-top: calc(env(safe-area-inset-top) + 20px) !important;
   }
 
   .leaflet-control-zoom a {
@@ -53,6 +56,8 @@
     background: rgba(255, 255, 255, 0.8) !important;
     padding: 2px 4px !important;
     border-radius: 4px !important;
+    /* Positionnement pour éviter la zone de navigation iOS */
+    bottom: calc(env(safe-area-inset-bottom) + 8px) !important;
   }
 }
 
@@ -64,7 +69,7 @@
 /* Style pour le bouton flottant mobile */
 .mobile-toggle-btn {
   position: fixed;
-  bottom: 24px;
+  bottom: calc(env(safe-area-inset-bottom) + 24px);
   left: 24px;
   z-index: 1000;
   background: #9ea173;
@@ -233,6 +238,38 @@
     font-size: 14px !important;
     font-weight: 600 !important;
     border-radius: 8px !important;
+    padding: 8px 16px !important;
     touch-action: manipulation !important;
+  }
+}
+
+/* Ajustements spécifiques pour iOS Safari */
+@supports (-webkit-touch-callout: none) {
+  .search-bar-overlay {
+    /* Pour iOS, utiliser une marge plus importante */
+    top: calc(env(safe-area-inset-top) + 24px) !important;
+  }
+  
+  .leaflet-control-zoom {
+    /* Ajustement supplémentaire pour les contrôles de zoom sur iOS */
+    margin-top: calc(env(safe-area-inset-top) + 30px) !important;
+  }
+  
+  /* Éviter les zones de navigation en bas */
+  .leaflet-control-attribution {
+    bottom: calc(env(safe-area-inset-bottom) + 16px) !important;
+  }
+}
+
+/* Style pour les appareils avec encoche (iPhone X+) */
+@media screen and (device-width: 375px) and (device-height: 812px) and (-webkit-device-pixel-ratio: 3),
+       screen and (device-width: 414px) and (device-height: 896px) and (-webkit-device-pixel-ratio: 2),
+       screen and (device-width: 414px) and (device-height: 896px) and (-webkit-device-pixel-ratio: 3) {
+  .search-bar-overlay {
+    top: 60px !important; /* Marge fixe pour les iPhone avec encoche */
+  }
+  
+  .leaflet-control-zoom {
+    margin-top: 70px !important;
   }
 }
