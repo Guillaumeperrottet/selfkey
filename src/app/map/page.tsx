@@ -49,7 +49,6 @@ function MapPageContent() {
   const [mapZoom, setMapZoom] = useState<number>(6);
   const [showingNearbyEstablishments, setShowingNearbyEstablishments] =
     useState(false);
-  const [showSidebar, setShowSidebar] = useState(false); // État pour contrôler l'affichage sidebar mobile
   const [isMobile, setIsMobile] = useState(false);
 
   // Gérer les paramètres URL pour les recherches depuis la homepage
@@ -336,19 +335,11 @@ function MapPageContent() {
 
   return (
     <div className="h-screen bg-[#212215] flex overflow-hidden relative">
-      {/* Left Sidebar - Responsive */}
+      {/* Left Sidebar - Masquée sur mobile */}
       <div
         className={`
-        ${
-          isMobile
-            ? showSidebar
-              ? "w-full translate-x-0"
-              : "w-full -translate-x-full"
-            : "w-96 translate-x-0"
-        }
-        bg-white border-r flex flex-col 
-        ${isMobile ? "absolute z-50 h-full" : "relative"}
-        transition-transform duration-300 ease-in-out
+        ${isMobile ? "hidden" : "w-96"} 
+        bg-white border-r flex flex-col relative
       `}
       >
         {/* Header */}
@@ -365,17 +356,6 @@ function MapPageContent() {
                   Retour
                 </Button>
               </Link>
-              {/* Bouton fermer sur mobile */}
-              {isMobile && (
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={() => setShowSidebar(false)}
-                  className="flex items-center gap-2 md:hidden"
-                >
-                  ✕
-                </Button>
-              )}
             </div>
             <a
               href="https://selfcamp.ch"
@@ -544,7 +524,7 @@ function MapPageContent() {
       {/* Right Map Container */}
       <div
         className={`
-        ${isMobile ? (showSidebar ? "hidden" : "w-full") : "flex-1"} 
+        ${isMobile ? "w-full" : "flex-1"} 
         h-full relative
       `}
       >
@@ -564,7 +544,7 @@ function MapPageContent() {
           className="search-bar-overlay absolute left-1/2 transform -translate-x-1/2 w-full max-w-xs md:max-w-md lg:max-w-lg px-6"
           style={{
             zIndex: 1000,
-            top: "max(env(safe-area-inset-top, 0px) + 16px, 16px)",
+            top: "max(env(safe-area-inset-top, 0px) + 32px, 48px)",
           }}
         >
           <div
@@ -641,33 +621,32 @@ function MapPageContent() {
           </div>
         </div>
 
-        {/* Bouton flottant pour toggle sidebar sur mobile */}
+        {/* Bouton flottant pour retourner à l'accueil sur mobile */}
         {isMobile && (
-          <button
-            onClick={() => setShowSidebar(!showSidebar)}
-            className="mobile-toggle-btn"
-            style={{
-              bottom: `max(env(safe-area-inset-bottom, 0px) + 24px, 24px)`,
-            }}
-          >
-            <svg
-              width="24"
-              height="24"
-              viewBox="0 0 24 24"
-              fill="none"
-              xmlns="http://www.w3.org/2000/svg"
-              className={showSidebar ? "rotate-180" : ""}
-              style={{ transition: "transform 0.3s ease" }}
+          <Link href="/">
+            <button
+              className="mobile-toggle-btn"
+              style={{
+                bottom: `max(env(safe-area-inset-bottom, 0px) + 24px, 24px)`,
+              }}
             >
-              <path
-                d="M3 12h18m-9-9l9 9-9 9"
-                stroke="currentColor"
-                strokeWidth="2"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              />
-            </svg>
-          </button>
+              <svg
+                width="24"
+                height="24"
+                viewBox="0 0 24 24"
+                fill="none"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <path
+                  d="M3 12h18M12 3l-9 9 9 9"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                />
+              </svg>
+            </button>
+          </Link>
         )}
       </div>
 
