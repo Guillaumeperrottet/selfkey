@@ -154,8 +154,12 @@ function MapPageContent() {
 
     checkMobile();
     window.addEventListener("resize", checkMobile);
+    window.addEventListener("orientationchange", checkMobile);
 
-    return () => window.removeEventListener("resize", checkMobile);
+    return () => {
+      window.removeEventListener("resize", checkMobile);
+      window.removeEventListener("orientationchange", checkMobile);
+    };
   }, []);
 
   useEffect(() => {
@@ -544,7 +548,9 @@ function MapPageContent() {
           className="search-bar-overlay absolute left-1/2 transform -translate-x-1/2 w-full max-w-xs md:max-w-md lg:max-w-lg px-6"
           style={{
             zIndex: 1000,
-            top: "max(env(safe-area-inset-top, 0px) + 32px, 48px)",
+            top: isMobile
+              ? "max(env(safe-area-inset-top, 0px) + 120px, 140px)"
+              : "max(env(safe-area-inset-top, 0px) + 32px, 48px)",
           }}
         >
           <div

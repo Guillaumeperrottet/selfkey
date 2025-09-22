@@ -9,6 +9,14 @@
   top: max(env(safe-area-inset-top, 0px) + 32px, 48px) !important;
 }
 
+/* Styles spécifiques pour iOS Safari avec barre d'adresse */
+@supports (-webkit-touch-callout: none) {
+  .search-bar-overlay {
+    /* Marge plus importante pour compenser la barre d'adresse Safari */
+    top: max(env(safe-area-inset-top, 0px) + 80px, 96px) !important;
+  }
+}
+
 .search-bar-container {
   pointer-events: auto !important;
   z-index: 1001 !important;
@@ -37,13 +45,13 @@
 @media (max-width: 768px) {
   /* Force une marge plus importante pour la barre de recherche sur mobile */
   .search-bar-overlay {
-    top: max(env(safe-area-inset-top, 0px) + 48px, 64px) !important;
+    top: max(env(safe-area-inset-top, 0px) + 80px, 120px) !important;
   }
 
   .leaflet-control-zoom {
     margin-left: 10px !important;
     /* Ajout de la safe area pour iOS + marge supplémentaire */
-    margin-top: calc(env(safe-area-inset-top) + 60px) !important;
+    margin-top: calc(env(safe-area-inset-top) + 100px) !important;
   }
 
   .leaflet-control-zoom a {
