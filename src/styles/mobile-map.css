@@ -1,19 +1,19 @@
 /* Améliorations CSS pour la carte mobile */
 
-/* S'assurer que la barre de recherche reste toujours visible */
+/* S'assurer que la barre de recherche reste toujours visible sur tous les appareils */
 .search-bar-overlay {
   z-index: 1000 !important;
   position: absolute !important;
   pointer-events: none !important;
-  /* Ajout de la safe area pour iOS avec fallback plus important sur mobile */
-  top: max(env(safe-area-inset-top, 0px) + 32px, 48px) !important;
+  /* Marge généreuse pour tous les navigateurs mobiles */
+  top: max(env(safe-area-inset-top, 0px) + 64px, 80px) !important;
 }
 
-/* Styles spécifiques pour iOS Safari avec barre d'adresse */
-@supports (-webkit-touch-callout: none) {
+/* Styles pour tous les navigateurs mobiles (pas seulement iOS) */
+@media (max-width: 768px) and (max-height: 1024px) {
   .search-bar-overlay {
-    /* Marge plus importante pour compenser la barre d'adresse Safari */
-    top: max(env(safe-area-inset-top, 0px) + 80px, 96px) !important;
+    /* Marge encore plus importante sur petits écrans pour éviter les barres d'adresse */
+    top: max(env(safe-area-inset-top, 0px) + 100px, 120px) !important;
   }
 }
 
@@ -41,17 +41,17 @@
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1) !important;
 }
 
-/* Amélioration des contrôles de zoom sur mobile */
+/* Amélioration des contrôles pour tous les navigateurs mobiles */
 @media (max-width: 768px) {
-  /* Force une marge plus importante pour la barre de recherche sur mobile */
+  /* Barre de recherche - marge universelle pour tous les navigateurs mobiles */
   .search-bar-overlay {
-    top: max(env(safe-area-inset-top, 0px) + 80px, 120px) !important;
+    top: max(env(safe-area-inset-top, 0px) + 120px, 140px) !important;
   }
 
+  /* Contrôles de zoom - positionnement universel */
   .leaflet-control-zoom {
     margin-left: 10px !important;
-    /* Ajout de la safe area pour iOS + marge supplémentaire */
-    margin-top: calc(env(safe-area-inset-top) + 100px) !important;
+    margin-top: max(env(safe-area-inset-top, 0px) + 140px, 160px) !important;
   }
 
   .leaflet-control-zoom a {
@@ -256,33 +256,37 @@
   }
 }
 
-/* Ajustements spécifiques pour iOS Safari */
-@supports (-webkit-touch-callout: none) {
+/* Styles universels pour tous les navigateurs et appareils mobiles */
+
+/* Petits téléphones (jusqu'à 480px) */
+@media (max-width: 480px) {
   .search-bar-overlay {
-    /* Pour iOS, utiliser une marge plus importante */
-    top: calc(env(safe-area-inset-top) + 24px) !important;
+    top: max(env(safe-area-inset-top, 0px) + 120px, 140px) !important;
   }
 
   .leaflet-control-zoom {
-    /* Ajustement supplémentaire pour les contrôles de zoom sur iOS */
-    margin-top: calc(env(safe-area-inset-top) + 30px) !important;
-  }
-
-  /* Éviter les zones de navigation en bas */
-  .leaflet-control-attribution {
-    bottom: calc(env(safe-area-inset-bottom) + 16px) !important;
+    margin-top: max(env(safe-area-inset-top, 0px) + 140px, 160px) !important;
   }
 }
 
-/* Style pour les appareils avec encoche (iPhone X+) */
-@media screen and (device-width: 375px) and (device-height: 812px) and (-webkit-device-pixel-ratio: 3),
-  screen and (device-width: 414px) and (device-height: 896px) and (-webkit-device-pixel-ratio: 2),
-  screen and (device-width: 414px) and (device-height: 896px) and (-webkit-device-pixel-ratio: 3) {
+/* Téléphones moyens et grands (481px à 768px) */
+@media (min-width: 481px) and (max-width: 768px) {
   .search-bar-overlay {
-    top: 60px !important; /* Marge fixe pour les iPhone avec encoche */
+    top: max(env(safe-area-inset-top, 0px) + 100px, 120px) !important;
   }
 
   .leaflet-control-zoom {
-    margin-top: 70px !important;
+    margin-top: max(env(safe-area-inset-top, 0px) + 120px, 140px) !important;
+  }
+}
+
+/* Mode paysage mobile (pour éviter que la barre soit trop haute) */
+@media (max-width: 768px) and (orientation: landscape) {
+  .search-bar-overlay {
+    top: max(env(safe-area-inset-top, 0px) + 80px, 100px) !important;
+  }
+
+  .leaflet-control-zoom {
+    margin-top: max(env(safe-area-inset-top, 0px) + 100px, 120px) !important;
   }
 }

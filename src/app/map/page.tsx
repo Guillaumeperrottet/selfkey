@@ -543,14 +543,14 @@ function MapPageContent() {
           availabilityData={availabilityData}
         />
 
-        {/* Barre de recherche flottante au centre en haut - responsive */}
+        {/* Barre de recherche flottante au centre en haut - universelle pour tous mobiles */}
         <div
           className="search-bar-overlay absolute left-1/2 transform -translate-x-1/2 w-full max-w-xs md:max-w-md lg:max-w-lg px-6"
           style={{
             zIndex: 1000,
             top: isMobile
-              ? "max(env(safe-area-inset-top, 0px) + 120px, 140px)"
-              : "max(env(safe-area-inset-top, 0px) + 32px, 48px)",
+              ? "max(env(safe-area-inset-top, 0px) + 140px, 160px)"
+              : "max(env(safe-area-inset-top, 0px) + 16px, 24px)",
           }}
         >
           <div
