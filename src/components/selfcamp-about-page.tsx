@@ -354,10 +354,12 @@ export function SelfcampAboutPage() {
             <div className="flex items-center justify-between">
               <Link
                 href="/"
-                className="flex items-center space-x-2 text-gray-800 hover:text-[#84994F] transition-colors"
+                className="group flex items-center space-x-3 bg-white/70 backdrop-blur-sm px-4 py-3 rounded-xl border border-white/40 shadow-md hover:shadow-lg hover:bg-white/80 transition-all duration-300 hover:-translate-y-0.5"
               >
-                <ArrowLeft className="h-5 w-5" />
-                <span className="font-medium">Retour à l&apos;accueil</span>
+                <ArrowLeft className="h-5 w-5 text-gray-700 group-hover:text-[#84994F] transition-colors" />
+                <span className="font-medium text-gray-800 group-hover:text-[#84994F] transition-colors">
+                  Retour à l&apos;accueil
+                </span>
               </Link>
 
               <div className="flex items-center space-x-3">
@@ -376,17 +378,19 @@ export function SelfcampAboutPage() {
           </header>
 
           {/* Hero About */}
-          <div className="text-center py-12 px-4">
+          <div className="text-center py-20 px-4">
             <div className="container mx-auto">
-              <div className="max-w-4xl mx-auto">
-                <h1 className="text-4xl md:text-6xl font-bold mb-6 text-gray-900">
-                  À propos de <span className="text-[#84994F]">SelfCamp</span>
-                </h1>
-                <p className="text-xl text-gray-600 mb-8 max-w-3xl mx-auto leading-relaxed">
-                  Découvrez notre approche complète pour créer des aires de
-                  camping qui bénéficient à tous : prestataires, régions et
-                  camping-caristes.
-                </p>
+              <div className="max-w-5xl mx-auto">
+                <div className="bg-white/70 backdrop-blur-sm p-12 md:p-16 rounded-3xl shadow-lg border border-white/40 mb-16">
+                  <h1 className="text-4xl md:text-6xl font-bold mb-8 text-gray-900">
+                    À propos de <span className="text-[#84994F]">SelfCamp</span>
+                  </h1>
+                  <p className="text-xl text-gray-600 max-w-4xl mx-auto leading-relaxed">
+                    Découvrez notre approche complète pour créer des aires de
+                    camping qui bénéficient à tous : prestataires, régions et
+                    camping-caristes.
+                  </p>
+                </div>
               </div>
               <Timeline data={timelineData} />
             </div>
