@@ -54,8 +54,8 @@ export function useBookingCart({
       new Date(checkOutDate)
     );
 
-    // Prix de base (chambre × nuits)
-    const basePrice = room.price * duration;
+    // Prix de base (chambre × nuits) - calcul précis
+    const basePrice = Math.round(room.price * duration * 100) / 100;
 
     // Total des options de prix
     const pricingOptionsTotal = calculatePricingOptionsTotal(
@@ -72,9 +72,16 @@ export function useBookingCart({
     );
     const touristTaxTotal = touristTaxCalculation.totalTax;
 
-    // Sous-total et total
-    const subtotal = basePrice + pricingOptionsTotal;
-    const total = subtotal + touristTaxTotal;
+    // Calculs précis en centimes pour éviter les erreurs d'arrondi
+    const basePriceRappen = Math.round(basePrice * 100);
+    const pricingOptionsRappen = Math.round(pricingOptionsTotal * 100);
+    const touristTaxRappen = Math.round(touristTaxTotal * 100);
+
+    const subtotalRappen = basePriceRappen + pricingOptionsRappen;
+    const totalRappen = subtotalRappen + touristTaxRappen;
+
+    const subtotal = subtotalRappen / 100;
+    const total = totalRappen / 100;
 
     const newBreakdown = {
       basePrice,

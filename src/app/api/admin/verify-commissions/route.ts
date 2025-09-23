@@ -35,16 +35,20 @@ export async function GET(request: NextRequest) {
 
     // Vérifier les calculs de commission pour chaque réservation
     const bookingsWithValidation = recentBookings.map((booking) => {
-      // Recalculer la commission attendue
-      const expectedCommission = Math.round(
-        (booking.amount * booking.establishment.commissionRate) / 100 +
-          booking.establishment.fixedFee
+      // Recalculer la commission attendue de manière précise
+      const amountRappen = Math.round(booking.amount * 100);
+      const commissionRappen = Math.round(
+        (amountRappen * booking.establishment.commissionRate) / 100
       );
+      const fixedFeeRappen = Math.round(booking.establishment.fixedFee * 100);
+      const expectedCommissionRappen = commissionRappen + fixedFeeRappen;
+      const expectedCommission = expectedCommissionRappen / 100;
 
       const isCommissionCorrect =
-        booking.platformCommission === expectedCommission;
+        Math.abs(booking.platformCommission - expectedCommission) < 0.01; // Tolérance de 1 centime
       const commissionDifference =
-        booking.platformCommission - expectedCommission;
+        Math.round((booking.platformCommission - expectedCommission) * 100) /
+        100;
 
       return {
         id: booking.id,

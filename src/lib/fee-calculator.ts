@@ -95,25 +95,35 @@ export async function getDayParkingFees(
 
 /**
  * Calcule les frais et le montant net pour un prix donné
+ * Utilise des calculs en centimes pour éviter les erreurs d'arrondi
  */
 export function calculateFees(
   amount: number,
   commissionRate: number,
   fixedFee: number
 ): FeeCalculation {
-  const commission = amount * commissionRate;
-  const totalFees = commission + fixedFee;
-  const netAmount = amount - totalFees;
-  const feePercentage = (totalFees / amount) * 100;
+  // Convertir en centimes pour les calculs précis
+  const amountRappen = Math.round(amount * 100);
+  const commissionRappen = Math.round((amountRappen * commissionRate) / 100);
+  const fixedFeeRappen = Math.round(fixedFee * 100);
+  const totalFeesRappen = commissionRappen + fixedFeeRappen;
+  const netAmountRappen = Math.max(0, amountRappen - totalFeesRappen);
+
+  // Reconvertir en CHF
+  const commission = commissionRappen / 100;
+  const totalFees = totalFeesRappen / 100;
+  const netAmount = netAmountRappen / 100;
+  const feePercentage =
+    amountRappen > 0 ? (totalFeesRappen / amountRappen) * 100 : 0;
 
   return {
     originalAmount: amount,
     commission,
     fixedFee,
     totalFees,
-    netAmount: Math.max(0, netAmount), // Éviter les montants négatifs
+    netAmount,
     feePercentage,
-    commissionRate: commissionRate * 100, // Retourner en pourcentage pour l'affichage
+    commissionRate: commissionRate, // Garder le taux original
   };
 }
 

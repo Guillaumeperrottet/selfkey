@@ -191,17 +191,27 @@ export async function POST(
       touristTaxSettings.touristTaxEnabled
     );
 
-    const calculatedPrice =
-      basePrice + validatedPricingOptionsTotal + touristTaxCalculation.totalTax;
-
-    // Calculer les commissions sur le prix de base (avant frais de plateforme)
-    const platformCommission = Math.round(
-      (calculatedPrice * establishment.commissionRate) / 100 +
-        establishment.fixedFee
+    // Calculer les commissions de manière précise en travaillant en centimes
+    // pour éviter les erreurs d'arrondi
+    const calculatedPriceRappen = Math.round(
+      (basePrice +
+        validatedPricingOptionsTotal +
+        touristTaxCalculation.totalTax) *
+        100
     );
+    const calculatedPrice = calculatedPriceRappen / 100;
+
+    // Commission calculée en centimes pour plus de précision
+    const commissionRappen = Math.round(
+      (calculatedPriceRappen * establishment.commissionRate) / 100
+    );
+    const fixedFeeRappen = Math.round(establishment.fixedFee * 100);
+    const platformCommissionRappen = commissionRappen + fixedFeeRappen;
+    const platformCommission = platformCommissionRappen / 100;
 
     // Le prix final que paie le client inclut les frais de plateforme
-    const finalPrice = calculatedPrice + platformCommission;
+    const finalPriceRappen = calculatedPriceRappen + platformCommissionRappen;
+    const finalPrice = finalPriceRappen / 100;
 
     console.log("=== DEBUG PRICE CALCULATION ===");
     console.log("Base price (room * nights):", basePrice);

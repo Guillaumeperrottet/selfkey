@@ -63,22 +63,34 @@ export async function createPaymentIntentWithCommission(
       );
     }
 
-    // Calculer la commission avec les taux spécifiques à l'établissement
-    const applicationFeeAmount = Math.round(
-      (amount * commissionRate) / 100 + fixedFee
-    );
+    // Calculer la commission de manière précise en travaillant en centimes
+    const amountRappen = Math.round(amount * 100); // Montant total en centimes
+    const commissionRappen = Math.round((amountRappen * commissionRate) / 100); // Commission % en centimes
+    const fixedFeeRappen = Math.round(fixedFee * 100); // Frais fixes en centimes
+    const totalCommissionRappen = commissionRappen + fixedFeeRappen; // Commission totale en centimes
+
+    console.log("=== DEBUG COMMISSION CALCULATION ===");
+    console.log("Amount CHF:", amount);
+    console.log("Amount rappen:", amountRappen);
+    console.log("Commission rate:", commissionRate + "%");
+    console.log("Commission rappen:", commissionRappen);
+    console.log("Fixed fee CHF:", fixedFee);
+    console.log("Fixed fee rappen:", fixedFeeRappen);
+    console.log("Total commission rappen:", totalCommissionRappen);
+    console.log("Total commission CHF:", totalCommissionRappen / 100);
+    console.log("======================================");
 
     // Valider que la commission ne dépasse pas le montant total
-    if (applicationFeeAmount >= amount) {
+    if (totalCommissionRappen >= amountRappen) {
       throw new Error(
         "La commission ne peut pas être supérieure ou égale au montant total"
       );
     }
 
     const paymentIntent = await stripe.paymentIntents.create({
-      amount: Math.round(amount * 100), // Convertir en centimes
+      amount: amountRappen, // Montant déjà en centimes
       currency: currency.toLowerCase(),
-      application_fee_amount: Math.round(applicationFeeAmount * 100), // Commission en centimes
+      application_fee_amount: totalCommissionRappen, // Commission déjà en centimes
       transfer_data: {
         destination: connectedAccountId, // L'argent va directement au propriétaire
       },
