@@ -22,6 +22,9 @@ export function QRCodeGenerator({
   const [printQrCodeUrl, setPrintQrCodeUrl] = useState<string>("");
   const [bookingUrl, setBookingUrl] = useState<string>("");
   const [isDownloadMenuOpen, setIsDownloadMenuOpen] = useState(false);
+  const [selectedColor, setSelectedColor] = useState<"black" | "white">(
+    "black"
+  );
   const printRef = useRef<HTMLDivElement>(null);
   const downloadMenuRef = useRef<HTMLDivElement>(null);
 
@@ -29,16 +32,24 @@ export function QRCodeGenerator({
     // Construire l'URL de réservation
     const url = `${window.location.origin}/${hotelSlug}`;
     setBookingUrl(url);
+  }, [hotelSlug]);
+
+  // useEffect séparé pour la génération des QR codes (dépendant de la couleur)
+  useEffect(() => {
+    if (!bookingUrl) return;
+
+    // Définir les couleurs selon la sélection
+    const qrColors =
+      selectedColor === "white"
+        ? { dark: "#FFFFFF", light: "#000000" } // QR blanc sur fond noir
+        : { dark: "#000000", light: "#FFFFFF" }; // QR noir sur fond blanc
 
     // Générer un QR code SANS logo pour l'affichage (meilleur scan)
     import("qrcode").then((QRCode) => {
-      QRCode.toDataURL(url, {
+      QRCode.toDataURL(bookingUrl, {
         width: 256,
         margin: 2,
-        color: {
-          dark: "#000000",
-          light: "#FFFFFF",
-        },
+        color: qrColors,
         errorCorrectionLevel: "M",
       })
         .then((dataUrl: string) => {
@@ -50,11 +61,12 @@ export function QRCodeGenerator({
     });
 
     // Générer le code QR haute qualité AVEC logo pour l'impression
-    generateQRCodeWithLogo(url, {
+    generateQRCodeWithLogo(bookingUrl, {
       width: 320,
       margin: 2,
       borderRadius: 20,
       quality: "print",
+      qrColor: selectedColor,
     })
       .then((dataUrl: string) => {
         setPrintQrCodeUrl(dataUrl);
@@ -65,7 +77,7 @@ export function QRCodeGenerator({
           error
         );
       });
-  }, [hotelSlug]);
+  }, [bookingUrl, selectedColor]);
 
   // Fermer le menu quand on clique à l'extérieur
   useEffect(() => {
@@ -100,12 +112,15 @@ export function QRCodeGenerator({
         margin: 2,
         borderRadius: 32, // Proportionnel à la taille
         transparent: transparent, // Option pour fond transparent
+        qrColor: selectedColor, // Utiliser la couleur sélectionnée
       };
       const highQualityQR = await generateHighQualityQRCode(
         bookingUrl,
         options
       );
-      const suffix = transparent ? "avec-logo-transparent-hq" : "avec-logo-hq";
+      const colorSuffix = selectedColor === "white" ? "-blanc" : "";
+      const transparentSuffix = transparent ? "-transparent" : "";
+      const suffix = `avec-logo${colorSuffix}${transparentSuffix}-hq`;
       downloadQRCode(highQualityQR, `qr-code-${hotelSlug}-${suffix}.png`);
     } catch (error) {
       console.error("Erreur lors du téléchargement haute qualité:", error);
@@ -119,16 +134,26 @@ export function QRCodeGenerator({
     try {
       // Importer QRCode dynamiquement
       const QRCode = await import("qrcode");
+
+      // Définir les couleurs selon la sélection
+      const qrColors =
+        selectedColor === "white"
+          ? { dark: "#FFFFFF", light: "#000000" } // QR blanc sur fond noir
+          : { dark: "#000000", light: "#FFFFFF" }; // QR noir sur fond blanc
+
       const highQualityQRWithoutLogo = await QRCode.toDataURL(bookingUrl, {
         width: 512, // Haute résolution
         margin: 2,
         color: {
-          dark: "#000000",
-          light: transparent ? "#00000000" : "#FFFFFF", // Transparent si demandé
+          dark: qrColors.dark,
+          light: transparent ? "#00000000" : qrColors.light, // Transparent si demandé
         },
         errorCorrectionLevel: "H", // Niveau élevé pour la haute qualité
       });
-      const suffix = transparent ? "sans-logo-transparent-hq" : "sans-logo-hq";
+
+      const colorSuffix = selectedColor === "white" ? "-blanc" : "";
+      const transparentSuffix = transparent ? "-transparent" : "";
+      const suffix = `sans-logo${colorSuffix}${transparentSuffix}-hq`;
       downloadQRCode(
         highQualityQRWithoutLogo,
         `qr-code-${hotelSlug}-${suffix}.png`
@@ -148,34 +173,42 @@ export function QRCodeGenerator({
           Code QR pour réservation
         </h3>
 
-        {/* Boutons d'action - en haut à droite */}
-        <div className="flex space-x-3">
-          {/* Bouton Imprimer */}
-          <button
-            onClick={handlePrint}
-            disabled={!qrCodeUrl}
-            className="text-gray-600 hover:text-gray-800 border border-gray-300 hover:border-gray-400 bg-white px-3 py-2 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed flex items-center space-x-2 text-sm transition-colors"
-          >
-            <svg
-              className="w-4 h-4"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"
-              />
-            </svg>
-            <span>Imprimer</span>
-          </button>
+        {/* Actions: Sélecteur de couleur et boutons */}
+        <div className="flex items-center space-x-4">
+          {/* Sélecteur de couleur */}
+          <div className="flex items-center space-x-2">
+            <span className="text-sm text-gray-600">Couleur:</span>
+            <div className="flex border border-gray-300 rounded-lg overflow-hidden">
+              <button
+                onClick={() => setSelectedColor("black")}
+                className={`px-3 py-1 text-xs flex items-center space-x-1 transition-colors ${
+                  selectedColor === "black"
+                    ? "bg-gray-800 text-white"
+                    : "bg-white text-gray-700 hover:bg-gray-50"
+                }`}
+              >
+                <div className="w-3 h-3 bg-black rounded-full border border-gray-300"></div>
+                <span>Noir</span>
+              </button>
+              <button
+                onClick={() => setSelectedColor("white")}
+                className={`px-3 py-1 text-xs flex items-center space-x-1 transition-colors ${
+                  selectedColor === "white"
+                    ? "bg-gray-800 text-white"
+                    : "bg-white text-gray-700 hover:bg-gray-50"
+                }`}
+              >
+                <div className="w-3 h-3 bg-white rounded-full border border-gray-300"></div>
+                <span>Blanc</span>
+              </button>
+            </div>
+          </div>
 
-          {/* Bouton de téléchargement avec menu déroulant */}
-          <div className="relative" ref={downloadMenuRef}>
+          {/* Boutons d'action */}
+          <div className="flex space-x-3">
+            {/* Bouton Imprimer */}
             <button
-              onClick={() => setIsDownloadMenuOpen(!isDownloadMenuOpen)}
+              onClick={handlePrint}
               disabled={!qrCodeUrl}
               className="text-gray-600 hover:text-gray-800 border border-gray-300 hover:border-gray-400 bg-white px-3 py-2 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed flex items-center space-x-2 text-sm transition-colors"
             >
@@ -189,95 +222,123 @@ export function QRCodeGenerator({
                   strokeLinecap="round"
                   strokeLinejoin="round"
                   strokeWidth={2}
-                  d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
+                  d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"
                 />
               </svg>
-              <span>Télécharger HQ</span>
-              <svg
-                className={`w-3 h-3 transition-transform ${isDownloadMenuOpen ? "rotate-180" : ""}`}
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M19 9l-7 7-7-7"
-                />
-              </svg>
+              <span>Imprimer</span>
             </button>
 
-            {/* Menu déroulant simple */}
-            {isDownloadMenuOpen && (
-              <div className="absolute top-full right-0 mt-2 w-72 bg-white border border-gray-200 rounded-lg shadow-lg z-10 overflow-hidden">
-                <div className="py-1">
-                  {/* Sans logo */}
-                  <button
-                    onClick={() => {
-                      handleDownloadWithoutLogo(false);
-                      setIsDownloadMenuOpen(false);
-                    }}
-                    className="w-full text-left px-4 py-3 hover:bg-gray-50 transition-colors"
-                  >
-                    <div className="font-medium text-gray-900 text-sm mb-1">
-                      Sans logo
-                    </div>
-                    <div className="text-xs text-gray-500">
-                      Optimal pour scan
-                    </div>
-                  </button>
+            {/* Bouton de téléchargement avec menu déroulant */}
+            <div className="relative" ref={downloadMenuRef}>
+              <button
+                onClick={() => setIsDownloadMenuOpen(!isDownloadMenuOpen)}
+                disabled={!qrCodeUrl}
+                className="text-gray-600 hover:text-gray-800 border border-gray-300 hover:border-gray-400 bg-white px-3 py-2 rounded-lg disabled:opacity-50 disabled:cursor-not-allowed flex items-center space-x-2 text-sm transition-colors"
+              >
+                <svg
+                  className="w-4 h-4"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
+                  />
+                </svg>
+                <span>Télécharger HQ</span>
+                <svg
+                  className={`w-3 h-3 transition-transform ${isDownloadMenuOpen ? "rotate-180" : ""}`}
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M19 9l-7 7-7-7"
+                  />
+                </svg>
+              </button>
 
-                  {/* Avec logo */}
-                  <button
-                    onClick={() => {
-                      handleDownloadWithLogo(false);
-                      setIsDownloadMenuOpen(false);
-                    }}
-                    className="w-full text-left px-4 py-3 hover:bg-gray-50 transition-colors"
-                  >
-                    <div className="font-medium text-gray-900 text-sm mb-1">
-                      Avec logo
-                    </div>
-                    <div className="text-xs text-gray-500">
-                      Logo sur fond blanc · Contraste optimal
-                    </div>
-                  </button>
+              {/* Menu déroulant simple */}
+              {isDownloadMenuOpen && (
+                <div className="absolute top-full right-0 mt-2 w-72 bg-white border border-gray-200 rounded-lg shadow-lg z-10 overflow-hidden">
+                  <div className="py-1">
+                    {/* Sans logo */}
+                    <button
+                      onClick={() => {
+                        handleDownloadWithoutLogo(false);
+                        setIsDownloadMenuOpen(false);
+                      }}
+                      className="w-full text-left px-4 py-3 hover:bg-gray-50 transition-colors"
+                    >
+                      <div className="font-medium text-gray-900 text-sm mb-1">
+                        Sans logo{" "}
+                        {selectedColor === "white" ? "(blanc)" : "(noir)"}
+                      </div>
+                      <div className="text-xs text-gray-500">
+                        Optimal pour scan
+                      </div>
+                    </button>
 
-                  {/* Sans logo, transparent */}
-                  <button
-                    onClick={() => {
-                      handleDownloadWithoutLogo(true);
-                      setIsDownloadMenuOpen(false);
-                    }}
-                    className="w-full text-left px-4 py-3 hover:bg-gray-50 transition-colors"
-                  >
-                    <div className="font-medium text-gray-900 text-sm mb-1">
-                      Sans logo, transparent
-                    </div>
-                    <div className="text-xs text-gray-500">
-                      Fond transparent · Intégration libre
-                    </div>
-                  </button>
+                    {/* Avec logo */}
+                    <button
+                      onClick={() => {
+                        handleDownloadWithLogo(false);
+                        setIsDownloadMenuOpen(false);
+                      }}
+                      className="w-full text-left px-4 py-3 hover:bg-gray-50 transition-colors"
+                    >
+                      <div className="font-medium text-gray-900 text-sm mb-1">
+                        Avec logo{" "}
+                        {selectedColor === "white" ? "(blanc)" : "(noir)"}
+                      </div>
+                      <div className="text-xs text-gray-500">
+                        Logo sur fond blanc · Contraste optimal
+                      </div>
+                    </button>
 
-                  {/* Avec logo, transparent */}
-                  <button
-                    onClick={() => {
-                      handleDownloadWithLogo(true);
-                      setIsDownloadMenuOpen(false);
-                    }}
-                    className="w-full text-left px-4 py-3 hover:bg-gray-50 transition-colors"
-                  >
-                    <div className="font-medium text-gray-900 text-sm mb-1">
-                      Avec logo, transparent
-                    </div>
-                    <div className="text-xs text-gray-500">
-                      Logo sans fond · Prévoir fond sombre
-                    </div>
-                  </button>
+                    {/* Sans logo, transparent */}
+                    <button
+                      onClick={() => {
+                        handleDownloadWithoutLogo(true);
+                        setIsDownloadMenuOpen(false);
+                      }}
+                      className="w-full text-left px-4 py-3 hover:bg-gray-50 transition-colors"
+                    >
+                      <div className="font-medium text-gray-900 text-sm mb-1">
+                        Sans logo, transparent{" "}
+                        {selectedColor === "white" ? "(blanc)" : "(noir)"}
+                      </div>
+                      <div className="text-xs text-gray-500">
+                        Fond transparent · Intégration libre
+                      </div>
+                    </button>
+
+                    {/* Avec logo, transparent */}
+                    <button
+                      onClick={() => {
+                        handleDownloadWithLogo(true);
+                        setIsDownloadMenuOpen(false);
+                      }}
+                      className="w-full text-left px-4 py-3 hover:bg-gray-50 transition-colors"
+                    >
+                      <div className="font-medium text-gray-900 text-sm mb-1">
+                        Avec logo, transparent{" "}
+                        {selectedColor === "white" ? "(blanc)" : "(noir)"}
+                      </div>
+                      <div className="text-xs text-gray-500">
+                        Logo sans fond · Prévoir fond sombre
+                      </div>
+                    </button>
+                  </div>
                 </div>
-              </div>
-            )}
+              )}
+            </div>
           </div>
         </div>
       </div>

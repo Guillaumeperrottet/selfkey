@@ -13,6 +13,7 @@ interface QRCodeWithLogoOptions {
   quality?: "low" | "medium" | "high" | "print"; // Nouveau paramètre de qualité
   scale?: number; // Facteur de mise à l'échelle pour la haute définition
   transparent?: boolean; // Option pour fond transparent
+  qrColor?: "black" | "white"; // Couleur du QR code (noir ou blanc)
 }
 
 export async function generateQRCodeWithLogo(
@@ -29,6 +30,7 @@ export async function generateQRCodeWithLogo(
     quality = "medium",
     scale = quality === "print" ? 4 : quality === "high" ? 2 : 1, // Facteur de mise à l'échelle basé sur la qualité
     transparent = false,
+    qrColor = "black", // Couleur par défaut : noir
   } = options;
 
   // Calculer les dimensions finales
@@ -36,10 +38,16 @@ export async function generateQRCodeWithLogo(
   const finalLogoSize = logoSize * scale;
   const finalBorderRadius = borderRadius * scale;
 
+  // Définir les couleurs selon le choix de l'utilisateur
+  const qrColors =
+    qrColor === "white"
+      ? { dark: "#FFFFFF", light: "#000000" } // QR blanc sur fond noir
+      : { dark: "#000000", light: "#FFFFFF" }; // QR noir sur fond blanc (défaut)
+
   // Ajuster la couleur de fond si transparent
   const backgroundColorOptions = transparent
-    ? { dark: color.dark || "#000000", light: "#00000000" }
-    : color;
+    ? { dark: qrColors.dark, light: "#00000000" } // Fond transparent
+    : qrColors;
 
   try {
     // Générer le QR code de base avec une résolution plus élevée
