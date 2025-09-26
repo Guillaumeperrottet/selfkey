@@ -2,11 +2,23 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import { Label } from "@/components/ui/label";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+
 import {
   Mail,
   Phone,
   MapPin,
-  Globe,
   Send,
   CheckCircle,
   AlertCircle,
@@ -17,8 +29,6 @@ interface FormData {
   name: string;
   email: string;
   company: string;
-  sector: string;
-  companySize: string;
   project: string;
 }
 
@@ -27,8 +37,6 @@ export default function ContactPage() {
     name: "",
     email: "",
     company: "",
-    sector: "",
-    companySize: "",
     project: "",
   });
 
@@ -39,9 +47,7 @@ export default function ContactPage() {
   const [errorMessage, setErrorMessage] = useState("");
 
   const handleInputChange = (
-    e: React.ChangeEvent<
-      HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
-    >
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
   ) => {
     const { name, value } = e.target;
     setFormData((prev) => ({
@@ -74,8 +80,6 @@ export default function ContactPage() {
           name: "",
           email: "",
           company: "",
-          sector: "",
-          companySize: "",
           project: "",
         });
       } else {
@@ -92,294 +96,249 @@ export default function ContactPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-100 py-12 px-4">
-      <div className="container mx-auto max-w-7xl">
+    <div className="min-h-screen bg-background py-8 px-4">
+      <div className="container mx-auto max-w-4xl">
         {/* Header */}
-        <div className="text-center mb-16">
-          <h1 className="text-4xl md:text-5xl font-bold text-gray-900 mb-6">
-            Parlons de votre{" "}
-            <span className="text-gray-700">projet digital</span>
+        <div className="text-center mb-12">
+          <h1 className="text-3xl md:text-4xl font-bold mb-4">
+            Créons ensemble une aire de camping-car dans votre commune
           </h1>
-          <p className="text-xl text-gray-600 max-w-3xl mx-auto">
-            Notre équipe est prête à vous accompagner dans la digitalisation de
-            votre entreprise. Découvrez comment nos solutions peuvent améliorer
-            votre business.
+          <p className="text-lg text-muted-foreground max-w-3xl mx-auto mb-6">
+            Vous êtes une commune suisse confrontée au camping sauvage ou
+            souhaitant développer le tourisme local ? SelfCamp propose une
+            solution complète pour créer des aires de camping-car légales,
+            organisées et rentables.
           </p>
+          <div className="bg-[#84994F]/10 border border-[#84994F]/20 rounded-lg p-4 max-w-2xl mx-auto">
+            <p className="text-sm text-[#84994F] font-medium">
+              🏛️ Solution spécialement conçue pour les communes suisses
+            </p>
+          </div>
         </div>
 
-        <div className="grid lg:grid-cols-2 gap-12">
+        <div className="grid lg:grid-cols-3 gap-8">
           {/* Formulaire de contact */}
-          <div className="bg-white rounded-lg shadow-sm p-8 border border-gray-200">
-            <h2 className="text-2xl font-semibold text-gray-900 mb-6">
-              Contactez-nous
-            </h2>
+          <div className="lg:col-span-2">
+            <Card className="border-t-4 border-t-[#84994F]">
+              <CardHeader>
+                <CardTitle>Demande d&apos;information</CardTitle>
+                <CardDescription>
+                  Parlez-nous de votre commune et de vos besoins. Nous
+                  étudierons ensemble la faisabilité d&apos;une aire de
+                  camping-car SelfCamp.
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <form onSubmit={handleSubmit} className="space-y-6">
+                  {/* Messages de statut */}
+                  {submitStatus === "success" && (
+                    <Alert>
+                      <CheckCircle className="h-4 w-4" />
+                      <AlertDescription>
+                        Message envoyé avec succès ! Nous vous recontacterons
+                        rapidement.
+                      </AlertDescription>
+                    </Alert>
+                  )}
 
-            <form onSubmit={handleSubmit} className="space-y-6">
-              {/* Messages de statut */}
-              {submitStatus === "success" && (
-                <div className="bg-green-50 border border-green-200 rounded-md p-4 flex items-center space-x-2">
-                  <CheckCircle className="h-5 w-5 text-green-600" />
-                  <span className="text-green-800">
-                    Message envoyé avec succès ! Nous vous recontacterons
-                    rapidement.
-                  </span>
-                </div>
-              )}
+                  {submitStatus === "error" && (
+                    <Alert variant="destructive">
+                      <AlertCircle className="h-4 w-4" />
+                      <AlertDescription>{errorMessage}</AlertDescription>
+                    </Alert>
+                  )}
 
-              {submitStatus === "error" && (
-                <div className="bg-red-50 border border-red-200 rounded-md p-4 flex items-center space-x-2">
-                  <AlertCircle className="h-5 w-5 text-red-600" />
-                  <span className="text-red-800">{errorMessage}</span>
-                </div>
-              )}
+                  <div className="grid md:grid-cols-2 gap-4">
+                    <div className="space-y-2">
+                      <Label htmlFor="name">Nom et prénom</Label>
+                      <Input
+                        id="name"
+                        name="name"
+                        value={formData.name}
+                        onChange={handleInputChange}
+                        required
+                        disabled={isSubmitting}
+                        placeholder="Jean Dupont"
+                        className="focus:ring-[#84994F]/20 focus:border-[#84994F]"
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="email">Email</Label>
+                      <Input
+                        type="email"
+                        id="email"
+                        name="email"
+                        value={formData.email}
+                        onChange={handleInputChange}
+                        required
+                        disabled={isSubmitting}
+                        placeholder="jean.dupont@commune.ch"
+                        className="focus:ring-[#84994F]/20 focus:border-[#84994F]"
+                      />
+                    </div>
+                  </div>
 
-              <div className="grid md:grid-cols-2 gap-4">
-                <div>
-                  <label
-                    htmlFor="name"
-                    className="block text-sm font-medium text-gray-700 mb-2"
-                  >
-                    Nom complet
-                  </label>
-                  <input
-                    type="text"
-                    id="name"
-                    name="name"
-                    value={formData.name}
-                    onChange={handleInputChange}
-                    required
+                  <div className="space-y-2">
+                    <Label htmlFor="company">Commune</Label>
+                    <Input
+                      id="company"
+                      name="company"
+                      value={formData.company}
+                      onChange={handleInputChange}
+                      required
+                      disabled={isSubmitting}
+                      placeholder="Nom de votre commune"
+                      className="focus:ring-[#84994F]/20 focus:border-[#84994F]"
+                    />
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label htmlFor="project">
+                      Votre projet d&apos;aire de camping-car
+                    </Label>
+                    <Textarea
+                      id="project"
+                      name="project"
+                      rows={4}
+                      value={formData.project}
+                      onChange={handleInputChange}
+                      disabled={isSubmitting}
+                      placeholder="Parlez-nous de votre projet : situation actuelle, objectifs, contraintes..."
+                      className="focus:ring-[#84994F]/20 focus:border-[#84994F]"
+                    />
+                  </div>
+
+                  <div className="flex items-start space-x-3">
+                    <input
+                      type="checkbox"
+                      id="privacy"
+                      name="privacy"
+                      required
+                      disabled={isSubmitting}
+                      className="mt-1 h-4 w-4"
+                    />
+                    <Label
+                      htmlFor="privacy"
+                      className="text-sm leading-relaxed"
+                    >
+                      J&apos;accepte que mes données soient traitées
+                      conformément à la{" "}
+                      <Link
+                        href="/privacy"
+                        className="underline hover:no-underline"
+                      >
+                        politique de confidentialité
+                      </Link>
+                    </Label>
+                  </div>
+
+                  <Button
+                    type="submit"
                     disabled={isSubmitting}
-                    className="w-full px-4 py-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-gray-900 focus:border-transparent transition-all disabled:bg-gray-50 disabled:cursor-not-allowed"
-                    placeholder="Jean Forclaz"
-                  />
-                </div>
-                <div>
-                  <label
-                    htmlFor="email"
-                    className="block text-sm font-medium text-gray-700 mb-2"
+                    className="w-full bg-[#84994F] hover:bg-[#84994F]/90 text-white"
                   >
-                    Email professionnel
-                  </label>
-                  <input
-                    type="email"
-                    id="email"
-                    name="email"
-                    value={formData.email}
-                    onChange={handleInputChange}
-                    required
-                    disabled={isSubmitting}
-                    className="w-full px-4 py-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-gray-900 focus:border-transparent transition-all disabled:bg-gray-50 disabled:cursor-not-allowed"
-                    placeholder="email@exemple.ch"
-                  />
-                </div>
-              </div>
-
-              <div className="grid md:grid-cols-2 gap-4">
-                <div>
-                  <label
-                    htmlFor="company"
-                    className="block text-sm font-medium text-gray-700 mb-2"
-                  >
-                    Entreprise
-                  </label>
-                  <input
-                    type="text"
-                    id="company"
-                    name="company"
-                    value={formData.company}
-                    onChange={handleInputChange}
-                    disabled={isSubmitting}
-                    className="w-full px-4 py-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-gray-900 focus:border-transparent transition-all disabled:bg-gray-50 disabled:cursor-not-allowed"
-                    placeholder="Nom de votre entreprise"
-                  />
-                </div>
-                <div>
-                  <label
-                    htmlFor="sector"
-                    className="block text-sm font-medium text-gray-700 mb-2"
-                  >
-                    Secteur d&apos;activité
-                  </label>
-                  <select
-                    id="sector"
-                    name="sector"
-                    value={formData.sector}
-                    onChange={handleInputChange}
-                    disabled={isSubmitting}
-                    className="w-full px-4 py-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-gray-900 focus:border-transparent transition-all disabled:bg-gray-50 disabled:cursor-not-allowed"
-                  >
-                    <option value="">Sélectionnez votre secteur</option>
-                    <option value="hotel">Hôtellerie</option>
-                    <option value="parking">Parking / Stationnement</option>
-                    <option value="camping">Camping / Tourisme</option>
-                    <option value="commerce">Commerce</option>
-                    <option value="immobilier">Immobilier</option>
-                    <option value="autre">Autre</option>
-                  </select>
-                </div>
-              </div>
-
-              <div>
-                <label
-                  htmlFor="companySize"
-                  className="block text-sm font-medium text-gray-700 mb-2"
-                >
-                  Taille de l&apos;entreprise
-                </label>
-                <select
-                  id="companySize"
-                  name="companySize"
-                  value={formData.companySize}
-                  onChange={handleInputChange}
-                  disabled={isSubmitting}
-                  className="w-full px-4 py-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-gray-900 focus:border-transparent transition-all disabled:bg-gray-50 disabled:cursor-not-allowed"
-                >
-                  <option value="">Sélectionnez la taille</option>
-                  <option value="1-10">1-10 employés</option>
-                  <option value="11-50">11-50 employés</option>
-                  <option value="51-200">51-200 employés</option>
-                  <option value="200+">200+ employés</option>
-                </select>
-              </div>
-
-              <div>
-                <label
-                  htmlFor="project"
-                  className="block text-sm font-medium text-gray-700 mb-2"
-                >
-                  Votre projet
-                </label>
-                <textarea
-                  id="project"
-                  name="project"
-                  rows={4}
-                  value={formData.project}
-                  onChange={handleInputChange}
-                  disabled={isSubmitting}
-                  className="w-full px-4 py-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-gray-900 focus:border-transparent transition-all resize-none disabled:bg-gray-50 disabled:cursor-not-allowed"
-                  placeholder="Décrivez vos besoins en digitalisation, vos objectifs de performance, ou toute question sur nos solutions..."
-                />
-              </div>
-
-              <div className="flex items-start space-x-3">
-                <input
-                  type="checkbox"
-                  id="privacy"
-                  name="privacy"
-                  required
-                  disabled={isSubmitting}
-                  className="mt-1 h-4 w-4 text-gray-900 border-gray-300 rounded focus:ring-gray-900 disabled:cursor-not-allowed"
-                />
-                <label htmlFor="privacy" className="text-sm text-gray-600">
-                  J&apos;accepte que mes données soient traitées conformément à
-                  la{" "}
-                  <Link
-                    href="/privacy"
-                    className="text-gray-900 hover:underline"
-                  >
-                    politique de confidentialité
-                  </Link>
-                </label>
-              </div>
-
-              <button
-                type="submit"
-                disabled={isSubmitting}
-                className="w-full bg-gray-900 text-white px-6 py-4 rounded-md font-medium hover:bg-gray-800 transition-colors duration-200 flex items-center justify-center space-x-2 disabled:bg-gray-400 disabled:cursor-not-allowed"
-              >
-                {isSubmitting ? (
-                  <>
-                    <Loader2 className="h-4 w-4 animate-spin" />
-                    <span>Envoi en cours...</span>
-                  </>
-                ) : (
-                  <>
-                    <Send className="h-4 w-4" />
-                    <span>Discuter de mon projet</span>
-                  </>
-                )}
-              </button>
-            </form>
+                    {isSubmitting ? (
+                      <>
+                        <Loader2 className="h-4 w-4 animate-spin" />
+                        Envoi en cours...
+                      </>
+                    ) : (
+                      <>
+                        <Send className="h-4 w-4" />
+                        Envoyer le message
+                      </>
+                    )}
+                  </Button>
+                </form>
+              </CardContent>
+            </Card>
           </div>
 
           {/* Informations de contact */}
-          <div className="space-y-8">
-            <div className="bg-white rounded-lg shadow-sm p-8 border border-gray-200">
-              <h3 className="text-xl font-semibold text-gray-900 mb-6">
-                Contact
-              </h3>
-
-              <div className="space-y-4">
+          <div className="space-y-6">
+            <Card>
+              <CardHeader>
+                <CardTitle>Équipe SelfCamp</CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4">
                 <div className="flex items-start space-x-3">
-                  <Mail className="h-5 w-5 text-gray-600 mt-1" />
-                  <div>
-                    <div className="font-medium text-gray-900">Email</div>
-                    <div className="text-gray-600">gp@webbing.ch</div>
+                  <Mail className="h-4 w-4 mt-1 text-muted-foreground" />
+                  <div className="space-y-1">
+                    <div className="font-medium">Email</div>
+                    <div className="text-sm text-muted-foreground">
+                      gp@webbing.ch
+                    </div>
                   </div>
                 </div>
 
                 <div className="flex items-start space-x-3">
-                  <Phone className="h-5 w-5 text-gray-600 mt-1" />
-                  <div>
-                    <div className="font-medium text-gray-900">Téléphone</div>
-                    <div className="text-gray-600">+41 79 341 40 74</div>
+                  <Phone className="h-4 w-4 mt-1 text-muted-foreground" />
+                  <div className="space-y-1">
+                    <div className="font-medium">Téléphone</div>
+                    <div className="text-sm text-muted-foreground">
+                      +41 79 341 40 74
+                    </div>
                   </div>
                 </div>
 
                 <div className="flex items-start space-x-3">
-                  <Globe className="h-5 w-5 text-gray-600 mt-1" />
-                  <div>
-                    <div className="font-medium text-gray-900">Site web</div>
-                    <a
-                      href="https://www.webbing.ch"
-                      className="text-gray-700 hover:text-gray-900 hover:underline"
-                    >
-                      www.webbing.ch
-                    </a>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            <div className="bg-white rounded-lg shadow-sm p-8 border border-gray-200">
-              <h3 className="text-xl font-semibold text-gray-900 mb-6">
-                Localisation
-              </h3>
-
-              <div className="space-y-6">
-                <div>
-                  <h4 className="font-medium text-gray-900 mb-3">Fribourg</h4>
-                  <div className="flex items-start space-x-3">
-                    <MapPin className="h-5 w-5 text-gray-600 mt-1" />
-                    <div className="text-gray-600">
+                  <MapPin className="h-4 w-4 mt-1 text-muted-foreground" />
+                  <div className="space-y-1">
+                    <div className="font-medium">Région d&apos;activité</div>
+                    <div className="text-sm text-muted-foreground">
                       Canton de Fribourg, Suisse
                     </div>
                   </div>
-                  <div className="flex items-start space-x-3 mt-2">
-                    <Phone className="h-5 w-5 text-gray-600 mt-1" />
-                    <div className="text-gray-600">+41 79 341 40 74</div>
-                  </div>
-                  <div className="flex items-start space-x-3 mt-2">
-                    <Mail className="h-5 w-5 text-gray-600 mt-1" />
-                    <div className="text-gray-600">gp@webbing.ch</div>
-                  </div>
                 </div>
-              </div>
-            </div>
+              </CardContent>
+            </Card>
 
-            <div className="bg-gray-50 rounded-lg p-8 border border-gray-200">
-              <h3 className="text-xl font-semibold text-gray-900 mb-4">
-                Solutions digitales sur mesure
-              </h3>
-              <p className="text-gray-600 mb-4">
-                Nous créons des solutions digitales adaptées à vos besoins. De
-                SelfKey aux applications web complexes, nous transformons vos
-                idées en outils performants.
-              </p>
-              <div className="text-sm text-gray-500">
-                <strong>Réponse garantie sous 24h ouvrées</strong>
-              </div>
-            </div>
+            <Card>
+              <CardHeader>
+                <CardTitle>Solution SelfCamp</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <p className="text-sm text-muted-foreground mb-4">
+                  Nous accompagnons les communes suisses dans la création
+                  d&apos;aires de camping-car légales et organisées.
+                  Infrastructure, signalétique, système d&apos;enregistrement
+                  numérique et conformité réglementaire.
+                </p>
+                <div className="text-sm font-medium">
+                  Étude de faisabilité gratuite
+                </div>
+              </CardContent>
+            </Card>
+
+            <Card className="border-l-4 border-l-[#84994F]">
+              <CardHeader>
+                <CardTitle className="text-[#84994F]">
+                  Bénéfices pour votre commune
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-3">
+                <div className="flex items-start space-x-2">
+                  <div className="w-2 h-2 bg-[#84994F] rounded-full mt-2 flex-shrink-0"></div>
+                  <p className="text-sm">
+                    Conformité légale et contrôle du camping sauvage
+                  </p>
+                </div>
+                <div className="flex items-start space-x-2">
+                  <div className="w-2 h-2 bg-[#84994F] rounded-full mt-2 flex-shrink-0"></div>
+                  <p className="text-sm">Nouvelles recettes pour la commune</p>
+                </div>
+                <div className="flex items-start space-x-2">
+                  <div className="w-2 h-2 bg-[#84994F] rounded-full mt-2 flex-shrink-0"></div>
+                  <p className="text-sm">Dynamisation du commerce local</p>
+                </div>
+                <div className="flex items-start space-x-2">
+                  <div className="w-2 h-2 bg-[#84994F] rounded-full mt-2 flex-shrink-0"></div>
+                  <p className="text-sm">
+                    Valorisation touristique de votre région
+                  </p>
+                </div>
+              </CardContent>
+            </Card>
           </div>
         </div>
       </div>
