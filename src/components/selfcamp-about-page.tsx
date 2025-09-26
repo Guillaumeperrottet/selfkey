@@ -394,9 +394,9 @@ export function SelfcampAboutPage() {
                 </Link>
                 <Link
                   href="/contact"
-                  className="bg-[#84994F] text-white px-6 py-2.5 rounded-full text-sm font-medium hover:bg-[#84994F]/90 hover:scale-105 transition-all duration-300 shadow-md hover:shadow-lg"
+                  className="text-[#84994F] text-sm font-bold tracking-wide uppercase hover:text-[#84994F]/80 transition-colors duration-300"
                 >
-                  Contactez-nous
+                  CONTACTEZ-NOUS
                 </Link>
               </div>
 
@@ -415,9 +415,9 @@ export function SelfcampAboutPage() {
                 </Link>
                 <Link
                   href="/contact"
-                  className="bg-[#84994F] text-white px-4 py-2 rounded-full text-xs font-medium hover:bg-[#84994F]/90 hover:scale-105 transition-all duration-300 shadow-md"
+                  className="text-[#84994F] text-xs font-bold tracking-wide uppercase hover:text-[#84994F]/80 transition-colors duration-300"
                 >
-                  Contact
+                  CONTACT
                 </Link>
               </div>
             </div>
