@@ -483,10 +483,10 @@ export function SelfcampAboutPage() {
               </div>
               <div className="bg-white border border-[#84994F]/30 rounded-2xl p-6 hover:border-[#84994F]/50 transition-all duration-300">
                 <div className="text-4xl md:text-5xl font-bold text-[#84994F] mb-3">
-                  +50
+                  0
                 </div>
                 <div className="text-gray-700 font-medium text-base">
-                  Communes partenaires
+                  Installation Informatique
                 </div>
               </div>
             </motion.div>
