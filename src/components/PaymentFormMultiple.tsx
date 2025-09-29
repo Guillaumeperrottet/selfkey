@@ -285,15 +285,7 @@ function CheckoutForm({
         </div>
       </div>
 
-      <form
-        className="space-y-6"
-        onKeyDown={(e) => {
-          if (e.key === "Enter") {
-            e.preventDefault();
-            console.log("🔥 ENTER DÉTECTÉ - Empêché, utiliser le bouton");
-          }
-        }}
-      >
+      <div className="space-y-6">
         {stripe && elements && (
           <div>
             {/* Debug info en mode développement */}
@@ -471,7 +463,7 @@ function CheckoutForm({
             )}
           </div>
         </button>
-      </form>
+      </div>
     </div>
   );
 }
