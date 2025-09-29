@@ -474,6 +474,10 @@ export function BookingSummary({ bookingId }: BookingSummaryProps) {
             clientLastName: booking.clientLastName,
             clientEmail: booking.clientEmail,
             clientPhone: booking.clientPhone,
+            clientAddress: booking.clientAddress,
+            clientPostalCode: booking.clientPostalCode,
+            clientCity: booking.clientCity,
+            clientCountry: booking.clientCountry,
             clientVehicleNumber: booking.clientVehicleNumber || "Non renseigné",
             selectedDuration: `${duration} nuit${duration > 1 ? "s" : ""}`,
             amount: booking.amount + platformFees.total, // Montant final avec frais de plateforme

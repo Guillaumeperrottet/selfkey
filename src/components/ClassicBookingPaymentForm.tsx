@@ -95,6 +95,18 @@ function StripePaymentFormContent({
 
       const bookingData = JSON.parse(storedData);
 
+      // DEBUG: Afficher toutes les données récupérées
+      console.log(
+        "🔍 DEBUG: Données complètes récupérées depuis sessionStorage:",
+        bookingData
+      );
+      console.log("🔍 DEBUG: Champs d'adresse spécifiques:", {
+        clientAddress: bookingData.clientAddress,
+        clientPostalCode: bookingData.clientPostalCode,
+        clientCity: bookingData.clientCity,
+        clientCountry: bookingData.clientCountry,
+      });
+
       // Fonction helper pour obtenir le code pays ISO à 2 lettres
       const getCountryCode = (country: string): string => {
         const countryMap: { [key: string]: string } = {
