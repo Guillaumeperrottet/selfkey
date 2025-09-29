@@ -142,7 +142,15 @@ export async function createPaymentIntentWithCommission(
 
     // Créer un Customer Stripe si on a les données client (REQUIS pour Twint)
     let customerId = undefined;
-    if (metadata?.client_email && metadata?.client_name) {
+
+    // Construire le nom client à partir des métadonnées
+    const clientName =
+      metadata?.client_name ||
+      (metadata?.client_first_name && metadata?.client_last_name
+        ? `${metadata.client_first_name} ${metadata.client_last_name}`
+        : undefined);
+
+    if (metadata?.client_email && clientName) {
       try {
         // Vérifier d'abord si le customer existe déjà
         const existingCustomers = await stripe.customers.list({
@@ -159,7 +167,7 @@ export async function createPaymentIntentWithCommission(
 
           // Mettre à jour les informations si nécessaire
           await stripe.customers.update(customerId, {
-            name: metadata.client_name,
+            name: clientName,
             phone: metadata.client_phone,
             address: {
               line1: metadata.client_address,
@@ -175,7 +183,7 @@ export async function createPaymentIntentWithCommission(
         } else {
           // Créer un nouveau customer
           const customer = await stripe.customers.create({
-            name: metadata.client_name,
+            name: clientName,
             email: metadata.client_email,
             phone: metadata.client_phone,
             address: {
@@ -208,12 +216,15 @@ export async function createPaymentIntentWithCommission(
       );
       console.warn("Données manquantes:", {
         hasEmail: !!metadata?.client_email,
-        hasName: !!metadata?.client_name,
+        hasName: !!clientName,
+        hasClientFirstName: !!metadata?.client_first_name,
+        hasClientLastName: !!metadata?.client_last_name,
         hasPhone: !!metadata?.client_phone,
         hasAddress: !!metadata?.client_address,
         hasCity: !!metadata?.client_city,
         hasPostalCode: !!metadata?.client_postal_code,
         hasCountry: !!metadata?.client_country,
+        constructedName: clientName,
       });
     }
 
@@ -249,7 +260,7 @@ export async function createPaymentIntentWithCommission(
       setup_future_usage: undefined, // Pas de setup pour TWINT
       receipt_email: metadata?.client_email, // Email pour le reçu
       description: `Réservation ${metadata?.booking_id} - ${metadata?.hotel_slug}`,
-      statement_descriptor: "SELFKEY HOTELS", // Apparaît sur le relevé bancaire
+      statement_descriptor_suffix: "SELFKEY", // Compatible avec cartes et TWINT (max 10 chars)
       metadata: {
         integration_type: "direct_charge",
         platform: "selfkey_hotels",
