@@ -97,7 +97,12 @@ function CheckoutForm({
   const [error, setError] = useState<string>("");
 
   const handleSubmit = async () => {
+    console.log("🔥 HANDLE SUBMIT APPELÉ - Début du processus de paiement");
+    console.log("🔍 PAYMENT DEBUG - stripe disponible:", !!stripe);
+    console.log("🔍 PAYMENT DEBUG - elements disponible:", !!elements);
+
     if (!stripe || !elements) {
+      console.log("❌ PAYMENT DEBUG - Stripe ou Elements manquant");
       return;
     }
 
@@ -105,13 +110,16 @@ function CheckoutForm({
     setError("");
 
     try {
+      console.log("🔍 PAYMENT DEBUG - Appel elements.submit()");
       // Obtenir les données du PaymentElement pour détecter le type de paiement
       const { error: submitError } = await elements.submit();
       if (submitError) {
+        console.log("❌ PAYMENT DEBUG - Erreur submit:", submitError);
         setError(submitError.message || "Erreur de validation du formulaire");
         setIsLoading(false);
         return;
       }
+      console.log("✅ PAYMENT DEBUG - elements.submit() réussi");
 
       // Log des données avant confirmation
       console.log("🔍 PAYMENT DEBUG - Données avant confirmation:", {
@@ -277,7 +285,15 @@ function CheckoutForm({
         </div>
       </div>
 
-      <form onSubmit={handleSubmit} className="space-y-6">
+      <form
+        className="space-y-6"
+        onKeyDown={(e) => {
+          if (e.key === "Enter") {
+            e.preventDefault();
+            console.log("🔥 ENTER DÉTECTÉ - Empêché, utiliser le bouton");
+          }
+        }}
+      >
         {stripe && elements && (
           <div>
             {/* Debug info en mode développement */}
