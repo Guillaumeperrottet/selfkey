@@ -54,13 +54,28 @@ export async function GET(request: NextRequest, { params }: Props) {
         ? booking.establishment.dayParkingCommissionRate
         : booking.establishment.commissionRate;
 
+    // Préparer les métadonnées client pour Twint
+    const clientMetadata = {
+      booking_id: booking.id,
+      client_name: `${booking.clientFirstName} ${booking.clientLastName}`,
+      client_email: booking.clientEmail,
+      client_phone: booking.clientPhone,
+      client_address: booking.clientAddress,
+      client_city: booking.clientCity,
+      client_postal_code: booking.clientPostalCode,
+      client_country: booking.clientCountry,
+      hotel_slug: booking.hotelSlug,
+      booking_type: booking.bookingType || "classic_booking",
+    };
+
     // Créer un nouveau PaymentIntent
     const paymentIntent = await createPaymentIntentWithCommission(
       booking.amount,
       booking.currency.toLowerCase(),
       booking.establishment.stripeAccountId,
       commissionRate,
-      booking.establishment.fixedFee
+      booking.establishment.fixedFee,
+      clientMetadata
     );
 
     // Mettre à jour la réservation avec le nouveau PaymentIntent

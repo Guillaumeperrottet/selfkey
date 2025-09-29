@@ -46,6 +46,33 @@ export async function createConnectedAccount(
   }
 }
 
+// Helper pour convertir le nom du pays en code ISO
+function getCountryCode(countryName?: string): string {
+  if (!countryName) return "CH"; // Default pour la Suisse
+
+  const countryMap: { [key: string]: string } = {
+    Suisse: "CH",
+    Switzerland: "CH",
+    France: "FR",
+    Allemagne: "DE",
+    Germany: "DE",
+    Italie: "IT",
+    Italy: "IT",
+    Autriche: "AT",
+    Austria: "AT",
+    Espagne: "ES",
+    Spain: "ES",
+    Belgique: "BE",
+    Belgium: "BE",
+    "Pays-Bas": "NL",
+    Netherlands: "NL",
+    Luxembourg: "LU",
+    Portugal: "PT",
+  };
+
+  return countryMap[countryName] || countryName.toUpperCase().substring(0, 2);
+}
+
 export async function createPaymentIntentWithCommission(
   amount: number,
   currency: string,
@@ -95,10 +122,37 @@ export async function createPaymentIntentWithCommission(
       metadata,
     });
 
+    // Créer un Customer Stripe si on a les données client (nécessaire pour Twint)
+    let customerId = undefined;
+    if (metadata?.client_email && metadata?.client_name) {
+      try {
+        const customer = await stripe.customers.create({
+          name: metadata.client_name,
+          email: metadata.client_email,
+          phone: metadata.client_phone,
+          address: {
+            line1: metadata.client_address,
+            city: metadata.client_city,
+            postal_code: metadata.client_postal_code,
+            country: getCountryCode(metadata.client_country),
+          },
+          metadata: {
+            booking_id: metadata.booking_id,
+            hotel_slug: metadata.hotel_slug,
+          },
+        });
+        customerId = customer.id;
+        console.log("✅ Customer Stripe créé pour Twint:", customerId);
+      } catch (customerError) {
+        console.warn("⚠️ Impossible de créer le customer:", customerError);
+      }
+    }
+
     const paymentIntent = await stripe.paymentIntents.create({
       amount: amountRappen, // Montant déjà en centimes
       currency: currency.toLowerCase(),
       application_fee_amount: totalCommissionRappen, // Commission déjà en centimes
+      customer: customerId, // Associer le customer pour Twint
       transfer_data: {
         destination: connectedAccountId, // L'argent va directement au propriétaire
       },
