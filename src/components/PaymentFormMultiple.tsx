@@ -80,7 +80,9 @@ const getCountryCode = (countryName: string): string => {
     "United States": "US",
   };
 
-  return countryMap[countryName] || countryName.toUpperCase();
+  const code = countryMap[countryName] || countryName.toUpperCase();
+  console.log(`🌍 Conversion pays: "${countryName}" -> "${code}"`);
+  return code;
 };
 
 // Composant interne pour le formulaire Stripe avec support TWINT
@@ -120,7 +122,15 @@ function CheckoutForm({ booking }: Pick<PaymentFormProps, "booking">) {
         returnUrl: `${window.location.origin}/${booking.hotelSlug}/payment-return?booking=${booking.id}`,
       });
 
-      // Préparer les billing_details complets
+      // Validation spécifique pour TWINT
+      if (booking.currency.toLowerCase() !== "chf") {
+        console.warn(
+          "⚠️ TWINT requiert CHF comme devise, reçu:",
+          booking.currency
+        );
+      }
+
+      // Préparer les billing_details complets pour TWINT
       const billingDetails = {
         name: `${booking.clientFirstName} ${booking.clientLastName}`,
         email: booking.clientEmail,
@@ -134,6 +144,16 @@ function CheckoutForm({ booking }: Pick<PaymentFormProps, "booking">) {
           country: getCountryCode(booking.clientCountry),
         },
       };
+
+      console.log("🔍 TWINT BILLING DETAILS:", billingDetails);
+
+      // Vérifier si on peut obtenir le type de paiement sélectionné
+      const paymentElement = elements.getElement("payment");
+      if (paymentElement) {
+        console.log(
+          "💳 PaymentElement trouvé, tentative de récupération du type de paiement"
+        );
+      }
 
       // Essayer d'abord confirmPayment pour tous les types
       const { error: stripeError, paymentIntent } = await stripe.confirmPayment(
@@ -276,16 +296,16 @@ function CheckoutForm({ booking }: Pick<PaymentFormProps, "booking">) {
                   },
                   fields: {
                     billingDetails: {
-                      name: "auto", // Laisser Stripe décider
-                      email: "auto",
-                      phone: "auto",
+                      name: "auto", // Nécessaire pour TWINT
+                      email: "auto", // Nécessaire pour TWINT
+                      phone: "auto", // Nécessaire pour TWINT
                       address: {
-                        line1: "auto",
+                        line1: "auto", // Nécessaire pour TWINT
                         line2: "never",
-                        city: "auto",
+                        city: "auto", // Nécessaire pour TWINT
                         state: "never",
-                        postalCode: "auto",
-                        country: "auto",
+                        postalCode: "auto", // Nécessaire pour TWINT
+                        country: "auto", // Nécessaire pour TWINT
                       },
                     },
                   },
@@ -310,6 +330,12 @@ function CheckoutForm({ booking }: Pick<PaymentFormProps, "booking">) {
                   console.log("💳 PaymentElement changement:", event);
                   if (event.complete) {
                     setError(""); // Effacer les erreurs quand le formulaire est complet
+                  }
+                  // Log spécifique pour TWINT
+                  if (event.value?.type === "twint") {
+                    console.log(
+                      "🔍 TWINT sélectionné, billing details required"
+                    );
                   }
                 }}
               />

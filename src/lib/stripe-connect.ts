@@ -171,6 +171,7 @@ export async function createPaymentIntentWithCommission(
         enabled: true,
         allow_redirects: "always", // Nécessaire pour TWINT
       },
+      payment_method_types: ["card", "twint"], // Spécifier explicitement TWINT
       capture_method: "automatic_async",
       metadata: {
         integration_type: "direct_charge",
