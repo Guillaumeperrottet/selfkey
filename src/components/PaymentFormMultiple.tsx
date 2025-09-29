@@ -85,123 +85,18 @@ const getCountryCode = (countryName: string): string => {
   return code;
 };
 
-// Type pour les méthodes de paiement
-type PaymentMethod = "card" | "twint";
-
 // Composant interne pour le formulaire Stripe avec support TWINT
-function CheckoutForm({
-  booking,
-  clientSecret,
-}: Pick<PaymentFormProps, "booking"> & { clientSecret: string }) {
+function CheckoutForm({ booking }: Pick<PaymentFormProps, "booking">) {
   const stripe = useStripe();
   const elements = useElements();
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string>("");
-  const [selectedPaymentMethod, setSelectedPaymentMethod] =
-    useState<PaymentMethod | null>(null);
 
-  // Log de debug pour confirmer que le nouveau code se charge
-  console.log(
-    "🆕 NOUVELLE INTERFACE CHARGÉE - Version avec sélecteur de méthodes"
-  );
-  console.log("🔍 État selectedPaymentMethod actuel:", selectedPaymentMethod);
-
-  // Fonction pour traiter le paiement TWINT directement
-  const handleTwintPayment = async () => {
-    console.log("�🚨🚨 FONCTION TWINT APPELÉE !!! 🚨🚨🚨");
-    console.log("�💰 TWINT PAYMENT - Début du processus TWINT direct");
-
-    if (!stripe) {
-      console.log("❌ TWINT PAYMENT - Stripe manquant");
-      return;
-    }
-    setIsLoading(true);
-    setError("");
-
-    try {
-      // Préparer les billing_details complets pour TWINT
-      const billingDetails = {
-        name: `${booking.clientFirstName} ${booking.clientLastName}`,
-        email: booking.clientEmail,
-        phone: booking.clientPhone,
-        address: {
-          line1: booking.clientAddress,
-          postal_code: booking.clientPostalCode,
-          city: booking.clientCity,
-          country: getCountryCode(booking.clientCountry),
-        },
-      };
-
-      console.log("🔍 TWINT BILLING DETAILS préparés:", billingDetails);
-
-      // Créer le PaymentMethod côté serveur avec les billing_details
-      const paymentMethodResponse = await fetch(
-        "/api/stripe/create-payment-method",
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            type: "twint",
-            billing_details: billingDetails,
-          }),
-        }
-      );
-
-      if (!paymentMethodResponse.ok) {
-        throw new Error("Erreur lors de la création du PaymentMethod");
-      }
-
-      const { paymentMethod } = await paymentMethodResponse.json();
-      console.log("✅ TWINT PaymentMethod créé:", paymentMethod.id);
-
-      // Confirmer le PaymentIntent avec le PaymentMethod
-      const { error: confirmError, paymentIntent } =
-        await stripe.confirmPayment({
-          clientSecret,
-          confirmParams: {
-            payment_method: paymentMethod.id,
-            return_url: `${window.location.origin}/${booking.hotelSlug}/payment-return?booking=${booking.id}`,
-          },
-          redirect: "if_required",
-        });
-
-      if (confirmError) {
-        console.log("❌ TWINT PAYMENT - Erreur confirmation:", confirmError);
-        setError(confirmError.message || "Erreur lors du paiement TWINT");
-        setIsLoading(false);
-        return;
-      }
-
-      console.log(
-        "✅ TWINT PAYMENT - Paiement confirmé:",
-        paymentIntent?.status
-      );
-
-      if (paymentIntent?.status === "succeeded") {
-        router.push(
-          `/${booking.hotelSlug}/payment-success?booking=${booking.id}`
-        );
-      } else if (paymentIntent?.status === "requires_action") {
-        console.log("🔄 TWINT PAYMENT - Action requise par l'utilisateur");
-        // Le redirect va se faire automatiquement
-      }
-    } catch (error) {
-      console.error("❌ TWINT PAYMENT - Erreur:", error);
-      setError("Erreur lors du traitement du paiement TWINT");
-      setIsLoading(false);
-    }
-  };
-
-  const handleSubmit = async () => {
-    console.log("🔥 HANDLE SUBMIT APPELÉ - Début du processus de paiement");
-    console.log("🔍 PAYMENT DEBUG - stripe disponible:", !!stripe);
-    console.log("🔍 PAYMENT DEBUG - elements disponible:", !!elements);
+  const handleSubmit = async (event: React.FormEvent) => {
+    event.preventDefault();
 
     if (!stripe || !elements) {
-      console.log("❌ PAYMENT DEBUG - Stripe ou Elements manquant");
       return;
     }
 
@@ -209,16 +104,13 @@ function CheckoutForm({
     setError("");
 
     try {
-      console.log("🔍 PAYMENT DEBUG - Appel elements.submit()");
       // Obtenir les données du PaymentElement pour détecter le type de paiement
       const { error: submitError } = await elements.submit();
       if (submitError) {
-        console.log("❌ PAYMENT DEBUG - Erreur submit:", submitError);
         setError(submitError.message || "Erreur de validation du formulaire");
         setIsLoading(false);
         return;
       }
-      console.log("✅ PAYMENT DEBUG - elements.submit() réussi");
 
       // Log des données avant confirmation
       console.log("🔍 PAYMENT DEBUG - Données avant confirmation:", {
@@ -288,11 +180,10 @@ function CheckoutForm({
           billing_details: paymentMethod.billing_details,
         });
 
-        // Maintenant, utiliser ce PaymentMethod pour confirmer directement
-        // IMPORTANT: Utiliser stripe.confirmPayment avec clientSecret et notre PaymentMethod
+        // Maintenant, utiliser ce PaymentMethod pour confirmer
         const { error: stripeError, paymentIntent } =
           await stripe.confirmPayment({
-            clientSecret: clientSecret,
+            elements,
             confirmParams: {
               return_url: `${window.location.origin}/${booking.hotelSlug}/payment-return?booking=${booking.id}`,
               payment_method: paymentMethod.id,
@@ -384,170 +275,8 @@ function CheckoutForm({
         </div>
       </div>
 
-      <div className="space-y-6">
-        {/* Sélecteur de méthode de paiement */}
-        <div className="space-y-4">
-          <h3 className="text-lg font-medium text-gray-900">
-            Choisissez votre méthode de paiement / Choose your payment method
-          </h3>
-
-          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-            {/* Option Carte */}
-            <div
-              className={`relative rounded-lg border-2 p-4 cursor-pointer transition-all ${
-                selectedPaymentMethod === "card"
-                  ? "border-blue-500 bg-blue-50"
-                  : "border-gray-200 hover:border-gray-300"
-              }`}
-              onClick={() => setSelectedPaymentMethod("card")}
-            >
-              <div className="flex items-center">
-                <input
-                  type="radio"
-                  name="payment-method"
-                  value="card"
-                  checked={selectedPaymentMethod === "card"}
-                  onChange={() => setSelectedPaymentMethod("card")}
-                  className="h-4 w-4 text-blue-600 border-gray-300 focus:ring-blue-500"
-                />
-                <div className="ml-3 flex items-center">
-                  <svg
-                    className="w-6 h-6 text-gray-600 mr-2"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"
-                    />
-                  </svg>
-                  <div>
-                    <div className="text-sm font-medium text-gray-900">
-                      Carte bancaire / Credit Card
-                    </div>
-                    <div className="text-xs text-gray-500">
-                      Visa, Mastercard, Apple Pay, Google Pay
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            {/* Option TWINT */}
-            <div
-              className={`relative rounded-lg border-2 p-4 cursor-pointer transition-all ${
-                selectedPaymentMethod === "twint"
-                  ? "border-blue-500 bg-blue-50"
-                  : "border-gray-200 hover:border-gray-300"
-              }`}
-              onClick={() => setSelectedPaymentMethod("twint")}
-            >
-              <div className="flex items-center">
-                <input
-                  type="radio"
-                  name="payment-method"
-                  value="twint"
-                  checked={selectedPaymentMethod === "twint"}
-                  onChange={() => setSelectedPaymentMethod("twint")}
-                  className="h-4 w-4 text-blue-600 border-gray-300 focus:ring-blue-500"
-                />
-                <div className="ml-3 flex items-center">
-                  <div className="w-6 h-6 bg-pink-600 rounded mr-2 flex items-center justify-center">
-                    <span className="text-white text-xs font-bold">T</span>
-                  </div>
-                  <div>
-                    <div className="text-sm font-medium text-gray-900">
-                      TWINT
-                    </div>
-                    <div className="text-xs text-gray-500">
-                      Paiement mobile suisse / Swiss mobile payment
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        {/* Interface conditionnelle selon la méthode choisie */}
-        {selectedPaymentMethod === "twint" && (
-          <div className="space-y-4">
-            <div className="bg-pink-50 border border-pink-200 rounded-lg p-4">
-              <div className="flex items-center gap-2 mb-2">
-                <div className="w-5 h-5 bg-pink-600 rounded flex items-center justify-center">
-                  <span className="text-white text-xs font-bold">T</span>
-                </div>
-                <h4 className="font-medium text-pink-900">Paiement TWINT</h4>
-              </div>
-              <p className="text-sm text-pink-700 mb-3">
-                Vous allez être redirigé vers TWINT pour finaliser votre
-                paiement de {booking.amount} CHF.
-              </p>
-              <div className="text-xs text-pink-600 space-y-1">
-                <div>
-                  <strong>Nom:</strong> {booking.clientFirstName}{" "}
-                  {booking.clientLastName}
-                </div>
-                <div>
-                  <strong>Email:</strong> {booking.clientEmail}
-                </div>
-                <div>
-                  <strong>Téléphone:</strong> {booking.clientPhone}
-                </div>
-                <div>
-                  <strong>Adresse:</strong> {booking.clientAddress},{" "}
-                  {booking.clientPostalCode} {booking.clientCity}
-                </div>
-              </div>
-            </div>
-
-            <button
-              type="button"
-              onClick={handleTwintPayment}
-              disabled={!stripe || isLoading}
-              className="w-full py-4 px-6 bg-pink-600 text-white font-semibold rounded-lg hover:bg-pink-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 shadow-sm hover:shadow-md"
-            >
-              <div className="flex items-center justify-center gap-2">
-                {isLoading ? (
-                  <>
-                    <svg
-                      className="animate-spin h-5 w-5"
-                      fill="none"
-                      viewBox="0 0 24 24"
-                    >
-                      <circle
-                        className="opacity-25"
-                        cx="12"
-                        cy="12"
-                        r="10"
-                        stroke="currentColor"
-                        strokeWidth="4"
-                      ></circle>
-                      <path
-                        className="opacity-75"
-                        fill="currentColor"
-                        d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-                      ></path>
-                    </svg>
-                    <span>Traitement TWINT... / Processing TWINT...</span>
-                  </>
-                ) : (
-                  <>
-                    <div className="w-5 h-5 bg-white rounded flex items-center justify-center">
-                      <span className="text-pink-600 text-xs font-bold">T</span>
-                    </div>
-                    <span>Payer avec TWINT / Pay with TWINT</span>
-                  </>
-                )}
-              </div>
-            </button>
-          </div>
-        )}
-
-        {selectedPaymentMethod === "card" && stripe && elements && (
+      <form onSubmit={handleSubmit} className="space-y-6">
+        {stripe && elements && (
           <div>
             {/* Debug info en mode développement */}
             {process.env.NODE_ENV === "development" && (
@@ -582,13 +311,30 @@ function CheckoutForm({
               <PaymentElement
                 options={{
                   layout: "tabs",
-                  paymentMethodOrder: ["card", "apple_pay", "google_pay"],
+                  paymentMethodOrder: [
+                    "card",
+                    "apple_pay",
+                    "google_pay",
+                    "twint",
+                  ],
                   wallets: {
                     applePay: "auto",
                     googlePay: "auto",
                   },
                   fields: {
-                    billingDetails: "auto",
+                    billingDetails: {
+                      name: "auto", // Nécessaire pour TWINT
+                      email: "auto", // Nécessaire pour TWINT
+                      phone: "auto", // Nécessaire pour TWINT
+                      address: {
+                        line1: "auto", // Nécessaire pour TWINT
+                        line2: "never",
+                        city: "auto", // Nécessaire pour TWINT
+                        state: "never",
+                        postalCode: "auto", // Nécessaire pour TWINT
+                        country: "auto", // Nécessaire pour TWINT
+                      },
+                    },
                   },
                   defaultValues: {
                     billingDetails: {
@@ -605,10 +351,10 @@ function CheckoutForm({
                   },
                 }}
                 onReady={() => {
-                  console.log("💳 PaymentElement pour cartes prêt");
+                  console.log("💳 PaymentElement prêt");
                 }}
                 onChange={(event) => {
-                  console.log("💳 PaymentElement cartes changement:", event);
+                  console.log("💳 PaymentElement changement:", event);
                   if (event.complete) {
                     setError(""); // Effacer les erreurs quand le formulaire est complet
                   }
@@ -621,73 +367,15 @@ function CheckoutForm({
                 }}
               />
             </div>
-
-            <button
-              type="button"
-              onClick={handleSubmit}
-              disabled={!stripe || !elements || isLoading}
-              className="w-full py-4 px-6 bg-blue-600 text-white font-semibold rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 shadow-sm hover:shadow-md"
-            >
-              <div className="flex items-center justify-center gap-2">
-                {isLoading ? (
-                  <>
-                    <svg
-                      className="animate-spin h-5 w-5"
-                      fill="none"
-                      viewBox="0 0 24 24"
-                    >
-                      <circle
-                        className="opacity-25"
-                        cx="12"
-                        cy="12"
-                        r="10"
-                        stroke="currentColor"
-                        strokeWidth="4"
-                      ></circle>
-                      <path
-                        className="opacity-75"
-                        fill="currentColor"
-                        d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-                      ></path>
-                    </svg>
-                    <span>
-                      Traitement du paiement... / Processing payment...
-                    </span>
-                  </>
-                ) : (
-                  <>
-                    <svg
-                      className="w-5 h-5"
-                      fill="none"
-                      stroke="currentColor"
-                      viewBox="0 0 24 24"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={2}
-                        d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
-                      />
-                    </svg>
-                    <span>Payer avec carte / Pay with card</span>
-                  </>
-                )}
-              </div>
-            </button>
           </div>
         )}
 
-        {/* Message quand aucune méthode de paiement n'est sélectionnée */}
-        {!selectedPaymentMethod && (
-          <div className="text-center py-8 text-gray-500">
-            <p>Veuillez sélectionner une méthode de paiement pour continuer</p>
-            <p className="text-sm">
-              Please select a payment method to continue
-            </p>
+        {(!stripe || !elements) && (
+          <div className="animate-pulse">
+            <div className="h-48 bg-gray-200 rounded-lg"></div>
           </div>
         )}
 
-        {/* Messages d'erreur globaux */}
         {error && (
           <div className="bg-red-50 border border-red-200 rounded-md p-4">
             <div className="flex items-center gap-2">
@@ -711,7 +399,60 @@ function CheckoutForm({
             <p className="text-sm text-red-700 mt-1">{error}</p>
           </div>
         )}
-      </div>
+
+        <button
+          type="submit"
+          disabled={!stripe || !elements || isLoading}
+          className="w-full py-4 px-6 bg-blue-600 text-white font-semibold rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 shadow-sm hover:shadow-md"
+        >
+          <div className="flex items-center justify-center gap-2">
+            {isLoading ? (
+              <>
+                <svg
+                  className="animate-spin h-5 w-5"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                >
+                  <circle
+                    className="opacity-25"
+                    cx="12"
+                    cy="12"
+                    r="10"
+                    stroke="currentColor"
+                    strokeWidth="4"
+                  ></circle>
+                  <path
+                    className="opacity-75"
+                    fill="currentColor"
+                    d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                  ></path>
+                </svg>
+                <span>Traitement du paiement... / Processing payment...</span>
+              </>
+            ) : (
+              <>
+                <svg
+                  className="w-5 h-5"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
+                  />
+                </svg>
+                <span>
+                  Payer {booking.amount} {booking.currency} / Pay{" "}
+                  {booking.amount} {booking.currency}
+                </span>
+              </>
+            )}
+          </div>
+        </button>
+      </form>
     </div>
   );
 }
@@ -809,7 +550,7 @@ export function PaymentFormMultiple(props: PaymentFormProps) {
         },
       }}
     >
-      <CheckoutForm booking={props.booking} clientSecret={clientSecret} />
+      <CheckoutForm booking={props.booking} />
     </Elements>
   );
 }

@@ -81,15 +81,105 @@ function StripePaymentFormContent({
         return;
       }
 
-      const { error: confirmError } = await stripe.confirmPayment({
-        elements,
-        confirmParams: {
-          return_url: `${window.location.origin}/${hotelSlug}/success?paymentIntent=${paymentIntentId}&type=classic_booking`,
-        },
-      });
+      // Récupérer les données de réservation depuis sessionStorage
+      const storedData = sessionStorage.getItem(`payment_${paymentIntentId}`);
+      if (!storedData) {
+        setError("Données de réservation manquantes");
+        setIsProcessing(false);
+        return;
+      }
 
-      if (confirmError) {
-        setError(confirmError.message || "Erreur lors du paiement");
+      const bookingData = JSON.parse(storedData);
+
+      // Fonction helper pour obtenir le code pays ISO à 2 lettres
+      const getCountryCode = (country: string): string => {
+        const countryMap: { [key: string]: string } = {
+          Suisse: "CH",
+          Switzerland: "CH",
+          France: "FR",
+          Allemagne: "DE",
+          Germany: "DE",
+          Italie: "IT",
+          Italy: "IT",
+          Autriche: "AT",
+          Austria: "AT",
+        };
+        return countryMap[country] || "CH"; // Default to CH if not found
+      };
+
+      // Préparer les billing_details complets pour TWINT
+      const billingDetails = {
+        name: `${bookingData.clientFirstName} ${bookingData.clientLastName}`,
+        email: bookingData.clientEmail,
+        phone: bookingData.clientPhone,
+        address: {
+          line1: bookingData.clientAddress || "",
+          line2: "",
+          postal_code: bookingData.clientPostalCode || "",
+          city: bookingData.clientCity || "",
+          state: "",
+          country: getCountryCode(bookingData.clientCountry || "Suisse"),
+        },
+      };
+
+      console.log("🔍 TWINT BILLING DETAILS:", billingDetails);
+
+      // APPROCHE DIRECTE: Créer le PaymentMethod via l'API Stripe directement
+      console.log("🔍 Création PaymentMethod TWINT directement via API");
+
+      try {
+        const response = await fetch("/api/stripe/create-payment-method", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            type: "twint",
+            billing_details: billingDetails,
+          }),
+        });
+
+        if (!response.ok) {
+          throw new Error("Erreur lors de la création du PaymentMethod");
+        }
+
+        const { paymentMethod } = await response.json();
+
+        console.log("✅ PaymentMethod TWINT créé via API:", {
+          id: paymentMethod.id,
+          type: paymentMethod.type,
+          billing_details: paymentMethod.billing_details,
+        });
+
+        // Maintenant, utiliser ce PaymentMethod pour confirmer
+        const { error: confirmError } = await stripe.confirmPayment({
+          elements,
+          confirmParams: {
+            return_url: `${window.location.origin}/${hotelSlug}/success?paymentIntent=${paymentIntentId}&type=classic_booking`,
+            payment_method: paymentMethod.id,
+          },
+          redirect: "if_required",
+        });
+
+        if (confirmError) {
+          console.error("🚨 PAYMENT ERROR:", {
+            type: confirmError.type,
+            code: confirmError.code,
+            message: confirmError.message,
+            payment_intent: confirmError.payment_intent,
+          });
+
+          // Messages d'erreur spécifiques
+          let errorMessage = confirmError.message || "Erreur de paiement";
+          if (confirmError.code === "payment_method_provider_decline") {
+            errorMessage =
+              "Paiement refusé par le fournisseur. Vérifiez vos informations et réessayez.";
+          }
+
+          setError(errorMessage);
+          setIsProcessing(false);
+        }
+      } catch (apiError) {
+        console.error("❌ Erreur API PaymentMethod:", apiError);
+        setError("Erreur lors de la création du mode de paiement");
         setIsProcessing(false);
       }
     } catch (err) {
