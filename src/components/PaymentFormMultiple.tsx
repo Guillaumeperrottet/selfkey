@@ -125,10 +125,10 @@ function CheckoutForm({ booking }: Pick<PaymentFormProps, "booking">) {
                 phone: booking.clientPhone,
                 address: {
                   line1: booking.clientAddress,
-                  line2: "", // Deuxième ligne d'adresse optionnelle
+                  line2: "",
                   postal_code: booking.clientPostalCode,
                   city: booking.clientCity,
-                  state: "", // Pas de champ state dans notre schéma, valeur vide acceptable
+                  state: "",
                   country: getCountryCode(booking.clientCountry),
                 },
               },
@@ -264,12 +264,7 @@ function CheckoutForm({ booking }: Pick<PaymentFormProps, "booking">) {
                     googlePay: "auto",
                   },
                   fields: {
-                    billingDetails: {
-                      name: "auto", // Permettre la saisie du nom
-                      email: "auto", // Permettre la saisie de l'email
-                      phone: "auto", // Permettre la saisie du téléphone
-                      address: "auto", // Permettre la saisie de l'adresse
-                    },
+                    billingDetails: "never", // On désactive les champs du PaymentElement
                   },
                   defaultValues: {
                     billingDetails: {
