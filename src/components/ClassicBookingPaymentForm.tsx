@@ -123,11 +123,35 @@ function StripePaymentFormContent({
         return countryMap[country] || "CH"; // Default to CH if not found
       };
 
+      // Fonction helper pour formater le téléphone pour TWINT
+      const formatPhoneForTwint = (phone: string): string => {
+        // Nettoyer le numéro (enlever espaces et caractères spéciaux)
+        const cleaned = phone.replace(/[\s\-\(\)]/g, "");
+
+        // Si commence par +41, le garder tel quel
+        if (cleaned.startsWith("+41")) {
+          return cleaned;
+        }
+
+        // Si commence par 0, remplacer par +41
+        if (cleaned.startsWith("0")) {
+          return "+41" + cleaned.substring(1);
+        }
+
+        // Si commence par 41, ajouter +
+        if (cleaned.startsWith("41")) {
+          return "+" + cleaned;
+        }
+
+        // Sinon, ajouter +41 devant
+        return "+41" + cleaned;
+      };
+
       // Préparer les billing_details complets pour TWINT
       const billingDetails = {
         name: `${bookingData.clientFirstName} ${bookingData.clientLastName}`,
         email: bookingData.clientEmail,
-        phone: bookingData.clientPhone,
+        phone: formatPhoneForTwint(bookingData.clientPhone),
         address: {
           line1: bookingData.clientAddress || "",
           line2: "",
@@ -139,6 +163,32 @@ function StripePaymentFormContent({
       };
 
       console.log("🔍 TWINT BILLING DETAILS:", billingDetails);
+      console.log("🔍 INFORMATIONS DE PAIEMENT:", {
+        amount: bookingData.amount,
+        currency: bookingData.currency,
+        paymentIntentId: bookingData.paymentIntentId,
+        clientSecret: bookingData.clientSecret,
+        touristTaxTotal: bookingData.touristTaxTotal,
+        pricingOptionsTotal: bookingData.pricingOptionsTotal,
+      });
+
+      // Note : Pour les très petits montants ou montants uniquement de taxe de séjour,
+      // TWINT peut refuser le paiement. TWINT est automatiquement exclu pour les montants < 5 CHF.
+      if (bookingData.amount < 500) {
+        console.warn(
+          "⚠️ MONTANT FAIBLE: TWINT exclu automatiquement, seules les cartes sont disponibles"
+        );
+      }
+
+      if (
+        bookingData.amount <= 500 &&
+        bookingData.touristTaxTotal &&
+        bookingData.touristTaxTotal >= bookingData.amount * 0.8
+      ) {
+        console.warn(
+          "⚠️ ATTENTION: Montant faible principalement composé de taxe de séjour"
+        );
+      }
 
       // APPROCHE DIRECTE: Créer le PaymentMethod via l'API Stripe directement
       console.log("🔍 Création PaymentMethod TWINT directement via API");
@@ -369,6 +419,11 @@ export function ClassicBookingPaymentForm({
   const options = {
     clientSecret: bookingData.clientSecret,
     appearance,
+    // Exclure TWINT pour les montants inférieurs à 5 CHF
+    paymentMethodCreation: "manual" as const,
+    ...(bookingData.amount < 500 && {
+      paymentMethodTypes: ["card"] as const,
+    }),
   };
 
   return (
@@ -431,6 +486,17 @@ export function ClassicBookingPaymentForm({
             </CardTitle>
           </CardHeader>
           <CardContent>
+            {bookingData.amount < 500 && (
+              <div className="mb-4 p-3 bg-blue-50 border border-blue-200 rounded-lg">
+                <div className="flex items-center gap-2 text-sm text-blue-800">
+                  <CreditCard className="h-4 w-4" />
+                  <span>
+                    Pour les montants inférieurs à 5 CHF, seuls les paiements
+                    par carte sont disponibles.
+                  </span>
+                </div>
+              </div>
+            )}
             <Elements stripe={stripePromise} options={options}>
               <StripePaymentFormContent
                 paymentIntentId={paymentIntentId}
