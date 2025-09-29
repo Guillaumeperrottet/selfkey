@@ -165,12 +165,14 @@ function StripePaymentFormContent({
           billing_details: paymentMethod.billing_details,
         });
 
-        // Maintenant, utiliser ce PaymentMethod pour confirmer
+        // Maintenant, attacher le PaymentMethod au PaymentIntent puis le confirmer
+        console.log("🔍 Attachement du PaymentMethod au PaymentIntent...");
+
         const { error: confirmError } = await stripe.confirmPayment({
-          elements,
+          clientSecret: bookingData.clientSecret,
           confirmParams: {
-            return_url: `${window.location.origin}/${hotelSlug}/success?paymentIntent=${paymentIntentId}&type=classic_booking`,
             payment_method: paymentMethod.id,
+            return_url: `${window.location.origin}/${hotelSlug}/success?paymentIntent=${paymentIntentId}&type=classic_booking`,
           },
           redirect: "if_required",
         });
