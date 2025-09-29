@@ -102,8 +102,16 @@ function CheckoutForm({ booking }: Pick<PaymentFormProps, "booking">) {
     setError("");
 
     try {
-      // Log des données avant confirmation pour diagnostic Twint
-      console.log("🔍 TWINT DEBUG - Données avant confirmation:", {
+      // Obtenir les données du PaymentElement pour détecter le type de paiement
+      const { error: submitError } = await elements.submit();
+      if (submitError) {
+        setError(submitError.message || "Erreur de validation du formulaire");
+        setIsLoading(false);
+        return;
+      }
+
+      // Log des données avant confirmation
+      console.log("🔍 PAYMENT DEBUG - Données avant confirmation:", {
         bookingId: booking.id,
         amount: booking.amount,
         currency: booking.currency,
@@ -112,45 +120,48 @@ function CheckoutForm({ booking }: Pick<PaymentFormProps, "booking">) {
         returnUrl: `${window.location.origin}/${booking.hotelSlug}/payment-return?booking=${booking.id}`,
       });
 
-      // Utiliser confirmPayment pour supporter TWINT et cartes
+      // Préparer les billing_details complets
+      const billingDetails = {
+        name: `${booking.clientFirstName} ${booking.clientLastName}`,
+        email: booking.clientEmail,
+        phone: booking.clientPhone,
+        address: {
+          line1: booking.clientAddress,
+          line2: "",
+          postal_code: booking.clientPostalCode,
+          city: booking.clientCity,
+          state: "",
+          country: getCountryCode(booking.clientCountry),
+        },
+      };
+
+      // Essayer d'abord confirmPayment pour tous les types
       const { error: stripeError, paymentIntent } = await stripe.confirmPayment(
         {
           elements,
           confirmParams: {
             return_url: `${window.location.origin}/${booking.hotelSlug}/payment-return?booking=${booking.id}`,
             payment_method_data: {
-              billing_details: {
-                name: `${booking.clientFirstName} ${booking.clientLastName}`,
-                email: booking.clientEmail,
-                phone: booking.clientPhone,
-                address: {
-                  line1: booking.clientAddress,
-                  line2: "",
-                  postal_code: booking.clientPostalCode,
-                  city: booking.clientCity,
-                  state: "",
-                  country: getCountryCode(booking.clientCountry),
-                },
-              },
+              billing_details: billingDetails,
             },
           },
-          redirect: "if_required", // Éviter les redirections inutiles pour les cartes
+          redirect: "if_required",
         }
       );
 
       if (stripeError) {
-        console.error("🚨 TWINT ERROR:", {
+        console.error("🚨 PAYMENT ERROR:", {
           type: stripeError.type,
           code: stripeError.code,
           message: stripeError.message,
           payment_intent: stripeError.payment_intent,
         });
 
-        // Messages d'erreur spécifiques à Twint
+        // Messages d'erreur spécifiques
         let errorMessage = stripeError.message || "Erreur de paiement";
         if (stripeError.code === "payment_method_provider_decline") {
           errorMessage =
-            "Paiement Twint refusé. Vérifiez votre application Twint et réessayez.";
+            "Paiement refusé par le fournisseur. Vérifiez vos informations et réessayez.";
         }
 
         setError(errorMessage);
@@ -168,11 +179,11 @@ function CheckoutForm({ booking }: Pick<PaymentFormProps, "booking">) {
 
         router.push(`/${booking.hotelSlug}/success?booking=${booking.id}`);
       } else if (paymentIntent?.status === "processing") {
-        // Paiement TWINT en cours - redirection automatique gérée par Stripe
-        console.log("Paiement TWINT en cours...");
+        // Paiement en cours - redirection automatique gérée par Stripe
+        console.log("Paiement en cours...");
       } else if (paymentIntent?.status === "requires_action") {
         // Redirection déjà effectuée par Stripe
-        console.log("Redirection effectuée pour TWINT");
+        console.log("Redirection effectuée");
       }
     } catch (error) {
       console.error("Erreur confirmation paiement:", error);
@@ -264,7 +275,19 @@ function CheckoutForm({ booking }: Pick<PaymentFormProps, "booking">) {
                     googlePay: "auto",
                   },
                   fields: {
-                    billingDetails: "never", // On désactive les champs du PaymentElement
+                    billingDetails: {
+                      name: "auto", // Laisser Stripe décider
+                      email: "auto",
+                      phone: "auto",
+                      address: {
+                        line1: "auto",
+                        line2: "never",
+                        city: "auto",
+                        state: "never",
+                        postalCode: "auto",
+                        country: "auto",
+                      },
+                    },
                   },
                   defaultValues: {
                     billingDetails: {
