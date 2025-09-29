@@ -167,11 +167,7 @@ export async function createPaymentIntentWithCommission(
       transfer_data: {
         destination: connectedAccountId, // L'argent va directement au propriétaire
       },
-      automatic_payment_methods: {
-        enabled: true,
-        allow_redirects: "always", // Nécessaire pour TWINT
-      },
-      payment_method_types: ["card", "twint"], // Spécifier explicitement TWINT
+      payment_method_types: ["card", "twint"], // Spécifier explicitement TWINT (remplace automatic_payment_methods)
       capture_method: "automatic_async",
       metadata: {
         integration_type: "direct_charge",
