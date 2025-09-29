@@ -185,7 +185,8 @@ function StripePaymentFormContent({
             billing_details: billingDetails,
           },
         },
-        // IMPORTANT: Retirer redirect: "if_required" pour permettre la redirection automatique vers TWINT
+        // TWINT nécessite une redirection vers l'app ou affichage du QR code
+        redirect: "always",
       });
 
       if (confirmError) {
