@@ -7,11 +7,12 @@
 
 const isProduction = process.env.NODE_ENV === "production";
 const forceTestMode = process.env.STRIPE_FORCE_TEST_MODE === "true";
+const forceLiveMode = process.env.STRIPE_FORCE_TEST_MODE === "false";
 
 // Utiliser les clés test si:
-// - On force le mode test OU
-// - On est en développement (pas en production)
-const useTestKeys = forceTestMode || !isProduction;
+// - On force le mode test
+// - On n'est pas en production ET on ne force pas le mode live
+const useTestKeys = forceTestMode || (!isProduction && !forceLiveMode);
 
 export const stripeConfig = {
   // Clés serveur (backend)
