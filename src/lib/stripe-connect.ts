@@ -188,10 +188,11 @@ export async function createPaymentIntentWithCommission(
       transfer_data: {
         destination: connectedAccountId, // L'argent va directement au propriétaire
       },
+      on_behalf_of: connectedAccountId, // Faire du compte connecté le business of record
       payment_method_types: ["card", "twint"], // Spécifier explicitement TWINT (remplace automatic_payment_methods)
       capture_method: "automatic_async",
       metadata: {
-        integration_type: "direct_charge",
+        integration_type: "destination_charge_with_on_behalf_of",
         platform: "selfkey_hotels",
         twint_enabled: "true", // Flag pour identifier les paiements Twint
         ...(metadata || {}),
