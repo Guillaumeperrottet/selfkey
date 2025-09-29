@@ -23,6 +23,10 @@ interface ClassicBookingData {
   clientLastName: string;
   clientEmail: string;
   clientPhone: string;
+  clientAddress: string;
+  clientPostalCode: string;
+  clientCity: string;
+  clientCountry: string;
   clientVehicleNumber: string;
   selectedDuration: string;
   amount: number;
