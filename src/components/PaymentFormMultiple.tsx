@@ -102,18 +102,21 @@ function CheckoutForm({
     useState<PaymentMethod | null>(null);
 
   // Log de debug pour confirmer que le nouveau code se charge
-  console.log("🆕 NOUVELLE INTERFACE CHARGÉE - Version avec sélecteur de méthodes");
+  console.log(
+    "🆕 NOUVELLE INTERFACE CHARGÉE - Version avec sélecteur de méthodes"
+  );
   console.log("🔍 État selectedPaymentMethod actuel:", selectedPaymentMethod);
 
   // Fonction pour traiter le paiement TWINT directement
   const handleTwintPayment = async () => {
     console.log("�🚨🚨 FONCTION TWINT APPELÉE !!! 🚨🚨🚨");
     console.log("�💰 TWINT PAYMENT - Début du processus TWINT direct");
-    
+
     if (!stripe) {
       console.log("❌ TWINT PAYMENT - Stripe manquant");
       return;
-    }    setIsLoading(true);
+    }
+    setIsLoading(true);
     setError("");
 
     try {
