@@ -46,7 +46,7 @@ export async function createConnectedAccount(
   }
 }
 
-// Helper pour convertir le nom du pays en code ISO 3166-1 alpha-2
+// Helper pour convertir le nom du pays en code ISO
 function getCountryCode(countryName?: string): string {
   if (!countryName) return "CH"; // Default pour la Suisse
 
@@ -68,27 +68,9 @@ function getCountryCode(countryName?: string): string {
     Netherlands: "NL",
     Luxembourg: "LU",
     Portugal: "PT",
-    "Royaume-Uni": "GB",
-    "United Kingdom": "GB",
-    "États-Unis": "US",
-    "United States": "US",
   };
 
-  // Si on trouve une correspondance exacte, l'utiliser
-  if (countryMap[countryName]) {
-    return countryMap[countryName];
-  }
-
-  // Sinon, essayer une correspondance insensible à la casse
-  const lowerCountryName = countryName.toLowerCase();
-  for (const [key, value] of Object.entries(countryMap)) {
-    if (key.toLowerCase() === lowerCountryName) {
-      return value;
-    }
-  }
-
-  // En dernier recours, prendre les 2 premières lettres en majuscules
-  return countryName.toUpperCase().substring(0, 2);
+  return countryMap[countryName] || countryName.toUpperCase().substring(0, 2);
 }
 
 export async function createPaymentIntentWithCommission(
@@ -140,19 +122,11 @@ export async function createPaymentIntentWithCommission(
       metadata,
     });
 
-    // Créer un Customer Stripe si on a les données client (REQUIS pour Twint)
+    // Créer un Customer Stripe si on a les données client (nécessaire pour Twint)
     let customerId = undefined;
-
-    // Construire le nom client à partir des métadonnées
-    const clientName =
-      metadata?.client_name ||
-      (metadata?.client_first_name && metadata?.client_last_name
-        ? `${metadata.client_first_name} ${metadata.client_last_name}`
-        : undefined);
-
-    if (metadata?.client_email && clientName) {
+    if (metadata?.client_email && metadata?.client_name) {
       try {
-        // Vérifier d'abord si le customer existe déjà
+        // Vérifier d'abord si un customer existe déjà avec cet email
         const existingCustomers = await stripe.customers.list({
           email: metadata.client_email,
           limit: 1,
@@ -160,30 +134,10 @@ export async function createPaymentIntentWithCommission(
 
         if (existingCustomers.data.length > 0) {
           customerId = existingCustomers.data[0].id;
-          console.log(
-            "✅ Customer Stripe existant trouvé pour Twint:",
-            customerId
-          );
-
-          // Mettre à jour les informations si nécessaire
-          await stripe.customers.update(customerId, {
-            name: clientName,
-            phone: metadata.client_phone,
-            address: {
-              line1: metadata.client_address,
-              city: metadata.client_city,
-              postal_code: metadata.client_postal_code,
-              country: getCountryCode(metadata.client_country),
-            },
-            metadata: {
-              booking_id: metadata.booking_id,
-              hotel_slug: metadata.hotel_slug,
-            },
-          });
+          console.log("✅ Customer Stripe existant trouvé:", customerId);
         } else {
-          // Créer un nouveau customer
           const customer = await stripe.customers.create({
-            name: clientName,
+            name: metadata.client_name,
             email: metadata.client_email,
             phone: metadata.client_phone,
             address: {
@@ -198,74 +152,29 @@ export async function createPaymentIntentWithCommission(
             },
           });
           customerId = customer.id;
-          console.log(
-            "✅ Nouveau Customer Stripe créé pour Twint:",
-            customerId
-          );
+          console.log("✅ Customer Stripe créé pour Twint:", customerId);
         }
       } catch (customerError) {
-        console.error(
-          "❌ Erreur création/mise à jour customer:",
-          customerError
-        );
-        // Ne pas faire échouer le PaymentIntent si le customer n'est pas créé
+        console.warn("⚠️ Impossible de créer le customer:", customerError);
       }
-    } else {
-      console.warn(
-        "⚠️ Informations client manquantes pour créer le Customer Stripe requis pour TWINT"
-      );
-      console.warn("Données manquantes:", {
-        hasEmail: !!metadata?.client_email,
-        hasName: !!clientName,
-        hasClientFirstName: !!metadata?.client_first_name,
-        hasClientLastName: !!metadata?.client_last_name,
-        hasPhone: !!metadata?.client_phone,
-        hasAddress: !!metadata?.client_address,
-        hasCity: !!metadata?.client_city,
-        hasPostalCode: !!metadata?.client_postal_code,
-        hasCountry: !!metadata?.client_country,
-        constructedName: clientName,
-      });
     }
-
-    // Validation spéciale pour TWINT
-    const isSwissCustomer = getCountryCode(metadata?.client_country) === "CH";
-    if (!isSwissCustomer) {
-      console.warn(
-        "⚠️ Client non-suisse détecté. TWINT peut ne pas fonctionner."
-      );
-    }
-
-    console.log("💳 Validation TWINT:", {
-      hasCustomer: !!customerId,
-      isSwissCustomer,
-      clientCountry: metadata?.client_country,
-      countryCode: getCountryCode(metadata?.client_country),
-    });
 
     const paymentIntent = await stripe.paymentIntents.create({
       amount: amountRappen, // Montant déjà en centimes
       currency: currency.toLowerCase(),
       application_fee_amount: totalCommissionRappen, // Commission déjà en centimes
-      customer: customerId, // REQUIS pour Twint - Associer le customer
+      customer: customerId, // Associer le customer pour Twint
       transfer_data: {
         destination: connectedAccountId, // L'argent va directement au propriétaire
       },
       automatic_payment_methods: {
         enabled: true,
-        allow_redirects: "always", // REQUIS pour TWINT
+        allow_redirects: "always", // Nécessaire pour TWINT
       },
-      // Configuration spécifique pour TWINT
-      payment_method_configuration: "pmc_1RdAvWA99kUqhk9kpgz6mOa5", // ID de votre configuration
-      setup_future_usage: undefined, // Pas de setup pour TWINT
-      receipt_email: metadata?.client_email, // Email pour le reçu
-      description: `Réservation ${metadata?.booking_id} - ${metadata?.hotel_slug}`,
-      statement_descriptor_suffix: "SELFKEY", // Compatible avec cartes et TWINT (max 10 chars)
       metadata: {
         integration_type: "direct_charge",
         platform: "selfkey_hotels",
         twint_enabled: "true", // Flag pour identifier les paiements Twint
-        customer_country: getCountryCode(metadata?.client_country),
         ...(metadata || {}),
       },
     });

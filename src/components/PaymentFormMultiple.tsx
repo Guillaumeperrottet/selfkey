@@ -9,7 +9,6 @@ import {
   useStripe,
   useElements,
 } from "@stripe/react-stripe-js";
-import { TwintDiagnostic } from "./TwintDiagnostic";
 
 interface Booking {
   id: string;
@@ -55,6 +54,35 @@ interface PaymentFormProps {
   room: Room | null; // Peut être null pour le parking jour
 }
 
+// Fonction utilitaire pour convertir le nom du pays en code ISO 3166-1 alpha-2
+const getCountryCode = (countryName: string): string => {
+  const countryMap: { [key: string]: string } = {
+    Suisse: "CH",
+    Switzerland: "CH",
+    France: "FR",
+    Allemagne: "DE",
+    Germany: "DE",
+    Italie: "IT",
+    Italy: "IT",
+    Autriche: "AT",
+    Austria: "AT",
+    Espagne: "ES",
+    Spain: "ES",
+    Belgique: "BE",
+    Belgium: "BE",
+    "Pays-Bas": "NL",
+    Netherlands: "NL",
+    Luxembourg: "LU",
+    Portugal: "PT",
+    "Royaume-Uni": "GB",
+    "United Kingdom": "GB",
+    "États-Unis": "US",
+    "United States": "US",
+  };
+
+  return countryMap[countryName] || countryName.toUpperCase();
+};
+
 // Composant interne pour le formulaire Stripe avec support TWINT
 function CheckoutForm({ booking }: Pick<PaymentFormProps, "booking">) {
   const stripe = useStripe();
@@ -74,35 +102,6 @@ function CheckoutForm({ booking }: Pick<PaymentFormProps, "booking">) {
     setError("");
 
     try {
-      // Convertir le nom du pays en code ISO 3166-1 alpha-2
-      const getCountryCode = (countryName: string): string => {
-        const countryMap: { [key: string]: string } = {
-          Suisse: "CH",
-          Switzerland: "CH",
-          France: "FR",
-          Allemagne: "DE",
-          Germany: "DE",
-          Italie: "IT",
-          Italy: "IT",
-          Autriche: "AT",
-          Austria: "AT",
-          Espagne: "ES",
-          Spain: "ES",
-          Belgique: "BE",
-          Belgium: "BE",
-          "Pays-Bas": "NL",
-          Netherlands: "NL",
-          Luxembourg: "LU",
-          Portugal: "PT",
-          "Royaume-Uni": "GB",
-          "United Kingdom": "GB",
-          "États-Unis": "US",
-          "United States": "US",
-        };
-
-        return countryMap[countryName] || countryName.toUpperCase();
-      };
-
       // Log des données avant confirmation pour diagnostic Twint
       console.log("🔍 TWINT DEBUG - Données avant confirmation:", {
         bookingId: booking.id,
@@ -110,23 +109,7 @@ function CheckoutForm({ booking }: Pick<PaymentFormProps, "booking">) {
         currency: booking.currency,
         clientCountry: booking.clientCountry,
         clientEmail: booking.clientEmail,
-        clientName: `${booking.clientFirstName} ${booking.clientLastName}`,
-        clientPhone: booking.clientPhone,
-        clientAddress: booking.clientAddress,
-        clientCity: booking.clientCity,
-        clientPostalCode: booking.clientPostalCode,
-        countryCode: getCountryCode(booking.clientCountry),
         returnUrl: `${window.location.origin}/${booking.hotelSlug}/payment-return?booking=${booking.id}`,
-        hasAllRequiredFields: !!(
-          booking.clientFirstName &&
-          booking.clientLastName &&
-          booking.clientEmail &&
-          booking.clientPhone &&
-          booking.clientAddress &&
-          booking.clientCity &&
-          booking.clientPostalCode &&
-          booking.clientCountry
-        ),
       });
 
       // Utiliser confirmPayment pour supporter TWINT et cartes
@@ -167,19 +150,7 @@ function CheckoutForm({ booking }: Pick<PaymentFormProps, "booking">) {
         let errorMessage = stripeError.message || "Erreur de paiement";
         if (stripeError.code === "payment_method_provider_decline") {
           errorMessage =
-            "Paiement TWINT refusé. Vérifications à effectuer :\n" +
-            "1. Votre application TWINT est-elle installée et configurée ?\n" +
-            "2. Avez-vous une adresse suisse valide ?\n" +
-            "3. Votre numéro de téléphone est-il suisse ?\n" +
-            "4. Avez-vous suffisamment de fonds ?";
-        } else if (
-          stripeError.code === "payment_intent_authentication_failure"
-        ) {
-          errorMessage =
-            "Échec de l'authentification TWINT. Vérifiez votre application TWINT.";
-        } else if (stripeError.code === "card_declined") {
-          errorMessage =
-            "Paiement refusé. Essayez avec une autre méthode de paiement.";
+            "Paiement Twint refusé. Vérifiez votre application Twint et réessayez.";
         }
 
         setError(errorMessage);
@@ -294,14 +265,22 @@ function CheckoutForm({ booking }: Pick<PaymentFormProps, "booking">) {
                   },
                   fields: {
                     billingDetails: {
-                      name: "auto", // Requis pour TWINT
-                      email: "auto", // Requis pour TWINT
-                      phone: "auto", // Requis pour TWINT
+                      name: "auto", // Permettre la saisie du nom
+                      email: "auto", // Permettre la saisie de l'email
+                      phone: "auto", // Permettre la saisie du téléphone
+                      address: "auto", // Permettre la saisie de l'adresse
+                    },
+                  },
+                  defaultValues: {
+                    billingDetails: {
+                      name: `${booking.clientFirstName} ${booking.clientLastName}`,
+                      email: booking.clientEmail,
+                      phone: booking.clientPhone,
                       address: {
-                        country: "auto", // Requis pour TWINT
-                        postalCode: "auto", // Requis pour TWINT
-                        city: "auto", // Requis pour TWINT
-                        line1: "auto", // Requis pour TWINT
+                        line1: booking.clientAddress,
+                        postal_code: booking.clientPostalCode,
+                        city: booking.clientCity,
+                        country: getCountryCode(booking.clientCountry),
                       },
                     },
                   },
@@ -402,11 +381,6 @@ function CheckoutForm({ booking }: Pick<PaymentFormProps, "booking">) {
             )}
           </div>
         </button>
-
-        {/* Diagnostic TWINT en mode développement */}
-        {process.env.NODE_ENV === "development" && (
-          <TwintDiagnostic booking={booking} />
-        )}
       </form>
     </div>
   );

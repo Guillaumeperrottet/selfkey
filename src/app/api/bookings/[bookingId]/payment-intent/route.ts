@@ -58,8 +58,6 @@ export async function GET(request: NextRequest, { params }: Props) {
     const clientMetadata = {
       booking_id: booking.id,
       client_name: `${booking.clientFirstName} ${booking.clientLastName}`,
-      client_first_name: booking.clientFirstName,
-      client_last_name: booking.clientLastName,
       client_email: booking.clientEmail,
       client_phone: booking.clientPhone,
       client_address: booking.clientAddress,
