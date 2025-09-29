@@ -86,9 +86,9 @@ const getCountryCode = (countryName: string): string => {
 };
 
 // Composant interne pour le formulaire Stripe avec support TWINT
-function CheckoutForm({ 
-  booking, 
-  clientSecret 
+function CheckoutForm({
+  booking,
+  clientSecret,
 }: Pick<PaymentFormProps, "booking"> & { clientSecret: string }) {
   const stripe = useStripe();
   const elements = useElements();
@@ -96,9 +96,7 @@ function CheckoutForm({
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string>("");
 
-  const handleSubmit = async (event: React.FormEvent) => {
-    event.preventDefault();
-
+  const handleSubmit = async () => {
     if (!stripe || !elements) {
       return;
     }
@@ -405,7 +403,8 @@ function CheckoutForm({
         )}
 
         <button
-          type="submit"
+          type="button"
+          onClick={handleSubmit}
           disabled={!stripe || !elements || isLoading}
           className="w-full py-4 px-6 bg-blue-600 text-white font-semibold rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 shadow-sm hover:shadow-md"
         >
