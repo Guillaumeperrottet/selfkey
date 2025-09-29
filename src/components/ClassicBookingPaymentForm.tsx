@@ -172,24 +172,6 @@ function StripePaymentFormContent({
         pricingOptionsTotal: bookingData.pricingOptionsTotal,
       });
 
-      // Note : Pour les très petits montants ou montants uniquement de taxe de séjour,
-      // TWINT peut refuser le paiement. TWINT est automatiquement exclu pour les montants < 5 CHF.
-      if (bookingData.amount < 500) {
-        console.warn(
-          "⚠️ MONTANT FAIBLE: TWINT exclu automatiquement, seules les cartes sont disponibles"
-        );
-      }
-
-      if (
-        bookingData.amount <= 500 &&
-        bookingData.touristTaxTotal &&
-        bookingData.touristTaxTotal >= bookingData.amount * 0.8
-      ) {
-        console.warn(
-          "⚠️ ATTENTION: Montant faible principalement composé de taxe de séjour"
-        );
-      }
-
       // APPROCHE DIRECTE: Créer le PaymentMethod via l'API Stripe directement
       console.log("🔍 Création PaymentMethod TWINT directement via API");
 
@@ -419,11 +401,6 @@ export function ClassicBookingPaymentForm({
   const options = {
     clientSecret: bookingData.clientSecret,
     appearance,
-    // Exclure TWINT pour les montants inférieurs à 5 CHF
-    paymentMethodCreation: "manual" as const,
-    ...(bookingData.amount < 500 && {
-      paymentMethodTypes: ["card"] as const,
-    }),
   };
 
   return (
@@ -486,17 +463,6 @@ export function ClassicBookingPaymentForm({
             </CardTitle>
           </CardHeader>
           <CardContent>
-            {bookingData.amount < 500 && (
-              <div className="mb-4 p-3 bg-blue-50 border border-blue-200 rounded-lg">
-                <div className="flex items-center gap-2 text-sm text-blue-800">
-                  <CreditCard className="h-4 w-4" />
-                  <span>
-                    Pour les montants inférieurs à 5 CHF, seuls les paiements
-                    par carte sont disponibles.
-                  </span>
-                </div>
-              </div>
-            )}
             <Elements stripe={stripePromise} options={options}>
               <StripePaymentFormContent
                 paymentIntentId={paymentIntentId}
