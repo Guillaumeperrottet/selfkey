@@ -87,6 +87,14 @@ export async function createPaymentIntentWithCommission(
       );
     }
 
+    console.log("💳 Création PaymentIntent avec commission:", {
+      amount: amountRappen,
+      currency: currency.toLowerCase(),
+      connectedAccountId,
+      commission: totalCommissionRappen,
+      metadata,
+    });
+
     const paymentIntent = await stripe.paymentIntents.create({
       amount: amountRappen, // Montant déjà en centimes
       currency: currency.toLowerCase(),
@@ -101,8 +109,15 @@ export async function createPaymentIntentWithCommission(
       metadata: {
         integration_type: "direct_charge",
         platform: "selfkey_hotels",
+        twint_enabled: "true", // Flag pour identifier les paiements Twint
         ...(metadata || {}),
       },
+    });
+
+    console.log("✅ PaymentIntent créé:", {
+      id: paymentIntent.id,
+      status: paymentIntent.status,
+      supportedMethods: paymentIntent.payment_method_types,
     });
 
     return paymentIntent;

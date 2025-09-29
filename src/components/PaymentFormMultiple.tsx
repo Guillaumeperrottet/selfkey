@@ -102,6 +102,16 @@ function CheckoutForm({ booking }: Pick<PaymentFormProps, "booking">) {
         return countryMap[countryName] || countryName.toUpperCase();
       };
 
+      // Log des données avant confirmation pour diagnostic Twint
+      console.log("🔍 TWINT DEBUG - Données avant confirmation:", {
+        bookingId: booking.id,
+        amount: booking.amount,
+        currency: booking.currency,
+        clientCountry: booking.clientCountry,
+        clientEmail: booking.clientEmail,
+        returnUrl: `${window.location.origin}/${booking.hotelSlug}/payment-return?booking=${booking.id}`,
+      });
+
       // Utiliser confirmPayment pour supporter TWINT et cartes
       const { error: stripeError, paymentIntent } = await stripe.confirmPayment(
         {
@@ -129,7 +139,21 @@ function CheckoutForm({ booking }: Pick<PaymentFormProps, "booking">) {
       );
 
       if (stripeError) {
-        setError(stripeError.message || "Erreur de paiement");
+        console.error("🚨 TWINT ERROR:", {
+          type: stripeError.type,
+          code: stripeError.code,
+          message: stripeError.message,
+          payment_intent: stripeError.payment_intent,
+        });
+
+        // Messages d'erreur spécifiques à Twint
+        let errorMessage = stripeError.message || "Erreur de paiement";
+        if (stripeError.code === "payment_method_provider_decline") {
+          errorMessage =
+            "Paiement Twint refusé. Vérifiez votre application Twint et réessayez.";
+        }
+
+        setError(errorMessage);
         setIsLoading(false);
       } else if (paymentIntent?.status === "succeeded") {
         // Paiement réussi immédiatement (cartes)
