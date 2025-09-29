@@ -76,66 +76,30 @@ function CheckoutForm({ booking }: Pick<PaymentFormProps, "booking">) {
       // Convertir le nom du pays en code ISO 3166-1 alpha-2
       const getCountryCode = (countryName: string): string => {
         const countryMap: { [key: string]: string } = {
-          // Français
           Suisse: "CH",
+          Switzerland: "CH",
           France: "FR",
           Allemagne: "DE",
+          Germany: "DE",
           Italie: "IT",
+          Italy: "IT",
           Autriche: "AT",
+          Austria: "AT",
           Espagne: "ES",
+          Spain: "ES",
           Belgique: "BE",
+          Belgium: "BE",
           "Pays-Bas": "NL",
+          Netherlands: "NL",
           Luxembourg: "LU",
           Portugal: "PT",
           "Royaume-Uni": "GB",
-          "États-Unis": "US",
-          Canada: "CA",
-
-          // Anglais
-          Switzerland: "CH",
-          Germany: "DE",
-          Italy: "IT",
-          Austria: "AT",
-          Spain: "ES",
-          Belgium: "BE",
-          Netherlands: "NL",
           "United Kingdom": "GB",
+          "États-Unis": "US",
           "United States": "US",
-
-          // Codes ISO déjà corrects
-          CH: "CH",
-          FR: "FR",
-          DE: "DE",
-          IT: "IT",
-          AT: "AT",
-          ES: "ES",
-          BE: "BE",
-          NL: "NL",
-          LU: "LU",
-          PT: "PT",
-          GB: "GB",
-          US: "US",
-          CA: "CA",
         };
 
-        // Chercher exactement le nom du pays d'abord
-        if (countryMap[countryName]) {
-          return countryMap[countryName];
-        }
-
-        // Si pas trouvé, chercher en ignorant la casse
-        const lowerCountryName = countryName.toLowerCase();
-        for (const [key, value] of Object.entries(countryMap)) {
-          if (key.toLowerCase() === lowerCountryName) {
-            return value;
-          }
-        }
-
-        // Fallback: retourner CH par défaut pour TWINT
-        console.warn(
-          `Code pays non reconnu pour TWINT: ${countryName}, utilisation de CH par défaut`
-        );
-        return "CH";
+        return countryMap[countryName] || countryName.toUpperCase();
       };
 
       // Log des données avant confirmation pour diagnostic Twint
@@ -144,38 +108,9 @@ function CheckoutForm({ booking }: Pick<PaymentFormProps, "booking">) {
         amount: booking.amount,
         currency: booking.currency,
         clientCountry: booking.clientCountry,
-        clientCountryCode: getCountryCode(booking.clientCountry),
         clientEmail: booking.clientEmail,
-        clientName: `${booking.clientFirstName} ${booking.clientLastName}`,
         returnUrl: `${window.location.origin}/${booking.hotelSlug}/payment-return?booking=${booking.id}`,
       });
-
-      // Valider les données client pour TWINT
-      const clientName =
-        `${booking.clientFirstName} ${booking.clientLastName}`.trim();
-      const clientEmail = booking.clientEmail?.trim();
-      const clientPhone = booking.clientPhone?.trim();
-      const clientAddress = booking.clientAddress?.trim();
-      const clientCity = booking.clientCity?.trim();
-      const clientPostalCode = booking.clientPostalCode?.trim();
-      const clientCountryCode = getCountryCode(booking.clientCountry);
-
-      // Validation minimum pour TWINT
-      if (!clientName || !clientEmail) {
-        setError("Nom et email requis pour le paiement TWINT");
-        setIsLoading(false);
-        return;
-      }
-
-      if (
-        clientCountryCode !== "CH" &&
-        booking.currency.toUpperCase() !== "CHF"
-      ) {
-        console.warn("⚠️ TWINT: Paiement non-suisse détecté", {
-          country: clientCountryCode,
-          currency: booking.currency,
-        });
-      }
 
       // Utiliser confirmPayment pour supporter TWINT et cartes
       const { error: stripeError, paymentIntent } = await stripe.confirmPayment(
@@ -185,16 +120,16 @@ function CheckoutForm({ booking }: Pick<PaymentFormProps, "booking">) {
             return_url: `${window.location.origin}/${booking.hotelSlug}/payment-return?booking=${booking.id}`,
             payment_method_data: {
               billing_details: {
-                name: clientName,
-                email: clientEmail,
-                phone: clientPhone || undefined, // undefined si vide
+                name: `${booking.clientFirstName} ${booking.clientLastName}`,
+                email: booking.clientEmail,
+                phone: booking.clientPhone,
                 address: {
-                  line1: clientAddress || undefined,
-                  line2: undefined, // Pas de deuxième ligne
-                  postal_code: clientPostalCode || undefined,
-                  city: clientCity || undefined,
-                  state: undefined, // Pas de state en Suisse
-                  country: clientCountryCode,
+                  line1: booking.clientAddress,
+                  line2: "", // Deuxième ligne d'adresse optionnelle
+                  postal_code: booking.clientPostalCode,
+                  city: booking.clientCity,
+                  state: "", // Pas de champ state dans notre schéma, valeur vide acceptable
+                  country: getCountryCode(booking.clientCountry),
                 },
               },
             },
@@ -209,43 +144,13 @@ function CheckoutForm({ booking }: Pick<PaymentFormProps, "booking">) {
           code: stripeError.code,
           message: stripeError.message,
           payment_intent: stripeError.payment_intent,
-          decline_code: stripeError.decline_code,
         });
 
         // Messages d'erreur spécifiques à Twint
         let errorMessage = stripeError.message || "Erreur de paiement";
-
         if (stripeError.code === "payment_method_provider_decline") {
           errorMessage =
-            "Paiement TWINT refusé. Vérifiez votre application TWINT et réessayez, ou utilisez une autre méthode de paiement.";
-        } else if (
-          stripeError.code === "payment_intent_authentication_failure"
-        ) {
-          errorMessage =
-            "Authentification TWINT échouée. Veuillez réessayer ou utiliser une autre méthode de paiement.";
-        } else if (
-          stripeError.code === "card_declined" &&
-          stripeError.decline_code
-        ) {
-          switch (stripeError.decline_code) {
-            case "insufficient_funds":
-              errorMessage = "Fonds insuffisants sur votre compte TWINT.";
-              break;
-            case "do_not_honor":
-              errorMessage = "Paiement TWINT refusé par votre banque.";
-              break;
-            case "transaction_not_allowed":
-              errorMessage = "Transaction TWINT non autorisée.";
-              break;
-            default:
-              errorMessage = `Paiement TWINT refusé (${stripeError.decline_code}). Veuillez réessayer.`;
-          }
-        } else if (stripeError.message?.includes("billing_details")) {
-          errorMessage =
-            "Informations de facturation incomplètes pour TWINT. Veuillez vérifier vos données.";
-        } else if (stripeError.message?.includes("twint")) {
-          errorMessage =
-            "Erreur TWINT. Veuillez vérifier votre application TWINT ou utiliser une autre méthode de paiement.";
+            "Paiement Twint refusé. Vérifiez votre application Twint et réessayez.";
         }
 
         setError(errorMessage);
@@ -360,10 +265,15 @@ function CheckoutForm({ booking }: Pick<PaymentFormProps, "booking">) {
                   },
                   fields: {
                     billingDetails: {
-                      name: "never",
-                      email: "never",
-                      phone: "never",
-                      address: "never",
+                      name: "auto", // Requis pour TWINT
+                      email: "auto", // Requis pour TWINT
+                      phone: "auto", // Requis pour TWINT
+                      address: {
+                        country: "auto", // Requis pour TWINT
+                        postalCode: "auto", // Requis pour TWINT
+                        city: "auto", // Requis pour TWINT
+                        line1: "auto", // Requis pour TWINT
+                      },
                     },
                   },
                 }}

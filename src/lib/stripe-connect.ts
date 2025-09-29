@@ -51,102 +51,26 @@ function getCountryCode(countryName?: string): string {
   if (!countryName) return "CH"; // Default pour la Suisse
 
   const countryMap: { [key: string]: string } = {
-    // Français
     Suisse: "CH",
+    Switzerland: "CH",
     France: "FR",
     Allemagne: "DE",
+    Germany: "DE",
     Italie: "IT",
+    Italy: "IT",
     Autriche: "AT",
+    Austria: "AT",
     Espagne: "ES",
+    Spain: "ES",
     Belgique: "BE",
+    Belgium: "BE",
     "Pays-Bas": "NL",
+    Netherlands: "NL",
     Luxembourg: "LU",
     Portugal: "PT",
-    "Royaume-Uni": "GB",
-    "États-Unis": "US",
-    Canada: "CA",
-    Norvège: "NO",
-    Suède: "SE",
-    Danemark: "DK",
-    Finlande: "FI",
-    Pologne: "PL",
-    "République Tchèque": "CZ",
-    Hongrie: "HU",
-    Slovaquie: "SK",
-    Slovénie: "SI",
-    Croatie: "HR",
-
-    // Anglais
-    Switzerland: "CH",
-    Germany: "DE",
-    Italy: "IT",
-    Austria: "AT",
-    Spain: "ES",
-    Belgium: "BE",
-    Netherlands: "NL",
-    "United Kingdom": "GB",
-    "United States": "US",
-    Norway: "NO",
-    Sweden: "SE",
-    Denmark: "DK",
-    Finland: "FI",
-    Poland: "PL",
-    "Czech Republic": "CZ",
-    Hungary: "HU",
-    Slovakia: "SK",
-    Slovenia: "SI",
-    Croatia: "HR",
-
-    // Codes ISO déjà corrects
-    CH: "CH",
-    FR: "FR",
-    DE: "DE",
-    IT: "IT",
-    AT: "AT",
-    ES: "ES",
-    BE: "BE",
-    NL: "NL",
-    LU: "LU",
-    PT: "PT",
-    GB: "GB",
-    US: "US",
-    CA: "CA",
-    NO: "NO",
-    SE: "SE",
-    DK: "DK",
-    FI: "FI",
-    PL: "PL",
-    CZ: "CZ",
-    HU: "HU",
-    SK: "SK",
-    SI: "SI",
-    HR: "HR",
   };
 
-  // Chercher exactement le nom du pays d'abord
-  if (countryMap[countryName]) {
-    return countryMap[countryName];
-  }
-
-  // Si pas trouvé, chercher en ignorant la casse
-  const lowerCountryName = countryName.toLowerCase();
-  for (const [key, value] of Object.entries(countryMap)) {
-    if (key.toLowerCase() === lowerCountryName) {
-      return value;
-    }
-  }
-
-  // Fallback: retourner les 2 premiers caractères en majuscules si c'est déjà un code ISO
-  const upperCountryName = countryName.toUpperCase();
-  if (upperCountryName.length === 2 && /^[A-Z]{2}$/.test(upperCountryName)) {
-    return upperCountryName;
-  }
-
-  // Dernier recours: retourner CH par défaut
-  console.warn(
-    `Code pays non reconnu: ${countryName}, utilisation de CH par défaut`
-  );
-  return "CH";
+  return countryMap[countryName] || countryName.toUpperCase().substring(0, 2);
 }
 
 export async function createPaymentIntentWithCommission(
@@ -202,49 +126,25 @@ export async function createPaymentIntentWithCommission(
     let customerId = undefined;
     if (metadata?.client_email && metadata?.client_name) {
       try {
-        // Validation et nettoyage des données client pour TWINT
-        const clientAddress = metadata.client_address?.trim() || "";
-        const clientCity = metadata.client_city?.trim() || "";
-        const clientPostalCode = metadata.client_postal_code?.trim() || "";
-        const clientCountry = getCountryCode(metadata.client_country);
-        const clientPhone = metadata.client_phone?.trim() || "";
-
-        console.log("🔍 TWINT Customer data validation:", {
+        const customer = await stripe.customers.create({
           name: metadata.client_name,
           email: metadata.client_email,
-          phone: clientPhone,
-          address: clientAddress,
-          city: clientCity,
-          postal_code: clientPostalCode,
-          country: clientCountry,
-        });
-
-        const customer = await stripe.customers.create({
-          name: metadata.client_name.trim(),
-          email: metadata.client_email.trim(),
-          phone: clientPhone || undefined, // undefined si vide
+          phone: metadata.client_phone,
           address: {
-            line1: clientAddress || undefined,
-            city: clientCity || undefined,
-            postal_code: clientPostalCode || undefined,
-            country: clientCountry,
+            line1: metadata.client_address,
+            city: metadata.client_city,
+            postal_code: metadata.client_postal_code,
+            country: getCountryCode(metadata.client_country),
           },
           metadata: {
             booking_id: metadata.booking_id,
             hotel_slug: metadata.hotel_slug,
-            integration_source: "selfkey_twint",
           },
         });
         customerId = customer.id;
-        console.log("✅ Customer Stripe créé pour Twint:", {
-          customerId,
-          name: metadata.client_name,
-          country: clientCountry,
-        });
+        console.log("✅ Customer Stripe créé pour Twint:", customerId);
       } catch (customerError) {
-        console.error("⚠️ Erreur création customer pour TWINT:", customerError);
-        // Ne pas faire échouer le PaymentIntent si la création du customer échoue
-        // TWINT peut fonctionner sans customer, mais c'est moins optimal
+        console.warn("⚠️ Impossible de créer le customer:", customerError);
       }
     }
 
@@ -260,12 +160,6 @@ export async function createPaymentIntentWithCommission(
         enabled: true,
         allow_redirects: "always", // Nécessaire pour TWINT
       },
-      payment_method_types: ["card", "twint"], // Spécifier explicitement TWINT
-      // Ajouter des informations de contexte pour TWINT
-      description: metadata?.hotel_slug
-        ? `Réservation ${metadata.booking_id} - ${metadata.hotel_slug}`
-        : undefined,
-      receipt_email: metadata?.client_email || undefined,
       metadata: {
         integration_type: "direct_charge",
         platform: "selfkey_hotels",
@@ -303,40 +197,12 @@ export async function createPaymentIntentWithCommission(
 export async function getAccountStatus(accountId: string) {
   try {
     const account = await stripe.accounts.retrieve(accountId);
-
-    const twintCapability = account.capabilities?.twint_payments;
-    const cardCapability = account.capabilities?.card_payments;
-    const transfersCapability = account.capabilities?.transfers;
-
-    console.log("🔍 État des capacités du compte:", {
-      accountId,
-      country: account.country,
-      twint_payments: twintCapability,
-      card_payments: cardCapability,
-      transfers: transfersCapability,
-      charges_enabled: account.charges_enabled,
-      payouts_enabled: account.payouts_enabled,
-    });
-
     return {
       id: account.id,
-      charges_enabled: account.charges_enabled,
-      payouts_enabled: account.payouts_enabled,
-      details_submitted: account.details_submitted,
-      country: account.country,
-      capabilities: {
-        card_payments: cardCapability || "inactive",
-        twint_payments: twintCapability || "inactive",
-        transfers: transfersCapability || "inactive",
-      },
-      requirements: {
-        currently_due: account.requirements?.currently_due || [],
-        eventually_due: account.requirements?.eventually_due || [],
-        past_due: account.requirements?.past_due || [],
-        pending_verification: account.requirements?.pending_verification || [],
-      },
-      // Informations spécifiques à TWINT
-      twint_ready: twintCapability === "active" && account.charges_enabled,
+      chargesEnabled: account.charges_enabled,
+      payoutsEnabled: account.payouts_enabled,
+      detailsSubmitted: account.details_submitted,
+      email: account.email,
     };
   } catch (error) {
     console.error("Erreur récupération statut compte:", error);
