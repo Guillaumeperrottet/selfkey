@@ -86,7 +86,10 @@ const getCountryCode = (countryName: string): string => {
 };
 
 // Composant interne pour le formulaire Stripe avec support TWINT
-function CheckoutForm({ booking }: Pick<PaymentFormProps, "booking">) {
+function CheckoutForm({ 
+  booking, 
+  clientSecret 
+}: Pick<PaymentFormProps, "booking"> & { clientSecret: string }) {
   const stripe = useStripe();
   const elements = useElements();
   const router = useRouter();
@@ -180,10 +183,11 @@ function CheckoutForm({ booking }: Pick<PaymentFormProps, "booking">) {
           billing_details: paymentMethod.billing_details,
         });
 
-        // Maintenant, utiliser ce PaymentMethod pour confirmer
+        // Maintenant, utiliser ce PaymentMethod pour confirmer directement
+        // IMPORTANT: Utiliser stripe.confirmPayment avec clientSecret et notre PaymentMethod
         const { error: stripeError, paymentIntent } =
           await stripe.confirmPayment({
-            elements,
+            clientSecret: clientSecret,
             confirmParams: {
               return_url: `${window.location.origin}/${booking.hotelSlug}/payment-return?booking=${booking.id}`,
               payment_method: paymentMethod.id,
@@ -550,7 +554,7 @@ export function PaymentFormMultiple(props: PaymentFormProps) {
         },
       }}
     >
-      <CheckoutForm booking={props.booking} />
+      <CheckoutForm booking={props.booking} clientSecret={clientSecret} />
     </Elements>
   );
 }
