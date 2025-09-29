@@ -155,77 +155,82 @@ function CheckoutForm({ booking }: Pick<PaymentFormProps, "booking">) {
         );
       }
 
-      // NOUVELLE APPROCHE: Créer le PaymentMethod explicitement via Elements
-      console.log("🔍 Tentative de création PaymentMethod via Elements");
+      // APPROCHE DIRECTE: Créer le PaymentMethod via l'API Stripe directement
+      console.log("🔍 Création PaymentMethod TWINT directement via API");
 
-      const { error: pmError, paymentMethod } =
-        await stripe.createPaymentMethod({
-          elements,
-          params: {
-            billing_details: billingDetails,
-          },
-        });
-
-      if (pmError) {
-        console.error("❌ Erreur création PaymentMethod:", pmError);
-        setError("Erreur lors de la création du mode de paiement");
-        setIsLoading(false);
-        return;
-      }
-
-      console.log("✅ PaymentMethod créé avec succès:", {
-        id: paymentMethod.id,
-        type: paymentMethod.type,
-        billing_details: paymentMethod.billing_details,
-      });
-
-      // Utiliser le PaymentMethod créé pour la confirmation
-      const { error: stripeError, paymentIntent } = await stripe.confirmPayment(
-        {
-          elements,
-          confirmParams: {
-            return_url: `${window.location.origin}/${booking.hotelSlug}/payment-return?booking=${booking.id}`,
-            payment_method: paymentMethod.id,
-          },
-          redirect: "if_required",
-        }
-      );
-
-      if (stripeError) {
-        console.error("🚨 PAYMENT ERROR:", {
-          type: stripeError.type,
-          code: stripeError.code,
-          message: stripeError.message,
-          payment_intent: stripeError.payment_intent,
-        });
-
-        // Messages d'erreur spécifiques
-        let errorMessage = stripeError.message || "Erreur de paiement";
-        if (stripeError.code === "payment_method_provider_decline") {
-          errorMessage =
-            "Paiement refusé par le fournisseur. Vérifiez vos informations et réessayez.";
-        }
-
-        setError(errorMessage);
-        setIsLoading(false);
-      } else if (paymentIntent?.status === "succeeded") {
-        // Paiement réussi immédiatement (cartes)
-        await fetch("/api/booking/confirm", {
+      try {
+        const response = await fetch("/api/stripe/create-payment-method", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
-            bookingId: booking.id,
-            paymentIntentId: paymentIntent.id,
+            type: "twint",
+            billing_details: billingDetails,
           }),
         });
 
-        router.push(`/${booking.hotelSlug}/success?booking=${booking.id}`);
-      } else if (paymentIntent?.status === "processing") {
-        // Paiement en cours - redirection automatique gérée par Stripe
-        console.log("Paiement en cours...");
-      } else if (paymentIntent?.status === "requires_action") {
-        // Redirection déjà effectuée par Stripe
-        console.log("Redirection effectuée");
+        if (!response.ok) {
+          throw new Error("Erreur lors de la création du PaymentMethod");
+        }
+
+        const { paymentMethod } = await response.json();
+
+        console.log("✅ PaymentMethod TWINT créé via API:", {
+          id: paymentMethod.id,
+          type: paymentMethod.type,
+          billing_details: paymentMethod.billing_details,
+        });
+
+        // Maintenant, utiliser ce PaymentMethod pour confirmer
+        const { error: stripeError, paymentIntent } =
+          await stripe.confirmPayment({
+            elements,
+            confirmParams: {
+              return_url: `${window.location.origin}/${booking.hotelSlug}/payment-return?booking=${booking.id}`,
+              payment_method: paymentMethod.id,
+            },
+            redirect: "if_required",
+          });
+
+        if (stripeError) {
+          console.error("🚨 PAYMENT ERROR:", {
+            type: stripeError.type,
+            code: stripeError.code,
+            message: stripeError.message,
+            payment_intent: stripeError.payment_intent,
+          });
+
+          // Messages d'erreur spécifiques
+          let errorMessage = stripeError.message || "Erreur de paiement";
+          if (stripeError.code === "payment_method_provider_decline") {
+            errorMessage =
+              "Paiement refusé par le fournisseur. Vérifiez vos informations et réessayez.";
+          }
+
+          setError(errorMessage);
+          setIsLoading(false);
+        } else if (paymentIntent?.status === "succeeded") {
+          // Paiement réussi immédiatement (cartes)
+          await fetch("/api/booking/confirm", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              bookingId: booking.id,
+              paymentIntentId: paymentIntent.id,
+            }),
+          });
+
+          router.push(`/${booking.hotelSlug}/success?booking=${booking.id}`);
+        } else if (paymentIntent?.status === "processing") {
+          // Paiement en cours - redirection automatique gérée par Stripe
+          console.log("Paiement en cours...");
+        } else if (paymentIntent?.status === "requires_action") {
+          // Redirection déjà effectuée par Stripe
+          console.log("Redirection effectuée");
+        }
+      } catch (apiError) {
+        console.error("❌ Erreur API PaymentMethod:", apiError);
+        setError("Erreur lors de la création du mode de paiement");
+        setIsLoading(false);
       }
     } catch (error) {
       console.error("Erreur confirmation paiement:", error);
