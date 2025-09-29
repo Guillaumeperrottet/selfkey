@@ -172,39 +172,68 @@ function StripePaymentFormContent({
         pricingOptionsTotal: bookingData.pricingOptionsTotal,
       });
 
-      // APPROCHE ELEMENTS: Utiliser Elements pour créer le PaymentMethod avec billing_details
-      console.log(
-        "🔍 Confirmation du paiement via Elements avec billing_details"
-      );
+      // APPROCHE DIRECTE avec Customer: Créer le PaymentMethod avec Customer attaché
+      console.log("🔍 Création PaymentMethod TWINT avec Customer");
 
-      const { error: confirmError } = await stripe.confirmPayment({
-        elements,
-        confirmParams: {
-          return_url: `${window.location.origin}/${hotelSlug}/success?paymentIntent=${paymentIntentId}&type=classic_booking`,
-          payment_method_data: {
-            billing_details: billingDetails,
-          },
-        },
-        // TWINT nécessite une redirection vers l'app ou affichage du QR code
-        redirect: "always",
-      });
+      try {
+        const response = await fetch(
+          "/api/stripe/create-payment-method-with-customer",
+          {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              type: "twint",
+              billing_details: billingDetails,
+              paymentIntentId: paymentIntentId,
+            }),
+          }
+        );
 
-      if (confirmError) {
-        console.error("🚨 PAYMENT ERROR:", {
-          type: confirmError.type,
-          code: confirmError.code,
-          message: confirmError.message,
-          payment_intent: confirmError.payment_intent,
-        });
-
-        // Messages d'erreur spécifiques
-        let errorMessage = confirmError.message || "Erreur de paiement";
-        if (confirmError.code === "payment_method_provider_decline") {
-          errorMessage =
-            "Paiement refusé par le fournisseur. Vérifiez vos informations et réessayez.";
+        if (!response.ok) {
+          throw new Error(
+            "Erreur lors de la création du PaymentMethod avec Customer"
+          );
         }
 
-        setError(errorMessage);
+        const { paymentMethod } = await response.json();
+
+        console.log("✅ PaymentMethod TWINT créé avec Customer:", {
+          id: paymentMethod.id,
+          type: paymentMethod.type,
+          customer: paymentMethod.customer,
+          billing_details: paymentMethod.billing_details,
+        });
+
+        // Confirmer le paiement avec le PaymentMethod créé
+        const { error: confirmError } = await stripe.confirmPayment({
+          clientSecret: bookingData.clientSecret,
+          confirmParams: {
+            payment_method: paymentMethod.id,
+            return_url: `${window.location.origin}/${hotelSlug}/success?paymentIntent=${paymentIntentId}&type=classic_booking`,
+          },
+          redirect: "always",
+        });
+
+        if (confirmError) {
+          console.error("🚨 PAYMENT ERROR:", {
+            type: confirmError.type,
+            code: confirmError.code,
+            message: confirmError.message,
+            payment_intent: confirmError.payment_intent,
+          });
+
+          let errorMessage = confirmError.message || "Erreur de paiement";
+          if (confirmError.code === "payment_method_provider_decline") {
+            errorMessage =
+              "Paiement refusé par le fournisseur. Vérifiez vos informations et réessayez.";
+          }
+
+          setError(errorMessage);
+          setIsProcessing(false);
+        }
+      } catch (apiError) {
+        console.error("❌ Erreur API PaymentMethod avec Customer:", apiError);
+        setError("Erreur lors de la création du mode de paiement");
         setIsProcessing(false);
       }
     } catch (err) {
