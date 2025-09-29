@@ -334,7 +334,9 @@ export function BookingFormDetails({
         clientLastName: clientLastName.trim(),
         clientEmail: clientEmail.trim(),
         clientPhone: clientPhone.trim(),
-        clientBirthDate: clientBirthDate?.toISOString().split("T")[0] || "",
+        clientBirthDate: clientBirthDate
+          ? `${clientBirthDate.getFullYear()}-${String(clientBirthDate.getMonth() + 1).padStart(2, "0")}-${String(clientBirthDate.getDate()).padStart(2, "0")}`
+          : "",
         clientBirthPlace: clientBirthPlace.trim(),
         clientAddress: clientAddress.trim(),
         clientPostalCode: clientPostalCode.trim(),

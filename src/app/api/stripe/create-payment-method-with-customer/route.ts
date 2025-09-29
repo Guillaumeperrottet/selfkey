@@ -22,21 +22,28 @@ export async function POST(request: NextRequest) {
 
     console.log("🔍 Customer ID trouvé:", customerId);
 
-    // Créer le PaymentMethod avec le Customer attaché
+    // ÉTAPE 1: Créer le PaymentMethod sans Customer
     const paymentMethod = await stripe.paymentMethods.create({
       type: type,
       billing_details: billing_details,
-      customer: customerId as string, // Attacher directement le Customer
     });
 
-    console.log("✅ PaymentMethod créé avec Customer attaché:", {
-      id: paymentMethod.id,
-      type: paymentMethod.type,
-      customer: paymentMethod.customer,
-      billing_details: paymentMethod.billing_details,
+    console.log("✅ PaymentMethod créé:", paymentMethod.id);
+
+    // ÉTAPE 2: Attacher le PaymentMethod au Customer
+    const attachedPaymentMethod = await stripe.paymentMethods.attach(
+      paymentMethod.id,
+      { customer: customerId as string }
+    );
+
+    console.log("✅ PaymentMethod attaché au Customer:", {
+      id: attachedPaymentMethod.id,
+      type: attachedPaymentMethod.type,
+      customer: attachedPaymentMethod.customer,
+      billing_details: attachedPaymentMethod.billing_details,
     });
 
-    return NextResponse.json({ paymentMethod });
+    return NextResponse.json({ paymentMethod: attachedPaymentMethod });
   } catch (error) {
     console.error("❌ Erreur création PaymentMethod avec Customer:", error);
 
