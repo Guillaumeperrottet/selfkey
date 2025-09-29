@@ -155,15 +155,37 @@ function CheckoutForm({ booking }: Pick<PaymentFormProps, "booking">) {
         );
       }
 
-      // Essayer d'abord confirmPayment pour tous les types
+      // NOUVELLE APPROCHE: Créer le PaymentMethod explicitement via Elements
+      console.log("🔍 Tentative de création PaymentMethod via Elements");
+
+      const { error: pmError, paymentMethod } =
+        await stripe.createPaymentMethod({
+          elements,
+          params: {
+            billing_details: billingDetails,
+          },
+        });
+
+      if (pmError) {
+        console.error("❌ Erreur création PaymentMethod:", pmError);
+        setError("Erreur lors de la création du mode de paiement");
+        setIsLoading(false);
+        return;
+      }
+
+      console.log("✅ PaymentMethod créé avec succès:", {
+        id: paymentMethod.id,
+        type: paymentMethod.type,
+        billing_details: paymentMethod.billing_details,
+      });
+
+      // Utiliser le PaymentMethod créé pour la confirmation
       const { error: stripeError, paymentIntent } = await stripe.confirmPayment(
         {
           elements,
           confirmParams: {
             return_url: `${window.location.origin}/${booking.hotelSlug}/payment-return?booking=${booking.id}`,
-            payment_method_data: {
-              billing_details: billingDetails,
-            },
+            payment_method: paymentMethod.id,
           },
           redirect: "if_required",
         }

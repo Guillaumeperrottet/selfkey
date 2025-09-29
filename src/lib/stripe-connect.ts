@@ -124,6 +124,12 @@ export async function createPaymentIntentWithCommission(
 
     // Créer un Customer Stripe si on a les données client (nécessaire pour Twint)
     let customerId = undefined;
+    console.log("🔍 Vérification métadonnées client:", {
+      client_email: metadata?.client_email,
+      client_name: metadata?.client_name,
+      client_phone: metadata?.client_phone,
+    });
+
     if (metadata?.client_email && metadata?.client_name) {
       try {
         // Vérifier d'abord si un customer existe déjà avec cet email
@@ -136,6 +142,7 @@ export async function createPaymentIntentWithCommission(
           customerId = existingCustomers.data[0].id;
           console.log("✅ Customer Stripe existant trouvé:", customerId);
         } else {
+          console.log("🔄 Création nouveau Customer Stripe...");
           const customer = await stripe.customers.create({
             name: metadata.client_name,
             email: metadata.client_email,
@@ -152,11 +159,19 @@ export async function createPaymentIntentWithCommission(
             },
           });
           customerId = customer.id;
-          console.log("✅ Customer Stripe créé pour Twint:", customerId);
+          console.log("✅ Customer Stripe créé pour Twint:", {
+            id: customerId,
+            email: customer.email,
+            name: customer.name,
+          });
         }
       } catch (customerError) {
-        console.warn("⚠️ Impossible de créer le customer:", customerError);
+        console.error("❌ Erreur création customer:", customerError);
       }
+    } else {
+      console.warn(
+        "⚠️ Métadonnées client manquantes pour la création du Customer Stripe"
+      );
     }
 
     const paymentIntent = await stripe.paymentIntents.create({
