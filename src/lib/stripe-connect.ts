@@ -124,13 +124,19 @@ export async function createPaymentIntentWithCommission(
 
     // Créer un Customer Stripe si on a les données client (nécessaire pour Twint)
     let customerId = undefined;
+    // Construction du nom complet pour le Customer Stripe
+    const clientName =
+      metadata?.client_first_name && metadata?.client_last_name
+        ? `${metadata.client_first_name} ${metadata.client_last_name}`
+        : metadata?.client_name;
+
     console.log("🔍 Vérification métadonnées client:", {
       client_email: metadata?.client_email,
-      client_name: metadata?.client_name,
+      client_name: clientName,
       client_phone: metadata?.client_phone,
     });
 
-    if (metadata?.client_email && metadata?.client_name) {
+    if (metadata?.client_email && clientName) {
       try {
         // Vérifier d'abord si un customer existe déjà avec cet email
         const existingCustomers = await stripe.customers.list({
@@ -144,7 +150,7 @@ export async function createPaymentIntentWithCommission(
         } else {
           console.log("🔄 Création nouveau Customer Stripe...");
           const customer = await stripe.customers.create({
-            name: metadata.client_name,
+            name: clientName,
             email: metadata.client_email,
             phone: metadata.client_phone,
             address: {
