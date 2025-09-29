@@ -9,6 +9,7 @@ import {
   useStripe,
   useElements,
 } from "@stripe/react-stripe-js";
+import { TwintDiagnostic } from "./TwintDiagnostic";
 
 interface Booking {
   id: string;
@@ -109,7 +110,23 @@ function CheckoutForm({ booking }: Pick<PaymentFormProps, "booking">) {
         currency: booking.currency,
         clientCountry: booking.clientCountry,
         clientEmail: booking.clientEmail,
+        clientName: `${booking.clientFirstName} ${booking.clientLastName}`,
+        clientPhone: booking.clientPhone,
+        clientAddress: booking.clientAddress,
+        clientCity: booking.clientCity,
+        clientPostalCode: booking.clientPostalCode,
+        countryCode: getCountryCode(booking.clientCountry),
         returnUrl: `${window.location.origin}/${booking.hotelSlug}/payment-return?booking=${booking.id}`,
+        hasAllRequiredFields: !!(
+          booking.clientFirstName &&
+          booking.clientLastName &&
+          booking.clientEmail &&
+          booking.clientPhone &&
+          booking.clientAddress &&
+          booking.clientCity &&
+          booking.clientPostalCode &&
+          booking.clientCountry
+        ),
       });
 
       // Utiliser confirmPayment pour supporter TWINT et cartes
@@ -150,7 +167,19 @@ function CheckoutForm({ booking }: Pick<PaymentFormProps, "booking">) {
         let errorMessage = stripeError.message || "Erreur de paiement";
         if (stripeError.code === "payment_method_provider_decline") {
           errorMessage =
-            "Paiement Twint refusé. Vérifiez votre application Twint et réessayez.";
+            "Paiement TWINT refusé. Vérifications à effectuer :\n" +
+            "1. Votre application TWINT est-elle installée et configurée ?\n" +
+            "2. Avez-vous une adresse suisse valide ?\n" +
+            "3. Votre numéro de téléphone est-il suisse ?\n" +
+            "4. Avez-vous suffisamment de fonds ?";
+        } else if (
+          stripeError.code === "payment_intent_authentication_failure"
+        ) {
+          errorMessage =
+            "Échec de l'authentification TWINT. Vérifiez votre application TWINT.";
+        } else if (stripeError.code === "card_declined") {
+          errorMessage =
+            "Paiement refusé. Essayez avec une autre méthode de paiement.";
         }
 
         setError(errorMessage);
@@ -373,6 +402,11 @@ function CheckoutForm({ booking }: Pick<PaymentFormProps, "booking">) {
             )}
           </div>
         </button>
+
+        {/* Diagnostic TWINT en mode développement */}
+        {process.env.NODE_ENV === "development" && (
+          <TwintDiagnostic booking={booking} />
+        )}
       </form>
     </div>
   );
