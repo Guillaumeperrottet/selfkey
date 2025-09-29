@@ -148,30 +148,38 @@ export async function createPaymentIntentWithCommission(
       }
     }
 
-    const paymentIntent = await stripe.paymentIntents.create({
-      amount: amountRappen, // Montant déjà en centimes
-      currency: currency.toLowerCase(),
-      application_fee_amount: totalCommissionRappen, // Commission déjà en centimes
-      customer: customerId, // Associer le customer pour Twint
-      transfer_data: {
-        destination: connectedAccountId, // L'argent va directement au propriétaire
+    // TWINT ne supporte pas les application_fee_amount en Suisse
+    // On crée le PaymentIntent sur le compte Connect directement
+    const paymentIntent = await stripe.paymentIntents.create(
+      {
+        amount: amountRappen, // Montant déjà en centimes
+        currency: currency.toLowerCase(),
+        customer: customerId, // Associer le customer pour Twint
+        automatic_payment_methods: {
+          enabled: true,
+          allow_redirects: "always", // Nécessaire pour TWINT
+        },
+        metadata: {
+          integration_type: "direct_charge_twint_compatible",
+          platform: "selfkey_hotels",
+          twint_enabled: "true",
+          original_commission: totalCommissionRappen.toString(),
+          commission_rate: commissionRate.toString(),
+          fixed_fee: fixedFee.toString(),
+          ...(metadata || {}),
+        },
       },
-      automatic_payment_methods: {
-        enabled: true,
-        allow_redirects: "always", // Nécessaire pour TWINT
-      },
-      metadata: {
-        integration_type: "direct_charge",
-        platform: "selfkey_hotels",
-        twint_enabled: "true", // Flag pour identifier les paiements Twint
-        ...(metadata || {}),
-      },
-    });
+      {
+        stripeAccount: connectedAccountId, // Créé directement sur le compte Connect
+      }
+    );
 
-    console.log("✅ PaymentIntent créé:", {
+    console.log("✅ PaymentIntent créé (compatible Twint):", {
       id: paymentIntent.id,
       status: paymentIntent.status,
       supportedMethods: paymentIntent.payment_method_types,
+      setup: "direct_on_connect_account",
+      commission: `${totalCommissionRappen} centimes à prélever manuellement`,
     });
 
     return paymentIntent;
