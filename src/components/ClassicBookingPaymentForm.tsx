@@ -172,64 +172,38 @@ function StripePaymentFormContent({
         pricingOptionsTotal: bookingData.pricingOptionsTotal,
       });
 
-      // APPROCHE DIRECTE: Créer le PaymentMethod via l'API Stripe directement
-      console.log("🔍 Création PaymentMethod TWINT directement via API");
+      // APPROCHE ELEMENTS: Utiliser Elements pour créer le PaymentMethod avec billing_details
+      console.log(
+        "🔍 Confirmation du paiement via Elements avec billing_details"
+      );
 
-      try {
-        const response = await fetch("/api/stripe/create-payment-method", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            type: "twint",
+      const { error: confirmError } = await stripe.confirmPayment({
+        elements,
+        confirmParams: {
+          return_url: `${window.location.origin}/${hotelSlug}/success?paymentIntent=${paymentIntentId}&type=classic_booking`,
+          payment_method_data: {
             billing_details: billingDetails,
-          }),
-        });
-
-        if (!response.ok) {
-          throw new Error("Erreur lors de la création du PaymentMethod");
-        }
-
-        const { paymentMethod } = await response.json();
-
-        console.log("✅ PaymentMethod TWINT créé via API:", {
-          id: paymentMethod.id,
-          type: paymentMethod.type,
-          billing_details: paymentMethod.billing_details,
-        });
-
-        // Maintenant, attacher le PaymentMethod au PaymentIntent puis le confirmer
-        console.log("🔍 Attachement du PaymentMethod au PaymentIntent...");
-
-        const { error: confirmError } = await stripe.confirmPayment({
-          clientSecret: bookingData.clientSecret,
-          confirmParams: {
-            payment_method: paymentMethod.id,
-            return_url: `${window.location.origin}/${hotelSlug}/success?paymentIntent=${paymentIntentId}&type=classic_booking`,
           },
-          redirect: "if_required",
+        },
+        redirect: "if_required",
+      });
+
+      if (confirmError) {
+        console.error("🚨 PAYMENT ERROR:", {
+          type: confirmError.type,
+          code: confirmError.code,
+          message: confirmError.message,
+          payment_intent: confirmError.payment_intent,
         });
 
-        if (confirmError) {
-          console.error("🚨 PAYMENT ERROR:", {
-            type: confirmError.type,
-            code: confirmError.code,
-            message: confirmError.message,
-            payment_intent: confirmError.payment_intent,
-          });
-
-          // Messages d'erreur spécifiques
-          let errorMessage = confirmError.message || "Erreur de paiement";
-          if (confirmError.code === "payment_method_provider_decline") {
-            errorMessage =
-              "Paiement refusé par le fournisseur. Vérifiez vos informations et réessayez.";
-          }
-
-          setError(errorMessage);
-          setIsProcessing(false);
+        // Messages d'erreur spécifiques
+        let errorMessage = confirmError.message || "Erreur de paiement";
+        if (confirmError.code === "payment_method_provider_decline") {
+          errorMessage =
+            "Paiement refusé par le fournisseur. Vérifiez vos informations et réessayez.";
         }
-      } catch (apiError) {
-        console.error("❌ Erreur API PaymentMethod:", apiError);
-        setError("Erreur lors de la création du mode de paiement");
+
+        setError(errorMessage);
         setIsProcessing(false);
       }
     } catch (err) {
