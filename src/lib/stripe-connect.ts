@@ -188,13 +188,15 @@ export async function createPaymentIntentWithCommission(
       transfer_data: {
         destination: connectedAccountId, // L'argent va directement au propriétaire
       },
-      on_behalf_of: connectedAccountId, // Faire du compte connecté le business of record
+      // Retirer temporairement on_behalf_of car TWINT est rejeté sur le compte connecté
+      // on_behalf_of: connectedAccountId,
       payment_method_types: ["card", "twint"], // Spécifier explicitement TWINT (remplace automatic_payment_methods)
       capture_method: "automatic_async",
       metadata: {
-        integration_type: "destination_charge_with_on_behalf_of",
+        integration_type: "destination_charge_without_on_behalf_of", // Mise à jour du type
         platform: "selfkey_hotels",
         twint_enabled: "true", // Flag pour identifier les paiements Twint
+        note: "on_behalf_of removed temporarily due to TWINT capability rejection",
         ...(metadata || {}),
       },
     });
