@@ -21,6 +21,7 @@ export async function GET(request: Request, { params }: Props) {
         room: {
           select: {
             name: true,
+            price: true,
             accessCode: true,
           },
         },
