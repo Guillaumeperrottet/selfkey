@@ -114,11 +114,40 @@ export async function createPaymentIntentWithCommission(
       );
     }
 
+    // Vérifier si TWINT est disponible sur le compte connecté
+    let isTwintAvailable = false;
+    try {
+      const twintCapability = await stripe.accounts.retrieveCapability(
+        connectedAccountId,
+        'twint_payments'
+      );
+      isTwintAvailable = twintCapability.status === 'active';
+      console.log("🔍 Statut TWINT pour le compte:", {
+        accountId: connectedAccountId,
+        status: twintCapability.status,
+        available: isTwintAvailable
+      });
+    } catch (twintError) {
+      console.warn("⚠️ Impossible de vérifier TWINT:", twintError);
+      isTwintAvailable = false;
+    }
+
+    // Déterminer les méthodes de paiement disponibles
+    const paymentMethodTypes = ["card"]; // Toujours inclure les cartes
+    if (isTwintAvailable) {
+      paymentMethodTypes.push("twint");
+      console.log("✅ TWINT ajouté aux méthodes de paiement");
+    } else {
+      console.log("⚠️ TWINT indisponible, seules les cartes seront acceptées");
+    }
+
     console.log("💳 Création PaymentIntent avec commission:", {
       amount: amountRappen,
       currency: currency.toLowerCase(),
       connectedAccountId,
       commission: totalCommissionRappen,
+      paymentMethods: paymentMethodTypes,
+      twintAvailable: isTwintAvailable,
       metadata,
     });
 
@@ -165,7 +194,7 @@ export async function createPaymentIntentWithCommission(
             },
           });
           customerId = customer.id;
-          console.log("✅ Customer Stripe créé pour Twint:", {
+          console.log("✅ Customer Stripe créé:", {
             id: customerId,
             email: customer.email,
             name: customer.name,
@@ -184,19 +213,17 @@ export async function createPaymentIntentWithCommission(
       amount: amountRappen, // Montant déjà en centimes
       currency: currency.toLowerCase(),
       application_fee_amount: totalCommissionRappen, // Commission déjà en centimes
-      customer: customerId, // Associer le customer pour Twint
+      customer: customerId, // Associer le customer
       transfer_data: {
         destination: connectedAccountId, // L'argent va directement au propriétaire
       },
-      // Retirer temporairement on_behalf_of car TWINT est rejeté sur le compte connecté
-      // on_behalf_of: connectedAccountId,
-      payment_method_types: ["card", "twint"], // Spécifier explicitement TWINT (remplace automatic_payment_methods)
+      on_behalf_of: connectedAccountId, // Faire du compte connecté le business of record
+      payment_method_types: paymentMethodTypes, // Méthodes de paiement dynamiques
       capture_method: "automatic_async",
       metadata: {
-        integration_type: "destination_charge_without_on_behalf_of", // Mise à jour du type
+        integration_type: "destination_charge_with_on_behalf_of",
         platform: "selfkey_hotels",
-        twint_enabled: "true", // Flag pour identifier les paiements Twint
-        note: "on_behalf_of removed temporarily due to TWINT capability rejection",
+        twint_enabled: isTwintAvailable.toString(), // Flag pour identifier la disponibilité Twint
         ...(metadata || {}),
       },
     });
