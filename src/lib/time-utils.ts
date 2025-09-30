@@ -31,54 +31,87 @@ export function checkCutoffTime(
 
   try {
     const now = new Date();
-    const [hours, minutes] = cutoffTime.split(":").map(Number);
+    const [cutoffHours, cutoffMinutes] = cutoffTime.split(":").map(Number);
+    const [reopenHours, reopenMinutes] = (reopenTime || "00:00")
+      .split(":")
+      .map(Number);
 
     // Créer l'heure limite pour aujourd'hui
     const todayCutoff = new Date();
-    todayCutoff.setHours(hours, minutes, 0, 0);
+    todayCutoff.setHours(cutoffHours, cutoffMinutes, 0, 0);
 
-    // Si on est après l'heure limite aujourd'hui
-    if (now > todayCutoff) {
-      // Calculer la prochaine disponibilité selon l'heure de réouverture
-      const [reopenHours, reopenMinutes] = (reopenTime || "00:00")
-        .split(":")
-        .map(Number);
+    // Créer l'heure de réouverture pour aujourd'hui
+    const todayReopen = new Date();
+    todayReopen.setHours(reopenHours, reopenMinutes, 0, 0);
 
-      const nextAvailable = new Date();
-      nextAvailable.setDate(nextAvailable.getDate() + 1);
-      nextAvailable.setHours(reopenHours, reopenMinutes, 0, 0);
+    // Déterminer si c'est un créneau qui traverse minuit
+    const crossesMidnight =
+      cutoffHours > reopenHours ||
+      (cutoffHours === reopenHours && cutoffMinutes > reopenMinutes);
 
-      // Si l'heure de réouverture est le même jour (ex: cutoff à 22h, réouverture à 6h)
-      // et que l'heure de réouverture est avant l'heure limite
-      if (
-        reopenHours < hours ||
-        (reopenHours === hours && reopenMinutes < minutes)
-      ) {
-        // La réouverture est le lendemain
-        // nextAvailable est déjà configuré pour le lendemain
-      } else if (reopenHours === 0 && reopenMinutes === 0) {
-        // Cas spécial pour minuit (00:00) - réouverture immédiate le lendemain
-        nextAvailable.setHours(0, 0, 0, 0);
+    if (crossesMidnight) {
+      // Cas: créneau traverse minuit (ex: 22h à 9h)
+      // Les réservations sont fermées entre cutoffTime hier et reopenTime aujourd'hui
+
+      // Si on est avant l'heure de réouverture aujourd'hui, on est encore fermé
+      if (now < todayReopen) {
+        return {
+          isAfterCutoff: true,
+          nextAvailableTime: todayReopen,
+          message: `Il est trop tard pour réserver. Réservations à nouveau disponibles à partir de ${reopenTime || "00:00"} aujourd'hui.`,
+        };
       }
 
-      const reopenTimeDisplay = reopenTime || "00:00";
+      // Si on est après l'heure limite d'aujourd'hui, on est fermé jusqu'à demain
+      if (now > todayCutoff) {
+        const tomorrowReopen = new Date();
+        tomorrowReopen.setDate(tomorrowReopen.getDate() + 1);
+        tomorrowReopen.setHours(reopenHours, reopenMinutes, 0, 0);
 
+        return {
+          isAfterCutoff: true,
+          nextAvailableTime: tomorrowReopen,
+          message: `Il est trop tard pour réserver aujourd'hui. Réservations à nouveau disponibles à partir de ${reopenTime || "00:00"} demain.`,
+        };
+      }
+
+      // Sinon, on est dans la fenêtre ouverte (entre reopenTime et cutoffTime aujourd'hui)
       return {
-        isAfterCutoff: true,
-        nextAvailableTime: nextAvailable,
-        message:
-          reopenTimeDisplay === "00:00"
-            ? `Il est trop tard pour réserver aujourd'hui. Réservations à nouveau disponibles à partir de minuit.`
-            : `Il est trop tard pour réserver aujourd'hui. Réservations à nouveau disponibles à partir de ${reopenTimeDisplay} demain.`,
+        isAfterCutoff: false,
+        nextAvailableTime: null,
+        message: `Réservations disponibles jusqu'à ${cutoffTime} aujourd'hui`,
+      };
+    } else {
+      // Cas normal: créneau dans la même journée (ex: 8h à 18h)
+      // Si on est après l'heure limite aujourd'hui
+      if (now > todayCutoff) {
+        const tomorrowReopen = new Date();
+        tomorrowReopen.setDate(tomorrowReopen.getDate() + 1);
+        tomorrowReopen.setHours(reopenHours, reopenMinutes, 0, 0);
+
+        return {
+          isAfterCutoff: true,
+          nextAvailableTime: tomorrowReopen,
+          message: `Il est trop tard pour réserver aujourd'hui. Réservations à nouveau disponibles à partir de ${reopenTime || "00:00"} demain.`,
+        };
+      }
+
+      // Si on est avant l'heure de réouverture aujourd'hui
+      if (now < todayReopen) {
+        return {
+          isAfterCutoff: true,
+          nextAvailableTime: todayReopen,
+          message: `Il est trop tôt pour réserver. Réservations disponibles à partir de ${reopenTime || "00:00"} aujourd'hui.`,
+        };
+      }
+
+      // Sinon, réservations disponibles
+      return {
+        isAfterCutoff: false,
+        nextAvailableTime: null,
+        message: `Réservations disponibles jusqu'à ${cutoffTime} aujourd'hui`,
       };
     }
-
-    // Sinon, réservations disponibles
-    return {
-      isAfterCutoff: false,
-      nextAvailableTime: null,
-      message: `Réservations disponibles jusqu'à ${cutoffTime} aujourd'hui`,
-    };
   } catch (error) {
     console.error("Erreur lors du parsing de cutoffTime:", error);
     return {
