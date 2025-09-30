@@ -16,7 +16,7 @@ export const stripe = new Proxy({} as Stripe, {
     if (!stripeInstance) {
       validateStripeKeys(); // Valider seulement quand on utilise Stripe
       stripeInstance = new Stripe(stripeConfig.secretKey!, {
-        apiVersion: "2025-05-28.basil",
+        apiVersion: "2025-08-27.basil",
         appInfo: {
           name: "SelfKey",
           version: "1.0.0",
