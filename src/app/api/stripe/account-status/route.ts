@@ -1,8 +1,8 @@
-import { NextRequest, NextResponse } from 'next/server';
-import Stripe from 'stripe';
+import { NextRequest, NextResponse } from "next/server";
+import Stripe from "stripe";
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
-  apiVersion: '2025-08-27.basil',
+  apiVersion: "2025-08-27.basil",
 });
 
 export async function POST(request: NextRequest) {
@@ -11,14 +11,14 @@ export async function POST(request: NextRequest) {
 
     if (!accountId) {
       return NextResponse.json(
-        { error: 'Account ID est requis' },
+        { error: "Account ID est requis" },
         { status: 400 }
       );
     }
 
     // Récupérer les détails complets du compte
     const account = await stripe.accounts.retrieve(accountId);
-    
+
     // Récupérer les capabilities
     const capabilities = await stripe.accounts.listCapabilities(accountId);
 
@@ -37,14 +37,13 @@ export async function POST(request: NextRequest) {
       },
       capabilities: capabilities.data,
     });
-
   } catch (error) {
-    console.error('Erreur lors de la récupération du statut du compte:', error);
-    
+    console.error("Erreur lors de la récupération du statut du compte:", error);
+
     return NextResponse.json(
-      { 
-        error: 'Erreur lors de la récupération du statut',
-        details: error instanceof Error ? error.message : 'Erreur inconnue'
+      {
+        error: "Erreur lors de la récupération du statut",
+        details: error instanceof Error ? error.message : "Erreur inconnue",
       },
       { status: 500 }
     );

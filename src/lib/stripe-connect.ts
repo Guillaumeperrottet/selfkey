@@ -119,13 +119,13 @@ export async function createPaymentIntentWithCommission(
     try {
       const twintCapability = await stripe.accounts.retrieveCapability(
         connectedAccountId,
-        'twint_payments'
+        "twint_payments"
       );
-      isTwintAvailable = twintCapability.status === 'active';
+      isTwintAvailable = twintCapability.status === "active";
       console.log("🔍 Statut TWINT pour le compte:", {
         accountId: connectedAccountId,
         status: twintCapability.status,
-        available: isTwintAvailable
+        available: isTwintAvailable,
       });
     } catch (twintError) {
       console.warn("⚠️ Impossible de vérifier TWINT:", twintError);
