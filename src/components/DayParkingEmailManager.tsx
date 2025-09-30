@@ -296,6 +296,8 @@ export function DayParkingEmailManager({
                 <Badge variant="outline">{"{accessCode}"}</Badge>
                 <Badge variant="outline">{"{hotelContactEmail}"}</Badge>
                 <Badge variant="outline">{"{hotelContactPhone}"}</Badge>
+                <Badge variant="outline">{"{totalAmount}"}</Badge>
+                <Badge variant="outline">{"{currency}"}</Badge>
               </div>
             </div>
 

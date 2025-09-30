@@ -19,6 +19,12 @@ interface TemplateData {
   hotelContactEmail: string;
   hotelContactPhone: string;
   bookingNumber: string;
+  totalAmount: string; // Montant total payé par le client
+  baseAmount: string; // Montant de base (sans frais de plateforme)
+  roomPrice: string; // Prix de la chambre uniquement
+  pricingOptionsTotal: string; // Total des options supplémentaires
+  touristTaxTotal: string; // Total de la taxe de séjour
+  currency: string;
 }
 
 interface BookingWithDetails {
@@ -32,6 +38,9 @@ interface BookingWithDetails {
   clientPhone: string;
   amount: number;
   currency: string;
+  ownerAmount: number;
+  pricingOptionsTotal: number;
+  touristTaxTotal: number;
   checkInDate: Date;
   checkOutDate: Date;
   stripePaymentIntentId: string | null;
@@ -45,6 +54,7 @@ interface BookingWithDetails {
   room: {
     id: string;
     name: string;
+    price: number;
     allowDogs: boolean;
     accessCode: string | null;
   } | null;
@@ -114,6 +124,9 @@ export async function POST(request: Request, { params }: Props) {
         clientPhone: true,
         amount: true,
         currency: true,
+        ownerAmount: true,
+        pricingOptionsTotal: true,
+        touristTaxTotal: true,
         checkInDate: true,
         checkOutDate: true,
         stripePaymentIntentId: true,
@@ -128,6 +141,7 @@ export async function POST(request: Request, { params }: Props) {
           select: {
             id: true,
             name: true,
+            price: true,
             allowDogs: true,
             accessCode: true,
           },
@@ -237,6 +251,22 @@ export async function POST(request: Request, { params }: Props) {
     // Préparer les données pour le template selon le type de réservation
     const isBookingDayParking = booking.bookingType === "day";
 
+    // Calculer la durée et le prix de base pour les données détaillées
+    let duration = 1;
+    let roomBasePrice = 0;
+
+    if (!isBookingDayParking && booking.room) {
+      duration = Math.ceil(
+        (booking.checkOutDate.getTime() - booking.checkInDate.getTime()) /
+          (1000 * 60 * 60 * 24)
+      );
+      roomBasePrice = booking.room.price * duration;
+    }
+
+    // Calculer le montant de base (sans frais de plateforme)
+    const baseAmount =
+      roomBasePrice + booking.pricingOptionsTotal + booking.touristTaxTotal;
+
     const templateData: TemplateData = {
       clientFirstName: booking.clientFirstName,
       clientLastName: booking.clientLastName,
@@ -266,6 +296,12 @@ export async function POST(request: Request, { params }: Props) {
       hotelContactPhone:
         booking.establishment.hotelContactPhone || "Non renseigné",
       bookingNumber: booking.bookingNumber.toString(),
+      totalAmount: booking.amount.toFixed(2), // Montant total payé par le client
+      baseAmount: baseAmount.toFixed(2), // Montant de base (sans frais de plateforme)
+      roomPrice: roomBasePrice.toFixed(2), // Prix de la chambre uniquement
+      pricingOptionsTotal: booking.pricingOptionsTotal.toFixed(2), // Total des options
+      touristTaxTotal: booking.touristTaxTotal.toFixed(2), // Total de la taxe de séjour
+      currency: booking.currency || "CHF",
     };
 
     // Envoyer la confirmation selon la méthode choisie
@@ -545,6 +581,7 @@ function getDefaultEmailTemplate(): string {
 Votre réservation à {establishmentName} a été confirmée avec succès !
 
 📋 Numéro de réservation : {bookingNumber}
+💰 Montant payé : {totalAmount} {currency}
 
 Détails de votre réservation :
 - Place : {roomName}
@@ -570,6 +607,7 @@ Guten Tag {clientFirstName} {clientLastName},
 Ihre Buchung im {establishmentName} wurde erfolgreich bestätigt!
 
 📋 Buchungsnummer: {bookingNumber}
+💰 Gezahlter Betrag: {totalAmount} {currency}
 
 Details Ihrer Buchung:
 - Zimmer: {roomName}
@@ -594,8 +632,9 @@ Bonjour {clientFirstName},
 
 Votre réservation à {establishmentName} est confirmée ✅
 
-� N° réservation : {bookingNumber}
-�📅 Arrivée : {checkInDate}
+📋 N° réservation : {bookingNumber}
+💰 Montant payé : {totalAmount} {currency}
+📅 Arrivée : {checkInDate}
 📅 Départ : {checkOutDate}
 🏠 Chambre : {roomName}
 🔑 Code d'accès : {accessCode}
@@ -615,6 +654,7 @@ Guten Tag {clientFirstName},
 Ihre Buchung im {establishmentName} ist bestätigt ✅
 
 📋 Buchungsnr.: {bookingNumber}
+💰 Gezahlter Betrag: {totalAmount} {currency}
 📅 Anreise: {checkInDate}
 📅 Abreise: {checkOutDate}
 🏠 Zimmer: {roomName}

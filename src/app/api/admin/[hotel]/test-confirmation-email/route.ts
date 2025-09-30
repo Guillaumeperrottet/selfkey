@@ -86,6 +86,8 @@ export async function POST(request: NextRequest, { params }: Params) {
       hotelContactEmail: settings.hotelContactEmail || "contact@hotel.ch",
       hotelContactPhone: settings.hotelContactPhone || "+41 XX XXX XX XX",
       bookingNumber: "DEMO-12345-2025",
+      totalAmount: "150.00",
+      currency: "CHF",
     };
 
     // Sélectionner le bon template selon le type demandé

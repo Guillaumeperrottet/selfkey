@@ -94,6 +94,7 @@ export const defaultUnlayerTemplates = {
                         <p style="margin: 8px 0; font-size: 15px;"><strong>Arrivée :</strong> {checkInDate}</p>
                         <p style="margin: 8px 0; font-size: 15px;"><strong>Départ :</strong> {checkOutDate}</p>
                         <p style="margin: 8px 0; font-size: 15px;"><strong>Code d'accès :</strong> <span style="background: #3554c1; color: white; padding: 4px 8px; border-radius: 4px; font-weight: bold;">{accessCode}</span></p>
+                        <p style="margin: 8px 0; font-size: 15px;"><strong>Montant payé :</strong> {totalAmount} {currency}</p>
                       </div>
                       
                       <div style="background-color: #ffffff; padding: 20px; border: 1px solid #e0e0e0; border-radius: 8px; margin: 20px 0;">
@@ -358,6 +359,7 @@ export const defaultUnlayerTemplates = {
                         <p style="margin: 8px 0; font-size: 15px;"><strong>Arrivée :</strong> {checkInDate}</p>
                         <p style="margin: 8px 0; font-size: 15px;"><strong>Départ :</strong> {checkOutDate}</p>
                         <p style="margin: 8px 0; font-size: 15px;"><strong>Code d'accès :</strong> <span style="background: #2d7d32; color: white; padding: 4px 8px; border-radius: 4px; font-weight: bold;">{accessCode}</span></p>
+                        <p style="margin: 8px 0; font-size: 15px;"><strong>Montant payé :</strong> {totalAmount} {currency}</p>
                       </div>
                       
                       <div style="background-color: #fff3e0; padding: 20px; border-radius: 8px; margin: 20px 0; border-left: 4px solid #ff9800;">

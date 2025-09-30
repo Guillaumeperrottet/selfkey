@@ -11,6 +11,12 @@ export interface TemplateData {
   hotelContactEmail: string;
   hotelContactPhone: string;
   bookingNumber: string;
+  totalAmount: string; // Montant total payé par le client (avec frais de plateforme)
+  baseAmount: string; // Montant de base (sans frais de plateforme)
+  roomPrice: string; // Prix de la chambre uniquement
+  pricingOptionsTotal: string; // Total des options supplémentaires
+  touristTaxTotal: string; // Total de la taxe de séjour
+  currency: string;
 }
 
 export interface BookingWithDetails {
@@ -28,8 +34,14 @@ export interface BookingWithDetails {
   dayParkingEndTime?: Date | null;
   hasDog: boolean;
   stripePaymentIntentId: string | null;
+  amount: number; // Montant total payé par le client
+  currency: string;
+  ownerAmount: number; // Montant reçu par l'hôtelier (sans frais de plateforme)
+  pricingOptionsTotal: number; // Total des options supplémentaires
+  touristTaxTotal: number; // Total de la taxe de séjour
   room: {
     name: string;
+    price: number; // Prix de la chambre
     accessCode: string | null;
   } | null;
   establishment: {
@@ -78,6 +90,22 @@ export function generateTemplateData(
   // Préparer les données selon le type de réservation
   const isBookingDayParking = booking.bookingType === "day";
 
+  // Calculer la durée pour le prix de base de la chambre
+  let duration = 1;
+  let roomBasePrice = 0;
+
+  if (!isBookingDayParking && booking.room) {
+    duration = Math.ceil(
+      (booking.checkOutDate.getTime() - booking.checkInDate.getTime()) /
+        (1000 * 60 * 60 * 24)
+    );
+    roomBasePrice = booking.room.price * duration;
+  }
+
+  // Calculer le montant de base (sans frais de plateforme)
+  const baseAmount =
+    roomBasePrice + booking.pricingOptionsTotal + booking.touristTaxTotal;
+
   return {
     clientFirstName: booking.clientFirstName,
     clientLastName: booking.clientLastName,
@@ -107,6 +135,12 @@ export function generateTemplateData(
     hotelContactPhone:
       booking.establishment.hotelContactPhone || "Non renseigné",
     bookingNumber: booking.bookingNumber?.toString() || booking.id,
+    totalAmount: booking.amount.toFixed(2), // Montant total payé par le client
+    baseAmount: baseAmount.toFixed(2), // Montant de base (sans frais de plateforme)
+    roomPrice: roomBasePrice.toFixed(2), // Prix de la chambre uniquement
+    pricingOptionsTotal: booking.pricingOptionsTotal.toFixed(2), // Total des options
+    touristTaxTotal: booking.touristTaxTotal.toFixed(2), // Total de la taxe de séjour
+    currency: booking.currency || "CHF",
   };
 }
 
@@ -180,6 +214,13 @@ function getDefaultEmailTemplate(): string {
 Votre réservation à {establishmentName} a été confirmée avec succès !
 
 📋 Numéro de réservation : {bookingNumber}
+💰 Montant total payé : {totalAmount} {currency}
+
+Détail des coûts :
+- Hébergement : {roomPrice} {currency}
+- Options supplémentaires : {pricingOptionsTotal} {currency}
+- Taxe de séjour : {touristTaxTotal} {currency}
+- Total hors frais : {baseAmount} {currency}
 
 Détails de votre réservation :
 - Place : {roomName}
@@ -205,6 +246,13 @@ Guten Tag {clientFirstName} {clientLastName},
 Ihre Buchung im {establishmentName} wurde erfolgreich bestätigt!
 
 📋 Buchungsnummer: {bookingNumber}
+💰 Gezahlter Gesamtbetrag: {totalAmount} {currency}
+
+Kostenaufstellung:
+- Unterkunft: {roomPrice} {currency}
+- Zusatzoptionen: {pricingOptionsTotal} {currency}
+- Kurtaxe: {touristTaxTotal} {currency}
+- Total ohne Gebühren: {baseAmount} {currency}
 
 Details Ihrer Buchung:
 - Zimmer: {roomName}

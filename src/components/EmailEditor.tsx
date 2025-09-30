@@ -103,6 +103,14 @@ const defaultMergeTags = {
     name: "Numéro de réservation",
     value: "DEMO-12345-2025",
   },
+  totalAmount: {
+    name: "Montant total payé",
+    value: "150.00",
+  },
+  currency: {
+    name: "Devise",
+    value: "CHF",
+  },
 };
 
 export function EmailEditor({
