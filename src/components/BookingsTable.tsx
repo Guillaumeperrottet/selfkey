@@ -32,7 +32,10 @@ import {
   FileText,
   Clock,
   Printer,
+  Calculator,
 } from "lucide-react";
+import { calculateStayDuration } from "@/lib/availability";
+import { formatCHF, calculateFees } from "@/lib/fee-calculator";
 
 interface Booking {
   id: string;
@@ -60,16 +63,28 @@ interface Booking {
   confirmationSent?: boolean;
   confirmationSentAt?: Date | null;
   confirmationMethod?: string | null;
+  touristTaxTotal?: number;
+  adults?: number;
+  children?: number;
   room: {
     name: string;
+    price?: number;
   } | null;
   establishment?: {
     name: string;
+    slug?: string;
+    commissionRate?: number;
+    fixedFee?: number;
   };
 }
 
 interface BookingsTableProps {
   bookings: Booking[];
+  establishment?: {
+    slug: string;
+    commissionRate: number;
+    fixedFee: number;
+  };
 }
 
 type SortField =
@@ -82,10 +97,10 @@ type SortField =
   | "bookingDate";
 type SortDirection = "asc" | "desc";
 
-export function BookingsTable({ bookings }: BookingsTableProps) {
+export function BookingsTable({ bookings, establishment }: BookingsTableProps) {
   const [searchTerm, setSearchTerm] = useState("");
-  const [sortField, setSortField] = useState<SortField>("checkIn");
-  const [sortDirection, setSortDirection] = useState<SortDirection>("asc");
+  const [sortField, setSortField] = useState<SortField>("bookingDate");
+  const [sortDirection, setSortDirection] = useState<SortDirection>("desc");
   const [statusFilter, setStatusFilter] = useState<string>("all");
   const [selectedBooking, setSelectedBooking] = useState<Booking | null>(null);
   const [showDetails, setShowDetails] = useState(false);
@@ -220,11 +235,40 @@ export function BookingsTable({ bookings }: BookingsTableProps) {
     return new Date(date).toLocaleString("fr-FR");
   };
 
-  const calculateStayDuration = (checkIn: Date, checkOut: Date) => {
-    return Math.ceil(
-      (new Date(checkOut).getTime() - new Date(checkIn).getTime()) /
-        (1000 * 60 * 60 * 24)
+  // Fonction pour calculer les détails de facturation d'une réservation
+  const calculateBookingFinancials = (booking: Booking) => {
+    const duration = calculateStayDuration(
+      booking.checkInDate,
+      booking.checkOutDate
     );
+    const roomPrice = booking.room?.price || 0;
+    const baseRoomCost = roomPrice * duration;
+    const pricingOptionsTotal = booking.pricingOptionsTotal || 0;
+    const touristTaxTotal = booking.touristTaxTotal || 0;
+
+    // Montant avant frais de plateforme
+    const subtotal = baseRoomCost + pricingOptionsTotal + touristTaxTotal;
+
+    // Calcul des frais de plateforme si on a les infos de l'établissement
+    let platformFees = null;
+    if (establishment) {
+      platformFees = calculateFees(
+        subtotal,
+        establishment.commissionRate / 100,
+        establishment.fixedFee
+      );
+    }
+
+    return {
+      duration,
+      roomPrice,
+      baseRoomCost,
+      pricingOptionsTotal,
+      touristTaxTotal,
+      subtotal,
+      platformFees,
+      finalAmount: booking.amount,
+    };
   };
 
   const handlePrintBooking = (booking: Booking) => {
@@ -702,7 +746,7 @@ export function BookingsTable({ bookings }: BookingsTableProps) {
 
       {/* Dialog des détails */}
       <Dialog open={showDetails} onOpenChange={setShowDetails}>
-        <DialogContent className="!w-[900px] !max-w-[95vw] max-h-[90vh] overflow-y-auto">
+        <DialogContent className="!w-[1100px] !max-w-[95vw] max-h-[90vh] overflow-y-auto">
           <DialogHeader>
             <div className="flex items-center justify-between">
               <div>
@@ -973,6 +1017,119 @@ export function BookingsTable({ bookings }: BookingsTableProps) {
                       </div>
                     )}
                   </div>
+                </div>
+
+                {/* Détails de facturation */}
+                <div className="bg-muted/50 p-4 rounded-lg">
+                  <h3 className="font-semibold mb-3 flex items-center gap-2">
+                    <Calculator className="h-4 w-4" />
+                    Détail de la facturation
+                  </h3>
+                  {(() => {
+                    const financials =
+                      calculateBookingFinancials(selectedBooking);
+                    return (
+                      <div className="space-y-3 text-sm">
+                        {/* Prix de base */}
+                        <div className="space-y-2">
+                          <div className="flex justify-between">
+                            <span className="text-muted-foreground">
+                              Chambre ({financials.roomPrice} CHF ×{" "}
+                              {financials.duration} nuit
+                              {financials.duration > 1 ? "s" : ""}) :
+                            </span>
+                            <span className="font-medium">
+                              {formatCHF(financials.baseRoomCost)}
+                            </span>
+                          </div>
+
+                          {financials.pricingOptionsTotal > 0 && (
+                            <div className="flex justify-between">
+                              <span className="text-muted-foreground">
+                                Options supplémentaires :
+                              </span>
+                              <span className="font-medium">
+                                +{formatCHF(financials.pricingOptionsTotal)}
+                              </span>
+                            </div>
+                          )}
+
+                          {financials.touristTaxTotal > 0 && (
+                            <div className="flex justify-between">
+                              <span className="text-muted-foreground">
+                                Taxe de séjour :
+                              </span>
+                              <span className="font-medium">
+                                +{formatCHF(financials.touristTaxTotal)}
+                              </span>
+                            </div>
+                          )}
+
+                          <div className="border-t pt-2">
+                            <div className="flex justify-between font-medium">
+                              <span>Sous-total (sans frais) :</span>
+                              <span>{formatCHF(financials.subtotal)}</span>
+                            </div>
+                          </div>
+                        </div>
+
+                        {/* Frais de plateforme */}
+                        {financials.platformFees && (
+                          <div className="space-y-2 border-t pt-2">
+                            <div className="text-xs text-muted-foreground font-medium mb-1">
+                              Frais de plateforme
+                            </div>
+                            <div className="flex justify-between">
+                              <span className="text-muted-foreground">
+                                Commission (
+                                {establishment
+                                  ? establishment.commissionRate.toFixed(1)
+                                  : "0.0"}
+                                %) :
+                              </span>
+                              <span className="font-medium text-red-600">
+                                +{formatCHF(financials.platformFees.commission)}
+                              </span>
+                            </div>
+                            <div className="flex justify-between">
+                              <span className="text-muted-foreground">
+                                Frais fixes :
+                              </span>
+                              <span className="font-medium text-red-600">
+                                +{formatCHF(financials.platformFees.fixedFee)}
+                              </span>
+                            </div>
+                            <div className="flex justify-between text-red-600 font-medium">
+                              <span>Total frais :</span>
+                              <span>
+                                +{formatCHF(financials.platformFees.totalFees)}
+                              </span>
+                            </div>
+                          </div>
+                        )}
+
+                        {/* Total final */}
+                        <div className="border-t pt-2">
+                          <div className="flex justify-between text-lg font-bold">
+                            <span>Total payé par le client :</span>
+                            <span className="text-green-600">
+                              {formatCHF(financials.finalAmount)}
+                            </span>
+                          </div>
+                          {financials.platformFees && (
+                            <div className="flex justify-between text-sm text-muted-foreground mt-1">
+                              <span>
+                                Montant net pour l&apos;établissement :
+                              </span>
+                              <span className="font-medium">
+                                {formatCHF(financials.platformFees.netAmount)}
+                              </span>
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                    );
+                  })()}
                 </div>
               </div>
             </div>

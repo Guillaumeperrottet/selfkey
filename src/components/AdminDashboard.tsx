@@ -702,7 +702,14 @@ export function AdminDashboard({
               </CardDescription>
             </CardHeader>
             <CardContent>
-              <BookingsTable bookings={allBookings} />
+              <BookingsTable
+                bookings={allBookings}
+                establishment={{
+                  slug: hotel,
+                  commissionRate: establishment.commissionRate,
+                  fixedFee: establishment.fixedFee,
+                }}
+              />
             </CardContent>
           </Card>
         );

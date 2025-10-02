@@ -75,11 +75,23 @@ export default async function AdminPage({ params }: Props) {
       clientFirstName: true,
       clientLastName: true,
       clientEmail: true,
+      clientPhone: true,
+      clientBirthDate: true,
+      clientAddress: true,
+      clientPostalCode: true,
+      clientCity: true,
+      clientCountry: true,
+      clientIdNumber: true,
       amount: true,
       guests: true,
+      adults: true,
+      children: true,
       checkInDate: true,
       checkOutDate: true,
       bookingDate: true,
+      currency: true,
+      selectedPricingOptions: true,
+      pricingOptionsTotal: true,
       paymentStatus: true,
       stripePaymentIntentId: true,
       confirmationSent: true,
@@ -89,11 +101,12 @@ export default async function AdminPage({ params }: Props) {
       room: {
         select: {
           name: true,
+          price: true,
         },
       },
     },
     orderBy: {
-      checkInDate: "desc", // Plus récentes en premier
+      bookingDate: "desc", // Plus récemment réservées en premier
     },
   });
 
