@@ -88,6 +88,7 @@ export async function POST(request: NextRequest, { params }: Params) {
       bookingNumber: "DEMO-12345-2025",
       totalAmount: "150.00",
       currency: "CHF",
+      invoiceDownloadUrl: `${process.env.NEXTAUTH_URL || "https://selfkey.ch"}/invoice/test-demo-booking?token=demo-test-token`,
     };
 
     // Sélectionner le bon template selon le type demandé

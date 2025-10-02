@@ -1,4 +1,5 @@
 import { replaceImagePlaceholders } from "@/lib/image-utils";
+import { generateInvoiceDownloadUrl } from "@/lib/invoice-security";
 
 export interface TemplateData {
   clientFirstName: string;
@@ -17,6 +18,7 @@ export interface TemplateData {
   pricingOptionsTotal: string; // Total des options supplémentaires
   touristTaxTotal: string; // Total de la taxe de séjour
   currency: string;
+  invoiceDownloadUrl: string; // Lien de téléchargement de facture
 }
 
 export interface BookingWithDetails {
@@ -141,6 +143,10 @@ export function generateTemplateData(
     pricingOptionsTotal: booking.pricingOptionsTotal.toFixed(2), // Total des options
     touristTaxTotal: booking.touristTaxTotal.toFixed(2), // Total de la taxe de séjour
     currency: booking.currency || "CHF",
+    invoiceDownloadUrl: generateInvoiceDownloadUrl(
+      booking.id,
+      booking.clientEmail
+    ), // Lien de téléchargement de facture
   };
 }
 
@@ -228,6 +234,9 @@ Détails de votre réservation :
 - Départ : {checkOutDate}
 - Code d'accès : {accessCode}
 
+📄 Votre facture :
+Téléchargez votre facture officielle : {invoiceDownloadUrl}
+
 Contactez-nous pour plus d'informations
 
 Pour toute question, vous pouvez nous contacter :
@@ -259,6 +268,9 @@ Details Ihrer Buchung:
 - Anreise: {checkInDate}
 - Abreise: {checkOutDate}
 - Zugangscode: {accessCode}
+
+📄 Ihre Rechnung:
+Laden Sie Ihre offizielle Rechnung herunter: {invoiceDownloadUrl}
 
 Bei Fragen können Sie uns gerne kontaktieren:
 📧 E-Mail: {hotelContactEmail}

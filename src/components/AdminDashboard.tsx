@@ -705,6 +705,7 @@ export function AdminDashboard({
               <BookingsTable
                 bookings={allBookings}
                 establishment={{
+                  name: establishment.name,
                   slug: hotel,
                   commissionRate: establishment.commissionRate,
                   fixedFee: establishment.fixedFee,

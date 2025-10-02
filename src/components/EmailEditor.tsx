@@ -111,6 +111,10 @@ const defaultMergeTags = {
     name: "Devise",
     value: "CHF",
   },
+  invoiceDownloadUrl: {
+    name: "Lien de téléchargement de facture",
+    value: "https://exemple.com/invoice/download",
+  },
 };
 
 export function EmailEditor({

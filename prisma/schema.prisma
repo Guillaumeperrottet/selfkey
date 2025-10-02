@@ -214,6 +214,7 @@ model Booking {
   hasDog                 Boolean       @default(false)
   establishment          Establishment @relation(fields: [hotelSlug], references: [slug])
   room                   Room?         @relation(fields: [roomId], references: [id])
+  invoice                Invoice?
 
   @@map("bookings")
 }
@@ -317,4 +318,15 @@ model EmailImage {
   establishment   Establishment @relation(fields: [establishmentId], references: [id], onDelete: Cascade)
 
   @@map("email_images")
+}
+
+model Invoice {
+  id          String   @id @default(cuid())
+  bookingId   String   @unique
+  filename    String
+  filePath    String
+  generatedAt DateTime @default(now())
+  booking     Booking  @relation(fields: [bookingId], references: [id], onDelete: Cascade)
+
+  @@map("invoices")
 }

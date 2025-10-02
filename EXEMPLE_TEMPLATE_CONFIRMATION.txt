@@ -1,0 +1,40 @@
+-- Exemple de template de confirmation personnalisé avec lien de facture
+-- À insérer dans le champ confirmationEmailTemplate de votre établissement
+
+Bonjour {clientFirstName} {clientLastName},
+
+🎉 Votre réservation a été confirmée avec succès !
+
+📋 DÉTAILS DE VOTRE RÉSERVATION
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+• Numéro de réservation : {bookingNumber}
+• Établissement : {establishmentName}
+• Chambre : {roomName} (N° {roomId})
+• Date de réservation : {bookingDate}
+• Montant payé : {amount} {currency}
+
+📄 VOTRE FACTURE OFFICIELLE
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+Téléchargez votre facture en cliquant sur le lien ci-dessous :
+{invoiceDownloadUrl}
+
+💡 Ce lien est sécurisé et personnel à votre réservation.
+   Vous pouvez l'utiliser à tout moment pour télécharger votre facture.
+
+🏨 INFORMATIONS PRATIQUES
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+Vous pouvez vous présenter directement à votre chambre.
+
+En cas de problème ou question :
+📧 Email : {hotelContactEmail}
+📞 Téléphone : {hotelContactPhone}
+
+Nous vous souhaitons un excellent séjour !
+
+Cordialement,
+L'équipe de {establishmentName}
+
+---
+Cette confirmation a été générée automatiquement.
+
+-- Fin du template

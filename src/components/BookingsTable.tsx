@@ -36,6 +36,7 @@ import {
 } from "lucide-react";
 import { calculateStayDuration } from "@/lib/availability";
 import { formatCHF, calculateFees } from "@/lib/fee-calculator";
+import { InvoiceDownload } from "@/components/InvoiceDownload";
 
 interface Booking {
   id: string;
@@ -81,6 +82,7 @@ interface Booking {
 interface BookingsTableProps {
   bookings: Booking[];
   establishment?: {
+    name: string;
     slug: string;
     commissionRate: number;
     fixedFee: number;
@@ -760,17 +762,40 @@ export function BookingsTable({ bookings, establishment }: BookingsTableProps) {
                   {selectedBooking?.clientLastName}
                 </DialogDescription>
               </div>
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() =>
-                  selectedBooking && handlePrintBooking(selectedBooking)
-                }
-                className="no-print"
-              >
-                <Printer className="h-4 w-4 mr-2" />
-                Imprimer
-              </Button>
+              <div className="flex items-center gap-2">
+                {/* Bouton de téléchargement de facture */}
+                {selectedBooking && establishment && (
+                  <InvoiceDownload
+                    booking={{
+                      ...selectedBooking,
+                      pricingOptionsTotal:
+                        selectedBooking.pricingOptionsTotal || 0,
+                      touristTaxTotal: selectedBooking.touristTaxTotal || 0,
+                      room: selectedBooking.room
+                        ? {
+                            name: selectedBooking.room.name,
+                            price: selectedBooking.room.price || 0,
+                          }
+                        : null,
+                    }}
+                    establishment={establishment}
+                    variant="outline"
+                    size="sm"
+                    showText={false}
+                  />
+                )}
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() =>
+                    selectedBooking && handlePrintBooking(selectedBooking)
+                  }
+                  className="no-print"
+                >
+                  <Printer className="h-4 w-4 mr-2" />
+                  Imprimer
+                </Button>
+              </div>
             </div>
           </DialogHeader>
 

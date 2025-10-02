@@ -5,6 +5,7 @@ import {
   getAccessCodeForBooking,
   generateAccessInstructions,
 } from "@/lib/access-codes";
+import { generateInvoiceDownloadUrl } from "@/lib/invoice-security";
 
 // Resend est optionnel - ne pas planter si pas configuré
 const resend = process.env.RESEND_API_KEY
@@ -34,6 +35,103 @@ export async function sendBookingConfirmation(
     : null;
   const accessInstructionsHtml = generateAccessInstructions(accessInfo);
 
+  // Générer le lien de téléchargement de facture sécurisé
+  const invoiceDownloadUrl = generateInvoiceDownloadUrl(
+    booking.id,
+    booking.clientEmail
+  );
+
+  // Récupérer le template personnalisé depuis la base de données
+  const establishment = await prisma.establishment.findUnique({
+    where: { slug: booking.hotelSlug },
+    select: {
+      confirmationEmailTemplate: true,
+      confirmationEmailTemplateWithDog: true,
+      confirmationEmailTemplateWithoutDog: true,
+    },
+  });
+
+  // Déterminer quel template utiliser (avec/sans chien, ou template principal)
+  const customTemplate = establishment?.confirmationEmailTemplate;
+
+  // Si vous avez des templates spécifiques chien/sans chien, vous pouvez ajouter la logique ici
+  // Par exemple : if (booking.hasDog) customTemplate = establishment?.confirmationEmailTemplateWithDog;
+
+  if (customTemplate) {
+    // Utiliser le template personnalisé avec remplacement de variables
+    const personalizedContent = customTemplate
+      .replace(/{clientFirstName}/g, booking.clientName.split(" ")[0] || "")
+      .replace(
+        /{clientLastName}/g,
+        booking.clientName.split(" ").slice(1).join(" ") || ""
+      )
+      .replace(/{clientName}/g, booking.clientName)
+      .replace(/{establishmentName}/g, hotelConfig.name)
+      .replace(/{roomName}/g, booking.roomName)
+      .replace(/{roomId}/g, booking.roomId || "")
+      .replace(/{bookingNumber}/g, String(booking.bookingNumber || booking.id))
+      .replace(
+        /{bookingDate}/g,
+        booking.bookingDate.toLocaleDateString("fr-CH")
+      )
+      .replace(/{amount}/g, String(booking.amount))
+      .replace(/{currency}/g, booking.currency)
+      .replace(/{invoiceDownloadUrl}/g, invoiceDownloadUrl)
+      .replace(/{hotelContactEmail}/g, hotelConfig.contact.email)
+      .replace(/{hotelContactPhone}/g, hotelConfig.contact.phone);
+
+    // Template HTML simple pour le contenu personnalisé
+    const htmlContent = `
+      <!DOCTYPE html>
+      <html>
+      <head>
+        <meta charset="utf-8">
+        <title>Confirmation de réservation</title>
+        <style>
+          body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; max-width: 600px; margin: 0 auto; padding: 20px; }
+          .content { white-space: pre-wrap; }
+          a { color: #1976d2; text-decoration: none; }
+          a:hover { text-decoration: underline; }
+        </style>
+      </head>
+      <body>
+        <div class="content">${personalizedContent}</div>
+      </body>
+      </html>
+    `;
+
+    try {
+      if (!resend) {
+        console.log("📧 Email simulé (template personnalisé):", {
+          to: booking.clientEmail,
+          subject: `Confirmation de réservation - ${hotelConfig.name}`,
+          content: personalizedContent,
+        });
+        return { id: "simulated-email" };
+      }
+
+      const result = await sendEmail({
+        to: booking.clientEmail,
+        from: `${hotelConfig.name} <noreply@selfkey.ch>`,
+        subject: `Confirmation de réservation - ${hotelConfig.name}`,
+        html: htmlContent,
+      });
+
+      if (!result.success) {
+        throw new Error(result.error || "Erreur lors de l'envoi de l'email");
+      }
+
+      return result.data;
+    } catch (error) {
+      console.error(
+        "Erreur lors de l'envoi de l'email (template personnalisé):",
+        error
+      );
+      throw error;
+    }
+  }
+
+  // Template par défaut si aucun template personnalisé
   const htmlContent = `
     <!DOCTYPE html>
     <html>
@@ -46,6 +144,17 @@ export async function sendBookingConfirmation(
         .header { background-color: ${hotelConfig.colors.primary}; color: white; padding: 20px; text-align: center; }
         .content { padding: 20px; background-color: #f9f9f9; }
         .booking-details { background-color: white; padding: 15px; border-radius: 5px; margin: 15px 0; }
+        .invoice-section { background-color: #e3f2fd; padding: 15px; border-radius: 5px; margin: 15px 0; text-align: center; }
+        .invoice-button { 
+          display: inline-block; 
+          background-color: #1976d2; 
+          color: white; 
+          padding: 12px 24px; 
+          text-decoration: none; 
+          border-radius: 5px; 
+          font-weight: bold; 
+          margin: 10px 0;
+        }
         .footer { text-align: center; padding: 20px; font-size: 12px; color: #666; }
       </style>
     </head>
@@ -67,6 +176,17 @@ export async function sendBookingConfirmation(
             <p><strong>Chambre :</strong> ${booking.roomName} (N° ${booking.roomId})</p>
             <p><strong>Date :</strong> ${booking.bookingDate.toLocaleDateString("fr-CH")}</p>
             <p><strong>Montant payé :</strong> ${booking.amount} ${booking.currency}</p>
+          </div>
+          
+          <div class="invoice-section">
+            <h3>📄 Votre facture</h3>
+            <p>Téléchargez votre facture officielle pour cette réservation :</p>
+            <a href="${invoiceDownloadUrl}" class="invoice-button">
+              Télécharger la facture PDF
+            </a>
+            <p style="font-size: 12px; color: #666; margin-top: 10px;">
+              Ce lien est sécurisé et personnel à votre réservation.
+            </p>
           </div>
           
           ${accessInstructionsHtml}
