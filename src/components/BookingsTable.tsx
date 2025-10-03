@@ -304,26 +304,26 @@ export function BookingsTable({ bookings, establishment }: BookingsTableProps) {
     const bookingHTML = `
       <style>
         @media print {
-          body { margin: 0; font-family: Arial, sans-serif; font-size: 12px; line-height: 1.4; }
-          .reception-sheet { max-width: 210mm; margin: 0; padding: 15mm; }
-          .hotel-header { text-align: center; border-bottom: 3px solid #2563eb; padding-bottom: 20px; margin-bottom: 25px; }
-          .hotel-name { font-size: 24px; font-weight: bold; color: #1e40af; margin: 0; }
-          .document-title { font-size: 18px; font-weight: bold; margin: 10px 0 5px 0; color: #374151; }
-          .date-print { font-size: 11px; color: #6b7280; margin: 0; }
-          .info-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin: 20px 0; }
-          .info-section { background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 15px; }
-          .section-title { font-size: 14px; font-weight: bold; color: #1e40af; margin: 0 0 12px 0; padding-bottom: 5px; border-bottom: 1px solid #cbd5e1; }
-          .info-row { display: flex; justify-content: space-between; margin: 6px 0; padding: 3px 0; }
-          .info-label { font-weight: 500; color: #374151; flex: 1; }
-          .info-value { font-weight: 600; color: #111827; flex: 1.5; text-align: right; }
+          body { margin: 0; font-family: Arial, sans-serif; font-size: 11px; line-height: 1.3; }
+          .reception-sheet { max-width: 210mm; margin: 0; padding: 12mm; }
+          .hotel-header { text-align: center; border-bottom: 2px solid #2563eb; padding-bottom: 12px; margin-bottom: 15px; }
+          .hotel-name { font-size: 20px; font-weight: bold; color: #1e40af; margin: 0; }
+          .document-title { font-size: 15px; font-weight: bold; margin: 6px 0 3px 0; color: #374151; }
+          .date-print { font-size: 10px; color: #6b7280; margin: 0; }
+          .info-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin: 12px 0; }
+          .info-section { background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 6px; padding: 10px; }
+          .section-title { font-size: 12px; font-weight: bold; color: #1e40af; margin: 0 0 8px 0; padding-bottom: 3px; border-bottom: 1px solid #cbd5e1; }
+          .info-row { display: flex; justify-content: space-between; margin: 4px 0; padding: 2px 0; }
+          .info-label { font-weight: 500; color: #374151; flex: 1; font-size: 10px; }
+          .info-value { font-weight: 600; color: #111827; flex: 1.5; text-align: right; font-size: 10px; }
           .status-paid { color: #059669; font-weight: bold; }
           .status-pending { color: #d97706; font-weight: bold; }
-          .status-current { background: #dcfce7; color: #166534; padding: 2px 8px; border-radius: 4px; font-size: 11px; }
-          .status-future { background: #dbeafe; color: #1d4ed8; padding: 2px 8px; border-radius: 4px; font-size: 11px; }
-          .status-past { background: #f3f4f6; color: #374151; padding: 2px 8px; border-radius: 4px; font-size: 11px; }
+          .status-current { background: #dcfce7; color: #166534; padding: 1px 6px; border-radius: 3px; font-size: 9px; }
+          .status-future { background: #dbeafe; color: #1d4ed8; padding: 1px 6px; border-radius: 3px; font-size: 9px; }
+          .status-past { background: #f3f4f6; color: #374151; padding: 1px 6px; border-radius: 3px; font-size: 9px; }
           .full-width { grid-column: 1 / -1; }
-          .important-info { background: #fee2e2; border: 1px solid #fca5a5; border-radius: 8px; padding: 15px; margin: 20px 0; }
-          .footer-info { border-top: 1px solid #e2e8f0; padding-top: 15px; margin-top: 25px; text-align: center; font-size: 11px; color: #6b7280; }
+          .important-info { background: #fee2e2; border: 1px solid #fca5a5; border-radius: 6px; padding: 10px; margin: 12px 0; }
+          .footer-info { border-top: 1px solid #e2e8f0; padding-top: 10px; margin-top: 15px; text-align: center; font-size: 9px; color: #6b7280; }
         }
       </style>
       
@@ -457,10 +457,10 @@ export function BookingsTable({ bookings, establishment }: BookingsTableProps) {
             ? `
         <div class="info-section full-width">
           <h3 class="section-title">📍 ADRESSE CLIENT</h3>
-          <div style="padding: 10px 0;">
-            ${booking.clientAddress ? `<div style="margin: 5px 0;"><strong>Rue :</strong> ${booking.clientAddress}</div>` : ""}
-            ${booking.clientPostalCode || booking.clientCity ? `<div style="margin: 5px 0;"><strong>Ville :</strong> ${booking.clientPostalCode || ""} ${booking.clientCity || ""}</div>` : ""}
-            ${booking.clientCountry ? `<div style="margin: 5px 0;"><strong>Pays :</strong> ${booking.clientCountry}</div>` : ""}
+          <div style="padding: 5px 0; font-size: 10px;">
+            ${booking.clientAddress ? `<div style="margin: 2px 0;"><strong>Rue :</strong> ${booking.clientAddress}</div>` : ""}
+            ${booking.clientPostalCode || booking.clientCity ? `<div style="margin: 2px 0;"><strong>Ville :</strong> ${booking.clientPostalCode || ""} ${booking.clientCity || ""}</div>` : ""}
+            ${booking.clientCountry ? `<div style="margin: 2px 0;"><strong>Pays :</strong> ${booking.clientCountry}</div>` : ""}
           </div>
         </div>
         `
@@ -470,45 +470,45 @@ export function BookingsTable({ bookings, establishment }: BookingsTableProps) {
         <!-- Détail de la facturation -->
         <div class="info-section full-width">
           <h3 class="section-title">💰 DÉTAIL DE LA FACTURATION</h3>
-          <div style="background: white; border: 1px solid #e2e8f0; border-radius: 6px; padding: 15px;">
+          <div style="background: white; border: 1px solid #e2e8f0; border-radius: 4px; padding: 8px;">
             <!-- Info adultes/enfants -->
             ${
               booking.adults !== undefined || booking.children !== undefined
                 ? `
-            <div style="background: #f0f9ff; border: 1px solid #bae6fd; border-radius: 4px; padding: 10px; margin-bottom: 15px; font-size: 12px;">
+            <div style="background: #f0f9ff; border: 1px solid #bae6fd; border-radius: 3px; padding: 6px; margin-bottom: 8px; font-size: 10px;">
               <strong style="color: #0369a1;">👥 Composition du groupe :</strong>
-              ${booking.adults !== undefined ? `<span style="margin-left: 10px;">Adultes (16+) : <strong>${booking.adults}</strong></span>` : ""}
-              ${booking.children !== undefined ? `<span style="margin-left: 15px;">Enfants : <strong>${booking.children}</strong></span>` : ""}
-              ${booking.guests ? `<span style="margin-left: 15px;">Total invités : <strong>${booking.guests}</strong></span>` : ""}
+              ${booking.adults !== undefined ? `<span style="margin-left: 8px;">Adultes (16+) : <strong>${booking.adults}</strong></span>` : ""}
+              ${booking.children !== undefined ? `<span style="margin-left: 10px;">Enfants : <strong>${booking.children}</strong></span>` : ""}
+              ${booking.guests ? `<span style="margin-left: 10px;">Total invités : <strong>${booking.guests}</strong></span>` : ""}
             </div>
             `
                 : ""
             }
             
-            <table style="width: 100%; border-collapse: collapse;">
+            <table style="width: 100%; border-collapse: collapse; font-size: 10px;">
               <thead>
-                <tr style="border-bottom: 2px solid #e2e8f0;">
-                  <th style="text-align: left; padding: 8px; font-weight: bold; color: #374151;">Description</th>
-                  <th style="text-align: center; padding: 8px; font-weight: bold; color: #374151;">Quantité</th>
-                  <th style="text-align: right; padding: 8px; font-weight: bold; color: #374151;">Prix unitaire</th>
-                  <th style="text-align: right; padding: 8px; font-weight: bold; color: #374151;">Total</th>
+                <tr style="border-bottom: 1px solid #e2e8f0;">
+                  <th style="text-align: left; padding: 4px; font-weight: bold; color: #374151;">Description</th>
+                  <th style="text-align: center; padding: 4px; font-weight: bold; color: #374151;">Qté</th>
+                  <th style="text-align: right; padding: 4px; font-weight: bold; color: #374151;">Prix unit.</th>
+                  <th style="text-align: right; padding: 4px; font-weight: bold; color: #374151;">Total</th>
                 </tr>
               </thead>
               <tbody>
                 <tr style="border-bottom: 1px solid #f1f5f9;">
-                  <td style="padding: 8px; color: #374151;">Hébergement - ${booking.room ? booking.room.name : "Service"}</td>
-                  <td style="padding: 8px; text-align: center; color: #374151;">${duration}</td>
-                  <td style="padding: 8px; text-align: right; color: #374151;">${booking.room?.price || 0} ${booking.currency || "CHF"}</td>
-                  <td style="padding: 8px; text-align: right; font-weight: 600; color: #374151;">${((booking.room?.price || 0) * duration).toFixed(2)} ${booking.currency || "CHF"}</td>
+                  <td style="padding: 4px; color: #374151;">Hébergement - ${booking.room ? booking.room.name : "Service"}</td>
+                  <td style="padding: 4px; text-align: center; color: #374151;">${duration}</td>
+                  <td style="padding: 4px; text-align: right; color: #374151;">${booking.room?.price || 0} ${booking.currency || "CHF"}</td>
+                  <td style="padding: 4px; text-align: right; font-weight: 600; color: #374151;">${((booking.room?.price || 0) * duration).toFixed(2)} ${booking.currency || "CHF"}</td>
                 </tr>
                 ${
                   booking.pricingOptionsTotal && booking.pricingOptionsTotal > 0
                     ? `
                 <tr style="border-bottom: 1px solid #f1f5f9;">
-                  <td style="padding: 8px; color: #374151;">Options supplémentaires</td>
-                  <td style="padding: 8px; text-align: center; color: #374151;">1</td>
-                  <td style="padding: 8px; text-align: right; color: #374151;">${booking.pricingOptionsTotal} ${booking.currency || "CHF"}</td>
-                  <td style="padding: 8px; text-align: right; font-weight: 600; color: #374151;">${booking.pricingOptionsTotal} ${booking.currency || "CHF"}</td>
+                  <td style="padding: 4px; color: #374151;">Options supplémentaires</td>
+                  <td style="padding: 4px; text-align: center; color: #374151;">1</td>
+                  <td style="padding: 4px; text-align: right; color: #374151;">${booking.pricingOptionsTotal} ${booking.currency || "CHF"}</td>
+                  <td style="padding: 4px; text-align: right; font-weight: 600; color: #374151;">${booking.pricingOptionsTotal} ${booking.currency || "CHF"}</td>
                 </tr>
                 `
                     : ""
@@ -517,36 +517,35 @@ export function BookingsTable({ bookings, establishment }: BookingsTableProps) {
                   booking.touristTaxTotal && booking.touristTaxTotal > 0
                     ? `
                 <tr style="border-bottom: 1px solid #f1f5f9;">
-                  <td style="padding: 8px; color: #374151;">Taxe de séjour${booking.adults ? ` (${booking.adults} adulte${booking.adults > 1 ? "s" : ""} × ${duration} nuit${duration > 1 ? "s" : ""})` : ""}</td>
-                  <td style="padding: 8px; text-align: center; color: #374151;">${booking.adults || 1}</td>
-                  <td style="padding: 8px; text-align: right; color: #374151;">${booking.adults ? (booking.touristTaxTotal / (booking.adults * duration)).toFixed(2) : (booking.touristTaxTotal / duration).toFixed(2)} ${booking.currency || "CHF"}</td>
-                  <td style="padding: 8px; text-align: right; font-weight: 600; color: #374151;">${booking.touristTaxTotal} ${booking.currency || "CHF"}</td>
+                  <td style="padding: 4px; color: #374151;">Taxe de séjour${booking.adults ? ` (${booking.adults} adulte${booking.adults > 1 ? "s" : ""} × ${duration} nuit${duration > 1 ? "s" : ""})` : ""}</td>
+                  <td style="padding: 4px; text-align: center; color: #374151;">${booking.adults || 1}</td>
+                  <td style="padding: 4px; text-align: right; color: #374151;">${booking.adults ? (booking.touristTaxTotal / (booking.adults * duration)).toFixed(2) : (booking.touristTaxTotal / duration).toFixed(2)} ${booking.currency || "CHF"}</td>
+                  <td style="padding: 4px; text-align: right; font-weight: 600; color: #374151;">${booking.touristTaxTotal} ${booking.currency || "CHF"}</td>
                 </tr>
                 `
                     : ""
                 }
               </tbody>
             </table>
-            
             <!-- Sous-totaux -->
-            <div style="margin-top: 15px; padding-top: 15px; border-top: 1px solid #e2e8f0;">
-              <div style="display: flex; justify-content: space-between; margin: 5px 0;">
+            <div style="margin-top: 8px; padding-top: 8px; border-top: 1px solid #e2e8f0; font-size: 10px;">
+              <div style="display: flex; justify-content: space-between; margin: 3px 0;">
                 <span style="color: #6b7280;">Sous-total :</span>
                 <span style="font-weight: 600; color: #374151;">${(booking.amount - (establishment?.fixedFee || 0)).toFixed(2)} ${booking.currency || "CHF"}</span>
               </div>
               ${
                 establishment?.fixedFee && establishment.fixedFee > 0
                   ? `
-              <div style="display: flex; justify-content: space-between; margin: 5px 0;">
+              <div style="display: flex; justify-content: space-between; margin: 3px 0;">
                 <span style="color: #6b7280;">Frais de service :</span>
                 <span style="font-weight: 600; color: #374151;">${establishment.fixedFee.toFixed(2)} ${booking.currency || "CHF"}</span>
               </div>
               `
                   : ""
               }
-              <div style="display: flex; justify-content: space-between; margin: 10px 0; padding-top: 10px; border-top: 2px solid #1e40af; font-size: 16px;">
+              <div style="display: flex; justify-content: space-between; margin: 6px 0; padding-top: 6px; border-top: 2px solid #1e40af; font-size: 13px;">
                 <span style="font-weight: bold; color: #1e40af;">TOTAL À PAYER :</span>
-                <span style="font-weight: bold; color: #1e40af; font-size: 18px;">${booking.amount} ${booking.currency || "CHF"}</span>
+                <span style="font-weight: bold; color: #1e40af; font-size: 14px;">${booking.amount} ${booking.currency || "CHF"}</span>
               </div>
               ${(() => {
                 // Calcul de la TVA (8.1% sur le montant sans la taxe de séjour)
@@ -558,19 +557,19 @@ export function BookingsTable({ bookings, establishment }: BookingsTableProps) {
                   totalWithoutTouristTax / (1 + tvaRate);
 
                 return `
-              <div style="display: flex; justify-content: space-between; margin: 5px 0;">
-                <span style="color: #6b7280; font-size: 11px;">(TVA 8.1% ${tvaAmount.toFixed(2)} ${booking.currency || "CHF"} incluse)</span>
+              <div style="display: flex; justify-content: space-between; margin: 3px 0;">
+                <span style="color: #6b7280; font-size: 9px;">(TVA 8.1% ${tvaAmount.toFixed(2)} ${booking.currency || "CHF"} incluse)</span>
               </div>
               `;
               })()}
-              <div style="display: flex; justify-content: space-between; margin: 5px 0;">
-                <span style="color: #6b7280; font-size: 12px;">Statut paiement :</span>
-                <span style="font-weight: bold; color: ${booking.stripePaymentIntentId ? "#059669" : "#d97706"}; font-size: 14px;">${booking.stripePaymentIntentId ? "✓ PAYÉ" : "⏳ EN ATTENTE"}</span>
+              <div style="display: flex; justify-content: space-between; margin: 3px 0;">
+                <span style="color: #6b7280; font-size: 10px;">Statut paiement :</span>
+                <span style="font-weight: bold; color: ${booking.stripePaymentIntentId ? "#059669" : "#d97706"}; font-size: 11px;">${booking.stripePaymentIntentId ? "✓ PAYÉ" : "⏳ EN ATTENTE"}</span>
               </div>
               ${
                 booking.stripePaymentIntentId
                   ? `
-              <div style="font-size: 11px; color: #6b7280; margin-top: 10px;">
+              <div style="font-size: 9px; color: #6b7280; margin-top: 6px;">
                 Date de paiement : ${formatDateTime(booking.bookingDate)}<br>
                 ID Transaction : ${booking.stripePaymentIntentId.slice(-12)}
               </div>
@@ -585,8 +584,8 @@ export function BookingsTable({ bookings, establishment }: BookingsTableProps) {
           !booking.stripePaymentIntentId
             ? `
         <div class="important-info">
-          <h3 style="color: #dc2626; margin: 0 0 10px 0; font-weight: bold;">⚠️ ATTENTION - PAIEMENT EN ATTENTE</h3>
-          <p style="margin: 5px 0;">Cette réservation n'est pas encore payée. Vérifier le statut de paiement avant la remise des clés.</p>
+          <h3 style="color: #dc2626; margin: 0 0 6px 0; font-weight: bold; font-size: 11px;">⚠️ ATTENTION - PAIEMENT EN ATTENTE</h3>
+          <p style="margin: 3px 0; font-size: 10px;">Cette réservation n'est pas encore payée. Vérifier le statut de paiement avant la remise des clés.</p>
         </div>
         `
             : ""
@@ -595,7 +594,6 @@ export function BookingsTable({ bookings, establishment }: BookingsTableProps) {
         <!-- Footer -->
         <div class="footer-info">
           <p>Document généré automatiquement • ${establishment?.name || "SelfKey"} • Système de réservation</p>
-          <p>En cas de problème, contactez l'administrateur système</p>
         </div>
       </div>
     `;
