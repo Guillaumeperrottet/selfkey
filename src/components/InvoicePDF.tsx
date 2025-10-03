@@ -426,21 +426,14 @@ export function InvoicePDF({ data }: InvoicePDFProps) {
               flexDirection: "row",
               justifyContent: "center",
               marginTop: 5,
+              gap: 15,
             }}
           >
-            {data.establishment.email && data.establishment.phone ? (
-              <Text>
-                📧 {data.establishment.email} 📞 {data.establishment.phone}
-              </Text>
-            ) : (
-              <>
-                {data.establishment.email && (
-                  <Text>📧 {data.establishment.email}</Text>
-                )}
-                {data.establishment.phone && (
-                  <Text>📞 {data.establishment.phone}</Text>
-                )}
-              </>
+            {data.establishment.email && (
+              <Text>📧 {data.establishment.email}</Text>
+            )}
+            {data.establishment.phone && (
+              <Text>📞 {data.establishment.phone}</Text>
             )}
           </View>
         </View>
