@@ -46,11 +46,13 @@ interface Booking {
   clientEmail: string;
   clientPhone?: string;
   clientBirthDate?: Date;
+  clientBirthPlace?: string;
   clientAddress?: string;
   clientPostalCode?: string;
   clientCity?: string;
   clientCountry?: string;
   clientIdNumber?: string;
+  clientVehicleNumber?: string;
   amount: number;
   guests: number;
   checkInDate: Date;
@@ -748,7 +750,7 @@ export function BookingsTable({ bookings, establishment }: BookingsTableProps) {
 
       {/* Dialog des détails */}
       <Dialog open={showDetails} onOpenChange={setShowDetails}>
-        <DialogContent className="!w-[1100px] !max-w-[95vw] max-h-[90vh] overflow-y-auto">
+        <DialogContent className="!w-[1200px] !max-w-[95vw] h-[85vh] overflow-y-auto">
           <DialogHeader>
             <div className="flex items-center justify-between">
               <div>
@@ -800,18 +802,18 @@ export function BookingsTable({ bookings, establishment }: BookingsTableProps) {
           </DialogHeader>
 
           {selectedBooking && (
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-              {/* Informations du séjour */}
-              <div className="space-y-4">
-                <div className="bg-muted/50 p-4 rounded-lg">
-                  <h3 className="font-semibold mb-3 flex items-center gap-2">
-                    <Calendar className="h-4 w-4" />
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+              {/* Colonne 1: Informations du séjour + Status */}
+              <div className="space-y-3">
+                <div className="bg-muted/50 p-3 rounded-lg">
+                  <h3 className="font-semibold mb-2 flex items-center gap-2 text-sm">
+                    <Calendar className="h-3 w-3" />
                     Informations du séjour
                   </h3>
-                  <div className="space-y-2 text-sm">
+                  <div className="space-y-1 text-xs">
                     <div className="flex justify-between">
                       <span className="text-muted-foreground">
-                        N° de réservation :
+                        N° réservation :
                       </span>
                       <span className="font-medium">
                         {selectedBooking.bookingNumber}
@@ -864,44 +866,44 @@ export function BookingsTable({ bookings, establishment }: BookingsTableProps) {
                 </div>
 
                 {/* Statut de la réservation */}
-                <div className="bg-muted/50 p-4 rounded-lg">
-                  <h3 className="font-semibold mb-3 flex items-center gap-2">
-                    <Clock className="h-4 w-4" />
+                <div className="bg-muted/50 p-3 rounded-lg">
+                  <h3 className="font-semibold mb-2 flex items-center gap-2 text-sm">
+                    <Clock className="h-3 w-3" />
                     Statut
                   </h3>
-                  <div className="space-y-2">
+                  <div className="space-y-1">
                     <div className="flex items-center gap-2">
                       <Badge
                         variant="secondary"
-                        className={getBookingStatus(selectedBooking).color}
+                        className={
+                          getBookingStatus(selectedBooking).color + " text-xs"
+                        }
                       >
                         {getBookingStatus(selectedBooking).label}
                       </Badge>
                     </div>
-                    <div className="text-sm text-muted-foreground">
+                    <div className="text-xs text-muted-foreground">
                       Réservée le {formatDateTime(selectedBooking.bookingDate)}
                     </div>
                     {selectedBooking.confirmationSent && (
-                      <div className="text-sm text-green-600">
+                      <div className="text-xs text-green-600">
                         ✓ Confirmation envoyée{" "}
                         {selectedBooking.confirmationSentAt &&
                           `le ${formatDateTime(selectedBooking.confirmationSentAt)}`}
-                        {selectedBooking.confirmationMethod &&
-                          ` par ${selectedBooking.confirmationMethod}`}
                       </div>
                     )}
                   </div>
                 </div>
               </div>
 
-              {/* Informations du client */}
-              <div className="space-y-4">
-                <div className="bg-muted/50 p-4 rounded-lg">
-                  <h3 className="font-semibold mb-3 flex items-center gap-2">
-                    <User className="h-4 w-4" />
+              {/* Colonne 2: Informations client + Adresse */}
+              <div className="space-y-3">
+                <div className="bg-muted/50 p-3 rounded-lg">
+                  <h3 className="font-semibold mb-2 flex items-center gap-2 text-sm">
+                    <User className="h-3 w-3" />
                     Informations client
                   </h3>
-                  <div className="space-y-3 text-sm">
+                  <div className="space-y-1 text-xs">
                     <div>
                       <span className="text-muted-foreground block">
                         Nom complet :
@@ -915,9 +917,9 @@ export function BookingsTable({ bookings, establishment }: BookingsTableProps) {
                       <span className="text-muted-foreground block">
                         Email :
                       </span>
-                      <div className="font-medium flex items-start gap-2">
+                      <div className="font-medium flex items-start gap-1">
                         <Mail className="h-3 w-3 mt-0.5 flex-shrink-0" />
-                        <span className="break-all">
+                        <span className="break-all text-xs">
                           {selectedBooking.clientEmail}
                         </span>
                       </div>
@@ -927,7 +929,7 @@ export function BookingsTable({ bookings, establishment }: BookingsTableProps) {
                         <span className="text-muted-foreground block">
                           Téléphone :
                         </span>
-                        <div className="font-medium flex items-center gap-2">
+                        <div className="font-medium flex items-center gap-1">
                           <Phone className="h-3 w-3 flex-shrink-0" />
                           <span>{selectedBooking.clientPhone}</span>
                         </div>
@@ -945,15 +947,38 @@ export function BookingsTable({ bookings, establishment }: BookingsTableProps) {
                         </span>
                       </div>
                     )}
+                    {selectedBooking.clientBirthPlace && (
+                      <div>
+                        <span className="text-muted-foreground block">
+                          Lieu de naissance :
+                        </span>
+                        <span className="font-medium">
+                          {selectedBooking.clientBirthPlace}
+                        </span>
+                      </div>
+                    )}
                     {selectedBooking.clientIdNumber && (
                       <div>
                         <span className="text-muted-foreground block">
                           N° d&apos;identification :
                         </span>
-                        <div className="font-medium flex items-center gap-2">
+                        <div className="font-medium flex items-center gap-1">
                           <FileText className="h-3 w-3 flex-shrink-0" />
                           <span className="break-all">
                             {selectedBooking.clientIdNumber}
+                          </span>
+                        </div>
+                      </div>
+                    )}
+                    {selectedBooking.clientVehicleNumber && (
+                      <div>
+                        <span className="text-muted-foreground block">
+                          Plaque d&apos;immatriculation :
+                        </span>
+                        <div className="font-medium flex items-center gap-1">
+                          <FileText className="h-3 w-3 flex-shrink-0" />
+                          <span className="break-all">
+                            {selectedBooking.clientVehicleNumber}
                           </span>
                         </div>
                       </div>
@@ -965,12 +990,12 @@ export function BookingsTable({ bookings, establishment }: BookingsTableProps) {
                 {(selectedBooking.clientAddress ||
                   selectedBooking.clientCity ||
                   selectedBooking.clientCountry) && (
-                  <div className="bg-muted/50 p-4 rounded-lg">
-                    <h3 className="font-semibold mb-3 flex items-center gap-2">
-                      <MapPin className="h-4 w-4" />
+                  <div className="bg-muted/50 p-3 rounded-lg">
+                    <h3 className="font-semibold mb-2 flex items-center gap-2 text-sm">
+                      <MapPin className="h-3 w-3" />
                       Adresse
                     </h3>
-                    <div className="text-sm space-y-1">
+                    <div className="text-xs space-y-1">
                       {selectedBooking.clientAddress && (
                         <div className="font-medium">
                           {selectedBooking.clientAddress}
@@ -989,37 +1014,28 @@ export function BookingsTable({ bookings, establishment }: BookingsTableProps) {
                     </div>
                   </div>
                 )}
-
+              </div>
+              {/* Colonne 3: Paiement + Facturation */}
+              <div className="space-y-3">
                 {/* Informations de paiement */}
-                <div className="bg-muted/50 p-4 rounded-lg">
-                  <h3 className="font-semibold mb-3 flex items-center gap-2">
-                    <span className="text-sm bg-primary/10 text-primary px-2 py-1 rounded">
+                <div className="bg-muted/50 p-3 rounded-lg">
+                  <h3 className="font-semibold mb-2 flex items-center gap-2 text-sm">
+                    <span className="text-xs bg-primary/10 text-primary px-1 py-0.5 rounded">
                       CHF
                     </span>
                     Paiement
                   </h3>
-                  <div className="space-y-2 text-sm">
+                  <div className="space-y-1 text-xs">
                     <div className="flex justify-between">
                       <span className="text-muted-foreground">
                         Montant total :
                       </span>
-                      <span className="font-semibold text-lg">
+                      <span className="font-semibold">
                         {selectedBooking.amount}{" "}
                         {selectedBooking.currency || "CHF"}
                       </span>
                     </div>
-                    {selectedBooking.pricingOptionsTotal &&
-                      selectedBooking.pricingOptionsTotal > 0 && (
-                        <div className="flex justify-between">
-                          <span className="text-muted-foreground">
-                            Options supplémentaires :
-                          </span>
-                          <span className="font-medium">
-                            +{selectedBooking.pricingOptionsTotal}{" "}
-                            {selectedBooking.currency || "CHF"}
-                          </span>
-                        </div>
-                      )}
+                    Parfait
                     <div className="flex justify-between">
                       <span className="text-muted-foreground">
                         Statut paiement :
@@ -1037,7 +1053,7 @@ export function BookingsTable({ bookings, establishment }: BookingsTableProps) {
                       </span>
                     </div>
                     {selectedBooking.stripePaymentIntentId && (
-                      <div className="text-xs text-muted-foreground">
+                      <div className="text-xs text-muted-foreground truncate">
                         ID: {selectedBooking.stripePaymentIntentId}
                       </div>
                     )}
@@ -1045,18 +1061,18 @@ export function BookingsTable({ bookings, establishment }: BookingsTableProps) {
                 </div>
 
                 {/* Détails de facturation */}
-                <div className="bg-muted/50 p-4 rounded-lg">
-                  <h3 className="font-semibold mb-3 flex items-center gap-2">
-                    <Calculator className="h-4 w-4" />
+                <div className="bg-muted/50 p-3 rounded-lg">
+                  <h3 className="font-semibold mb-2 flex items-center gap-2 text-sm">
+                    <Calculator className="h-3 w-3" />
                     Détail de la facturation
                   </h3>
                   {(() => {
                     const financials =
                       calculateBookingFinancials(selectedBooking);
                     return (
-                      <div className="space-y-3 text-sm">
+                      <div className="space-y-2 text-xs">
                         {/* Prix de base */}
-                        <div className="space-y-2">
+                        <div className="space-y-1">
                           <div className="flex justify-between">
                             <span className="text-muted-foreground">
                               Chambre ({financials.roomPrice} CHF ×{" "}
@@ -1090,7 +1106,7 @@ export function BookingsTable({ bookings, establishment }: BookingsTableProps) {
                             </div>
                           )}
 
-                          <div className="border-t pt-2">
+                          <div className="border-t pt-1">
                             <div className="flex justify-between font-medium">
                               <span>Sous-total (sans frais) :</span>
                               <span>{formatCHF(financials.subtotal)}</span>
@@ -1100,7 +1116,7 @@ export function BookingsTable({ bookings, establishment }: BookingsTableProps) {
 
                         {/* Frais de plateforme */}
                         {financials.platformFees && (
-                          <div className="space-y-2 border-t pt-2">
+                          <div className="space-y-1 border-t pt-1">
                             <div className="text-xs text-muted-foreground font-medium mb-1">
                               Frais de plateforme
                             </div>
@@ -1134,15 +1150,15 @@ export function BookingsTable({ bookings, establishment }: BookingsTableProps) {
                         )}
 
                         {/* Total final */}
-                        <div className="border-t pt-2">
-                          <div className="flex justify-between text-lg font-bold">
+                        <div className="border-t pt-1">
+                          <div className="flex justify-between font-bold">
                             <span>Total payé par le client :</span>
                             <span className="text-green-600">
                               {formatCHF(financials.finalAmount)}
                             </span>
                           </div>
                           {financials.platformFees && (
-                            <div className="flex justify-between text-sm text-muted-foreground mt-1">
+                            <div className="flex justify-between text-xs text-muted-foreground mt-1">
                               <span>
                                 Montant net pour l&apos;établissement :
                               </span>
