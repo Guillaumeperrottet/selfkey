@@ -62,11 +62,6 @@ export function InvoiceDownload({
     try {
       setIsGenerating(true);
 
-      // Debug: Vérifier les props reçues
-      console.log("Props establishment reçues:", establishment);
-      console.log("hotelContactPhone:", establishment.hotelContactPhone);
-      console.log("hotelContactEmail:", establishment.hotelContactEmail);
-
       // Calculer les détails financiers
       const duration = calculateStayDuration(
         booking.checkInDate,

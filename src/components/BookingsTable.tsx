@@ -281,12 +281,57 @@ export function BookingsTable({ bookings, establishment }: BookingsTableProps) {
       booking.checkOutDate
     );
     const status = getBookingStatus(booking);
+    const today = new Date();
+
+    // Calculer l'âge du client si date de naissance disponible
+    let clientAge = "";
+    if (booking.clientBirthDate) {
+      const birthDate = new Date(booking.clientBirthDate);
+      const age = today.getFullYear() - birthDate.getFullYear();
+      const monthDiff = today.getMonth() - birthDate.getMonth();
+      if (
+        monthDiff < 0 ||
+        (monthDiff === 0 && today.getDate() < birthDate.getDate())
+      ) {
+        clientAge = `${age - 1} ans`;
+      } else {
+        clientAge = `${age} ans`;
+      }
+    }
 
     const bookingHTML = `
-      <div class="booking-details">
-        <div class="print-header">
-          <h1>Détails de la réservation</h1>
-          <p>Généré le ${new Date().toLocaleDateString("fr-FR", {
+      <style>
+        @media print {
+          body { margin: 0; font-family: Arial, sans-serif; font-size: 12px; line-height: 1.4; }
+          .reception-sheet { max-width: 210mm; margin: 0; padding: 15mm; }
+          .hotel-header { text-align: center; border-bottom: 3px solid #2563eb; padding-bottom: 20px; margin-bottom: 25px; }
+          .hotel-name { font-size: 24px; font-weight: bold; color: #1e40af; margin: 0; }
+          .document-title { font-size: 18px; font-weight: bold; margin: 10px 0 5px 0; color: #374151; }
+          .date-print { font-size: 11px; color: #6b7280; margin: 0; }
+          .info-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin: 20px 0; }
+          .info-section { background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 15px; }
+          .section-title { font-size: 14px; font-weight: bold; color: #1e40af; margin: 0 0 12px 0; padding-bottom: 5px; border-bottom: 1px solid #cbd5e1; }
+          .info-row { display: flex; justify-content: space-between; margin: 6px 0; padding: 3px 0; }
+          .info-label { font-weight: 500; color: #374151; flex: 1; }
+          .info-value { font-weight: 600; color: #111827; flex: 1.5; text-align: right; }
+          .status-paid { color: #059669; font-weight: bold; }
+          .status-pending { color: #d97706; font-weight: bold; }
+          .status-current { background: #dcfce7; color: #166534; padding: 2px 8px; border-radius: 4px; font-size: 11px; }
+          .status-future { background: #dbeafe; color: #1d4ed8; padding: 2px 8px; border-radius: 4px; font-size: 11px; }
+          .status-past { background: #f3f4f6; color: #374151; padding: 2px 8px; border-radius: 4px; font-size: 11px; }
+          .full-width { grid-column: 1 / -1; }
+          .important-info { background: #fee2e2; border: 1px solid #fca5a5; border-radius: 8px; padding: 15px; margin: 20px 0; }
+          .footer-info { border-top: 1px solid #e2e8f0; padding-top: 15px; margin-top: 25px; text-align: center; font-size: 11px; color: #6b7280; }
+        }
+      </style>
+      
+      <div class="reception-sheet">
+        <!-- En-tête hôtel -->
+        <div class="hotel-header">
+          <h1 class="hotel-name">${establishment?.name || "Établissement"}</h1>
+          <p class="document-title">FICHE RÉCEPTION - RÉSERVATION</p>
+          <p class="date-print">Imprimé le ${today.toLocaleDateString("fr-FR", {
+            weekday: "long",
             year: "numeric",
             month: "long",
             day: "numeric",
@@ -294,185 +339,238 @@ export function BookingsTable({ bookings, establishment }: BookingsTableProps) {
             minute: "2-digit",
           })}</p>
         </div>
-        
-        <div class="booking-info">
-          <div class="card">
-            <div class="card-header">
-              <h2>Informations du séjour</h2>
+
+        <!-- Informations principales -->
+        <div class="info-grid">
+          <!-- Séjour -->
+          <div class="info-section">
+            <h3 class="section-title">📅 INFORMATIONS SÉJOUR</h3>
+            <div class="info-row">
+              <span class="info-label">N° Réservation :</span>
+              <span class="info-value" style="font-size: 14px; font-weight: bold;">#${booking.bookingNumber}</span>
             </div>
-            <div class="grid">
-              <div class="flex">
-                <span>N° de réservation :</span>
-                <span class="font-medium">${booking.bookingNumber}</span>
-              </div>
-              <div class="flex">
-                <span>Chambre :</span>
-                <span class="font-medium">${booking.room ? booking.room.name : "Parking jour"}</span>
-              </div>
-              <div class="flex">
-                <span>Arrivée :</span>
-                <span class="font-medium">${formatDate(booking.checkInDate)}</span>
-              </div>
-              <div class="flex">
-                <span>Départ :</span>
-                <span class="font-medium">${formatDate(booking.checkOutDate)}</span>
-              </div>
-              <div class="flex">
-                <span>Durée :</span>
-                <span class="font-medium">${duration} nuit${duration > 1 ? "s" : ""}</span>
-              </div>
-              <div class="flex">
-                <span>Invités :</span>
-                <span class="font-medium">${booking.guests} personne${booking.guests > 1 ? "s" : ""}</span>
-              </div>
-              <div class="flex">
-                <span>Statut :</span>
-                <span class="badge">${status.label}</span>
-              </div>
+            <div class="info-row">
+              <span class="info-label">Chambre/Place :</span>
+              <span class="info-value">${booking.room ? booking.room.name : "Parking jour"}</span>
+            </div>
+            <div class="info-row">
+              <span class="info-label">Arrivée :</span>
+              <span class="info-value">${formatDate(booking.checkInDate)}</span>
+            </div>
+            <div class="info-row">
+              <span class="info-label">Départ :</span>
+              <span class="info-value">${formatDate(booking.checkOutDate)}</span>
+            </div>
+            <div class="info-row">
+              <span class="info-label">Durée :</span>
+              <span class="info-value">${duration} nuit${duration > 1 ? "s" : ""}</span>
+            </div>
+            <div class="info-row">
+              <span class="info-label">Invités :</span>
+              <span class="info-value">${booking.guests} pers.</span>
+            </div>
+            <div class="info-row">
+              <span class="info-label">Statut :</span>
+              <span class="info-value status-${status.color.includes("green") ? "current" : status.color.includes("blue") ? "future" : "past"}">${status.label}</span>
             </div>
           </div>
-          
-          <div class="card">
-            <div class="card-header">
-              <h2>Informations client</h2>
+
+          <!-- Client -->
+          <div class="info-section">
+            <h3 class="section-title">👤 INFORMATIONS CLIENT</h3>
+            <div class="info-row">
+              <span class="info-label">Nom complet :</span>
+              <span class="info-value">${booking.clientFirstName} ${booking.clientLastName}</span>
             </div>
-            <div class="grid">
-              <div class="flex">
-                <span>Nom :</span>
-                <span class="font-medium">${booking.clientFirstName} ${booking.clientLastName}</span>
+            ${
+              clientAge
+                ? `
+            <div class="info-row">
+              <span class="info-label">Âge :</span>
+              <span class="info-value">${clientAge}</span>
+            </div>
+            `
+                : ""
+            }
+            ${
+              booking.clientBirthDate
+                ? `
+            <div class="info-row">
+              <span class="info-label">Date naissance :</span>
+              <span class="info-value">${new Date(booking.clientBirthDate).toLocaleDateString("fr-FR")}</span>
+            </div>
+            `
+                : ""
+            }
+            ${
+              booking.clientBirthPlace
+                ? `
+            <div class="info-row">
+              <span class="info-label">Lieu naissance :</span>
+              <span class="info-value">${booking.clientBirthPlace}</span>
+            </div>
+            `
+                : ""
+            }
+            <div class="info-row">
+              <span class="info-label">Email :</span>
+              <span class="info-value" style="font-size: 10px;">${booking.clientEmail}</span>
+            </div>
+            ${
+              booking.clientPhone
+                ? `
+            <div class="info-row">
+              <span class="info-label">Téléphone :</span>
+              <span class="info-value">${booking.clientPhone}</span>
+            </div>
+            `
+                : ""
+            }
+            ${
+              booking.clientIdNumber
+                ? `
+            <div class="info-row">
+              <span class="info-label">N° ID :</span>
+              <span class="info-value">${booking.clientIdNumber}</span>
+            </div>
+            `
+                : ""
+            }
+            ${
+              booking.clientVehicleNumber
+                ? `
+            <div class="info-row">
+              <span class="info-label">Plaque véhicule :</span>
+              <span class="info-value">${booking.clientVehicleNumber}</span>
+            </div>
+            `
+                : ""
+            }
+          </div>
+        </div>
+
+        <!-- Adresse complète si disponible -->
+        ${
+          booking.clientAddress || booking.clientCity || booking.clientCountry
+            ? `
+        <div class="info-section full-width">
+          <h3 class="section-title">📍 ADRESSE CLIENT</h3>
+          <div style="padding: 10px 0;">
+            ${booking.clientAddress ? `<div style="margin: 5px 0;"><strong>Rue :</strong> ${booking.clientAddress}</div>` : ""}
+            ${booking.clientPostalCode || booking.clientCity ? `<div style="margin: 5px 0;"><strong>Ville :</strong> ${booking.clientPostalCode || ""} ${booking.clientCity || ""}</div>` : ""}
+            ${booking.clientCountry ? `<div style="margin: 5px 0;"><strong>Pays :</strong> ${booking.clientCountry}</div>` : ""}
+          </div>
+        </div>
+        `
+            : ""
+        }
+
+        <!-- Détail de la facturation -->
+        <div class="info-section full-width">
+          <h3 class="section-title">� DÉTAIL DE LA FACTURATION</h3>
+          <div style="background: white; border: 1px solid #e2e8f0; border-radius: 6px; padding: 15px;">
+            <table style="width: 100%; border-collapse: collapse;">
+              <thead>
+                <tr style="border-bottom: 2px solid #e2e8f0;">
+                  <th style="text-align: left; padding: 8px; font-weight: bold; color: #374151;">Description</th>
+                  <th style="text-align: center; padding: 8px; font-weight: bold; color: #374151;">Quantité</th>
+                  <th style="text-align: right; padding: 8px; font-weight: bold; color: #374151;">Prix unitaire</th>
+                  <th style="text-align: right; padding: 8px; font-weight: bold; color: #374151;">Total</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr style="border-bottom: 1px solid #f1f5f9;">
+                  <td style="padding: 8px; color: #374151;">Hébergement - ${booking.room ? booking.room.name : "Service"}</td>
+                  <td style="padding: 8px; text-align: center; color: #374151;">${duration}</td>
+                  <td style="padding: 8px; text-align: right; color: #374151;">${booking.room?.price || 0} ${booking.currency || "CHF"}</td>
+                  <td style="padding: 8px; text-align: right; font-weight: 600; color: #374151;">${((booking.room?.price || 0) * duration).toFixed(2)} ${booking.currency || "CHF"}</td>
+                </tr>
+                ${
+                  booking.pricingOptionsTotal && booking.pricingOptionsTotal > 0
+                    ? `
+                <tr style="border-bottom: 1px solid #f1f5f9;">
+                  <td style="padding: 8px; color: #374151;">Options supplémentaires</td>
+                  <td style="padding: 8px; text-align: center; color: #374151;">1</td>
+                  <td style="padding: 8px; text-align: right; color: #374151;">${booking.pricingOptionsTotal} ${booking.currency || "CHF"}</td>
+                  <td style="padding: 8px; text-align: right; font-weight: 600; color: #374151;">${booking.pricingOptionsTotal} ${booking.currency || "CHF"}</td>
+                </tr>
+                `
+                    : ""
+                }
+                ${
+                  booking.touristTaxTotal && booking.touristTaxTotal > 0
+                    ? `
+                <tr style="border-bottom: 1px solid #f1f5f9;">
+                  <td style="padding: 8px; color: #374151;">Taxe de séjour</td>
+                  <td style="padding: 8px; text-align: center; color: #374151;">1</td>
+                  <td style="padding: 8px; text-align: right; color: #374151;">${booking.touristTaxTotal} ${booking.currency || "CHF"}</td>
+                  <td style="padding: 8px; text-align: right; font-weight: 600; color: #374151;">${booking.touristTaxTotal} ${booking.currency || "CHF"}</td>
+                </tr>
+                `
+                    : ""
+                }
+              </tbody>
+            </table>
+            
+            <!-- Sous-totaux -->
+            <div style="margin-top: 15px; padding-top: 15px; border-top: 1px solid #e2e8f0;">
+              <div style="display: flex; justify-content: space-between; margin: 5px 0;">
+                <span style="color: #6b7280;">Sous-total :</span>
+                <span style="font-weight: 600; color: #374151;">${(booking.amount - (establishment?.fixedFee || 0)).toFixed(2)} ${booking.currency || "CHF"}</span>
               </div>
-              <div class="flex">
-                <span>Email :</span>
-                <span class="font-medium">${booking.clientEmail}</span>
+              ${
+                establishment?.fixedFee && establishment.fixedFee > 0
+                  ? `
+              <div style="display: flex; justify-content: space-between; margin: 5px 0;">
+                <span style="color: #6b7280;">Frais de service :</span>
+                <span style="font-weight: 600; color: #374151;">${establishment.fixedFee.toFixed(2)} ${booking.currency || "CHF"}</span>
+              </div>
+              `
+                  : ""
+              }
+              <div style="display: flex; justify-content: space-between; margin: 10px 0; padding-top: 10px; border-top: 2px solid #1e40af; font-size: 16px;">
+                <span style="font-weight: bold; color: #1e40af;">TOTAL À PAYER :</span>
+                <span style="font-weight: bold; color: #1e40af; font-size: 18px;">${booking.amount} ${booking.currency || "CHF"}</span>
+              </div>
+              <div style="display: flex; justify-content: space-between; margin: 5px 0;">
+                <span style="color: #6b7280; font-size: 12px;">Statut paiement :</span>
+                <span style="font-weight: bold; color: ${booking.stripePaymentIntentId ? "#059669" : "#d97706"}; font-size: 14px;">${booking.stripePaymentIntentId ? "✓ PAYÉ" : "⏳ EN ATTENTE"}</span>
               </div>
               ${
-                booking.clientPhone
+                booking.stripePaymentIntentId
                   ? `
-                <div class="flex">
-                  <span>Téléphone :</span>
-                  <span class="font-medium">${booking.clientPhone}</span>
-                </div>
-              `
-                  : ""
-              }
-              ${
-                booking.clientBirthDate
-                  ? `
-                <div class="flex">
-                  <span>Naissance :</span>
-                  <span class="font-medium">${new Date(booking.clientBirthDate).toLocaleDateString("fr-FR")}</span>
-                </div>
-              `
-                  : ""
-              }
-              ${
-                booking.clientAddress
-                  ? `
-                <div class="flex">
-                  <span>Adresse :</span>
-                  <span class="font-medium">${booking.clientAddress}</span>
-                </div>
-              `
-                  : ""
-              }
-              ${
-                booking.clientPostalCode || booking.clientCity
-                  ? `
-                <div class="flex">
-                  <span>Ville :</span>
-                  <span class="font-medium">${booking.clientPostalCode || ""} ${booking.clientCity || ""}</span>
-                </div>
-              `
-                  : ""
-              }
-              ${
-                booking.clientCountry
-                  ? `
-                <div class="flex">
-                  <span>Pays :</span>
-                  <span class="font-medium">${booking.clientCountry}</span>
-                </div>
-              `
-                  : ""
-              }
-              ${
-                booking.clientIdNumber
-                  ? `
-                <div class="flex">
-                  <span>ID :</span>
-                  <span class="font-medium">${booking.clientIdNumber}</span>
-                </div>
-              `
-                  : ""
-              }
-              ${
-                booking.clientAddress
-                  ? `
-                <div class="flex">
-                  <span>Adresse :</span>
-                  <span class="font-medium">${booking.clientAddress}</span>
-                </div>
-              `
-                  : ""
-              }
-              ${
-                booking.clientPostalCode || booking.clientCity
-                  ? `
-                <div class="flex">
-                  <span>Ville :</span>
-                  <span class="font-medium">${booking.clientPostalCode || ""} ${booking.clientCity || ""}</span>
-                </div>
-              `
-                  : ""
-              }
-              ${
-                booking.clientCountry
-                  ? `
-                <div class="flex">
-                  <span>Pays :</span>
-                  <span class="font-medium">${booking.clientCountry}</span>
-                </div>
+              <div style="font-size: 11px; color: #6b7280; margin-top: 10px;">
+                Date de paiement : ${formatDateTime(booking.bookingDate)}<br>
+                ID Transaction : ${booking.stripePaymentIntentId.slice(-12)}
+              </div>
               `
                   : ""
               }
             </div>
           </div>
-          
-          <div class="card">
-            <div class="card-header">
-              <h2>Paiement</h2>
-            </div>
-            <div class="grid">
-              <div class="flex">
-                <span>Total :</span>
-                <span class="font-semibold text-lg">${booking.amount} ${booking.currency || "CHF"}</span>
-              </div>
-              ${
-                booking.pricingOptionsTotal && booking.pricingOptionsTotal > 0
-                  ? `
-                <div class="flex">
-                  <span>Options :</span>
-                  <span class="font-medium">+${booking.pricingOptionsTotal} ${booking.currency || "CHF"}</span>
-                </div>
-              `
-                  : ""
-              }
-              <div class="flex">
-                <span>Statut :</span>
-                <span class="font-medium">${booking.stripePaymentIntentId ? "✓ Payé" : "⏳ En attente"}</span>
-              </div>
-              <div class="flex">
-                <span>Réservé le :</span>
-                <span class="font-medium">${formatDateTime(booking.bookingDate)}</span>
-              </div>
-            </div>
-          </div>
+        </div>
+
+        ${
+          !booking.stripePaymentIntentId
+            ? `
+        <div class="important-info">
+          <h3 style="color: #dc2626; margin: 0 0 10px 0; font-weight: bold;">⚠️ ATTENTION - PAIEMENT EN ATTENTE</h3>
+          <p style="margin: 5px 0;">Cette réservation n'est pas encore payée. Vérifier le statut de paiement avant la remise des clés.</p>
+        </div>
+        `
+            : ""
+        }
+
+        <!-- Footer -->
+        <div class="footer-info">
+          <p>Document généré automatiquement • ${establishment?.name || "SelfKey"} • Système de réservation</p>
+          <p>En cas de problème, contactez l'administrateur système</p>
         </div>
       </div>
     `;
 
     print(bookingHTML, {
-      title: `Réservation - ${booking.clientFirstName} ${booking.clientLastName}`,
+      title: `Réception-${booking.clientLastName}-${booking.bookingNumber}`,
     });
   };
 
