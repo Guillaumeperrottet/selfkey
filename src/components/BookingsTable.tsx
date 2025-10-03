@@ -502,21 +502,15 @@ export function BookingsTable({ bookings, establishment }: BookingsTableProps) {
                   <td style="padding: 8px; text-align: right; font-weight: 600; color: #374151;">${((booking.room?.price || 0) * duration).toFixed(2)} ${booking.currency || "CHF"}</td>
                 </tr>
                 ${
-                  booking.selectedPricingOptions &&
-                  Array.isArray(booking.selectedPricingOptions) &&
-                  booking.selectedPricingOptions.length > 0
-                    ? booking.selectedPricingOptions
-                        .map(
-                          (option: { label?: string; price: number }) => `
+                  booking.pricingOptionsTotal && booking.pricingOptionsTotal > 0
+                    ? `
                 <tr style="border-bottom: 1px solid #f1f5f9;">
-                  <td style="padding: 8px; color: #374151;">${option.label || "Option"}</td>
+                  <td style="padding: 8px; color: #374151;">Options supplémentaires</td>
                   <td style="padding: 8px; text-align: center; color: #374151;">1</td>
-                  <td style="padding: 8px; text-align: right; color: #374151;">${option.price} ${booking.currency || "CHF"}</td>
-                  <td style="padding: 8px; text-align: right; font-weight: 600; color: #374151;">${option.price} ${booking.currency || "CHF"}</td>
+                  <td style="padding: 8px; text-align: right; color: #374151;">${booking.pricingOptionsTotal} ${booking.currency || "CHF"}</td>
+                  <td style="padding: 8px; text-align: right; font-weight: 600; color: #374151;">${booking.pricingOptionsTotal} ${booking.currency || "CHF"}</td>
                 </tr>
                 `
-                        )
-                        .join("")
                     : ""
                 }
                 ${
@@ -550,29 +544,25 @@ export function BookingsTable({ bookings, establishment }: BookingsTableProps) {
               `
                   : ""
               }
+              <div style="display: flex; justify-content: space-between; margin: 10px 0; padding-top: 10px; border-top: 2px solid #1e40af; font-size: 16px;">
+                <span style="font-weight: bold; color: #1e40af;">TOTAL À PAYER :</span>
+                <span style="font-weight: bold; color: #1e40af; font-size: 18px;">${booking.amount} ${booking.currency || "CHF"}</span>
+              </div>
               ${(() => {
                 // Calcul de la TVA (8.1% sur le montant sans la taxe de séjour)
                 const totalWithoutTouristTax =
                   booking.amount - (booking.touristTaxTotal || 0);
                 const tvaRate = 0.081;
-                const amountHT = totalWithoutTouristTax / (1 + tvaRate);
-                const tvaAmount = totalWithoutTouristTax - amountHT;
+                const tvaAmount =
+                  totalWithoutTouristTax -
+                  totalWithoutTouristTax / (1 + tvaRate);
 
                 return `
-              <div style="display: flex; justify-content: space-between; margin: 5px 0; padding-top: 10px; border-top: 1px solid #e5e7eb;">
-                <span style="color: #6b7280; font-size: 11px;">Montant HT (hors taxes de séjour) :</span>
-                <span style="font-weight: 500; color: #6b7280; font-size: 11px;">${amountHT.toFixed(2)} ${booking.currency || "CHF"}</span>
-              </div>
               <div style="display: flex; justify-content: space-between; margin: 5px 0;">
-                <span style="color: #6b7280; font-size: 11px;">TVA 8.1% :</span>
-                <span style="font-weight: 500; color: #6b7280; font-size: 11px;">${tvaAmount.toFixed(2)} ${booking.currency || "CHF"}</span>
+                <span style="color: #6b7280; font-size: 11px;">(TVA 8.1% ${tvaAmount.toFixed(2)} ${booking.currency || "CHF"} incluse)</span>
               </div>
               `;
               })()}
-              <div style="display: flex; justify-content: space-between; margin: 10px 0; padding-top: 10px; border-top: 2px solid #1e40af; font-size: 16px;">
-                <span style="font-weight: bold; color: #1e40af;">TOTAL À PAYER :</span>
-                <span style="font-weight: bold; color: #1e40af; font-size: 18px;">${booking.amount} ${booking.currency || "CHF"}</span>
-              </div>
               <div style="display: flex; justify-content: space-between; margin: 5px 0;">
                 <span style="color: #6b7280; font-size: 12px;">Statut paiement :</span>
                 <span style="font-weight: bold; color: ${booking.stripePaymentIntentId ? "#059669" : "#d97706"}; font-size: 14px;">${booking.stripePaymentIntentId ? "✓ PAYÉ" : "⏳ EN ATTENTE"}</span>

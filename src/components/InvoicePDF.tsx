@@ -430,10 +430,10 @@ export function InvoicePDF({ data }: InvoicePDFProps) {
             }}
           >
             {data.establishment.email && (
-              <Text>📧 {data.establishment.email}</Text>
+              <Text>{data.establishment.email}</Text>
             )}
             {data.establishment.phone && (
-              <Text>📞 {data.establishment.phone}</Text>
+              <Text>{data.establishment.phone}</Text>
             )}
           </View>
         </View>
