@@ -495,22 +495,18 @@ async function sendEmailConfirmation(
 
       try {
         const fallbackSend = async () => {
-          // Préparer les adresses en copie si activées
-          let bccAddresses: string[] = [];
-          if (
-            booking.establishment.enableEmailCopyOnConfirmation &&
-            booking.establishment.emailCopyAddresses &&
-            booking.establishment.emailCopyAddresses.length > 0
-          ) {
-            bccAddresses = booking.establishment.emailCopyAddresses;
-          }
+          // ⚠️ NE PAS ajouter les BCC ici car ils ont déjà reçu l'email lors de la première tentative
+          // Les adresses en copie ont déjà été notifiées même si l'envoi au destinataire principal a échoué
+          console.log(
+            "📧 Fallback sans BCC (les copies ont déjà été envoyées lors de la première tentative)"
+          );
 
           const fallbackResult = await sendEmail({
             to: "delivered@resend.dev",
             from: "noreply@resend.dev",
             subject: `Confirmation de réservation - ${booking.establishment.name}`,
             html: htmlContent,
-            bcc: bccAddresses.length > 0 ? bccAddresses : undefined,
+            // Pas de BCC pour éviter les doublons
           });
 
           if (!fallbackResult.success) {
