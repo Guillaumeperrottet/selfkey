@@ -549,8 +549,8 @@ function MapPageContent() {
           style={{
             zIndex: 1000,
             top: isMobile
-              ? "max(env(safe-area-inset-top, 0px) + 140px, 160px)"
-              : "max(env(safe-area-inset-top, 0px) + 16px, 24px)",
+              ? "max(env(safe-area-inset-top, 0px) + 20px, 20px)"
+              : "max(env(safe-area-inset-top, 0px) + 20px, 20px)",
           }}
         >
           <div
