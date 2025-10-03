@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -37,6 +37,19 @@ import {
 import { calculateStayDuration } from "@/lib/availability";
 import { formatCHF, calculateFees } from "@/lib/fee-calculator";
 import { InvoiceDownload } from "@/components/InvoiceDownload";
+
+interface PricingOptionValue {
+  id: string;
+  label: string;
+  priceModifier: number;
+}
+
+interface PricingOption {
+  id: string;
+  name: string;
+  type: "select" | "radio" | "checkbox";
+  values: PricingOptionValue[];
+}
 
 interface Booking {
   id: string;
@@ -110,7 +123,61 @@ export function BookingsTable({ bookings, establishment }: BookingsTableProps) {
   const [statusFilter, setStatusFilter] = useState<string>("all");
   const [selectedBooking, setSelectedBooking] = useState<Booking | null>(null);
   const [showDetails, setShowDetails] = useState(false);
+  const [pricingOptions, setPricingOptions] = useState<PricingOption[]>([]);
   const { printTable, print } = usePrint();
+
+  // Charger les pricing options pour pouvoir décoder les noms
+  useEffect(() => {
+    const loadPricingOptions = async () => {
+      if (!establishment?.slug) return;
+
+      try {
+        const response = await fetch(
+          `/api/establishments/${establishment.slug}/pricing-options`
+        );
+        if (response.ok) {
+          const data = await response.json();
+          setPricingOptions(data.pricingOptions || []);
+        }
+      } catch (error) {
+        console.error("Erreur lors du chargement des pricing options:", error);
+      }
+    };
+
+    loadPricingOptions();
+  }, [establishment?.slug]);
+
+  // Fonction pour décoder le nom d'une option à partir de son ID
+  const getOptionDisplayName = (
+    selectedOptions: Record<string, string | string[]>
+  ): string[] => {
+    if (!selectedOptions || Object.keys(selectedOptions).length === 0) {
+      return [];
+    }
+
+    const optionNames: string[] = [];
+
+    Object.entries(selectedOptions).forEach(([optionId, valueId]) => {
+      const option = pricingOptions.find((opt) => opt.id === optionId);
+      if (!option) return;
+
+      if (Array.isArray(valueId)) {
+        valueId.forEach((vid) => {
+          const value = option.values.find((v) => v.id === vid);
+          if (value) {
+            optionNames.push(`${option.name}: ${value.label}`);
+          }
+        });
+      } else {
+        const value = option.values.find((v) => v.id === valueId);
+        if (value) {
+          optionNames.push(`${option.name}: ${value.label}`);
+        }
+      }
+    });
+
+    return optionNames;
+  };
 
   const getBookingStatus = (booking: Booking) => {
     const today = new Date();
@@ -502,15 +569,69 @@ export function BookingsTable({ bookings, establishment }: BookingsTableProps) {
                   <td style="padding: 4px; text-align: right; font-weight: 600; color: #374151;">${((booking.room?.price || 0) * duration).toFixed(2)} ${booking.currency || "CHF"}</td>
                 </tr>
                 ${
-                  booking.pricingOptionsTotal && booking.pricingOptionsTotal > 0
-                    ? `
+                  booking.selectedPricingOptions &&
+                  Object.keys(booking.selectedPricingOptions).length > 0
+                    ? (() => {
+                        const optionNames = getOptionDisplayName(
+                          booking.selectedPricingOptions
+                        );
+
+                        if (
+                          optionNames.length === 0 &&
+                          booking.pricingOptionsTotal &&
+                          booking.pricingOptionsTotal > 0
+                        ) {
+                          // Fallback si les options ne sont pas encore chargées
+                          return `
                 <tr style="border-bottom: 1px solid #f1f5f9;">
                   <td style="padding: 4px; color: #374151;">Options supplémentaires</td>
                   <td style="padding: 4px; text-align: center; color: #374151;">1</td>
                   <td style="padding: 4px; text-align: right; color: #374151;">${booking.pricingOptionsTotal} ${booking.currency || "CHF"}</td>
                   <td style="padding: 4px; text-align: right; font-weight: 600; color: #374151;">${booking.pricingOptionsTotal} ${booking.currency || "CHF"}</td>
                 </tr>
-                `
+                          `;
+                        }
+
+                        // Calculer le prix de chaque option
+                        return optionNames
+                          .map((optionName, index) => {
+                            const entries = Object.entries(
+                              booking.selectedPricingOptions || {}
+                            );
+                            if (index >= entries.length) return "";
+
+                            const [optionId, valueId] = entries[index];
+                            const option = pricingOptions.find(
+                              (opt) => opt.id === optionId
+                            );
+                            if (!option) return "";
+
+                            let price = 0;
+                            if (Array.isArray(valueId)) {
+                              valueId.forEach((vid) => {
+                                const value = option.values.find(
+                                  (v) => v.id === vid
+                                );
+                                if (value) price += value.priceModifier;
+                              });
+                            } else {
+                              const value = option.values.find(
+                                (v) => v.id === valueId
+                              );
+                              if (value) price = value.priceModifier;
+                            }
+
+                            return `
+                <tr style="border-bottom: 1px solid #f1f5f9;">
+                  <td style="padding: 4px; color: #374151;">${optionName}</td>
+                  <td style="padding: 4px; text-align: center; color: #374151;">1</td>
+                  <td style="padding: 4px; text-align: right; color: #374151;">${price.toFixed(2)} ${booking.currency || "CHF"}</td>
+                  <td style="padding: 4px; text-align: right; font-weight: 600; color: #374151;">${price.toFixed(2)} ${booking.currency || "CHF"}</td>
+                </tr>
+                            `;
+                          })
+                          .join("");
+                      })()
                     : ""
                 }
                 ${
