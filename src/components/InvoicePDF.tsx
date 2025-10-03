@@ -399,7 +399,14 @@ export function InvoicePDF({ data }: InvoicePDFProps) {
           </View>
           <View style={styles.summaryRow}>
             <Text style={{ fontSize: 8, color: "#6b7280", marginTop: 5 }}>
-              (TVA 8.1% {formatCHF((data.finalAmount * 8.1) / 100)}{" "}
+              (TVA 8.1%{" "}
+              {formatCHF(
+                ((data.finalAmount +
+                  (data.platformFees?.totalFees || 0) -
+                  data.touristTaxTotal) *
+                  8.1) /
+                  100
+              )}{" "}
               {data.currency} incluse)
             </Text>
           </View>
@@ -418,15 +425,22 @@ export function InvoicePDF({ data }: InvoicePDFProps) {
             style={{
               flexDirection: "row",
               justifyContent: "center",
-              gap: 20,
-              marginTop: 3,
+              marginTop: 5,
             }}
           >
-            {data.establishment.email && (
-              <Text>📧 {data.establishment.email}</Text>
-            )}
-            {data.establishment.phone && (
-              <Text>📞 {data.establishment.phone}</Text>
+            {data.establishment.email && data.establishment.phone ? (
+              <Text>
+                📧 {data.establishment.email} 📞 {data.establishment.phone}
+              </Text>
+            ) : (
+              <>
+                {data.establishment.email && (
+                  <Text>📧 {data.establishment.email}</Text>
+                )}
+                {data.establishment.phone && (
+                  <Text>📞 {data.establishment.phone}</Text>
+                )}
+              </>
             )}
           </View>
         </View>
