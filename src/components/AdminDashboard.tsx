@@ -66,6 +66,8 @@ interface AdminDashboardProps {
     accessCodeType: string | null;
     generalAccessCode: string | null;
     accessInstructions: string | null;
+    hotelContactEmail?: string | null;
+    hotelContactPhone?: string | null;
   };
   roomsWithInventory: Array<{
     id: string;
@@ -709,6 +711,8 @@ export function AdminDashboard({
                   slug: hotel,
                   commissionRate: establishment.commissionRate,
                   fixedFee: establishment.fixedFee,
+                  hotelContactEmail: establishment.hotelContactEmail,
+                  hotelContactPhone: establishment.hotelContactPhone,
                 }}
               />
             </CardContent>

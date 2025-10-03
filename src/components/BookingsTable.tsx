@@ -88,6 +88,8 @@ interface BookingsTableProps {
     slug: string;
     commissionRate: number;
     fixedFee: number;
+    hotelContactEmail?: string | null;
+    hotelContactPhone?: string | null;
   };
 }
 

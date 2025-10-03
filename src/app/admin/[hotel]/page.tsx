@@ -164,6 +164,8 @@ export default async function AdminPage({ params }: Props) {
         accessCodeType: establishment.accessCodeType,
         generalAccessCode: establishment.generalAccessCode,
         accessInstructions: establishment.accessInstructions,
+        hotelContactEmail: establishment.hotelContactEmail,
+        hotelContactPhone: establishment.hotelContactPhone,
       }}
       roomsWithInventory={roomsWithInventory}
       allBookings={allBookings}
