@@ -548,9 +548,8 @@ function MapPageContent() {
           className="search-bar-overlay absolute left-1/2 transform -translate-x-1/2 w-full max-w-xs md:max-w-md lg:max-w-lg px-6"
           style={{
             zIndex: 1000,
-            top: isMobile
-              ? "max(env(safe-area-inset-top, 0px) + 20px, 20px)"
-              : "max(env(safe-area-inset-top, 0px) + 20px, 20px)",
+            top: isMobile ? "20px" : "20px",
+            paddingTop: "env(safe-area-inset-top, 0px)",
           }}
         >
           <div
