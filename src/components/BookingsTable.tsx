@@ -881,11 +881,11 @@ export function BookingsTable({ bookings, establishment }: BookingsTableProps) {
                     establishment={establishment}
                     variant="outline"
                     size="sm"
-                    showText={false}
+                    showText={true}
                   />
                 )}
                 <Button
-                  variant="outline"
+                  variant="default"
                   size="sm"
                   onClick={() =>
                     selectedBooking && handlePrintBooking(selectedBooking)
@@ -893,7 +893,7 @@ export function BookingsTable({ bookings, establishment }: BookingsTableProps) {
                   className="no-print"
                 >
                   <Printer className="h-4 w-4 mr-2" />
-                  Imprimer
+                  Fiche réception
                 </Button>
               </div>
             </div>
