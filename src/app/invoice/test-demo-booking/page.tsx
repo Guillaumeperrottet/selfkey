@@ -46,6 +46,9 @@ const testEstablishmentData = {
 };
 
 export default function TestInvoicePage() {
+  // Debug: Vérifier les données de test
+  console.log("testEstablishmentData:", testEstablishmentData);
+
   return (
     <div className="min-h-screen bg-gray-50 py-8">
       <div className="max-w-2xl mx-auto px-4">
@@ -134,7 +137,12 @@ export default function TestInvoicePage() {
 
               <InvoiceDownload
                 booking={testBookingData}
-                establishment={testEstablishmentData}
+                establishment={{
+                  ...testEstablishmentData,
+                  // Debug: Forcer l'affichage des champs
+                  hotelContactPhone: testEstablishmentData.hotelContactPhone,
+                  hotelContactEmail: testEstablishmentData.hotelContactEmail,
+                }}
                 variant="default"
                 size="lg"
                 showText={true}

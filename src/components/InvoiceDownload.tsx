@@ -62,6 +62,11 @@ export function InvoiceDownload({
     try {
       setIsGenerating(true);
 
+      // Debug: Vérifier les props reçues
+      console.log("Props establishment reçues:", establishment);
+      console.log("hotelContactPhone:", establishment.hotelContactPhone);
+      console.log("hotelContactEmail:", establishment.hotelContactEmail);
+
       // Calculer les détails financiers
       const duration = calculateStayDuration(
         booking.checkInDate,
@@ -117,6 +122,14 @@ export function InvoiceDownload({
           email: establishment.hotelContactEmail || undefined,
         },
       };
+
+      // Debug: Afficher les données de l'établissement
+      console.log("Données établissement pour PDF:", {
+        phone: establishment.hotelContactPhone,
+        email: establishment.hotelContactEmail,
+        establishment: establishment,
+        finalData: invoiceData.establishment,
+      });
 
       // Générer le PDF
       const pdfDoc = pdf(<InvoicePDF data={invoiceData} />);
