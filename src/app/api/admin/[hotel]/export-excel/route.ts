@@ -54,72 +54,74 @@ export async function GET(
       },
     });
 
-    // Mapper les données au format Excel requis
+    // Mapper les données au format Excel requis - Compatible avec Checkin FR
     const excelData = bookings.map((booking, index) => ({
-      "Numéro de formulaire": `${booking.hotelSlug}-${String(index + 1).padStart(4, "0")}`,
+      "Numéro de référence système": `${booking.hotelSlug}-${String(index + 1).padStart(4, "0")}`,
       "Date d'arrivée": formatDate(booking.checkInDate),
       "Date de départ": formatDate(booking.checkOutDate),
-      "Exemples adultes": booking.adults || booking.guests, // Utilise adults ou guests en fallback
+      "Exemples adultes": booking.adults || booking.guests,
       "Exemples enfants": booking.children || 0,
-      Nom: booking.clientLastName,
-      Prénom: booking.clientFirstName,
-      Titre: "", // À remplir si vous avez cette information
-      "Groupes / Exemptions": "", // À adapter selon vos besoins
+      Nom: booking.clientLastName || "",
+      Prénom: booking.clientFirstName || "",
+      Titre: "", // Vide par défaut (M., Mme, etc.)
+      "Groupé / Entreprise": "", // Nom du groupe ou entreprise si applicable
       "Date de naissance": formatDate(booking.clientBirthDate),
       "Lieu de naissance": booking.clientBirthPlace || "",
-      Langue: "FR", // À adapter selon vos besoins
-      "Adresse (Rue, Numéro)": booking.clientAddress,
-      "Numéro de pièce d'identité": booking.clientIdNumber,
-      "Adresse (Ville)": booking.clientCity,
-      Pays: booking.clientCountry,
-      "Téléphone privé": booking.clientPhone,
-      "E-mail": booking.clientEmail,
-      Nationalité: booking.clientCountry, // Même valeur que pays
-      "Lieu de résidence": `${booking.clientCity}, ${booking.clientCountry}`,
-      "Nombre total d'Adultes": booking.adults || booking.guests,
+      Langue: "FR", // Langue par défaut
+      "Adresse (Rue, Numéro)": booking.clientAddress || "",
+      "Nom du pays": booking.clientCountry || "",
+      "Téléphone privé": booking.clientPhone || "",
+      "E-mail": booking.clientEmail || "",
+      Nationalité: booking.clientCountry || "",
+      "Adresse (Ville)": booking.clientCity || "",
+      "Lieu de résidence": booking.clientCity
+        ? `${booking.clientCity}, ${booking.clientCountry || ""}`
+        : "",
+      "Nombre total d'Adultes": booking.adults || booking.guests || 0,
       "Nombre total d'enfants": booking.children || 0,
-      "Type de pièce d'identité": "Carte d'identité", // À adapter
-      "Type de clientèle": "Individuel", // À adapter
-      "Numéro de la pièce d'identité": booking.clientIdNumber,
-      "N° d'immatriculation véhicule": booking.clientVehicleNumber || "",
-      "Moyen de communication": "E-mail", // À adapter
-      "Motif du séjour": "Loisir", // À adapter
+      "Type de pièce d'identité": "Carte d'identité", // CI, Passeport, etc.
+      "Type de clientèle": "Individuel", // Individuel, Groupe, Entreprise
+      "Numéro de la pièce d'identité": booking.clientIdNumber || "",
+      "N° d'immatriculation du véhicule": booking.clientVehicleNumber || "",
+      "Carte d'Arée": "", // Carte touristique régionale si applicable
+      "Motif du séjour": "Loisir", // Loisir, Affaires, etc.
+      Time: "", // Heure d'arrivée si nécessaire
     }));
 
     // Créer le workbook Excel
     const workbook = XLSX.utils.book_new();
     const worksheet = XLSX.utils.json_to_sheet(excelData);
 
-    // Ajuster la largeur des colonnes
+    // Ajuster la largeur des colonnes pour correspondre au template Checkin FR
     const columnWidths = [
-      { wch: 20 }, // Numéro de formulaire
-      { wch: 15 }, // Date d'arrivée
-      { wch: 15 }, // Date de départ
-      { wch: 10 }, // Exemples adultes
-      { wch: 10 }, // Exemples enfants
+      { wch: 25 }, // Numéro de référence système
+      { wch: 12 }, // Date d'arrivée
+      { wch: 12 }, // Date de départ
+      { wch: 12 }, // Exemples adultes
+      { wch: 12 }, // Exemples enfants
       { wch: 20 }, // Nom
       { wch: 20 }, // Prénom
-      { wch: 10 }, // Titre
-      { wch: 20 }, // Groupes
+      { wch: 8 }, // Titre
+      { wch: 25 }, // Groupé / Entreprise
       { wch: 15 }, // Date de naissance
       { wch: 20 }, // Lieu de naissance
       { wch: 10 }, // Langue
-      { wch: 30 }, // Adresse
-      { wch: 20 }, // Numéro pièce
-      { wch: 20 }, // Ville
-      { wch: 10 }, // Pays
-      { wch: 15 }, // Téléphone
-      { wch: 25 }, // E-mail
+      { wch: 35 }, // Adresse (Rue, Numéro)
+      { wch: 15 }, // Nom du pays
+      { wch: 15 }, // Téléphone privé
+      { wch: 30 }, // E-mail
       { wch: 15 }, // Nationalité
-      { wch: 25 }, // Lieu de résidence
-      { wch: 10 }, // Nb adultes
-      { wch: 10 }, // Nb enfants
-      { wch: 15 }, // Type de pièce
+      { wch: 20 }, // Adresse (Ville)
+      { wch: 30 }, // Lieu de résidence
+      { wch: 15 }, // Nombre total d'Adultes
+      { wch: 15 }, // Nombre total d'enfants
+      { wch: 20 }, // Type de pièce d'identité
       { wch: 15 }, // Type de clientèle
-      { wch: 20 }, // Numéro pièce (bis)
-      { wch: 20 }, // N° immat véhicule
-      { wch: 15 }, // Moyen communication
-      { wch: 15 }, // Motif séjour
+      { wch: 25 }, // Numéro de la pièce d'identité
+      { wch: 20 }, // N° immatriculation véhicule
+      { wch: 15 }, // Carte d'Arée
+      { wch: 15 }, // Motif du séjour
+      { wch: 10 }, // Time
     ];
     worksheet["!cols"] = columnWidths;
 
