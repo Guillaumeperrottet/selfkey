@@ -3,7 +3,7 @@
 /* S'assurer que la barre de recherche reste toujours visible sur tous les appareils */
 .search-bar-overlay {
   z-index: 1000 !important;
-  position: absolute !important;
+  position: fixed !important; /* Fixed au lieu de absolute pour éviter le scroll avec le clavier */
   pointer-events: none !important;
   /* Position pour desktop */
   top: max(env(safe-area-inset-top, 0px) + 16px, 20px) !important;
@@ -12,7 +12,8 @@
 /* Styles pour tous les navigateurs mobiles (pas seulement iOS) */
 @media (max-width: 768px) and (max-height: 1024px) {
   .search-bar-overlay {
-    /* Position plus basse sur mobile pour éviter la barre d'adresse */
+    /* Position fixe sur mobile pour éviter le décalage lors de l'ouverture du clavier */
+    position: fixed !important;
     top: max(env(safe-area-inset-top, 0px) + 120px, 130px) !important;
   }
 }
@@ -43,8 +44,9 @@
 
 /* Amélioration des contrôles pour tous les navigateurs mobiles */
 @media (max-width: 768px) {
-  /* Barre de recherche - position adaptée pour mobile */
+  /* Barre de recherche - position fixe pour éviter le décalage avec le clavier */
   .search-bar-overlay {
+    position: fixed !important;
     top: max(env(safe-area-inset-top, 0px) + 120px, 130px) !important;
   }
 
@@ -261,6 +263,7 @@
 /* Petits téléphones (jusqu'à 480px) */
 @media (max-width: 480px) {
   .search-bar-overlay {
+    position: fixed !important;
     top: max(env(safe-area-inset-top, 0px) + 120px, 130px) !important;
   }
 
@@ -272,6 +275,7 @@
 /* Téléphones moyens et grands (481px à 768px) */
 @media (min-width: 481px) and (max-width: 768px) {
   .search-bar-overlay {
+    position: fixed !important;
     top: max(env(safe-area-inset-top, 0px) + 120px, 130px) !important;
   }
 
@@ -283,6 +287,7 @@
 /* Mode paysage mobile (pour éviter que la barre soit trop basse) */
 @media (max-width: 768px) and (orientation: landscape) {
   .search-bar-overlay {
+    position: fixed !important;
     top: max(env(safe-area-inset-top, 0px) + 80px, 90px) !important;
   }
 
