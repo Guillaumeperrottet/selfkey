@@ -974,7 +974,8 @@ export function BookingSummary({ bookingId }: BookingSummaryProps) {
                   </span>
                   {booking.room.price > 0 && (
                     <span className="text-base md:text-lg font-medium">
-                      {booking.room.price * duration} {booking.currency}
+                      {(booking.room.price * duration).toFixed(2)}{" "}
+                      {booking.currency}
                     </span>
                   )}
                 </div>
@@ -1020,11 +1021,9 @@ export function BookingSummary({ bookingId }: BookingSummaryProps) {
                               <span className="text-base text-gray-600">
                                 {getOptionDisplayName(key, value)}
                               </span>
-                              {optionPrice > 0 && (
-                                <span className="text-base md:text-lg font-medium">
-                                  {optionPrice} {booking.currency}
-                                </span>
-                              )}
+                              <span className="text-base md:text-lg font-medium">
+                                {optionPrice.toFixed(2)} {booking.currency}
+                              </span>
                             </div>
                           );
                         }
