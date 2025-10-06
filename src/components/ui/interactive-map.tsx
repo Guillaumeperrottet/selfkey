@@ -35,6 +35,7 @@ interface InteractiveMapProps {
       nextAvailable?: string | null;
     }
   >;
+  disableAutoGeolocation?: boolean;
 }
 
 // Composant Map dynamique pour éviter les problèmes SSR
@@ -56,6 +57,7 @@ export default function InteractiveMap({
   center,
   zoom,
   availabilityData,
+  disableAutoGeolocation = false,
 }: InteractiveMapProps) {
   const [mounted, setMounted] = useState(false);
 
@@ -100,6 +102,7 @@ export default function InteractiveMap({
           center={center}
           zoom={zoom}
           availabilityData={availabilityData}
+          disableAutoGeolocation={disableAutoGeolocation}
         />
       </div>
     </div>

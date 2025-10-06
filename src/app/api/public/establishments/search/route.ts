@@ -35,27 +35,32 @@ interface SearchResult {
 // API de géocodage simple pour les villes/pays
 async function geocodeLocation(location: string): Promise<GeocodingResult[]> {
   try {
-    const url = `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(location)}&limit=5&countrycodes=ch,fr,it,de,at,es,be,nl&accept-language=fr&addressdetails=1`;
+    // Recherche prioritaire en Suisse
+    const urlCH = `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(location)}&limit=10&countrycodes=ch&accept-language=fr&addressdetails=1`;
 
-    console.log("Geocoding URL:", url);
+    // Recherche dans les autres pays si pas assez de résultats en Suisse
+    const urlOther = `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(location)}&limit=5&countrycodes=fr,it,de,at&accept-language=fr&addressdetails=1`;
 
-    const response = await fetch(url, {
+    console.log("Geocoding URL (CH):", urlCH);
+
+    // Recherche d'abord en Suisse
+    const responseCH = await fetch(urlCH, {
       headers: {
         "User-Agent": "SelfCamp/1.0 (contact@selfcamp.ch)",
         Accept: "application/json",
       },
     });
 
-    if (!response.ok) {
+    if (!responseCH.ok) {
       console.error(
         "Nominatim API error:",
-        response.status,
-        response.statusText
+        responseCH.status,
+        responseCH.statusText
       );
       return [];
     }
 
-    const data = (await response.json()) as Array<{
+    let allData = (await responseCH.json()) as Array<{
       display_name: string;
       lat: string;
       lon: string;
@@ -73,9 +78,24 @@ async function geocodeLocation(location: string): Promise<GeocodingResult[]> {
       };
     }>;
 
-    console.log("Geocoding results:", data);
+    // Si moins de 3 résultats suisses, ajouter les autres pays
+    if (allData.length < 3) {
+      const responseOther = await fetch(urlOther, {
+        headers: {
+          "User-Agent": "SelfCamp/1.0 (contact@selfcamp.ch)",
+          Accept: "application/json",
+        },
+      });
 
-    return data.map((item) => ({
+      if (responseOther.ok) {
+        const otherData = await responseOther.json();
+        allData = [...allData, ...otherData];
+      }
+    }
+
+    console.log("Geocoding results:", allData);
+
+    return allData.slice(0, 5).map((item) => ({
       display_name: item.display_name,
       lat: parseFloat(item.lat),
       lon: parseFloat(item.lon),

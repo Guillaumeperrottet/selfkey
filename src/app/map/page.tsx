@@ -541,6 +541,7 @@ function MapPageContent() {
           center={mapCenter}
           zoom={mapZoom}
           availabilityData={availabilityData}
+          disableAutoGeolocation={!!mapCenter}
         />
 
         {/* Barre de recherche flottante au centre en haut - universelle pour tous mobiles */}

@@ -135,6 +135,7 @@ interface DirectMapProps {
       nextAvailable?: string | null;
     }
   >;
+  disableAutoGeolocation?: boolean;
 }
 
 // Composant pour mettre à jour la carte quand les props changent
@@ -351,10 +352,20 @@ interface TaggedLayer extends L.Layer {
 }
 
 // Composant de géolocalisation pour mobile - utilise la géolocalisation native de Leaflet
-const MobileLocationComponent = () => {
+const MobileLocationComponent = ({
+  disabled = false,
+}: {
+  disabled?: boolean;
+}) => {
   const map = useMap();
 
   useEffect(() => {
+    // Ne pas activer la géolocalisation si elle est désactivée
+    if (disabled) {
+      console.log("Géolocalisation automatique désactivée");
+      return;
+    }
+
     const mobile = window.innerWidth <= 768 || "ontouchstart" in window;
 
     if (mobile && navigator.geolocation) {
@@ -504,7 +515,7 @@ const MobileLocationComponent = () => {
         map.off("locationerror", onLocationError);
       };
     }
-  }, [map]);
+  }, [map, disabled]);
 
   return null;
 };
@@ -516,6 +527,7 @@ export default function DirectMap({
   center,
   zoom = 6,
   availabilityData,
+  disableAutoGeolocation = false,
 }: DirectMapProps) {
   const [mounted, setMounted] = useState(false);
 
@@ -576,7 +588,7 @@ export default function DirectMap({
       })}
     >
       <MapUpdater center={center} zoom={zoom} />
-      <MobileLocationComponent />
+      <MobileLocationComponent disabled={disableAutoGeolocation} />
       <TileLayer
         attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
         url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"

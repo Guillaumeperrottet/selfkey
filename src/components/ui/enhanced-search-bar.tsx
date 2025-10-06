@@ -243,9 +243,9 @@ export default function EnhancedSearchBar({
   const getIcon = (suggestion: SearchSuggestion) => {
     switch (suggestion.type) {
       case "location":
-        return <MapPin className="w-4 h-4 text-blue-500" />;
+        return <MapPin className="w-4 h-4 text-[#84994F]" />;
       case "establishment":
-        return <Navigation className="w-4 h-4 text-green-500" />;
+        return <Navigation className="w-4 h-4 text-[#84994F]" />;
       case "recent":
         return <Search className="w-4 h-4 text-gray-400" />;
       default:
@@ -265,7 +265,7 @@ export default function EnhancedSearchBar({
           onFocus={handleFocus}
           onBlur={handleBlur}
           placeholder={placeholder}
-          className="pl-10 pr-20"
+          className="pl-10 pr-20 h-12 border-[#84994F]/30 focus:border-[#84994F] focus:ring-[#84994F]/20 rounded-xl"
         />
 
         {/* Actions à droite */}
@@ -276,13 +276,13 @@ export default function EnhancedSearchBar({
             size="sm"
             onClick={handleGeolocation}
             disabled={isGeolocating}
-            className="h-7 w-7 p-0 hover:bg-blue-50"
+            className="h-8 w-8 p-0 hover:bg-[#84994F]/10 rounded-full"
             title="Ma position"
           >
             {isGeolocating ? (
-              <Loader2 className="h-3 w-3 animate-spin" />
+              <Loader2 className="h-4 w-4 animate-spin text-[#84994F]" />
             ) : (
-              <Navigation className="h-3 w-3 text-blue-500" />
+              <Navigation className="h-4 w-4 text-[#84994F]" />
             )}
           </Button>
 
@@ -296,46 +296,46 @@ export default function EnhancedSearchBar({
                 setSuggestions([]);
                 inputRef.current?.focus();
               }}
-              className="h-7 w-7 p-0 hover:bg-gray-50"
+              className="h-8 w-8 p-0 hover:bg-gray-100 rounded-full"
             >
-              <X className="h-3 w-3" />
+              <X className="h-4 w-4 text-gray-500" />
             </Button>
           )}
         </div>
 
         {/* Loading indicator */}
         {isLoading && (
-          <div className="absolute right-12 top-1/2 transform -translate-y-1/2">
-            <Loader2 className="h-3 w-3 animate-spin text-gray-400" />
+          <div className="absolute right-20 top-1/2 transform -translate-y-1/2">
+            <Loader2 className="h-4 w-4 animate-spin text-[#84994F]" />
           </div>
         )}
       </div>
 
       {/* Suggestions Dropdown */}
       {isOpen && (
-        <div className="absolute top-full left-0 right-0 mt-1 bg-white rounded-lg shadow-lg border border-gray-200 z-50 max-h-80 overflow-y-auto">
+        <div className="absolute top-full left-0 right-0 mt-2 bg-white rounded-xl shadow-xl border border-gray-100 z-50 max-h-80 overflow-y-auto">
           {/* Recherches récentes */}
           {!value.trim() && recentSearches.length > 0 && (
-            <div className="p-2 border-b border-gray-100">
-              <div className="text-xs font-medium text-gray-500 mb-2 px-2">
+            <div className="p-3 border-b border-gray-50">
+              <div className="text-xs font-semibold text-gray-500 mb-3 px-2">
                 Recherches récentes
               </div>
               {suggestions.map((suggestion) => (
                 <div
                   key={suggestion.id}
-                  className="w-full flex items-center gap-3 p-2 hover:bg-gray-50 rounded-md transition-colors group"
+                  className="w-full flex items-start gap-3 p-3 hover:bg-[#84994F]/5 rounded-lg transition-colors group"
                 >
                   <button
-                    className="flex items-center gap-3 flex-1 text-left"
+                    className="flex items-start gap-3 flex-1 text-left"
                     onClick={() => handleSuggestionClick(suggestion)}
                   >
-                    {getIcon(suggestion)}
+                    <div className="mt-0.5">{getIcon(suggestion)}</div>
                     <div className="flex-1 min-w-0">
-                      <div className="font-medium text-gray-900 truncate">
+                      <div className="font-medium text-gray-900 text-sm break-words">
                         {suggestion.title}
                       </div>
                       {suggestion.subtitle && (
-                        <div className="text-xs text-gray-500 truncate">
+                        <div className="text-xs text-gray-500 mt-0.5 break-words">
                           {suggestion.subtitle}
                         </div>
                       )}
@@ -354,10 +354,10 @@ export default function EnhancedSearchBar({
                           removeRecentSearch(recentSearch);
                         }
                       }}
-                      className="opacity-0 group-hover:opacity-100 p-1 hover:bg-red-100 rounded-full transition-all duration-200"
+                      className="opacity-0 group-hover:opacity-100 p-1.5 hover:bg-red-50 rounded-full transition-all duration-200 flex-shrink-0"
                       title="Supprimer de l'historique"
                     >
-                      <X className="h-3 w-3 text-gray-400 hover:text-red-500" />
+                      <X className="h-3.5 w-3.5 text-gray-400 hover:text-red-500" />
                     </button>
                   )}
                 </div>
@@ -367,23 +367,23 @@ export default function EnhancedSearchBar({
 
           {/* Suggestions de recherche */}
           {value.trim() && suggestions.length > 0 && (
-            <div className="p-2">
-              <div className="text-xs font-medium text-gray-500 mb-2 px-2">
+            <div className="p-3">
+              <div className="text-xs font-semibold text-gray-500 mb-3 px-2">
                 Suggestions
               </div>
               {suggestions.map((suggestion) => (
                 <button
                   key={suggestion.id}
-                  className="w-full flex items-center gap-3 p-2 hover:bg-gray-50 rounded-md text-left transition-colors"
+                  className="w-full flex items-start gap-3 p-3 hover:bg-[#84994F]/5 rounded-lg text-left transition-colors"
                   onClick={() => handleSuggestionClick(suggestion)}
                 >
-                  {getIcon(suggestion)}
+                  <div className="mt-0.5">{getIcon(suggestion)}</div>
                   <div className="flex-1 min-w-0">
-                    <div className="font-medium text-gray-900 truncate">
+                    <div className="font-medium text-gray-900 text-sm break-words">
                       {suggestion.title}
                     </div>
                     {suggestion.subtitle && (
-                      <div className="text-xs text-gray-500 truncate">
+                      <div className="text-xs text-gray-500 mt-0.5 break-words">
                         {suggestion.subtitle}
                       </div>
                     )}
@@ -395,7 +395,7 @@ export default function EnhancedSearchBar({
 
           {/* Aucun résultat */}
           {value.trim() && suggestions.length === 0 && !isLoading && (
-            <div className="p-4 text-center text-gray-500 text-sm">
+            <div className="p-6 text-center text-gray-500 text-sm">
               Aucun résultat trouvé pour &ldquo;{value}&rdquo;
             </div>
           )}

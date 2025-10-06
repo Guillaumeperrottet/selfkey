@@ -99,7 +99,7 @@ export function SelfcampHomepage() {
                   <div className="w-2 h-2 bg-[#84994F] rounded-full animate-pulse"></div>
                   <div className="text-sm sm:text-base md:text-lg font-bold text-gray-900">
                     <TextType
-                      text="Spontané. Facile. Légal."
+                      text="Autonome. Facile. Légal."
                       typingSpeed={80}
                       showCursor={true}
                       cursorCharacter="|"
