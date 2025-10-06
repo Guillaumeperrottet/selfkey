@@ -325,6 +325,7 @@ async function createNightParkingBookingFromMetadata(
         paymentStatus: "succeeded",
         stripePaymentIntentId: paymentIntent.id,
         bookingType: "night_parking", // ou null selon votre schéma
+        hasDog: metadata.has_dog === "true", // Ajout de hasDog depuis les metadata
       },
       select: {
         id: true,
@@ -412,6 +413,7 @@ async function createClassicBookingFromMetadata(
         paymentStatus: "succeeded",
         stripePaymentIntentId: paymentIntent.id,
         bookingType: "classic_booking", // Type payment-first pour réservations classiques
+        hasDog: metadata.has_dog === "true", // Ajout de hasDog depuis les metadata
       },
       select: {
         id: true,

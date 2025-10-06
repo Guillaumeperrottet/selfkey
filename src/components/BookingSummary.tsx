@@ -77,6 +77,7 @@ interface BookingData {
   guests: number;
   adults: number;
   children: number;
+  hasDog?: boolean; // Ajout du champ hasDog
 }
 
 interface PricingOptionValue {
@@ -446,6 +447,8 @@ export function BookingSummary({ bookingId }: BookingSummaryProps) {
               expectedPrice: booking.amount,
               selectedPricingOptions: booking.selectedPricingOptions,
               pricingOptionsTotal: booking.pricingOptionsTotal,
+              hasDog:
+                (booking as BookingData & { hasDog?: boolean }).hasDog || false, // Ajout de hasDog
             }),
           }
         );

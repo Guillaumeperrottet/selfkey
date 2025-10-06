@@ -162,10 +162,17 @@ export async function generateConfirmationContent(
 
   // Si le client a coché "avec chien" et qu'un template spécifique est défini
   if (
-    booking.hasDog &&
+    booking.hasDog === true &&
     booking.establishment.confirmationEmailTemplateWithDog
   ) {
     template = booking.establishment.confirmationEmailTemplateWithDog;
+  }
+  // Si le client a coché "sans chien" et qu'un template spécifique est défini
+  else if (
+    booking.hasDog === false &&
+    booking.establishment.confirmationEmailTemplateWithoutDog
+  ) {
+    template = booking.establishment.confirmationEmailTemplateWithoutDog;
   }
   // Sinon, utiliser le template normal (général)
   else {

@@ -11,10 +11,11 @@ interface Params {
 
 interface TestEmailRequest {
   testEmail: string;
-  templateType?: "general" | "withDogs"; // Types cohérents avec le front
+  templateType?: "general" | "withDogs" | "withoutDogs"; // Types cohérents avec le front
   settings: {
     confirmationEmailTemplate: string;
     confirmationEmailTemplateWithDog?: string;
+    confirmationEmailTemplateWithoutDog?: string;
     confirmationEmailFrom: string;
     hotelContactEmail: string;
     hotelContactPhone: string;
@@ -98,6 +99,11 @@ export async function POST(request: NextRequest, { params }: Params) {
       settings.confirmationEmailTemplateWithDog
     ) {
       emailTemplate = settings.confirmationEmailTemplateWithDog;
+    } else if (
+      templateType === "withoutDogs" &&
+      settings.confirmationEmailTemplateWithoutDog
+    ) {
+      emailTemplate = settings.confirmationEmailTemplateWithoutDog;
     } else {
       emailTemplate = settings.confirmationEmailTemplate;
     }

@@ -357,7 +357,7 @@ async function sendEmailConfirmation(
 
   // Si le client a coché "avec chien" et qu'un template spécifique est défini
   if (
-    booking.hasDog &&
+    booking.hasDog === true &&
     booking.establishment.confirmationEmailTemplateWithDog
   ) {
     template = booking.establishment.confirmationEmailTemplateWithDog;
@@ -365,12 +365,22 @@ async function sendEmailConfirmation(
       "📧 Utilisation du template EMAIL AVEC CHIEN (client a un chien)"
     );
   }
-  // Sinon, utiliser le template normal (général)
+  // Si le client a coché "sans chien" et qu'un template spécifique est défini
+  else if (
+    booking.hasDog === false &&
+    booking.establishment.confirmationEmailTemplateWithoutDog
+  ) {
+    template = booking.establishment.confirmationEmailTemplateWithoutDog;
+    console.log(
+      "📧 Utilisation du template EMAIL SANS CHIEN (client n'a pas de chien)"
+    );
+  }
+  // Sinon, utiliser le template normal (général) ou le template par défaut
   else {
     template =
       booking.establishment.confirmationEmailTemplate ||
       getDefaultEmailTemplate();
-    console.log("📧 Utilisation du template EMAIL NORMAL");
+    console.log("📧 Utilisation du template EMAIL NORMAL (général)");
   }
 
   // Remplacer les variables dans le template
