@@ -173,7 +173,7 @@ model Room {
 
 model Booking {
   id                     String        @id @default(cuid())
-  bookingNumber          Int           @unique @default(dbgenerated("nextval('booking_number_seq')"))
+  bookingNumber          Int           @unique @default(autoincrement())
   hotelSlug              String
   roomId                 String?
   clientEmail            String
@@ -192,6 +192,7 @@ model Booking {
   clientCountry          String
   clientFirstName        String
   clientIdNumber         String
+  clientIdType           String?       // Type de pièce d'identité: "ID card", "Passport", "Driving license"
   clientLastName         String
   clientPhone            String
   clientPostalCode       String

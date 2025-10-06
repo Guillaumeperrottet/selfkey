@@ -83,6 +83,7 @@ export default async function AdminPage({ params }: Props) {
       clientCity: true,
       clientCountry: true,
       clientIdNumber: true,
+      clientIdType: true,
       clientVehicleNumber: true,
       amount: true,
       guests: true,

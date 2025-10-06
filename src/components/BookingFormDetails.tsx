@@ -54,6 +54,7 @@ interface BookingFormDetailsProps {
     clientCountry?: string;
     clientBirthPlace?: string;
     clientIdNumber?: string;
+    clientIdType?: string;
     clientVehicleNumber?: string;
     selectedPricingOptions?: Record<string, string | string[]>;
     hasDog?: boolean;
@@ -113,6 +114,9 @@ export function BookingFormDetails({
   );
   const [clientIdNumber, setClientIdNumber] = useState(
     initialData?.clientIdNumber || ""
+  );
+  const [clientIdType, setClientIdType] = useState(
+    initialData?.clientIdType || "Carte d'identité"
   );
   const [clientVehicleNumber, setClientVehicleNumber] = useState(
     initialData?.clientVehicleNumber || ""
@@ -343,6 +347,7 @@ export function BookingFormDetails({
         clientCity: clientCity.trim(),
         clientCountry: clientCountry.trim(),
         clientIdNumber: clientIdNumber.trim(),
+        clientIdType: clientIdType,
         clientVehicleNumber: clientVehicleNumber.trim(),
         amount: totalPrice,
         currency: "CHF",
@@ -714,24 +719,52 @@ export function BookingFormDetails({
                 isFieldEnabled("clientVehicleNumber")) && (
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   {isFieldEnabled("clientIdNumber") && (
-                    <div className="space-y-2">
-                      <Label
-                        htmlFor="clientIdNumber"
-                        className="text-sm font-medium text-gray-700"
-                      >
-                        ID or License Number{" "}
-                        {isFieldRequired("clientIdNumber") ? "*" : ""}
-                      </Label>
-                      <Input
-                        id="clientIdNumber"
-                        type="text"
-                        value={clientIdNumber}
-                        onChange={(e) => setClientIdNumber(e.target.value)}
-                        placeholder="ID Number"
-                        className="h-10"
-                        required={isFieldRequired("clientIdNumber")}
-                      />
-                    </div>
+                    <>
+                      <div className="space-y-2">
+                        <Label
+                          htmlFor="clientIdType"
+                          className="text-sm font-medium text-gray-700"
+                        >
+                          Type de document{" "}
+                          {isFieldRequired("clientIdNumber") ? "*" : ""}
+                        </Label>
+                        <Select
+                          value={clientIdType}
+                          onValueChange={setClientIdType}
+                        >
+                          <SelectTrigger className="h-10">
+                            <SelectValue placeholder="Sélectionner un type" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="Carte d'identité">
+                              Carte d&apos;identité
+                            </SelectItem>
+                            <SelectItem value="Passeport">Passeport</SelectItem>
+                            <SelectItem value="Permis de conduire">
+                              Permis de conduire
+                            </SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
+                      <div className="space-y-2">
+                        <Label
+                          htmlFor="clientIdNumber"
+                          className="text-sm font-medium text-gray-700"
+                        >
+                          Numéro de document{" "}
+                          {isFieldRequired("clientIdNumber") ? "*" : ""}
+                        </Label>
+                        <Input
+                          id="clientIdNumber"
+                          type="text"
+                          value={clientIdNumber}
+                          onChange={(e) => setClientIdNumber(e.target.value)}
+                          placeholder="Numéro de document"
+                          className="h-10"
+                          required={isFieldRequired("clientIdNumber")}
+                        />
+                      </div>
+                    </>
                   )}
                   {isFieldEnabled("clientVehicleNumber") && (
                     <div className="space-y-2">
