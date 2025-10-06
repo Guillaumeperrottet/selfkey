@@ -51,6 +51,7 @@ function MapPageContent() {
   const [showingNearbyEstablishments, setShowingNearbyEstablishments] =
     useState(false);
   const [isMobile, setIsMobile] = useState(false);
+  const [isKeyboardOpen, setIsKeyboardOpen] = useState(false);
 
   // Gérer les paramètres URL pour les recherches depuis la homepage
   const searchParams = useSearchParams();
@@ -157,11 +158,38 @@ function MapPageContent() {
     window.addEventListener("resize", checkMobile);
     window.addEventListener("orientationchange", checkMobile);
 
+    // Détection de l'ouverture du clavier sur mobile
+    if (isMobile) {
+      const initialHeight = window.visualViewport?.height || window.innerHeight;
+
+      const handleViewportChange = () => {
+        const currentHeight =
+          window.visualViewport?.height || window.innerHeight;
+        const heightDiff = initialHeight - currentHeight;
+
+        // Si la hauteur a diminué de plus de 150px, le clavier est probablement ouvert
+        setIsKeyboardOpen(heightDiff > 150);
+      };
+
+      window.visualViewport?.addEventListener("resize", handleViewportChange);
+      window.addEventListener("resize", handleViewportChange);
+
+      return () => {
+        window.removeEventListener("resize", checkMobile);
+        window.removeEventListener("orientationchange", checkMobile);
+        window.visualViewport?.removeEventListener(
+          "resize",
+          handleViewportChange
+        );
+        window.removeEventListener("resize", handleViewportChange);
+      };
+    }
+
     return () => {
       window.removeEventListener("resize", checkMobile);
       window.removeEventListener("orientationchange", checkMobile);
     };
-  }, []);
+  }, [isMobile]);
 
   useEffect(() => {
     filterEstablishments();
@@ -538,8 +566,9 @@ function MapPageContent() {
           className="search-bar-overlay absolute left-1/2 transform -translate-x-1/2 w-full max-w-xs md:max-w-md lg:max-w-lg px-6"
           style={{
             zIndex: 1000,
-            top: isMobile ? "20px" : "20px",
+            top: isMobile ? (isKeyboardOpen ? "20px" : "80px") : "20px",
             paddingTop: "env(safe-area-inset-top, 0px)",
+            transition: "top 0.3s ease",
           }}
         >
           <div
