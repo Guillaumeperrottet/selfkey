@@ -14,9 +14,84 @@ export function SelfcampAboutPage() {
     {
       title: "Soutien aux Régions",
       content: (
-        <div className="py-10 bg-white">
+        <div className="py-6 md:py-10 bg-white">
           <div className="max-w-5xl mx-auto px-4">
-            <div className="space-y-6 mb-10">
+            {/* Mobile: Simple text blocks */}
+            <div className="md:hidden space-y-6">
+              <div className="space-y-4">
+                <p className="text-base text-gray-700 leading-relaxed">
+                  Le camping sauvage a l&apos;avantage de favoriser les visites
+                  des régions moins touristiques. En créant des aires de camping
+                  SelfCamp, cela permet d&apos;organiser les nuitées de ces
+                  visiteurs et de faire découvrir des villages hors des grands
+                  axes.
+                </p>
+              </div>
+
+              <div className="border-t border-gray-200 pt-6">
+                <p className="text-base text-gray-700 leading-relaxed">
+                  Dès lors, notre idée est de permettre aux artisans locaux
+                  (boulangerie, épicerie et laiterie) de profiter de cette
+                  présence en offrant des avantages dans leur commerce au moment
+                  du paiement de la taxe de séjour.
+                </p>
+              </div>
+
+              <div className="border-t border-gray-200 pt-6 space-y-5">
+                <div className="flex items-start space-x-4">
+                  <span className="text-2xl flex-shrink-0 mt-1">🏪</span>
+                  <div>
+                    <h4 className="text-base font-semibold text-[#84994F] mb-1.5">
+                      Commerce Local
+                    </h4>
+                    <p className="text-sm text-gray-600 leading-relaxed">
+                      Boulangeries, épiceries, laiteries bénéficient directement
+                      du passage des camping-caristes
+                    </p>
+                  </div>
+                </div>
+
+                <div className="flex items-start space-x-4">
+                  <span className="text-2xl flex-shrink-0 mt-1">🗺️</span>
+                  <div>
+                    <h4 className="text-base font-semibold text-[#84994F] mb-1.5">
+                      Découverte Régionale
+                    </h4>
+                    <p className="text-sm text-gray-600 leading-relaxed">
+                      Valorisation des villages et régions moins touristiques
+                      hors des grands axes
+                    </p>
+                  </div>
+                </div>
+
+                <div className="flex items-start space-x-4">
+                  <span className="text-2xl flex-shrink-0 mt-1">💰</span>
+                  <div>
+                    <h4 className="text-base font-semibold text-[#84994F] mb-1.5">
+                      Économie Circulaire
+                    </h4>
+                    <p className="text-sm text-gray-600 leading-relaxed">
+                      Avantages commerciaux liés au paiement des taxes de
+                      séjour, retombées économiques directes
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              <div className="border-t border-gray-200 pt-6">
+                <h4 className="text-lg font-bold text-[#84994F] mb-3">
+                  Impact Territorial
+                </h4>
+                <p className="text-gray-700 text-base leading-relaxed">
+                  SelfCamp transforme le camping sauvage en opportunité
+                  économique structurée, créant un cercle vertueux qui bénéficie
+                  aux territoires, commerçants et visiteurs.
+                </p>
+              </div>
+            </div>
+
+            {/* Desktop: Cards layout */}
+            <div className="hidden md:block space-y-6 mb-10">
               <div className="bg-[#84994F]/3 rounded-2xl p-6 border border-[#84994F]/30 text-center">
                 <p className="text-base text-gray-700 leading-relaxed">
                   Le camping sauvage a l&apos;avantage de favoriser les visites
@@ -36,7 +111,7 @@ export function SelfcampAboutPage() {
                 </p>
               </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-10">
+              <div className="grid grid-cols-3 gap-6 mt-10">
                 <div className="bg-[#84994F]/5 p-6 rounded-2xl border border-[#84994F]/30 text-center hover:border-[#84994F]/50 transition-all duration-300">
                   <div className="w-12 h-12 bg-[#84994F] rounded-full flex items-center justify-center mx-auto mb-4">
                     <span className="text-xl">🏪</span>
@@ -95,11 +170,12 @@ export function SelfcampAboutPage() {
     {
       title: "Nos Prestations",
       content: (
-        <div className="py-10 bg-white">
+        <div className="py-6 md:py-10 bg-white">
           <div className="max-w-5xl mx-auto px-4">
-            <div className="text-center mb-10">
-              <div className="max-w-4xl mx-auto">
-                <p className="text-lg text-gray-700 leading-relaxed mb-4">
+            {/* Mobile: Simple list */}
+            <div className="md:hidden space-y-6">
+              <div className="space-y-3">
+                <p className="text-base text-gray-700 leading-relaxed">
                   Au-delà de notre{" "}
                   <span className="text-[#84994F] font-medium">
                     solution d&apos;enregistrement
@@ -107,65 +183,140 @@ export function SelfcampAboutPage() {
                   , nous vous accompagnons avec notre expertise complète pour
                   l&apos;organisation optimale de votre aire.
                 </p>
-                <p className="text-base text-gray-600 font-medium">
+              </div>
+
+              <div className="border-t border-gray-200 pt-6">
+                <h4 className="text-base font-semibold text-gray-900 mb-4">
                   Nos prestations incluent :
+                </h4>
+                <div className="space-y-3">
+                  <div className="flex items-start space-x-3">
+                    <div className="w-1.5 h-1.5 bg-[#84994F] rounded-full mt-2 flex-shrink-0"></div>
+                    <p className="text-sm text-gray-700 leading-relaxed">
+                      Délimitation de la zone et des places
+                    </p>
+                  </div>
+                  <div className="flex items-start space-x-3">
+                    <div className="w-1.5 h-1.5 bg-[#84994F] rounded-full mt-2 flex-shrink-0"></div>
+                    <p className="text-sm text-gray-700 leading-relaxed">
+                      Mise en place de la signalétique
+                    </p>
+                  </div>
+                  <div className="flex items-start space-x-3">
+                    <div className="w-1.5 h-1.5 bg-[#84994F] rounded-full mt-2 flex-shrink-0"></div>
+                    <p className="text-sm text-gray-700 leading-relaxed">
+                      Mise en place du système d&apos;enregistrement (Totem et
+                      QR code)
+                    </p>
+                  </div>
+                  <div className="flex items-start space-x-3">
+                    <div className="w-1.5 h-1.5 bg-[#84994F] rounded-full mt-2 flex-shrink-0"></div>
+                    <p className="text-sm text-gray-700 leading-relaxed">
+                      Solution de vidange (sur place ou dans campings
+                      partenaires)
+                    </p>
+                  </div>
+                  <div className="flex items-start space-x-3">
+                    <div className="w-1.5 h-1.5 bg-[#84994F] rounded-full mt-2 flex-shrink-0"></div>
+                    <p className="text-sm text-gray-700 leading-relaxed">
+                      Promotion sur site internet
+                    </p>
+                  </div>
+                  <div className="flex items-start space-x-3">
+                    <div className="w-1.5 h-1.5 bg-[#84994F] rounded-full mt-2 flex-shrink-0"></div>
+                    <p className="text-sm text-gray-700 leading-relaxed">
+                      Promotion sur réseaux sociaux
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              <div className="border-t border-gray-200 pt-6">
+                <h4 className="text-lg font-bold text-[#84994F] mb-3">
+                  Solution Complète Clé en Main
+                </h4>
+                <p className="text-gray-700 text-base leading-relaxed">
+                  De la conception à la promotion, nous prenons en charge tous
+                  les aspects de votre aire de camping-car pour garantir son
+                  succès.
                 </p>
               </div>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-              <div className="space-y-4">
-                <div className="flex items-start space-x-4">
-                  <div className="w-2 h-2 bg-[#84994F] rounded-full mt-2.5 flex-shrink-0"></div>
-                  <p className="text-base text-gray-700 leading-relaxed">
-                    Délimitation de la zone et des places
+            {/* Desktop: Original layout */}
+            <div className="hidden md:block">
+              <div className="text-center mb-10">
+                <div className="max-w-4xl mx-auto">
+                  <p className="text-lg text-gray-700 leading-relaxed mb-4">
+                    Au-delà de notre{" "}
+                    <span className="text-[#84994F] font-medium">
+                      solution d&apos;enregistrement
+                    </span>
+                    , nous vous accompagnons avec notre expertise complète pour
+                    l&apos;organisation optimale de votre aire.
                   </p>
-                </div>
-                <div className="flex items-start space-x-4">
-                  <div className="w-2 h-2 bg-[#84994F] rounded-full mt-2.5 flex-shrink-0"></div>
-                  <p className="text-base text-gray-700 leading-relaxed">
-                    Mise en place de la signalétique
-                  </p>
-                </div>
-                <div className="flex items-start space-x-4">
-                  <div className="w-2 h-2 bg-[#84994F] rounded-full mt-2.5 flex-shrink-0"></div>
-                  <p className="text-base text-gray-700 leading-relaxed">
-                    Mise en place du système d&apos;enregistrement (Totem et QR
-                    code)
+                  <p className="text-base text-gray-600 font-medium">
+                    Nos prestations incluent :
                   </p>
                 </div>
               </div>
 
-              <div className="space-y-4">
-                <div className="flex items-start space-x-4">
-                  <div className="w-2 h-2 bg-[#84994F] rounded-full mt-2.5 flex-shrink-0"></div>
-                  <p className="text-base text-gray-700 leading-relaxed">
-                    Solution de vidange (sur place ou dans campings partenaires)
-                  </p>
+              <div className="grid grid-cols-2 gap-8">
+                <div className="space-y-4">
+                  <div className="flex items-start space-x-4">
+                    <div className="w-2 h-2 bg-[#84994F] rounded-full mt-2.5 flex-shrink-0"></div>
+                    <p className="text-base text-gray-700 leading-relaxed">
+                      Délimitation de la zone et des places
+                    </p>
+                  </div>
+                  <div className="flex items-start space-x-4">
+                    <div className="w-2 h-2 bg-[#84994F] rounded-full mt-2.5 flex-shrink-0"></div>
+                    <p className="text-base text-gray-700 leading-relaxed">
+                      Mise en place de la signalétique
+                    </p>
+                  </div>
+                  <div className="flex items-start space-x-4">
+                    <div className="w-2 h-2 bg-[#84994F] rounded-full mt-2.5 flex-shrink-0"></div>
+                    <p className="text-base text-gray-700 leading-relaxed">
+                      Mise en place du système d&apos;enregistrement (Totem et
+                      QR code)
+                    </p>
+                  </div>
                 </div>
-                <div className="flex items-start space-x-4">
-                  <div className="w-2 h-2 bg-[#84994F] rounded-full mt-2.5 flex-shrink-0"></div>
-                  <p className="text-base text-gray-700 leading-relaxed">
-                    Promotion sur site internet
-                  </p>
-                </div>
-                <div className="flex items-start space-x-4">
-                  <div className="w-2 h-2 bg-[#84994F] rounded-full mt-2.5 flex-shrink-0"></div>
-                  <p className="text-base text-gray-700 leading-relaxed">
-                    Promotion sur réseaux sociaux
-                  </p>
+
+                <div className="space-y-4">
+                  <div className="flex items-start space-x-4">
+                    <div className="w-2 h-2 bg-[#84994F] rounded-full mt-2.5 flex-shrink-0"></div>
+                    <p className="text-base text-gray-700 leading-relaxed">
+                      Solution de vidange (sur place ou dans campings
+                      partenaires)
+                    </p>
+                  </div>
+                  <div className="flex items-start space-x-4">
+                    <div className="w-2 h-2 bg-[#84994F] rounded-full mt-2.5 flex-shrink-0"></div>
+                    <p className="text-base text-gray-700 leading-relaxed">
+                      Promotion sur site internet
+                    </p>
+                  </div>
+                  <div className="flex items-start space-x-4">
+                    <div className="w-2 h-2 bg-[#84994F] rounded-full mt-2.5 flex-shrink-0"></div>
+                    <p className="text-base text-gray-700 leading-relaxed">
+                      Promotion sur réseaux sociaux
+                    </p>
+                  </div>
                 </div>
               </div>
-            </div>
 
-            <div className="mt-10 bg-[#84994F]/3 rounded-2xl p-6 border border-[#84994F]/30 text-center max-w-4xl mx-auto">
-              <h4 className="text-xl font-semibold text-[#84994F] mb-3">
-                Solution Complète Clé en Main
-              </h4>
-              <p className="text-gray-700 text-base leading-relaxed">
-                De la conception à la promotion, nous prenons en charge tous les
-                aspects de votre aire de camping-car pour garantir son succès.
-              </p>
+              <div className="mt-10 bg-[#84994F]/3 rounded-2xl p-6 border border-[#84994F]/30 text-center max-w-4xl mx-auto">
+                <h4 className="text-xl font-semibold text-[#84994F] mb-3">
+                  Solution Complète Clé en Main
+                </h4>
+                <p className="text-gray-700 text-base leading-relaxed">
+                  De la conception à la promotion, nous prenons en charge tous
+                  les aspects de votre aire de camping-car pour garantir son
+                  succès.
+                </p>
+              </div>
             </div>
           </div>
         </div>
@@ -174,171 +325,317 @@ export function SelfcampAboutPage() {
     {
       title: "Avantages Prestataires",
       content: (
-        <div className="py-10 bg-white">
+        <div className="py-6 md:py-10 bg-white">
           <div className="max-w-7xl mx-auto px-4">
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 max-w-6xl mx-auto mb-16">
+            {/* Mobile: Simple sections */}
+            <div className="md:hidden space-y-8">
               {/* Conformité Réglementaire */}
-              <motion.div
-                initial={{ opacity: 0, y: 40 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.6, delay: 0.1 }}
-                viewport={{ once: true }}
-                className="bg-white rounded-2xl p-8 border border-[#84994F]/30 hover:border-[#84994F]/50 transition-all duration-300"
-              >
-                <h4 className="text-xl font-semibold text-[#84994F] mb-6">
+              <div>
+                <h4 className="text-lg font-bold text-[#84994F] mb-4">
                   Conformité Réglementaire
                 </h4>
-                <ul className="space-y-4 text-gray-700">
+                <ul className="space-y-3 text-gray-700">
                   <li className="flex items-start">
-                    <div className="w-2 h-2 bg-[#84994F] rounded-full mt-2.5 mr-4 flex-shrink-0"></div>
-                    <span className="text-base leading-relaxed">
+                    <div className="w-1.5 h-1.5 bg-[#84994F] rounded-full mt-2 mr-3 flex-shrink-0"></div>
+                    <span className="text-sm leading-relaxed">
                       Création d&apos;une structure légale permettant
                       d&apos;interdire le camping sauvage
                     </span>
                   </li>
                   <li className="flex items-start">
-                    <div className="w-2 h-2 bg-[#84994F] rounded-full mt-2.5 mr-4 flex-shrink-0"></div>
-                    <span className="text-base leading-relaxed">
+                    <div className="w-1.5 h-1.5 bg-[#84994F] rounded-full mt-2 mr-3 flex-shrink-0"></div>
+                    <span className="text-sm leading-relaxed">
                       Respect des obligations légales de déclaration
                     </span>
                   </li>
                   <li className="flex items-start">
-                    <div className="w-2 h-2 bg-[#84994F] rounded-full mt-2.5 mr-4 flex-shrink-0"></div>
-                    <span className="text-base leading-relaxed">
+                    <div className="w-1.5 h-1.5 bg-[#84994F] rounded-full mt-2 mr-3 flex-shrink-0"></div>
+                    <span className="text-sm leading-relaxed">
                       Traçabilité complète pour contrôles et audits
                     </span>
                   </li>
                   <li className="flex items-start">
-                    <div className="w-2 h-2 bg-[#84994F] rounded-full mt-2.5 mr-4 flex-shrink-0"></div>
-                    <span className="text-base leading-relaxed">
+                    <div className="w-1.5 h-1.5 bg-[#84994F] rounded-full mt-2 mr-3 flex-shrink-0"></div>
+                    <span className="text-sm leading-relaxed">
                       Conformité RGPD et protection des données
                     </span>
                   </li>
                 </ul>
-              </motion.div>
+              </div>
+
+              <div className="border-t border-gray-200"></div>
 
               {/* Revenus Garantis */}
-              <motion.div
-                initial={{ opacity: 0, y: 40 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.6, delay: 0.2 }}
-                viewport={{ once: true }}
-                className="bg-white rounded-2xl p-8 border border-[#84994F]/30 hover:border-[#84994F]/50 transition-all duration-300"
-              >
-                <h4 className="text-xl font-semibold text-[#84994F] mb-6">
+              <div>
+                <h4 className="text-lg font-bold text-[#84994F] mb-4">
                   Revenus Garantis
                 </h4>
-                <ul className="space-y-4 text-gray-700">
+                <ul className="space-y-3 text-gray-700">
                   <li className="flex items-start">
-                    <div className="w-2 h-2 bg-[#84994F] rounded-full mt-2.5 mr-4 flex-shrink-0"></div>
-                    <span className="text-base leading-relaxed">
+                    <div className="w-1.5 h-1.5 bg-[#84994F] rounded-full mt-2 mr-3 flex-shrink-0"></div>
+                    <span className="text-sm leading-relaxed">
                       Collecte automatisée des taxes de séjour sans perte ni
                       oubli
                     </span>
                   </li>
                   <li className="flex items-start">
-                    <div className="w-2 h-2 bg-[#84994F] rounded-full mt-2.5 mr-4 flex-shrink-0"></div>
-                    <span className="text-base leading-relaxed">
+                    <div className="w-1.5 h-1.5 bg-[#84994F] rounded-full mt-2 mr-3 flex-shrink-0"></div>
+                    <span className="text-sm leading-relaxed">
                       Augmentation significative des recettes fiscales
                       touristiques
                     </span>
                   </li>
                 </ul>
-              </motion.div>
+              </div>
+
+              <div className="border-t border-gray-200"></div>
 
               {/* Partenariat Tout-en-un */}
-              <motion.div
-                initial={{ opacity: 0, y: 40 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.6, delay: 0.3 }}
-                viewport={{ once: true }}
-                className="bg-white rounded-2xl p-8 border border-[#84994F]/30 hover:border-[#84994F]/50 transition-all duration-300"
-              >
-                <h4 className="text-xl font-semibold text-[#84994F] mb-6">
+              <div>
+                <h4 className="text-lg font-bold text-[#84994F] mb-4">
                   Partenariat Tout-en-un
                 </h4>
-                <ul className="space-y-4 text-gray-700">
+                <ul className="space-y-3 text-gray-700">
                   <li className="flex items-start">
-                    <div className="w-2 h-2 bg-[#84994F] rounded-full mt-2.5 mr-4 flex-shrink-0"></div>
-                    <span className="text-base leading-relaxed">
+                    <div className="w-1.5 h-1.5 bg-[#84994F] rounded-full mt-2 mr-3 flex-shrink-0"></div>
+                    <span className="text-sm leading-relaxed">
                       Amélioration concrète des infrastructures (signalétique,
                       parkings)
                     </span>
                   </li>
                   <li className="flex items-start">
-                    <div className="w-2 h-2 bg-[#84994F] rounded-full mt-2.5 mr-4 flex-shrink-0"></div>
-                    <span className="text-base leading-relaxed">
+                    <div className="w-1.5 h-1.5 bg-[#84994F] rounded-full mt-2 mr-3 flex-shrink-0"></div>
+                    <span className="text-sm leading-relaxed">
                       Réseau de services intégrés via partenariats campings
                     </span>
                   </li>
                   <li className="flex items-start">
-                    <div className="w-2 h-2 bg-[#84994F] rounded-full mt-2.5 mr-4 flex-shrink-0"></div>
-                    <span className="text-base leading-relaxed">
+                    <div className="w-1.5 h-1.5 bg-[#84994F] rounded-full mt-2 mr-3 flex-shrink-0"></div>
+                    <span className="text-sm leading-relaxed">
                       Possibilité de rendre payant les parkings (en sus des
                       taxes)
                     </span>
                   </li>
                 </ul>
-              </motion.div>
+              </div>
+
+              <div className="border-t border-gray-200"></div>
 
               {/* Données Stratégiques */}
-              <motion.div
-                initial={{ opacity: 0, y: 40 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.6, delay: 0.4 }}
-                viewport={{ once: true }}
-                className="bg-white rounded-2xl p-8 border border-[#84994F]/30 hover:border-[#84994F]/50 transition-all duration-300"
-              >
-                <h4 className="text-xl font-semibold text-[#84994F] mb-6">
+              <div>
+                <h4 className="text-lg font-bold text-[#84994F] mb-4">
                   Données Stratégiques
                 </h4>
-                <ul className="space-y-4 text-gray-700">
+                <ul className="space-y-3 text-gray-700">
                   <li className="flex items-start">
-                    <div className="w-2 h-2 bg-[#84994F] rounded-full mt-2.5 mr-4 flex-shrink-0"></div>
-                    <span className="text-base leading-relaxed">
+                    <div className="w-1.5 h-1.5 bg-[#84994F] rounded-full mt-2 mr-3 flex-shrink-0"></div>
+                    <span className="text-sm leading-relaxed">
                       Fréquentation détaillée, flux par site, saisonnalité,
                       durée des séjours
                     </span>
                   </li>
                   <li className="flex items-start">
-                    <div className="w-2 h-2 bg-[#84994F] rounded-full mt-2.5 mr-4 flex-shrink-0"></div>
-                    <span className="text-base leading-relaxed">
+                    <div className="w-1.5 h-1.5 bg-[#84994F] rounded-full mt-2 mr-3 flex-shrink-0"></div>
+                    <span className="text-sm leading-relaxed">
                       Profiling visiteurs : origine géographique, type de
                       tourisme
                     </span>
                   </li>
                   <li className="flex items-start">
-                    <div className="w-2 h-2 bg-[#84994F] rounded-full mt-2.5 mr-4 flex-shrink-0"></div>
-                    <span className="text-base leading-relaxed">
+                    <div className="w-1.5 h-1.5 bg-[#84994F] rounded-full mt-2 mr-3 flex-shrink-0"></div>
+                    <span className="text-sm leading-relaxed">
                       Identification des zones sous/surexploitées
                     </span>
                   </li>
                   <li className="flex items-start">
-                    <div className="w-2 h-2 bg-[#84994F] rounded-full mt-2.5 mr-4 flex-shrink-0"></div>
-                    <span className="text-base leading-relaxed">
+                    <div className="w-1.5 h-1.5 bg-[#84994F] rounded-full mt-2 mr-3 flex-shrink-0"></div>
+                    <span className="text-sm leading-relaxed">
                       Anticipation des pics, dimensionnement des infrastructures
                     </span>
                   </li>
                 </ul>
-              </motion.div>
+              </div>
+
+              <div className="border-t border-gray-200 pt-6">
+                <h4 className="text-xl font-bold text-[#84994F] mb-3">
+                  Solution Complète Clé en Main
+                </h4>
+                <p className="text-gray-700 text-base leading-relaxed">
+                  De la conception à la promotion, nous prenons en charge tous
+                  les aspects de votre aire de camping-car pour garantir son
+                  succès.
+                </p>
+              </div>
             </div>
 
-            {/* Carte highlight */}
-            <motion.div
-              initial={{ opacity: 0, y: 30 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.8, delay: 0.5 }}
-              viewport={{ once: true }}
-              className="bg-[#84994F]/3 rounded-2xl p-8 border border-[#84994F]/30 text-center max-w-4xl mx-auto"
-            >
-              <h4 className="text-2xl md:text-3xl font-bold text-[#84994F] mb-4">
-                Solution Complète Clé en Main
-              </h4>
-              <p className="text-gray-700 text-lg leading-relaxed">
-                De la conception à la promotion, nous prenons en charge tous les
-                aspects de votre aire de camping-car pour garantir son succès.
-              </p>
-            </motion.div>
+            {/* Desktop: Cards layout */}
+            <div className="hidden md:block">
+              <div className="grid grid-cols-2 gap-10 max-w-6xl mx-auto mb-16">
+                {/* Conformité Réglementaire */}
+                <motion.div
+                  initial={{ opacity: 0, y: 40 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.6, delay: 0.1 }}
+                  viewport={{ once: true }}
+                  className="bg-white rounded-2xl p-8 border border-[#84994F]/30 hover:border-[#84994F]/50 transition-all duration-300"
+                >
+                  <h4 className="text-xl font-semibold text-[#84994F] mb-6">
+                    Conformité Réglementaire
+                  </h4>
+                  <ul className="space-y-4 text-gray-700">
+                    <li className="flex items-start">
+                      <div className="w-2 h-2 bg-[#84994F] rounded-full mt-2.5 mr-4 flex-shrink-0"></div>
+                      <span className="text-base leading-relaxed">
+                        Création d&apos;une structure légale permettant
+                        d&apos;interdire le camping sauvage
+                      </span>
+                    </li>
+                    <li className="flex items-start">
+                      <div className="w-2 h-2 bg-[#84994F] rounded-full mt-2.5 mr-4 flex-shrink-0"></div>
+                      <span className="text-base leading-relaxed">
+                        Respect des obligations légales de déclaration
+                      </span>
+                    </li>
+                    <li className="flex items-start">
+                      <div className="w-2 h-2 bg-[#84994F] rounded-full mt-2.5 mr-4 flex-shrink-0"></div>
+                      <span className="text-base leading-relaxed">
+                        Traçabilité complète pour contrôles et audits
+                      </span>
+                    </li>
+                    <li className="flex items-start">
+                      <div className="w-2 h-2 bg-[#84994F] rounded-full mt-2.5 mr-4 flex-shrink-0"></div>
+                      <span className="text-base leading-relaxed">
+                        Conformité RGPD et protection des données
+                      </span>
+                    </li>
+                  </ul>
+                </motion.div>
+
+                {/* Revenus Garantis */}
+                <motion.div
+                  initial={{ opacity: 0, y: 40 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.6, delay: 0.2 }}
+                  viewport={{ once: true }}
+                  className="bg-white rounded-2xl p-8 border border-[#84994F]/30 hover:border-[#84994F]/50 transition-all duration-300"
+                >
+                  <h4 className="text-xl font-semibold text-[#84994F] mb-6">
+                    Revenus Garantis
+                  </h4>
+                  <ul className="space-y-4 text-gray-700">
+                    <li className="flex items-start">
+                      <div className="w-2 h-2 bg-[#84994F] rounded-full mt-2.5 mr-4 flex-shrink-0"></div>
+                      <span className="text-base leading-relaxed">
+                        Collecte automatisée des taxes de séjour sans perte ni
+                        oubli
+                      </span>
+                    </li>
+                    <li className="flex items-start">
+                      <div className="w-2 h-2 bg-[#84994F] rounded-full mt-2.5 mr-4 flex-shrink-0"></div>
+                      <span className="text-base leading-relaxed">
+                        Augmentation significative des recettes fiscales
+                        touristiques
+                      </span>
+                    </li>
+                  </ul>
+                </motion.div>
+
+                {/* Partenariat Tout-en-un */}
+                <motion.div
+                  initial={{ opacity: 0, y: 40 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.6, delay: 0.3 }}
+                  viewport={{ once: true }}
+                  className="bg-white rounded-2xl p-8 border border-[#84994F]/30 hover:border-[#84994F]/50 transition-all duration-300"
+                >
+                  <h4 className="text-xl font-semibold text-[#84994F] mb-6">
+                    Partenariat Tout-en-un
+                  </h4>
+                  <ul className="space-y-4 text-gray-700">
+                    <li className="flex items-start">
+                      <div className="w-2 h-2 bg-[#84994F] rounded-full mt-2.5 mr-4 flex-shrink-0"></div>
+                      <span className="text-base leading-relaxed">
+                        Amélioration concrète des infrastructures (signalétique,
+                        parkings)
+                      </span>
+                    </li>
+                    <li className="flex items-start">
+                      <div className="w-2 h-2 bg-[#84994F] rounded-full mt-2.5 mr-4 flex-shrink-0"></div>
+                      <span className="text-base leading-relaxed">
+                        Réseau de services intégrés via partenariats campings
+                      </span>
+                    </li>
+                    <li className="flex items-start">
+                      <div className="w-2 h-2 bg-[#84994F] rounded-full mt-2.5 mr-4 flex-shrink-0"></div>
+                      <span className="text-base leading-relaxed">
+                        Possibilité de rendre payant les parkings (en sus des
+                        taxes)
+                      </span>
+                    </li>
+                  </ul>
+                </motion.div>
+
+                {/* Données Stratégiques */}
+                <motion.div
+                  initial={{ opacity: 0, y: 40 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.6, delay: 0.4 }}
+                  viewport={{ once: true }}
+                  className="bg-white rounded-2xl p-8 border border-[#84994F]/30 hover:border-[#84994F]/50 transition-all duration-300"
+                >
+                  <h4 className="text-xl font-semibold text-[#84994F] mb-6">
+                    Données Stratégiques
+                  </h4>
+                  <ul className="space-y-4 text-gray-700">
+                    <li className="flex items-start">
+                      <div className="w-2 h-2 bg-[#84994F] rounded-full mt-2.5 mr-4 flex-shrink-0"></div>
+                      <span className="text-base leading-relaxed">
+                        Fréquentation détaillée, flux par site, saisonnalité,
+                        durée des séjours
+                      </span>
+                    </li>
+                    <li className="flex items-start">
+                      <div className="w-2 h-2 bg-[#84994F] rounded-full mt-2.5 mr-4 flex-shrink-0"></div>
+                      <span className="text-base leading-relaxed">
+                        Profiling visiteurs : origine géographique, type de
+                        tourisme
+                      </span>
+                    </li>
+                    <li className="flex items-start">
+                      <div className="w-2 h-2 bg-[#84994F] rounded-full mt-2.5 mr-4 flex-shrink-0"></div>
+                      <span className="text-base leading-relaxed">
+                        Identification des zones sous/surexploitées
+                      </span>
+                    </li>
+                    <li className="flex items-start">
+                      <div className="w-2 h-2 bg-[#84994F] rounded-full mt-2.5 mr-4 flex-shrink-0"></div>
+                      <span className="text-base leading-relaxed">
+                        Anticipation des pics, dimensionnement des
+                        infrastructures
+                      </span>
+                    </li>
+                  </ul>
+                </motion.div>
+              </div>
+
+              {/* Carte highlight */}
+              <motion.div
+                initial={{ opacity: 0, y: 30 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.8, delay: 0.5 }}
+                viewport={{ once: true }}
+                className="bg-[#84994F]/3 rounded-2xl p-8 border border-[#84994F]/30 text-center max-w-4xl mx-auto"
+              >
+                <h4 className="text-2xl md:text-3xl font-bold text-[#84994F] mb-4">
+                  Solution Complète Clé en Main
+                </h4>
+                <p className="text-gray-700 text-lg leading-relaxed">
+                  De la conception à la promotion, nous prenons en charge tous
+                  les aspects de votre aire de camping-car pour garantir son
+                  succès.
+                </p>
+              </motion.div>
+            </div>
           </div>
         </div>
       ),
@@ -424,14 +721,14 @@ export function SelfcampAboutPage() {
           </div>
         </header>
         {/* Hero Section épuré */}
-        <section className="bg-white py-20 px-4">
+        <section className="bg-white py-12 md:py-20 px-4">
           <div className="container mx-auto max-w-5xl text-center">
             {/* Badge */}
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6 }}
-              className="inline-flex items-center space-x-2 bg-[#84994F]/10 text-[#84994F] px-6 py-3 rounded-full text-sm font-medium mb-8"
+              className="inline-flex items-center space-x-2 bg-[#84994F]/10 text-[#84994F] px-4 py-2 md:px-6 md:py-3 rounded-full text-xs md:text-sm font-medium mb-6 md:mb-8"
             >
               <span>🏛️</span>
               <span>Solution pour communes suisses</span>
@@ -442,7 +739,7 @@ export function SelfcampAboutPage() {
               initial={{ opacity: 0, y: 30 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.8, delay: 0.2 }}
-              className="text-4xl md:text-6xl lg:text-7xl font-bold text-gray-900 mb-8 leading-tight"
+              className="text-3xl md:text-5xl lg:text-7xl font-bold text-gray-900 mb-4 md:mb-8 leading-tight px-2"
             >
               À propos de <span className="text-[#84994F]">SelfCamp</span>
             </motion.h1>
@@ -452,7 +749,7 @@ export function SelfcampAboutPage() {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.8, delay: 0.4 }}
-              className="text-xl md:text-2xl text-gray-600 mb-16 max-w-4xl mx-auto leading-relaxed"
+              className="text-base md:text-xl lg:text-2xl text-gray-600 mb-10 md:mb-16 max-w-4xl mx-auto leading-relaxed px-2"
             >
               Une solution complète pour créer des aires de camping-car légales
               qui bénéficient aux communes, aux régions et aux vanlife.
@@ -463,29 +760,29 @@ export function SelfcampAboutPage() {
               initial={{ opacity: 0, y: 40 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.8, delay: 0.6 }}
-              className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-20"
+              className="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-8 mb-10 md:mb-20"
             >
-              <div className="bg-white border border-[#84994F]/30 rounded-2xl p-6 hover:border-[#84994F]/50 transition-all duration-300">
-                <div className="text-4xl md:text-5xl font-bold text-[#84994F] mb-3">
+              <div className="bg-white border border-[#84994F]/30 rounded-xl md:rounded-2xl p-5 md:p-6 hover:border-[#84994F]/50 transition-all duration-300">
+                <div className="text-3xl md:text-4xl lg:text-5xl font-bold text-[#84994F] mb-2 md:mb-3">
                   100%
                 </div>
-                <div className="text-gray-700 font-medium text-base">
+                <div className="text-gray-700 font-medium text-sm md:text-base">
                   Conformité légale
                 </div>
               </div>
-              <div className="bg-white border border-[#84994F]/30 rounded-2xl p-6 hover:border-[#84994F]/50 transition-all duration-300">
-                <div className="text-4xl md:text-5xl font-bold text-[#84994F] mb-3">
+              <div className="bg-white border border-[#84994F]/30 rounded-xl md:rounded-2xl p-5 md:p-6 hover:border-[#84994F]/50 transition-all duration-300">
+                <div className="text-3xl md:text-4xl lg:text-5xl font-bold text-[#84994F] mb-2 md:mb-3">
                   24/7
                 </div>
-                <div className="text-gray-700 font-medium text-base">
+                <div className="text-gray-700 font-medium text-sm md:text-base">
                   Accès autonome
                 </div>
               </div>
-              <div className="bg-white border border-[#84994F]/30 rounded-2xl p-6 hover:border-[#84994F]/50 transition-all duration-300">
-                <div className="text-4xl md:text-5xl font-bold text-[#84994F] mb-3">
+              <div className="bg-white border border-[#84994F]/30 rounded-xl md:rounded-2xl p-5 md:p-6 hover:border-[#84994F]/50 transition-all duration-300">
+                <div className="text-3xl md:text-4xl lg:text-5xl font-bold text-[#84994F] mb-2 md:mb-3">
                   0
                 </div>
-                <div className="text-gray-700 font-medium text-base">
+                <div className="text-gray-700 font-medium text-sm md:text-base">
                   Installation Informatique
                 </div>
               </div>
@@ -493,24 +790,24 @@ export function SelfcampAboutPage() {
           </div>
         </section>
         {/* Notre mission */}
-        <section className="bg-white py-20 px-4">
-          <div className="container mx-auto max-w-full px-8">
+        <section className="bg-white py-12 md:py-20 px-4">
+          <div className="container mx-auto max-w-full px-4 md:px-8">
             <motion.div
               initial={{ opacity: 0, y: 30 }}
               whileInView={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.8 }}
               viewport={{ once: true }}
-              className="text-center mb-16"
+              className="text-center mb-10 md:mb-16"
             >
-              <h2 className="text-4xl md:text-5xl lg:text-6xl font-bold text-gray-900 mb-6 leading-tight">
+              <h2 className="text-3xl md:text-5xl lg:text-6xl font-bold text-gray-900 mb-4 md:mb-6 leading-tight px-2">
                 Notre <span className="text-[#84994F]">mission</span>
               </h2>
-              <p className="text-xl md:text-2xl text-gray-600 max-w-4xl mx-auto leading-relaxed">
+              <p className="text-lg md:text-xl lg:text-2xl text-gray-600 max-w-4xl mx-auto leading-relaxed px-2">
                 Transformer le camping sauvage en opportunité économique pour
                 les communes suisses
               </p>
-              <div className="mt-8 text-center">
-                <div className="inline-block text-lg font-medium text-[#84994F] italic">
+              <div className="mt-6 md:mt-8 text-center">
+                <div className="inline-block text-base md:text-lg font-medium text-[#84994F] italic px-4">
                   &ldquo;Créer un pont entre tourisme durable et développement
                   territorial&rdquo;
                 </div>
@@ -528,19 +825,19 @@ export function SelfcampAboutPage() {
           </div>
         </section>
         {/* Notre Solution Section */}
-        <section className="py-20 px-4 bg-white">
+        <section className="py-12 md:py-20 px-4 bg-white">
           <div className="container mx-auto max-w-7xl">
             <motion.div
               initial={{ opacity: 0, y: 30 }}
               whileInView={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.8 }}
               viewport={{ once: true }}
-              className="text-center mb-16"
+              className="text-center mb-10 md:mb-16"
             >
-              <h2 className="text-4xl md:text-5xl font-bold text-gray-900 mb-6">
+              <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold text-gray-900 mb-4 md:mb-6 px-2">
                 Notre <span className="text-[#84994F] italic">solution</span>
               </h2>
-              <p className="text-xl text-gray-600 max-w-4xl mx-auto leading-relaxed">
+              <p className="text-base md:text-lg lg:text-xl text-gray-600 max-w-4xl mx-auto leading-relaxed px-4">
                 En collaboration avec les communes nous équipons les aires mises
                 à disposition, de places de parc limitées, d&apos;une
                 signalétique et d&apos;un système d&apos;enregistrement conforme
@@ -548,19 +845,19 @@ export function SelfcampAboutPage() {
               </p>
             </motion.div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mb-16">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-8 mb-10 md:mb-16">
               {/* Infrastructure */}
               <motion.div
                 initial={{ opacity: 0, y: 40 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.6, delay: 0.1 }}
                 viewport={{ once: true }}
-                className="bg-[#84994F]/5 p-6 rounded-2xl border border-[#84994F]/30 hover:border-[#84994F]/50 transition-all duration-300"
+                className="bg-[#84994F]/5 p-5 md:p-6 rounded-xl md:rounded-2xl border border-[#84994F]/30 hover:border-[#84994F]/50 transition-all duration-300"
               >
-                <h3 className="text-xl font-semibold text-[#84994F] mb-3">
+                <h3 className="text-lg md:text-xl font-semibold text-[#84994F] mb-2 md:mb-3">
                   Infrastructure
                 </h3>
-                <p className="text-gray-700 text-base leading-relaxed">
+                <p className="text-gray-700 text-sm md:text-base leading-relaxed">
                   Amélioration des infrastructures, fourniture des totems,
                   signalétique adaptée, optimisation des parkings
                 </p>
@@ -572,12 +869,12 @@ export function SelfcampAboutPage() {
                 whileInView={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.6, delay: 0.2 }}
                 viewport={{ once: true }}
-                className="bg-[#84994F]/5 p-6 rounded-2xl border border-[#84994F]/30 hover:border-[#84994F]/50 transition-all duration-300"
+                className="bg-[#84994F]/5 p-5 md:p-6 rounded-xl md:rounded-2xl border border-[#84994F]/30 hover:border-[#84994F]/50 transition-all duration-300"
               >
-                <h3 className="text-xl font-semibold text-[#84994F] mb-3">
+                <h3 className="text-lg md:text-xl font-semibold text-[#84994F] mb-2 md:mb-3">
                   Enregistrement
                 </h3>
-                <p className="text-gray-700 text-base leading-relaxed">
+                <p className="text-gray-700 text-sm md:text-base leading-relaxed">
                   Enregistrement automatique des visiteurs via QR code
                   (hébergements, campings, parkings)
                 </p>
@@ -589,12 +886,12 @@ export function SelfcampAboutPage() {
                 whileInView={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.6, delay: 0.3 }}
                 viewport={{ once: true }}
-                className="bg-[#84994F]/5 p-6 rounded-2xl border border-[#84994F]/30 hover:border-[#84994F]/50 transition-all duration-300"
+                className="bg-[#84994F]/5 p-5 md:p-6 rounded-xl md:rounded-2xl border border-[#84994F]/30 hover:border-[#84994F]/50 transition-all duration-300"
               >
-                <h3 className="text-xl font-semibold text-[#84994F] mb-3">
+                <h3 className="text-lg md:text-xl font-semibold text-[#84994F] mb-2 md:mb-3">
                   Conformité
                 </h3>
-                <p className="text-gray-700 text-base leading-relaxed">
+                <p className="text-gray-700 text-sm md:text-base leading-relaxed">
                   Envoi des données à la police via Check-in FR
                 </p>
               </motion.div>
@@ -605,12 +902,12 @@ export function SelfcampAboutPage() {
                 whileInView={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.6, delay: 0.4 }}
                 viewport={{ once: true }}
-                className="bg-[#84994F]/5 p-6 rounded-2xl border border-[#84994F]/30 hover:border-[#84994F]/50 transition-all duration-300"
+                className="bg-[#84994F]/5 p-5 md:p-6 rounded-xl md:rounded-2xl border border-[#84994F]/30 hover:border-[#84994F]/50 transition-all duration-300"
               >
-                <h3 className="text-xl font-semibold text-[#84994F] mb-3">
+                <h3 className="text-lg md:text-xl font-semibold text-[#84994F] mb-2 md:mb-3">
                   Tableau de bord
                 </h3>
-                <p className="text-gray-700 text-base leading-relaxed">
+                <p className="text-gray-700 text-sm md:text-base leading-relaxed">
                   Tableau de bord centralisé via{" "}
                   <span className="text-[#84994F] font-semibold">
                     Selfcamp.ch
@@ -625,12 +922,12 @@ export function SelfcampAboutPage() {
                 whileInView={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.6, delay: 0.5 }}
                 viewport={{ once: true }}
-                className="bg-[#84994F]/5 p-6 rounded-2xl border border-[#84994F]/30 hover:border-[#84994F]/50 transition-all duration-300"
+                className="bg-[#84994F]/5 p-5 md:p-6 rounded-xl md:rounded-2xl border border-[#84994F]/30 hover:border-[#84994F]/50 transition-all duration-300"
               >
-                <h3 className="text-xl font-semibold text-[#84994F] mb-3">
+                <h3 className="text-lg md:text-xl font-semibold text-[#84994F] mb-2 md:mb-3">
                   Facilité
                 </h3>
-                <p className="text-gray-700 text-base leading-relaxed">
+                <p className="text-gray-700 text-sm md:text-base leading-relaxed">
                   Solution clé en main : aucune infrastructure IT requise,
                   rémunération uniquement à la transaction
                 </p>
@@ -642,12 +939,12 @@ export function SelfcampAboutPage() {
                 whileInView={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.6, delay: 0.6 }}
                 viewport={{ once: true }}
-                className="bg-[#84994F]/5 p-6 rounded-2xl border border-[#84994F]/30 hover:border-[#84994F]/50 transition-all duration-300"
+                className="bg-[#84994F]/5 p-5 md:p-6 rounded-xl md:rounded-2xl border border-[#84994F]/30 hover:border-[#84994F]/50 transition-all duration-300"
               >
-                <h3 className="text-xl font-semibold text-[#84994F] mb-3">
+                <h3 className="text-lg md:text-xl font-semibold text-[#84994F] mb-2 md:mb-3">
                   Traçabilité
                 </h3>
-                <p className="text-gray-700 text-base leading-relaxed">
+                <p className="text-gray-700 text-sm md:text-base leading-relaxed">
                   Traçabilité complète des séjours et contrôle du camping
                   sauvage
                 </p>
@@ -662,24 +959,24 @@ export function SelfcampAboutPage() {
               viewport={{ once: true }}
               className="text-center"
             >
-              <div className="bg-white p-8 rounded-2xl border border-[#84994F]/30 hover:border-[#84994F]/50 transition-all duration-300 max-w-3xl mx-auto">
-                <h3 className="text-2xl font-bold text-gray-900 mb-4">
+              <div className="bg-white p-6 md:p-8 rounded-xl md:rounded-2xl border border-[#84994F]/30 hover:border-[#84994F]/50 transition-all duration-300 max-w-3xl mx-auto">
+                <h3 className="text-xl md:text-2xl font-bold text-gray-900 mb-3 md:mb-4">
                   Une solution complète et moderne
                 </h3>
-                <p className="text-gray-700 mb-6 leading-relaxed">
+                <p className="text-gray-700 mb-5 md:mb-6 leading-relaxed text-sm md:text-base">
                   Découvrez comment notre technologie peut transformer la
                   gestion des aires de camping-car dans votre région.
                 </p>
-                <div className="flex flex-col sm:flex-row gap-4 justify-center">
+                <div className="flex flex-col sm:flex-row gap-3 md:gap-4 justify-center">
                   <Link
                     href="/contact"
-                    className="bg-[#84994F] text-white px-8 py-3 rounded-lg hover:bg-[#84994F]/90 transition-colors font-semibold inline-block"
+                    className="bg-[#84994F] text-white px-6 md:px-8 py-2.5 md:py-3 rounded-lg hover:bg-[#84994F]/90 transition-colors font-semibold inline-block text-sm md:text-base"
                   >
                     Nous contacter
                   </Link>
                   <Link
                     href="/map"
-                    className="border border-[#84994F] text-[#84994F] px-8 py-3 rounded-lg hover:bg-[#84994F] hover:text-white transition-colors font-semibold inline-block"
+                    className="border border-[#84994F] text-[#84994F] px-6 md:px-8 py-2.5 md:py-3 rounded-lg hover:bg-[#84994F] hover:text-white transition-colors font-semibold inline-block text-sm md:text-base"
                   >
                     Voir les aires
                   </Link>
