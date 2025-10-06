@@ -108,9 +108,20 @@ export async function POST(request: NextRequest, { params }: Params) {
       emailTemplate = settings.confirmationEmailTemplate;
     }
 
+    // Détecter si c'est du HTML AVANT le remplacement des variables
+    const isHtmlTemplate =
+      emailTemplate.includes("<table") ||
+      emailTemplate.includes("<!DOCTYPE") ||
+      emailTemplate.includes("<html") ||
+      (emailTemplate.includes("<div") && emailTemplate.includes("style="));
+
     // Remplacer les variables dans le template
     let emailContent = emailTemplate;
     Object.entries(sampleData).forEach(([key, value]) => {
+      // Transformer automatiquement invoiceDownloadUrl en bouton HTML
+      if (key === "invoiceDownloadUrl" && value && isHtmlTemplate) {
+        value = `<a href="${value}" style="background-color: #1976d2; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px; display: inline-block; font-weight: bold;">📥 Télécharger la facture PDF</a>`;
+      }
       const regex = new RegExp(`\\{${key}\\}`, "g");
       emailContent = emailContent.replace(regex, value);
     });

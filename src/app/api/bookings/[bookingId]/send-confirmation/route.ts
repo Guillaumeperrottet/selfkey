@@ -383,21 +383,35 @@ async function sendEmailConfirmation(
     console.log("📧 Utilisation du template EMAIL NORMAL (général)");
   }
 
-  // Remplacer les variables dans le template
-  let emailContent = replaceTemplateVariables(template, templateData);
+  // Détecter si c'est du HTML Unlayer AVANT le remplacement des variables
+  const isUnlayerHtml =
+    template.includes("<table") ||
+    template.includes("<!DOCTYPE") ||
+    template.includes("<html") ||
+    (template.includes("<div") && template.includes("style="));
+
+  console.log("🔍 Détection HTML:", {
+    isUnlayerHtml,
+    hasTable: template.includes("<table"),
+    hasDoctype: template.includes("<!DOCTYPE"),
+    hasHtml: template.includes("<html"),
+    hasDivWithStyle: template.includes("<div") && template.includes("style="),
+    templateLength: template.length,
+    templatePreview: template.substring(0, 200),
+  });
+
+  // Remplacer les variables dans le template (en passant l'info si c'est du HTML)
+  let emailContent = replaceTemplateVariables(
+    template,
+    templateData,
+    isUnlayerHtml
+  );
 
   // Traiter les placeholders d'images
   emailContent = await processImagePlaceholders(
     emailContent,
     booking.establishment.id
   );
-
-  // Détecter si c'est du HTML Unlayer (contient des balises HTML complexes)
-  const isUnlayerHtml =
-    emailContent.includes("<table") ||
-    emailContent.includes("<!DOCTYPE") ||
-    emailContent.includes("<html") ||
-    (emailContent.includes("<div") && emailContent.includes("style="));
 
   let htmlContent: string;
 
@@ -578,7 +592,8 @@ async function sendWhatsAppConfirmation(
 
 function replaceTemplateVariables(
   template: string,
-  data: TemplateData
+  data: TemplateData,
+  isHtmlTemplate: boolean = false
 ): string {
   let result = template;
 
@@ -588,15 +603,9 @@ function replaceTemplateVariables(
 
     // Transformer automatiquement invoiceDownloadUrl en lien cliquable HTML
     if (key === "invoiceDownloadUrl" && value) {
-      // Détecter si le template est en HTML (contient des balises HTML)
-      const isHtmlTemplate =
-        template.includes("<html") ||
-        template.includes("<div") ||
-        template.includes("<p");
-
       if (isHtmlTemplate) {
         // Si c'est du HTML, créer un lien cliquable avec styling
-        value = `<a href="${value}" style="background-color: #1976d2; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px; display: inline-block; font-weight: bold;">📥 facture / rechnung PDF</a>`;
+        value = `<a href="${value}" style="background-color: #1976d2; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px; display: inline-block; font-weight: bold;">📥 Télécharger la facture PDF</a>`;
       } else {
         // Si c'est du texte brut, laisser l'URL telle quelle
         // Les clients email modernes convertissent automatiquement les URLs en liens
