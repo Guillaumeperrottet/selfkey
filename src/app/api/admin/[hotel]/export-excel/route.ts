@@ -56,15 +56,15 @@ export async function GET(
 
     // Mapper les données au format Excel requis - Compatible avec Checkin FR
     const excelData = bookings.map((booking, index) => ({
-      "Numéro de référence système": `${booking.hotelSlug}-${String(index + 1).padStart(4, "0")}`,
+      "Numéro de référence externe": `${booking.hotelSlug}-${String(index + 1).padStart(4, "0")}`,
       "Date d'arrivée": formatDate(booking.checkInDate),
       "Date de départ": formatDate(booking.checkOutDate),
-      "Exemples adultes": booking.adults || booking.guests,
-      "Exemples enfants": booking.children || 0,
+      "Exemptés adultes": booking.adults || booking.guests,
+      "Exemptés enfants": booking.children || 0,
       Nom: booking.clientLastName || "",
       Prénom: booking.clientFirstName || "",
       Titre: "", // Vide par défaut (M., Mme, etc.)
-      "Groupé / Entreprise": "", // Nom du groupe ou entreprise si applicable
+      "Groupe / Entreprise": "", // Nom du groupe ou entreprise si applicable
       "Date de naissance": formatDate(booking.clientBirthDate),
       "Lieu de naissance": booking.clientBirthPlace || "",
       Langue: "FR", // Langue par défaut

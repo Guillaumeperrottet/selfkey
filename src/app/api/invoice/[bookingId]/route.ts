@@ -59,6 +59,7 @@ export async function GET(
       checkOutDate: booking.checkOutDate,
       pricingOptionsTotal: booking.pricingOptionsTotal || 0,
       touristTaxTotal: booking.touristTaxTotal || 0,
+      adults: booking.adults,
       selectedPricingOptions: booking.selectedPricingOptions || null,
       room: booking.room
         ? {

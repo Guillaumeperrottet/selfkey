@@ -19,6 +19,7 @@ interface InvoiceData {
   checkInDate: Date;
   checkOutDate: Date;
   duration: number;
+  adults?: number;
   roomName: string;
   roomPrice: number;
   baseRoomCost: number;
@@ -358,10 +359,17 @@ export function InvoicePDF({ data }: InvoicePDFProps) {
             <View style={styles.tableRow}>
               <Text style={[styles.tableCell, { flex: 3 }]}>
                 Taxe de séjour
+                {data.adults
+                  ? ` (${data.adults} adulte${data.adults > 1 ? "s" : ""} × ${data.duration} nuit${data.duration > 1 ? "s" : ""})`
+                  : ""}
               </Text>
-              <Text style={styles.tableCell}>1</Text>
+              <Text style={styles.tableCell}>{data.adults || 1}</Text>
               <Text style={styles.tableCellRight}>
-                {formatCHF(data.touristTaxTotal)}
+                {data.adults
+                  ? formatCHF(
+                      data.touristTaxTotal / (data.adults * data.duration)
+                    )
+                  : formatCHF(data.touristTaxTotal / data.duration)}
               </Text>
               <Text style={styles.tableCellRight}>
                 {formatCHF(data.touristTaxTotal)}
@@ -422,11 +430,18 @@ export function InvoicePDF({ data }: InvoicePDFProps) {
             <Text style={{ fontSize: 8, color: "#6b7280", marginTop: 5 }}>
               (TVA 8.1%{" "}
               {formatCHF(
-                ((data.finalAmount +
-                  (data.platformFees?.totalFees || 0) -
-                  data.touristTaxTotal) *
-                  8.1) /
-                  100
+                (() => {
+                  // Calcul de la TVA incluse (8.1% sur le montant sans taxe de séjour)
+                  const totalWithoutTouristTax =
+                    data.finalAmount +
+                    (data.platformFees?.totalFees || 0) -
+                    data.touristTaxTotal;
+                  const tvaRate = 0.081;
+                  return (
+                    totalWithoutTouristTax -
+                    totalWithoutTouristTax / (1 + tvaRate)
+                  );
+                })()
               )}{" "}
               {data.currency} incluse)
             </Text>

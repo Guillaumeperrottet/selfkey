@@ -24,6 +24,7 @@ interface BookingData {
   checkOutDate: Date;
   pricingOptionsTotal: number;
   touristTaxTotal: number;
+  adults?: number;
   selectedPricingOptions?: Record<string, string | string[]> | null;
   room: {
     name: string;

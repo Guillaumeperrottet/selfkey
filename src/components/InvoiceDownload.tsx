@@ -39,6 +39,7 @@ interface InvoiceDownloadProps {
     checkOutDate: Date;
     pricingOptionsTotal: number;
     touristTaxTotal: number;
+    adults?: number;
     selectedPricingOptions?: Record<string, string | string[]> | null;
     room: {
       name: string;
@@ -71,6 +72,7 @@ export function InvoiceDownload({
 }: InvoiceDownloadProps) {
   const [isGenerating, setIsGenerating] = React.useState(false);
   const [pricingOptions, setPricingOptions] = useState<PricingOption[]>([]);
+  const [optionsLoaded, setOptionsLoaded] = useState(false);
 
   // Charger les pricing options au montage du composant
   useEffect(() => {
@@ -82,9 +84,15 @@ export function InvoiceDownload({
         if (response.ok) {
           const data = await response.json();
           setPricingOptions(data.pricingOptions || []);
+          console.log(
+            "✅ Pricing options chargées:",
+            data.pricingOptions?.length
+          );
         }
       } catch (error) {
         console.error("Erreur chargement pricing options:", error);
+      } finally {
+        setOptionsLoaded(true);
       }
     };
 
@@ -158,6 +166,13 @@ export function InvoiceDownload({
       // Décoder les options sélectionnées
       const pricingOptionsDetails = decodeSelectedOptions();
 
+      console.log("🔍 Debug génération facture:", {
+        selectedPricingOptions: booking.selectedPricingOptions,
+        pricingOptions: pricingOptions,
+        pricingOptionsLoaded: pricingOptions.length,
+        decodedOptions: pricingOptionsDetails,
+      });
+
       // Préparer les données pour la facture
       const invoiceData = {
         bookingNumber: booking.bookingNumber,
@@ -173,6 +188,7 @@ export function InvoiceDownload({
         checkInDate: booking.checkInDate,
         checkOutDate: booking.checkOutDate,
         duration,
+        adults: booking.adults,
         roomName: booking.room?.name || "Service",
         roomPrice,
         baseRoomCost,
@@ -233,11 +249,16 @@ export function InvoiceDownload({
       variant={variant}
       size={size}
       onClick={handleDownload}
-      disabled={isGenerating}
+      disabled={isGenerating || !optionsLoaded}
       className="flex items-center gap-2"
     >
       {isGenerating ? (
         <div className="w-4 h-4 border-2 border-current border-t-transparent rounded-full animate-spin" />
+      ) : !optionsLoaded ? (
+        <>
+          <div className="w-4 h-4 border-2 border-current border-t-transparent rounded-full animate-spin" />
+          {showText && <span>Chargement...</span>}
+        </>
       ) : (
         <FileText className="h-4 w-4" />
       )}

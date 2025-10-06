@@ -1022,6 +1022,7 @@ export function BookingsTable({ bookings, establishment }: BookingsTableProps) {
                       pricingOptionsTotal:
                         selectedBooking.pricingOptionsTotal || 0,
                       touristTaxTotal: selectedBooking.touristTaxTotal || 0,
+                      adults: selectedBooking.adults,
                       selectedPricingOptions:
                         selectedBooking.selectedPricingOptions || null,
                       room: selectedBooking.room
