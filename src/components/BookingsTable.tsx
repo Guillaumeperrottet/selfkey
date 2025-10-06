@@ -82,6 +82,7 @@ interface Booking {
   touristTaxTotal?: number;
   adults?: number;
   children?: number;
+  hasDog?: boolean;
   room: {
     name: string;
     price?: number;
@@ -1110,6 +1111,18 @@ export function BookingsTable({ bookings, establishment }: BookingsTableProps) {
                         {selectedBooking.guests > 1 ? "s" : ""}
                       </span>
                     </div>
+                    <div className="flex justify-between">
+                      <span className="text-muted-foreground">Chien :</span>
+                      <span className="font-medium">
+                        {selectedBooking.hasDog === true ? (
+                          <span className="text-orange-600">🐕 Oui</span>
+                        ) : selectedBooking.hasDog === false ? (
+                          <span className="text-gray-600">Non</span>
+                        ) : (
+                          <span className="text-gray-400">Non renseigné</span>
+                        )}
+                      </span>
+                    </div>
                   </div>
                 </div>
 
@@ -1135,9 +1148,16 @@ export function BookingsTable({ bookings, establishment }: BookingsTableProps) {
                     </div>
                     {selectedBooking.confirmationSent && (
                       <div className="text-xs text-green-600">
-                        ✓ Confirmation envoyée{" "}
+                        ✓ Confirmation
+                        {selectedBooking.hasDog === true && (
+                          <span className="font-medium"> (avec chien)</span>
+                        )}
+                        {selectedBooking.hasDog === false && (
+                          <span className="font-medium"> (sans chien)</span>
+                        )}{" "}
+                        envoyée
                         {selectedBooking.confirmationSentAt &&
-                          `le ${formatDateTime(selectedBooking.confirmationSentAt)}`}
+                          ` le ${formatDateTime(selectedBooking.confirmationSentAt)}`}
                       </div>
                     )}
                   </div>
