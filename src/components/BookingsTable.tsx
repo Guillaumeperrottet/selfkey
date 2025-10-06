@@ -1022,6 +1022,8 @@ export function BookingsTable({ bookings, establishment }: BookingsTableProps) {
                       pricingOptionsTotal:
                         selectedBooking.pricingOptionsTotal || 0,
                       touristTaxTotal: selectedBooking.touristTaxTotal || 0,
+                      selectedPricingOptions:
+                        selectedBooking.selectedPricingOptions || null,
                       room: selectedBooking.room
                         ? {
                             name: selectedBooking.room.name,

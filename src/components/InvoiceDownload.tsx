@@ -1,12 +1,24 @@
 "use client";
 
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { pdf } from "@react-pdf/renderer";
 import { InvoicePDF } from "@/components/InvoicePDF";
 import { Button } from "@/components/ui/button";
 import { FileText } from "lucide-react";
 import { calculateFees } from "@/lib/fee-calculator";
 import { calculateStayDuration } from "@/lib/availability";
+
+interface PricingOptionValue {
+  id: string;
+  label: string;
+  priceModifier: number;
+}
+
+interface PricingOption {
+  id: string;
+  name: string;
+  values: PricingOptionValue[];
+}
 
 interface InvoiceDownloadProps {
   booking: {
@@ -27,6 +39,7 @@ interface InvoiceDownloadProps {
     checkOutDate: Date;
     pricingOptionsTotal: number;
     touristTaxTotal: number;
+    selectedPricingOptions?: Record<string, string | string[]> | null;
     room: {
       name: string;
       price: number;
@@ -57,6 +70,69 @@ export function InvoiceDownload({
   showText = true,
 }: InvoiceDownloadProps) {
   const [isGenerating, setIsGenerating] = React.useState(false);
+  const [pricingOptions, setPricingOptions] = useState<PricingOption[]>([]);
+
+  // Charger les pricing options au montage du composant
+  useEffect(() => {
+    const loadPricingOptions = async () => {
+      try {
+        const response = await fetch(
+          `/api/establishments/${establishment.slug}/pricing-options`
+        );
+        if (response.ok) {
+          const data = await response.json();
+          setPricingOptions(data.pricingOptions || []);
+        }
+      } catch (error) {
+        console.error("Erreur chargement pricing options:", error);
+      }
+    };
+
+    loadPricingOptions();
+  }, [establishment.slug]);
+
+  // Fonction pour décoder les options sélectionnées
+  const decodeSelectedOptions = (): Array<{
+    name: string;
+    price: number;
+  }> => {
+    if (!booking.selectedPricingOptions || pricingOptions.length === 0) {
+      return [];
+    }
+
+    const decodedOptions: Array<{ name: string; price: number }> = [];
+
+    Object.entries(booking.selectedPricingOptions).forEach(
+      ([optionId, valueId]) => {
+        const option = pricingOptions.find((opt) => opt.id === optionId);
+        if (!option) return;
+
+        if (Array.isArray(valueId)) {
+          // Checkbox : plusieurs valeurs
+          valueId.forEach((vid) => {
+            const value = option.values.find((v) => v.id === vid);
+            if (value && value.priceModifier !== 0) {
+              decodedOptions.push({
+                name: `${option.name}: ${value.label}`,
+                price: value.priceModifier,
+              });
+            }
+          });
+        } else {
+          // Select/Radio : une seule valeur
+          const value = option.values.find((v) => v.id === valueId);
+          if (value && value.priceModifier !== 0) {
+            decodedOptions.push({
+              name: `${option.name}: ${value.label}`,
+              price: value.priceModifier,
+            });
+          }
+        }
+      }
+    );
+
+    return decodedOptions;
+  };
 
   const handleDownload = async () => {
     try {
@@ -79,6 +155,9 @@ export function InvoiceDownload({
         establishment.fixedFee
       );
 
+      // Décoder les options sélectionnées
+      const pricingOptionsDetails = decodeSelectedOptions();
+
       // Préparer les données pour la facture
       const invoiceData = {
         bookingNumber: booking.bookingNumber,
@@ -98,6 +177,8 @@ export function InvoiceDownload({
         roomPrice,
         baseRoomCost,
         pricingOptionsTotal: booking.pricingOptionsTotal,
+        pricingOptionsDetails:
+          pricingOptionsDetails.length > 0 ? pricingOptionsDetails : undefined,
         touristTaxTotal: booking.touristTaxTotal,
         subtotal,
         platformFees: {

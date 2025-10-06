@@ -23,6 +23,10 @@ interface InvoiceData {
   roomPrice: number;
   baseRoomCost: number;
   pricingOptionsTotal: number;
+  pricingOptionsDetails?: Array<{
+    name: string;
+    price: number;
+  }>;
   touristTaxTotal: number;
   subtotal: number;
   platformFees?: {
@@ -316,21 +320,38 @@ export function InvoicePDF({ data }: InvoicePDFProps) {
             </Text>
           </View>
 
-          {/* Pricing Options */}
-          {data.pricingOptionsTotal > 0 && (
-            <View style={styles.tableRow}>
-              <Text style={[styles.tableCell, { flex: 3 }]}>
-                Options supplémentaires
-              </Text>
-              <Text style={styles.tableCell}>1</Text>
-              <Text style={styles.tableCellRight}>
-                {formatCHF(data.pricingOptionsTotal)}
-              </Text>
-              <Text style={styles.tableCellRight}>
-                {formatCHF(data.pricingOptionsTotal)}
-              </Text>
-            </View>
-          )}
+          {/* Pricing Options - Détail */}
+          {data.pricingOptionsDetails && data.pricingOptionsDetails.length > 0
+            ? // Afficher chaque option individuellement
+              data.pricingOptionsDetails.map((option, index) => (
+                <View key={index} style={styles.tableRow}>
+                  <Text style={[styles.tableCell, { flex: 3 }]}>
+                    {option.name}
+                  </Text>
+                  <Text style={styles.tableCell}>1</Text>
+                  <Text style={styles.tableCellRight}>
+                    {formatCHF(option.price)}
+                  </Text>
+                  <Text style={styles.tableCellRight}>
+                    {formatCHF(option.price)}
+                  </Text>
+                </View>
+              ))
+            : // Fallback : afficher la ligne globale si pas de détails
+              data.pricingOptionsTotal > 0 && (
+                <View style={styles.tableRow}>
+                  <Text style={[styles.tableCell, { flex: 3 }]}>
+                    Options supplémentaires
+                  </Text>
+                  <Text style={styles.tableCell}>1</Text>
+                  <Text style={styles.tableCellRight}>
+                    {formatCHF(data.pricingOptionsTotal)}
+                  </Text>
+                  <Text style={styles.tableCellRight}>
+                    {formatCHF(data.pricingOptionsTotal)}
+                  </Text>
+                </View>
+              )}
 
           {/* Tourist Tax */}
           {data.touristTaxTotal > 0 && (
