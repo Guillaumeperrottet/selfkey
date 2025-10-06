@@ -65,6 +65,7 @@ interface Booking {
   clientCity?: string;
   clientCountry?: string;
   clientIdNumber?: string;
+  clientIdType?: string;
   clientVehicleNumber?: string;
   amount: number;
   guests: number;
@@ -1239,6 +1240,16 @@ export function BookingsTable({ bookings, establishment }: BookingsTableProps) {
                             {selectedBooking.clientIdNumber}
                           </span>
                         </div>
+                      </div>
+                    )}
+                    {selectedBooking.clientIdType && (
+                      <div>
+                        <span className="text-muted-foreground block">
+                          Type de pièce d&apos;identité :
+                        </span>
+                        <span className="font-medium">
+                          {selectedBooking.clientIdType}
+                        </span>
                       </div>
                     )}
                     {selectedBooking.clientVehicleNumber && (

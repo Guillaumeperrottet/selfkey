@@ -24,6 +24,7 @@ export async function POST(request: NextRequest, { params }: Props) {
       clientCity,
       clientCountry,
       clientIdNumber,
+      clientIdType,
       bookingType,
       dayParkingDuration,
       dayParkingStartTime,
@@ -256,6 +257,7 @@ export async function POST(request: NextRequest, { params }: Props) {
         client_city: clientCity || "",
         client_country: clientCountry || "",
         client_id_number: clientIdNumber || "",
+        client_id_type: clientIdType || "Carte d'identité",
         email_confirmation: emailConfirmation ? "true" : "false",
       }
     );

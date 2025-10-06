@@ -39,6 +39,7 @@ export interface BookingData {
   clientCity: string;
   clientCountry: string;
   clientIdNumber: string;
+  clientIdType?: string;
   guests: number;
   amount: number;
   checkInDate: Date;

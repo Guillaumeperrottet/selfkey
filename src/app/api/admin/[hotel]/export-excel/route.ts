@@ -78,7 +78,7 @@ export async function GET(
       "Nombre total d'Adultes": booking.adults || booking.guests || 0,
       "Nombre total d'enfants": booking.children || 0,
       "Type de clientèle": "Individuel", // Individuel, Groupe, Entreprise
-      "Type de pièce d'identité": "Carte d'identité", // CI, Passeport, etc.
+      "Type de pièce d'identité": booking.clientIdType || "Carte d'identité",
       "Numéro de la pièce d'identité": booking.clientIdNumber || "",
       "N° d'immatriculation du véhicule": booking.clientVehicleNumber || "",
       "Motif du séjour": "Loisir", // Loisir, Affaires, etc.
