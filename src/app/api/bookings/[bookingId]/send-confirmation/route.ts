@@ -584,7 +584,26 @@ function replaceTemplateVariables(
 
   (Object.keys(data) as (keyof TemplateData)[]).forEach((key) => {
     const placeholder = `{${key}}`;
-    result = result.replace(new RegExp(placeholder, "g"), data[key]);
+    let value = data[key];
+
+    // Transformer automatiquement invoiceDownloadUrl en lien cliquable HTML
+    if (key === "invoiceDownloadUrl" && value) {
+      // Détecter si le template est en HTML (contient des balises HTML)
+      const isHtmlTemplate =
+        template.includes("<html") ||
+        template.includes("<div") ||
+        template.includes("<p");
+
+      if (isHtmlTemplate) {
+        // Si c'est du HTML, créer un lien cliquable avec styling
+        value = `<a href="${value}" style="background-color: #1976d2; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px; display: inline-block; font-weight: bold;">📥 facture / rechnung PDF</a>`;
+      } else {
+        // Si c'est du texte brut, laisser l'URL telle quelle
+        // Les clients email modernes convertissent automatiquement les URLs en liens
+      }
+    }
+
+    result = result.replace(new RegExp(placeholder, "g"), value);
   });
 
   return result;

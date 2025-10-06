@@ -26,6 +26,8 @@ export function verifyInvoiceToken(
 
 /**
  * Génère une URL sécurisée pour télécharger une facture
+ * Pointe vers la page de téléchargement (/invoice/[bookingId]) au lieu de l'API
+ * pour une meilleure expérience utilisateur
  */
 export function generateInvoiceDownloadUrl(
   bookingId: string,
@@ -33,5 +35,5 @@ export function generateInvoiceDownloadUrl(
   baseUrl: string = process.env.NEXTAUTH_URL || "http://localhost:3000"
 ): string {
   const token = generateInvoiceToken(bookingId, clientEmail);
-  return `${baseUrl}/api/invoice/${bookingId}?token=${token}`;
+  return `${baseUrl}/invoice/${bookingId}?token=${token}`;
 }
