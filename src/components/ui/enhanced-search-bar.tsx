@@ -5,6 +5,26 @@ import { Search, MapPin, Navigation, X, Loader2 } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 
+// Fonction pour calculer la distance entre deux points (formule Haversine)
+function calculateDistance(
+  lat1: number,
+  lon1: number,
+  lat2: number,
+  lon2: number
+): number {
+  const R = 6371; // Rayon de la Terre en km
+  const dLat = ((lat2 - lat1) * Math.PI) / 180;
+  const dLon = ((lon2 - lon1) * Math.PI) / 180;
+  const a =
+    Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+    Math.cos((lat1 * Math.PI) / 180) *
+      Math.cos((lat2 * Math.PI) / 180) *
+      Math.sin(dLon / 2) *
+      Math.sin(dLon / 2);
+  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+  return R * c;
+}
+
 interface RecentSearch {
   title: string;
   subtitle?: string;
@@ -23,6 +43,7 @@ interface SearchSuggestion {
     lat: number;
     lng: number;
   };
+  zoomLevel?: number; // Niveau de zoom suggéré
   establishment?: {
     id: string;
     name: string;
@@ -47,6 +68,7 @@ interface EnhancedSearchBarProps {
     lat: number;
     lng: number;
     name: string;
+    zoom?: number;
   }) => void;
   onEstablishmentSelect?: (establishment: Establishment) => void;
   placeholder?: string;
@@ -64,8 +86,30 @@ export default function EnhancedSearchBar({
   const [isLoading, setIsLoading] = useState(false);
   const [isGeolocating, setIsGeolocating] = useState(false);
   const [recentSearches, setRecentSearches] = useState<RecentSearch[]>([]);
+  const [userLocation, setUserLocation] = useState<{
+    lat: number;
+    lng: number;
+  } | null>(null);
   const searchTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const inputRef = useRef<HTMLInputElement>(null);
+
+  // Récupérer la position de l'utilisateur au montage
+  useEffect(() => {
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          setUserLocation({
+            lat: position.coords.latitude,
+            lng: position.coords.longitude,
+          });
+        },
+        (error) => {
+          console.log("Géolocalisation non disponible:", error.message);
+        },
+        { timeout: 5000 }
+      );
+    }
+  }, []);
 
   // Charger les recherches récentes
   useEffect(() => {
@@ -95,28 +139,52 @@ export default function EnhancedSearchBar({
   }, []);
 
   // Fonction de recherche avec debounce
-  const searchSuggestions = useCallback(async (query: string) => {
-    if (!query.trim()) {
-      setSuggestions([]);
-      return;
-    }
-
-    setIsLoading(true);
-    try {
-      // Recherche à la fois des lieux et des établissements
-      const response = await fetch(
-        `/api/public/establishments/search?q=${encodeURIComponent(query)}`
-      );
-      if (response.ok) {
-        const results: SearchSuggestion[] = await response.json();
-        setSuggestions(results);
+  const searchSuggestions = useCallback(
+    async (query: string) => {
+      if (!query.trim()) {
+        setSuggestions([]);
+        return;
       }
-    } catch (error) {
-      console.error("Erreur lors de la recherche:", error);
-    } finally {
-      setIsLoading(false);
-    }
-  }, []);
+
+      setIsLoading(true);
+      try {
+        // Recherche à la fois des lieux et des établissements
+        const response = await fetch(
+          `/api/public/establishments/search?q=${encodeURIComponent(query)}`
+        );
+        if (response.ok) {
+          let results: SearchSuggestion[] = await response.json();
+
+          // Si on a la position de l'utilisateur, trier par proximité
+          if (userLocation) {
+            results = results
+              .map((suggestion) => {
+                if (suggestion.coordinates) {
+                  const distance = calculateDistance(
+                    userLocation.lat,
+                    userLocation.lng,
+                    suggestion.coordinates.lat,
+                    suggestion.coordinates.lng
+                  );
+                  return { ...suggestion, distance };
+                }
+                return { ...suggestion, distance: Infinity };
+              })
+              .sort(
+                (a, b) => (a.distance || Infinity) - (b.distance || Infinity)
+              );
+          }
+
+          setSuggestions(results);
+        }
+      } catch (error) {
+        console.error("Erreur lors de la recherche:", error);
+      } finally {
+        setIsLoading(false);
+      }
+    },
+    [userLocation]
+  );
 
   // Gérer la saisie avec debounce
   const handleInputChange = (newValue: string) => {
@@ -166,6 +234,7 @@ export default function EnhancedSearchBar({
         lat: suggestion.coordinates.lat,
         lng: suggestion.coordinates.lng,
         name: suggestion.title,
+        zoom: suggestion.zoomLevel, // Passer le zoom suggéré
       });
       onChange(suggestion.title);
     } else if (
@@ -224,7 +293,9 @@ export default function EnhancedSearchBar({
           lng: longitude,
           name: "Ma position",
         });
-        onChange("Ma position");
+        // Vider la recherche au lieu de mettre "Ma position"
+        onChange("");
+        setIsOpen(false);
         setIsGeolocating(false);
       },
       (error) => {

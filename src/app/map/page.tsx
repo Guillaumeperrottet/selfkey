@@ -4,7 +4,7 @@ import InteractiveMap from "@/components/ui/interactive-map";
 import EnhancedSearchBar from "@/components/ui/enhanced-search-bar";
 import Link from "next/link";
 import Image from "next/image";
-import { ArrowLeft, MapPin, ShowerHead, Navigation } from "lucide-react";
+import { MapPin, ShowerHead, Navigation } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { AvailabilityBadge } from "@/components/ui/availability-badge";
@@ -47,6 +47,7 @@ function MapPageContent() {
     lng: number;
   } | null>(null);
   const [mapZoom, setMapZoom] = useState<number>(6);
+  const [isUserGeolocation, setIsUserGeolocation] = useState(false); // Nouveau état
   const [showingNearbyEstablishments, setShowingNearbyEstablishments] =
     useState(false);
   const [isMobile, setIsMobile] = useState(false);
@@ -348,24 +349,12 @@ function MapPageContent() {
       >
         {/* Header */}
         <div className="p-4 border-b bg-white flex-shrink-0">
-          <div className="flex items-center justify-between mb-4">
-            <div className="flex items-center gap-2">
-              <Link href="/">
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  className="flex items-center gap-2"
-                >
-                  <ArrowLeft className="h-4 w-4" />
-                  Retour
-                </Button>
-              </Link>
-            </div>
+          <div className="flex items-center justify-center mb-4">
             <a
               href="https://selfcamp.ch"
               className="hover:opacity-80 transition-opacity"
             >
-              <h1 className="text-xl font-bold text-[#9EA173] cursor-pointer">
+              <h1 className="text-2xl font-bold text-[#9EA173] cursor-pointer">
                 SelfCamp
               </h1>
             </a>
@@ -541,7 +530,7 @@ function MapPageContent() {
           center={mapCenter}
           zoom={mapZoom}
           availabilityData={availabilityData}
-          disableAutoGeolocation={!!mapCenter}
+          disableAutoGeolocation={!!mapCenter && !isUserGeolocation}
         />
 
         {/* Barre de recherche flottante au centre en haut - universelle pour tous mobiles */}
@@ -606,7 +595,12 @@ function MapPageContent() {
               }}
               onLocationSelect={(location) => {
                 setMapCenter({ lat: location.lat, lng: location.lng });
-                setMapZoom(location.name === "Ma position" ? 15 : 12);
+                // Utiliser le zoom suggéré s'il existe, sinon valeur par défaut
+                const zoom =
+                  location.zoom || (location.name === "Ma position" ? 15 : 12);
+                setMapZoom(zoom);
+                // Marquer si c'est la géolocalisation de l'utilisateur
+                setIsUserGeolocation(location.name === "Ma position");
               }}
               onEstablishmentSelect={(establishment) => {
                 centerMapOnEstablishment({

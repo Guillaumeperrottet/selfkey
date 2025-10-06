@@ -36,9 +36,30 @@ interface SearchSuggestion {
     lat: number;
     lng: number;
   };
+  zoomLevel?: number; // Niveau de zoom suggéré
 }
 
 const RECENT_SEARCHES_KEY = "selfcamp_recent_searches";
+
+// Fonction pour calculer la distance entre deux points (formule Haversine)
+function calculateDistance(
+  lat1: number,
+  lon1: number,
+  lat2: number,
+  lon2: number
+): number {
+  const R = 6371; // Rayon de la Terre en km
+  const dLat = ((lat2 - lat1) * Math.PI) / 180;
+  const dLon = ((lon2 - lon1) * Math.PI) / 180;
+  const a =
+    Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+    Math.cos((lat1 * Math.PI) / 180) *
+      Math.cos((lat2 * Math.PI) / 180) *
+      Math.sin(dLon / 2) *
+      Math.sin(dLon / 2);
+  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+  return R * c;
+}
 
 export default function SearchBar() {
   const [isOpen, setIsOpen] = useState(false);
@@ -46,8 +67,30 @@ export default function SearchBar() {
   const [suggestions, setSuggestions] = useState<SearchSuggestion[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [recentSearches, setRecentSearches] = useState<RecentSearch[]>([]);
+  const [userLocation, setUserLocation] = useState<{
+    lat: number;
+    lng: number;
+  } | null>(null);
   const router = useRouter();
   const searchTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+
+  // Récupérer la position de l'utilisateur au montage
+  useEffect(() => {
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          setUserLocation({
+            lat: position.coords.latitude,
+            lng: position.coords.longitude,
+          });
+        },
+        (error) => {
+          console.log("Géolocalisation non disponible:", error.message);
+        },
+        { timeout: 5000 }
+      );
+    }
+  }, []);
 
   // Charger les recherches récentes au montage
   useEffect(() => {
@@ -74,27 +117,51 @@ export default function SearchBar() {
   }, []);
 
   // Fonction de recherche avec debounce
-  const searchEstablishments = useCallback(async (query: string) => {
-    if (!query.trim()) {
-      setSuggestions([]);
-      return;
-    }
-
-    setIsLoading(true);
-    try {
-      const response = await fetch(
-        `/api/public/establishments/search?q=${encodeURIComponent(query)}`
-      );
-      if (response.ok) {
-        const results: SearchSuggestion[] = await response.json();
-        setSuggestions(results);
+  const searchEstablishments = useCallback(
+    async (query: string) => {
+      if (!query.trim()) {
+        setSuggestions([]);
+        return;
       }
-    } catch (error) {
-      console.error("Erreur lors de la recherche:", error);
-    } finally {
-      setIsLoading(false);
-    }
-  }, []);
+
+      setIsLoading(true);
+      try {
+        const response = await fetch(
+          `/api/public/establishments/search?q=${encodeURIComponent(query)}`
+        );
+        if (response.ok) {
+          let results: SearchSuggestion[] = await response.json();
+
+          // Si on a la position de l'utilisateur, trier par proximité
+          if (userLocation) {
+            results = results
+              .map((suggestion) => {
+                if (suggestion.coordinates) {
+                  const distance = calculateDistance(
+                    userLocation.lat,
+                    userLocation.lng,
+                    suggestion.coordinates.lat,
+                    suggestion.coordinates.lng
+                  );
+                  return { ...suggestion, distance };
+                }
+                return { ...suggestion, distance: Infinity };
+              })
+              .sort(
+                (a, b) => (a.distance || Infinity) - (b.distance || Infinity)
+              );
+          }
+
+          setSuggestions(results);
+        }
+      } catch (error) {
+        console.error("Erreur lors de la recherche:", error);
+      } finally {
+        setIsLoading(false);
+      }
+    },
+    [userLocation]
+  );
 
   // Gérer la saisie avec debounce
   const handleInputChange = (value: string) => {
@@ -156,12 +223,13 @@ export default function SearchBar() {
         coordinates: suggestion.coordinates,
       });
 
-      // Rediriger vers la map avec coordonnées géographiques
+      // Rediriger vers la map avec coordonnées géographiques et zoom adapté
+      const zoom = suggestion.zoomLevel || 12;
       const params = new URLSearchParams({
         search: suggestion.title,
         lat: suggestion.coordinates.lat.toString(),
         lng: suggestion.coordinates.lng.toString(),
-        zoom: "12",
+        zoom: zoom.toString(),
       });
       router.push(`/map?${params.toString()}`);
     } else if (suggestion.type === "recent") {

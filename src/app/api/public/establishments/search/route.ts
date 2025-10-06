@@ -30,6 +30,37 @@ interface SearchResult {
     lat: number;
     lng: number;
   };
+  zoomLevel?: number; // Niveau de zoom suggéré
+}
+
+// Fonction pour déterminer le niveau de zoom selon le type de lieu
+function getZoomLevel(type: string, placeClass: string): number {
+  // Référence: https://wiki.openstreetmap.org/wiki/Key:place
+
+  // Lieux très spécifiques - Zoom maximal
+  if (type === "house" || type === "building") return 18;
+  if (placeClass === "amenity" || placeClass === "tourism") return 17;
+
+  // Villages, quartiers - Zoom proche
+  if (type === "village" || type === "hamlet" || type === "suburb") return 15;
+  if (type === "neighbourhood" || type === "quarter") return 16;
+
+  // Villes petites/moyennes - Zoom moyen-proche
+  if (type === "town") return 13;
+  if (type === "city") return 12;
+
+  // Grandes villes - Zoom moyen
+  if (type === "municipality") return 11;
+
+  // Régions, cantons - Zoom éloigné
+  if (type === "county" || type === "state" || type === "region") return 10;
+  if (type === "province" || type === "district") return 9;
+
+  // Pays - Zoom très éloigné
+  if (type === "country") return 6;
+
+  // Par défaut - Zoom moyen
+  return 12;
 }
 
 // API de géocodage simple pour les villes/pays
@@ -133,6 +164,9 @@ export async function GET(request: Request) {
         const mainName = parts[0].trim();
         const locationInfo = parts.slice(1).join(",").trim();
 
+        // Calculer le niveau de zoom adapté au type de lieu
+        const suggestedZoom = getZoomLevel(location.type, location.class);
+
         allResults.push({
           id: `location-${location.lat}-${location.lon}`,
           type: "location",
@@ -143,6 +177,7 @@ export async function GET(request: Request) {
             lat: location.lat,
             lng: location.lon,
           },
+          zoomLevel: suggestedZoom,
         });
       });
     } catch (error) {
@@ -251,6 +286,14 @@ export async function GET(request: Request) {
             longitude: establishment.longitude,
             mapImage: establishment.mapImage,
           },
+          // Ajouter les coordonnées pour le tri par proximité côté client
+          coordinates:
+            establishment.latitude && establishment.longitude
+              ? {
+                  lat: establishment.latitude,
+                  lng: establishment.longitude,
+                }
+              : undefined,
         });
       });
     }

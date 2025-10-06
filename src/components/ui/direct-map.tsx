@@ -378,73 +378,63 @@ const MobileLocationComponent = ({
         enableHighAccuracy: true,
       });
 
-      // Gérer la géolocalisation réussie - marqueur style Google Maps avec camping-car
+      // Gérer la géolocalisation réussie - marqueur style pin de localisation
       const onLocationFound = (e: L.LocationEvent) => {
         console.log("Position trouvée:", e.latlng, "Précision:", e.accuracy);
 
-        // Créer un icône camping-car stylé
-        const campingCarIcon = L.divIcon({
+        // Créer un icône de pin de localisation classique (rouge)
+        const locationPinIcon = L.divIcon({
           html: `
             <div style="
               width: 32px;
-              height: 32px;
+              height: 40px;
               position: relative;
               display: flex;
+              flex-direction: column;
               align-items: center;
-              justify-content: center;
             ">
+              <!-- Pin principal -->
+              <div style="
+                position: relative;
+                width: 28px;
+                height: 28px;
+                background: #EF4444;
+                border: 3px solid white;
+                border-radius: 50% 50% 50% 0;
+                transform: rotate(-45deg);
+                box-shadow: 0 3px 10px rgba(239, 68, 68, 0.4);
+              ">
+                <!-- Point intérieur blanc -->
+                <div style="
+                  position: absolute;
+                  top: 50%;
+                  left: 50%;
+                  transform: translate(-50%, -50%);
+                  width: 8px;
+                  height: 8px;
+                  background: white;
+                  border-radius: 50%;
+                "></div>
+              </div>
+              
               <!-- Ombre portée -->
               <div style="
                 position: absolute;
                 bottom: -2px;
                 left: 50%;
                 transform: translateX(-50%);
-                width: 24px;
-                height: 8px;
-                background: rgba(0,0,0,0.2);
+                width: 16px;
+                height: 6px;
+                background: rgba(0,0,0,0.3);
                 border-radius: 50%;
-                filter: blur(2px);
-              "></div>
-              
-              <!-- Cercle de fond style Google Maps -->
-              <div style="
-                position: absolute;
-                width: 28px;
-                height: 28px;
-                background: white;
-                border: 3px solid #84994F;
-                border-radius: 50%;
-                box-shadow: 0 2px 8px rgba(132, 153, 79, 0.3);
-              "></div>
-              
-              <!-- Camping-car emoji -->
-              <div style="
-                position: relative;
-                z-index: 10;
-                font-size: 16px;
-                line-height: 1;
-                filter: drop-shadow(0 1px 2px rgba(0,0,0,0.1));
-              ">🚐</div>
-              
-              <!-- Point de direction (flèche) -->
-              <div style="
-                position: absolute;
-                bottom: -8px;
-                left: 50%;
-                transform: translateX(-50%);
-                width: 0;
-                height: 0;
-                border-left: 6px solid transparent;
-                border-right: 6px solid transparent;
-                border-top: 8px solid #84994F;
-                z-index: 5;
+                filter: blur(3px);
               "></div>
             </div>
           `,
-          className: "user-location-camping-car",
+          className: "user-location-pin",
           iconSize: [32, 40],
-          iconAnchor: [16, 32],
-          popupAnchor: [0, -35],
+          iconAnchor: [16, 36],
+          popupAnchor: [0, -40],
         });
 
         // Supprimer les anciens marqueurs de position si ils existent
@@ -455,9 +445,9 @@ const MobileLocationComponent = ({
           }
         });
 
-        // Ajouter le marqueur camping-car
+        // Ajouter le marqueur de localisation
         const userMarker = L.marker([e.latlng.lat, e.latlng.lng], {
-          icon: campingCarIcon,
+          icon: locationPinIcon,
         }).addTo(map);
 
         // Marquer ce layer comme position utilisateur
@@ -465,8 +455,8 @@ const MobileLocationComponent = ({
 
         // Ajouter un cercle de précision discret
         const accuracyCircle = L.circle([e.latlng.lat, e.latlng.lng], {
-          color: "#84994F",
-          fillColor: "#84994F",
+          color: "#EF4444",
+          fillColor: "#EF4444",
           fillOpacity: 0.08,
           radius: e.accuracy,
           weight: 1,
@@ -476,10 +466,10 @@ const MobileLocationComponent = ({
         // Marquer ce layer aussi
         (accuracyCircle as TaggedLayer)._myTag = "userPosition";
 
-        // Popup style Google Maps
+        // Popup simple et clair
         userMarker.bindPopup(`
           <div style="text-align: center; padding: 10px; font-family: system-ui, sans-serif; min-width: 180px;">
-            <div style="font-weight: 600; color: #84994F; margin-bottom: 6px; font-size: 15px;">
+            <div style="font-weight: 600; color: #EF4444; margin-bottom: 6px; font-size: 15px;">
               📍 Votre position
             </div>
             <div style="font-size: 13px; color: #666; margin-bottom: 4px;">
