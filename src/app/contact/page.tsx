@@ -125,65 +125,65 @@ export default function ContactPage() {
 
         {/* Contact direct - En premier */}
         <div className="mb-10">
-          <div className="bg-[#84994F]/8 rounded-2xl border border-[#84994F]/20 p-5 md:p-6">
-            <div className="text-center mb-5">
-              <h2 className="text-lg md:text-xl font-bold text-gray-900">
+          <div className="bg-[#84994F]/3 rounded-2xl border border-[#84994F]/20 p-6 md:p-8">
+            <div className="text-center mb-6">
+              <h2 className="text-xl md:text-2xl font-bold text-gray-900">
                 Contactez-nous directement
               </h2>
             </div>
 
-            <div className="bg-white rounded-xl border border-gray-100 p-4 max-w-2xl mx-auto">
-              <div className="flex flex-col md:flex-row items-center justify-around gap-4 md:gap-6">
+            <div className="bg-white rounded-xl shadow-sm border border-[#84994F]/30 p-6 max-w-4xl mx-auto">
+              <div className="flex flex-col md:flex-row items-center justify-around gap-6 md:gap-8">
                 <a
                   href="mailto:gp@webbing.ch"
                   className="flex items-center gap-3 group"
                 >
-                  <div className="w-10 h-10 rounded-full bg-[#84994F]/10 flex items-center justify-center group-hover:bg-[#84994F]/20 transition-colors flex-shrink-0">
-                    <Mail className="h-4 w-4 text-[#84994F]" />
+                  <div className="w-12 h-12 rounded-full bg-[#84994F]/10 flex items-center justify-center group-hover:bg-[#84994F] transition-colors flex-shrink-0">
+                    <Mail className="h-5 w-5 text-[#84994F] group-hover:text-white transition-colors" />
                   </div>
                   <div>
-                    <div className="text-xs font-semibold text-gray-900">
+                    <div className="text-sm font-semibold text-gray-500">
                       Email
                     </div>
-                    <div className="text-xs text-[#84994F] group-hover:underline">
+                    <div className="text-base text-gray-900 group-hover:text-[#84994F] transition-colors">
                       gp@webbing.ch
                     </div>
                   </div>
                 </a>
 
-                <div className="hidden md:block w-px h-10 bg-gray-200"></div>
+                <div className="hidden md:block w-px h-12 bg-gray-200"></div>
 
                 <a
                   href="tel:+41793414074"
                   className="flex items-center gap-3 group"
                 >
-                  <div className="w-10 h-10 rounded-full bg-[#84994F]/10 flex items-center justify-center group-hover:bg-[#84994F]/20 transition-colors flex-shrink-0">
-                    <Phone className="h-4 w-4 text-[#84994F]" />
+                  <div className="w-12 h-12 rounded-full bg-[#84994F]/10 flex items-center justify-center group-hover:bg-[#84994F] transition-colors flex-shrink-0">
+                    <Phone className="h-5 w-5 text-[#84994F] group-hover:text-white transition-colors" />
                   </div>
                   <div>
-                    <div className="text-xs font-semibold text-gray-900">
+                    <div className="text-sm font-semibold text-gray-500">
                       Téléphone
                     </div>
-                    <div className="text-xs text-[#84994F] group-hover:underline">
+                    <div className="text-base text-gray-900 group-hover:text-[#84994F] transition-colors">
                       +41 79 341 40 74
                     </div>
                   </div>
                 </a>
 
-                <div className="hidden md:block w-px h-10 bg-gray-200"></div>
+                <div className="hidden md:block w-px h-12 bg-gray-200"></div>
 
                 <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-full bg-[#84994F]/10 flex items-center justify-center flex-shrink-0">
-                    <MapPin className="h-4 w-4 text-[#84994F]" />
+                  <div className="w-12 h-12 rounded-full bg-[#84994F]/10 flex items-center justify-center flex-shrink-0">
+                    <MapPin className="h-5 w-5 text-[#84994F]" />
                   </div>
                   <div>
-                    <div className="text-xs font-semibold text-gray-900">
+                    <div className="text-sm font-semibold text-gray-500">
                       Localisation
                     </div>
-                    <div className="text-xs text-gray-600">
-                      Rue de Battentin 1 <br></br>
-                      1630 Bulle
+                    <div className="text-base text-gray-900">
+                      Rue de Battentin 1
                     </div>
+                    <div className="text-base text-gray-900">1630 Bulle</div>
                   </div>
                 </div>
               </div>

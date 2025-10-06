@@ -473,10 +473,7 @@ function MapPageContent() {
           {/* Header Desktop */}
           <div className="p-4 border-b bg-white flex-shrink-0">
             <div className="flex items-center justify-center mb-4">
-              <Link
-                href="/"
-                className="hover:opacity-80 transition-opacity"
-              >
+              <Link href="/" className="hover:opacity-80 transition-opacity">
                 <h1 className="text-2xl font-bold text-[#9EA173] cursor-pointer">
                   SelfCamp
                 </h1>
@@ -737,7 +734,7 @@ function MapPageContent() {
                     address: establishment.location,
                   });
                 }}
-                placeholder="Rechercher par nom, ville, etc..."
+                placeholder="Rechercher un lieu, une ville, un emplacement..."
               />
             </div>
           </div>

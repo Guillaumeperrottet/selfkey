@@ -260,24 +260,24 @@ const EstablishmentMarker = ({
       }}
     >
       <Popup
-        closeButton={true}
+        closeButton={false}
         autoClose={false}
         autoPan={true}
         // Configuration mobile-friendly pour les popups
-        maxWidth={mobile ? 280 : 300}
-        minWidth={mobile ? 250 : 200}
+        maxWidth={mobile ? 320 : 300}
+        minWidth={mobile ? 300 : 200}
         className="mobile-popup"
       >
-        <div className={`${mobile ? "p-2" : "p-4"}`}>
+        <div className={`${mobile ? "overflow-hidden" : "p-3"}`}>
           {/* Image de l'établissement */}
           {establishment.image && (
-            <div className="mb-3">
+            <div className={`${mobile ? "mb-3 -mx-3 -mt-3" : "mb-3"}`}>
               <Image
                 src={establishment.image}
                 alt={establishment.name}
-                width={280}
-                height={96}
-                className="w-full h-24 object-cover rounded-lg"
+                width={320}
+                height={mobile ? 100 : 96}
+                className={`w-full ${mobile ? "h-[100px]" : "h-24 rounded-lg"} object-cover`}
                 onError={(e) => {
                   // Image de fallback si l'image principale ne charge pas
                   e.currentTarget.src = "/selfcamp_logo.png";
@@ -285,61 +285,79 @@ const EstablishmentMarker = ({
               />
             </div>
           )}
-          <h3 className="font-bold text-gray-900 text-lg mb-3 leading-tight">
-            {establishment.name}
-          </h3>
+          <div className={`${mobile ? "px-3 pb-2" : ""}`}>
+            <h3
+              className={`font-bold text-gray-900 ${mobile ? "text-base mb-2 leading-tight" : "text-lg mb-3 leading-tight"}`}
+            >
+              {establishment.name}
+            </h3>
 
-          {/* Informations de disponibilité - design simplifié */}
-          <div className="flex items-center gap-2 mb-3">
+            {/* Informations de disponibilité - design simplifié */}
             <div
-              className={`inline-flex items-center gap-2 px-3 py-1.5 rounded-lg text-sm font-medium ${
-                availabilityInfo.text.includes("26/26") ||
-                availabilityInfo.text.includes("28/28")
-                  ? "bg-green-50 text-green-700 border border-green-200"
-                  : availabilityInfo.text.includes("Complet")
-                    ? "bg-red-50 text-red-700 border border-red-200"
-                    : "bg-[#84994F]/10 text-[#84994F] border border-[#84994F]/20"
-              }`}
+              className={`flex items-center ${mobile ? "gap-1.5 mb-2.5" : "gap-2 mb-3"}`}
             >
-              <span className="w-2 h-2 rounded-full bg-current"></span>
-              <span>{availabilityInfo.text}</span>
+              <div
+                className={`inline-flex items-center ${mobile ? "gap-1 px-2 py-1 text-xs" : "gap-2 px-3 py-1.5 text-sm"} rounded-lg font-medium ${
+                  availabilityInfo.text.includes("26/26") ||
+                  availabilityInfo.text.includes("28/28")
+                    ? "bg-green-50 text-green-700 border border-green-200"
+                    : availabilityInfo.text.includes("Complet")
+                      ? "bg-red-50 text-red-700 border border-red-200"
+                      : "bg-[#84994F]/10 text-[#84994F] border border-[#84994F]/20"
+                }`}
+              >
+                <span
+                  className={`${mobile ? "w-1.5 h-1.5" : "w-2 h-2"} rounded-full bg-current`}
+                ></span>
+                <span>{availabilityInfo.text}</span>
+              </div>
             </div>
-          </div>
 
-          <div className="flex items-center gap-2 text-sm text-gray-600 mb-3">
-            <MapPin className="w-4 h-4" />
-            <span>{establishment.location}</span>
-          </div>
-
-          <p className="text-sm text-gray-700 mb-4 leading-relaxed">
-            {establishment.description}
-          </p>
-
-          {/* Note sur la réservation */}
-          <div className="text-sm mb-4 flex items-center gap-2 text-[#84994F] bg-[#84994F]/5 px-3 py-2 rounded-lg">
-            <div className="w-4 h-4 rounded-full bg-[#84994F]/20 flex items-center justify-center text-xs">
-              <span>ℹ️</span>
+            <div
+              className={`flex items-center ${mobile ? "gap-1.5 text-xs mb-2.5" : "gap-2 text-sm mb-3"} text-gray-600`}
+            >
+              <MapPin className={`${mobile ? "w-3 h-3" : "w-4 h-4"}`} />
+              <span>{establishment.location}</span>
             </div>
-            <span>Réservation en ligne disponible</span>
-          </div>
-          {/* Boutons d'action - design moderne et simple */}
-          <div className="flex gap-3">
-            {/* Bouton GPS */}
-            <button
-              onClick={openGoogleMaps}
-              className="flex-1 px-4 py-2.5 bg-white border-2 border-[#84994F] text-[#84994F] rounded-lg text-sm font-semibold hover:bg-[#84994F] hover:text-white transition-all duration-200 flex items-center justify-center gap-2"
-            >
-              <span className="text-base">🧭</span>
-              <span>GPS</span>
-            </button>
 
-            {/* Bouton réserver */}
-            <button
-              onClick={openBookingPage}
-              className="flex-1 px-4 py-2.5 bg-[#84994F] text-white rounded-lg text-sm font-semibold hover:bg-[#84994F]/90 transition-all duration-200"
+            <p
+              className={`${mobile ? "text-xs mb-2.5 leading-relaxed" : "text-sm mb-4 leading-relaxed"} text-gray-700`}
             >
-              Réserver
-            </button>
+              {establishment.description}
+            </p>
+
+            {/* Note sur la réservation */}
+            <div
+              className={`${mobile ? "text-xs mb-3 px-2 py-1.5 gap-1.5" : "text-sm mb-4 px-3 py-2 gap-2"} flex items-center text-[#84994F] bg-[#84994F]/5 rounded-lg`}
+            >
+              <div
+                className={`${mobile ? "w-3 h-3 text-[10px]" : "w-4 h-4 text-xs"} rounded-full bg-[#84994F]/20 flex items-center justify-center`}
+              >
+                <span>ℹ️</span>
+              </div>
+              <span>Réservation en ligne disponible</span>
+            </div>
+            {/* Boutons d'action - design moderne et simple */}
+            <div className={`flex ${mobile ? "gap-2.5" : "gap-3"} w-full`}>
+              {/* Bouton GPS */}
+              <button
+                onClick={openGoogleMaps}
+                className={`flex-1 ${mobile ? "px-3 py-2.5 text-sm" : "px-4 py-2.5 text-sm"} bg-white border-2 border-[#84994F] text-[#84994F] rounded-lg font-semibold hover:bg-[#84994F] hover:text-white transition-all duration-200 flex items-center justify-center gap-1.5`}
+              >
+                <span className={`${mobile ? "text-base" : "text-base"}`}>
+                  🧭
+                </span>
+                <span>GPS</span>
+              </button>
+
+              {/* Bouton réserver */}
+              <button
+                onClick={openBookingPage}
+                className={`flex-1 ${mobile ? "px-3 py-2.5 text-sm" : "px-4 py-2.5 text-sm"} bg-[#84994F] text-white rounded-lg font-semibold hover:bg-[#84994F]/90 transition-all duration-200`}
+              >
+                Réserver
+              </button>
+            </div>
           </div>
         </div>
       </Popup>
