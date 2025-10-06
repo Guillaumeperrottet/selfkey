@@ -875,164 +875,71 @@ export function SelfcampAboutPage() {
             <div className="w-full">
               <Timeline data={timelineData} />
             </div>
-          </div>
-        </section>
-        {/* Notre Solution Section */}
-        <section className="py-12 md:py-20 px-4 bg-white">
-          <div className="container mx-auto max-w-7xl">
+
+            {/* Call to Action redesigné */}
             <motion.div
               initial={{ opacity: 0, y: 30 }}
               whileInView={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.8 }}
               viewport={{ once: true }}
-              className="text-center mb-10 md:mb-16"
+              className="mt-24 md:mt-32"
             >
-              <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold text-gray-900 mb-4 md:mb-6 px-2">
-                Notre <span className="text-[#84994F] italic">solution</span>
-              </h2>
-              <p className="text-base md:text-lg lg:text-xl text-gray-600 max-w-4xl mx-auto leading-relaxed px-4">
-                En collaboration avec les communes nous équipons les aires mises
-                à disposition, de places de parc limitées, d&apos;une
-                signalétique et d&apos;un système d&apos;enregistrement conforme
-                à la loi sur le tourisme.
-              </p>
-            </motion.div>
-
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-8 mb-10 md:mb-16">
-              {/* Infrastructure */}
-              <motion.div
-                initial={{ opacity: 0, y: 40 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.6, delay: 0.1 }}
-                viewport={{ once: true }}
-                className="bg-[#84994F]/5 p-5 md:p-6 rounded-xl md:rounded-2xl border border-[#84994F]/30 hover:border-[#84994F]/50 transition-all duration-300"
-              >
-                <h3 className="text-lg md:text-xl font-semibold text-[#84994F] mb-2 md:mb-3">
-                  Infrastructure
-                </h3>
-                <p className="text-gray-700 text-sm md:text-base leading-relaxed">
-                  Amélioration des infrastructures, fourniture des totems,
-                  signalétique adaptée, optimisation des parkings
-                </p>
-              </motion.div>
-
-              {/* Enregistrement */}
-              <motion.div
-                initial={{ opacity: 0, y: 40 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.6, delay: 0.2 }}
-                viewport={{ once: true }}
-                className="bg-[#84994F]/5 p-5 md:p-6 rounded-xl md:rounded-2xl border border-[#84994F]/30 hover:border-[#84994F]/50 transition-all duration-300"
-              >
-                <h3 className="text-lg md:text-xl font-semibold text-[#84994F] mb-2 md:mb-3">
-                  Enregistrement
-                </h3>
-                <p className="text-gray-700 text-sm md:text-base leading-relaxed">
-                  Enregistrement automatique des visiteurs via QR code
-                  (hébergements, campings, parkings)
-                </p>
-              </motion.div>
-
-              {/* Conformité */}
-              <motion.div
-                initial={{ opacity: 0, y: 40 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.6, delay: 0.3 }}
-                viewport={{ once: true }}
-                className="bg-[#84994F]/5 p-5 md:p-6 rounded-xl md:rounded-2xl border border-[#84994F]/30 hover:border-[#84994F]/50 transition-all duration-300"
-              >
-                <h3 className="text-lg md:text-xl font-semibold text-[#84994F] mb-2 md:mb-3">
-                  Conformité
-                </h3>
-                <p className="text-gray-700 text-sm md:text-base leading-relaxed">
-                  Envoi des données à la police via Check-in FR
-                </p>
-              </motion.div>
-
-              {/* Tableau de bord */}
-              <motion.div
-                initial={{ opacity: 0, y: 40 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.6, delay: 0.4 }}
-                viewport={{ once: true }}
-                className="bg-[#84994F]/5 p-5 md:p-6 rounded-xl md:rounded-2xl border border-[#84994F]/30 hover:border-[#84994F]/50 transition-all duration-300"
-              >
-                <h3 className="text-lg md:text-xl font-semibold text-[#84994F] mb-2 md:mb-3">
-                  Tableau de bord
-                </h3>
-                <p className="text-gray-700 text-sm md:text-base leading-relaxed">
-                  Tableau de bord centralisé via{" "}
-                  <span className="text-[#84994F] font-semibold">
-                    Selfcamp.ch
-                  </span>{" "}
-                  pour l&apos;UFT et les communes
-                </p>
-              </motion.div>
-
-              {/* Facilité */}
-              <motion.div
-                initial={{ opacity: 0, y: 40 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.6, delay: 0.5 }}
-                viewport={{ once: true }}
-                className="bg-[#84994F]/5 p-5 md:p-6 rounded-xl md:rounded-2xl border border-[#84994F]/30 hover:border-[#84994F]/50 transition-all duration-300"
-              >
-                <h3 className="text-lg md:text-xl font-semibold text-[#84994F] mb-2 md:mb-3">
-                  Facilité
-                </h3>
-                <p className="text-gray-700 text-sm md:text-base leading-relaxed">
-                  Solution clé en main : aucune infrastructure IT requise,
-                  rémunération uniquement à la transaction
-                </p>
-              </motion.div>
-
-              {/* Traçabilité */}
-              <motion.div
-                initial={{ opacity: 0, y: 40 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.6, delay: 0.6 }}
-                viewport={{ once: true }}
-                className="bg-[#84994F]/5 p-5 md:p-6 rounded-xl md:rounded-2xl border border-[#84994F]/30 hover:border-[#84994F]/50 transition-all duration-300"
-              >
-                <h3 className="text-lg md:text-xl font-semibold text-[#84994F] mb-2 md:mb-3">
-                  Traçabilité
-                </h3>
-                <p className="text-gray-700 text-sm md:text-base leading-relaxed">
-                  Traçabilité complète des séjours et contrôle du camping
-                  sauvage
-                </p>
-              </motion.div>
-            </div>
-
-            {/* Call to Action */}
-            <motion.div
-              initial={{ opacity: 0, y: 30 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.8, delay: 0.3 }}
-              viewport={{ once: true }}
-              className="text-center"
-            >
-              <div className="bg-white p-6 md:p-8 rounded-xl md:rounded-2xl border border-[#84994F]/30 hover:border-[#84994F]/50 transition-all duration-300 max-w-3xl mx-auto">
-                <h3 className="text-xl md:text-2xl font-bold text-gray-900 mb-3 md:mb-4">
-                  Une solution complète et moderne
-                </h3>
-                <p className="text-gray-700 mb-5 md:mb-6 leading-relaxed text-sm md:text-base">
-                  Découvrez comment notre technologie peut transformer la
-                  gestion des aires de camping-car dans votre région.
-                </p>
-                <div className="flex flex-col sm:flex-row gap-3 md:gap-4 justify-center">
+              {/* Mobile: Simple CTA */}
+              <div className="md:hidden text-center space-y-6">
+                <div className="space-y-3">
+                  <h3 className="text-2xl font-bold text-gray-900">
+                    Prêt à transformer votre territoire ?
+                  </h3>
+                  <p className="text-gray-600 text-base leading-relaxed px-4">
+                    Découvrez comment SelfCamp peut vous aider à créer des aires
+                    de camping-car conformes et autonome.
+                  </p>
+                </div>
+                <div className="flex flex-col gap-3 px-4">
                   <Link
                     href="/contact"
-                    className="bg-[#84994F] text-white px-6 md:px-8 py-2.5 md:py-3 rounded-lg hover:bg-[#84994F]/90 transition-colors font-semibold inline-block text-sm md:text-base"
+                    className="bg-[#84994F] text-white px-8 py-4 rounded-xl hover:bg-[#84994F]/90 transition-colors font-semibold text-base shadow-lg"
                   >
                     Nous contacter
                   </Link>
                   <Link
                     href="/map"
-                    className="border border-[#84994F] text-[#84994F] px-6 md:px-8 py-2.5 md:py-3 rounded-lg hover:bg-[#84994F] hover:text-white transition-colors font-semibold inline-block text-sm md:text-base"
+                    className="border-2 border-[#84994F] text-[#84994F] px-8 py-4 rounded-xl hover:bg-[#84994F] hover:text-white transition-colors font-semibold text-base"
                   >
-                    Voir les aires
+                    Voir les aires existantes
                   </Link>
+                </div>
+              </div>
+
+              {/* Desktop: Card CTA avec fond */}
+              <div className="hidden md:block">
+                <div className="bg-gradient-to-br from-[#84994F]/10 via-white to-[#84994F]/5 rounded-3xl p-12 border border-[#84994F]/20 shadow-xl max-w-5xl mx-auto">
+                  <div className="text-center space-y-6">
+                    <div className="inline-flex items-center justify-center w-16 h-16 bg-[#84994F] rounded-full mb-4">
+                      <span className="text-3xl">🚐</span>
+                    </div>
+                    <h3 className="text-3xl md:text-4xl font-bold text-gray-900">
+                      Prêt à transformer votre territoire ?
+                    </h3>
+                    <p className="text-gray-600 text-lg leading-relaxed max-w-2xl mx-auto">
+                      Découvrez comment SelfCamp peut vous aider à créer des
+                      aires de camping-car conformes et autonomes.
+                    </p>
+                    <div className="flex flex-col sm:flex-row gap-4 justify-center pt-4">
+                      <Link
+                        href="/contact"
+                        className="bg-[#84994F] text-white px-10 py-4 rounded-xl hover:bg-[#84994F]/90 transition-all duration-300 font-semibold text-lg shadow-lg hover:shadow-xl hover:scale-105"
+                      >
+                        Contactez-nous
+                      </Link>
+                      <Link
+                        href="/map"
+                        className="border-2 border-[#84994F] text-[#84994F] px-10 py-4 rounded-xl hover:bg-[#84994F] hover:text-white transition-all duration-300 font-semibold text-lg"
+                      >
+                        Voir les aires existantes
+                      </Link>
+                    </div>
+                  </div>
                 </div>
               </div>
             </motion.div>
