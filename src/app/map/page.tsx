@@ -4,7 +4,7 @@ import InteractiveMap from "@/components/ui/interactive-map";
 import EnhancedSearchBar from "@/components/ui/enhanced-search-bar";
 import Link from "next/link";
 import Image from "next/image";
-import { MapPin, ShowerHead, Navigation } from "lucide-react";
+import { MapPin, ShowerHead, Navigation, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { AvailabilityBadge } from "@/components/ui/availability-badge";
@@ -51,7 +51,7 @@ function MapPageContent() {
   const [showingNearbyEstablishments, setShowingNearbyEstablishments] =
     useState(false);
   const [isMobile, setIsMobile] = useState(false);
-  const [isKeyboardOpen, setIsKeyboardOpen] = useState(false);
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
   // Gérer les paramètres URL pour les recherches depuis la homepage
   const searchParams = useSearchParams();
@@ -158,38 +158,11 @@ function MapPageContent() {
     window.addEventListener("resize", checkMobile);
     window.addEventListener("orientationchange", checkMobile);
 
-    // Détection de l'ouverture du clavier sur mobile
-    if (isMobile) {
-      const initialHeight = window.visualViewport?.height || window.innerHeight;
-
-      const handleViewportChange = () => {
-        const currentHeight =
-          window.visualViewport?.height || window.innerHeight;
-        const heightDiff = initialHeight - currentHeight;
-
-        // Si la hauteur a diminué de plus de 150px, le clavier est probablement ouvert
-        setIsKeyboardOpen(heightDiff > 150);
-      };
-
-      window.visualViewport?.addEventListener("resize", handleViewportChange);
-      window.addEventListener("resize", handleViewportChange);
-
-      return () => {
-        window.removeEventListener("resize", checkMobile);
-        window.removeEventListener("orientationchange", checkMobile);
-        window.visualViewport?.removeEventListener(
-          "resize",
-          handleViewportChange
-        );
-        window.removeEventListener("resize", handleViewportChange);
-      };
-    }
-
     return () => {
       window.removeEventListener("resize", checkMobile);
       window.removeEventListener("orientationchange", checkMobile);
     };
-  }, [isMobile]);
+  }, []);
 
   useEffect(() => {
     filterEstablishments();
@@ -367,325 +340,445 @@ function MapPageContent() {
   }
 
   return (
-    <div className="h-screen bg-[#212215] flex overflow-hidden relative">
-      {/* Left Sidebar - Masquée sur mobile */}
-      <div
-        className={`
-        ${isMobile ? "hidden" : "w-96"} 
-        bg-white border-r flex flex-col relative
-      `}
-      >
-        {/* Header */}
-        <div className="p-4 border-b bg-white flex-shrink-0">
-          <div className="flex items-center justify-center mb-4">
-            <a
-              href="https://selfcamp.ch"
-              className="hover:opacity-80 transition-opacity"
+    <div className="h-screen bg-[#212215] flex flex-col overflow-hidden">
+      {/* Header fixe - visible uniquement sur mobile */}
+      <header className="md:hidden fixed top-0 left-0 right-0 bg-white border-b border-gray-100 z-[2000]">
+        <div className="container mx-auto px-4 py-3">
+          <div className="flex items-center justify-between">
+            {/* Logo à gauche */}
+            <Link href="/" className="flex items-center">
+              <Image
+                src="/logo_map.png"
+                alt="SelfCamp Logo"
+                width={50}
+                height={50}
+                className="hover:opacity-80 transition-opacity"
+              />
+            </Link>
+
+            {/* Texte Selfcamp au centre */}
+            <Link
+              href="/"
+              className="absolute left-1/2 transform -translate-x-1/2"
             >
-              <h1 className="text-2xl font-bold text-[#9EA173] cursor-pointer">
-                SelfCamp
+              <h1 className="text-xl font-bold text-[#84994F] hover:text-[#84994F]/80 transition-colors">
+                Selfcamp
               </h1>
-            </a>
+            </Link>
+
+            {/* Menu burger à droite */}
+            <button
+              onClick={() => setIsSidebarOpen(!isSidebarOpen)}
+              className="flex flex-col items-center justify-center w-10 h-10 space-y-1.5 hover:bg-gray-100 rounded-lg transition-colors"
+              aria-label="Menu"
+            >
+              <span
+                className={`block w-6 h-0.5 bg-[#84994F] transition-all duration-300 ${
+                  isSidebarOpen ? "rotate-45 translate-y-2" : ""
+                }`}
+              ></span>
+              <span
+                className={`block w-6 h-0.5 bg-[#84994F] transition-all duration-300 ${
+                  isSidebarOpen ? "opacity-0" : ""
+                }`}
+              ></span>
+              <span
+                className={`block w-6 h-0.5 bg-[#84994F] transition-all duration-300 ${
+                  isSidebarOpen ? "-rotate-45 -translate-y-2" : ""
+                }`}
+              ></span>
+            </button>
           </div>
         </div>
+      </header>
 
-        {/* Results */}
-        <div className="flex-1 overflow-y-auto p-4">
-          <div className="mb-4">
-            <div className="flex items-center justify-between">
-              <p className="text-sm text-gray-600">
-                {searchQuery ? (
-                  showingNearbyEstablishments ? (
-                    <>
-                      <span className="font-medium">
-                        {filteredEstablishments.length}
-                      </span>{" "}
-                      établissement
-                      {filteredEstablishments.length !== 1 ? "s" : ""} les plus
-                      proches de{" "}
-                      <span className="font-medium text-gray-800">
-                        &ldquo;{searchQuery}&rdquo;
-                      </span>
-                    </>
+      {/* Sidebar navigation simple et épurée */}
+      <div
+        className={`fixed top-0 right-0 h-full w-72 bg-white shadow-xl z-[2001] transform transition-transform duration-300 ease-in-out ${
+          isSidebarOpen ? "translate-x-0" : "translate-x-full"
+        }`}
+      >
+        <div className="flex flex-col h-full">
+          {/* Header simple avec couleur */}
+          <div className="flex items-center justify-between p-6 border-b border-gray-200">
+            <h2 className="text-lg font-semibold text-[#84994F]">Menu</h2>
+            <button
+              onClick={() => setIsSidebarOpen(false)}
+              className="p-2 hover:bg-[#84994F]/10 rounded-lg transition-colors"
+              aria-label="Fermer"
+            >
+              <X className="w-5 h-5 text-gray-600 hover:text-[#84994F]" />
+            </button>
+          </div>
+
+          {/* Navigation links avec touches de couleur */}
+          <nav className="flex-1 p-6">
+            <div className="space-y-3">
+              <Link
+                href="/"
+                onClick={() => setIsSidebarOpen(false)}
+                className="block px-4 py-3.5 text-base font-medium text-gray-700 hover:text-[#84994F] bg-gray-50 hover:bg-[#84994F]/10 rounded-xl transition-all duration-200 border-l-4 border-l-[#84994F]/30 hover:border-l-[#84994F]"
+              >
+                Accueil
+              </Link>
+              <Link
+                href="/about"
+                onClick={() => setIsSidebarOpen(false)}
+                className="block px-4 py-3.5 text-base font-medium text-gray-700 hover:text-[#84994F] bg-gray-50 hover:bg-[#84994F]/10 rounded-xl transition-all duration-200 border-l-4 border-l-[#84994F]/30 hover:border-l-[#84994F]"
+              >
+                À propos
+              </Link>
+              <Link
+                href="/help"
+                onClick={() => setIsSidebarOpen(false)}
+                className="block px-4 py-3.5 text-base font-medium text-gray-700 hover:text-[#84994F] bg-gray-50 hover:bg-[#84994F]/10 rounded-xl transition-all duration-200 border-l-4 border-l-[#84994F]/30 hover:border-l-[#84994F]"
+              >
+                Contact
+              </Link>
+            </div>
+          </nav>
+
+          {/* Footer avec badge couleur */}
+          <div className="p-6 border-t border-gray-200">
+            <div className="bg-[#84994F]/10 text-[#84994F] px-4 py-2.5 rounded-lg text-center">
+              <div className="flex items-center justify-center space-x-2">
+                <div className="w-2 h-2 bg-[#84994F] rounded-full animate-pulse"></div>
+                <p className="text-sm font-medium">Disponible 24H/24 - 7J/7</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Overlay sombre quand la sidebar est ouverte - uniquement mobile */}
+      {isSidebarOpen && (
+        <div
+          className="md:hidden fixed inset-0 bg-black/50 z-[2000] transition-opacity duration-300"
+          onClick={() => setIsSidebarOpen(false)}
+        ></div>
+      )}
+
+      {/* Conteneur principal */}
+      <div
+        className="flex-1 flex overflow-hidden"
+        style={{ marginTop: isMobile ? "64px" : "0" }}
+      >
+        {/* Left Sidebar Desktop - visible uniquement sur desktop */}
+        <div
+          className={`
+          ${isMobile ? "hidden" : "w-96"} 
+          bg-white border-r flex flex-col relative
+        `}
+        >
+          {/* Header Desktop */}
+          <div className="p-4 border-b bg-white flex-shrink-0">
+            <div className="flex items-center justify-center mb-4">
+              <Link
+                href="/"
+                className="hover:opacity-80 transition-opacity"
+              >
+                <h1 className="text-2xl font-bold text-[#9EA173] cursor-pointer">
+                  SelfCamp
+                </h1>
+              </Link>
+            </div>
+          </div>
+          {/* Results */}
+          <div className="flex-1 overflow-y-auto p-4">
+            <div className="mb-4">
+              <div className="flex items-center justify-between">
+                <p className="text-sm text-gray-600">
+                  {searchQuery ? (
+                    showingNearbyEstablishments ? (
+                      <>
+                        <span className="font-medium">
+                          {filteredEstablishments.length}
+                        </span>{" "}
+                        établissement
+                        {filteredEstablishments.length !== 1 ? "s" : ""} les
+                        plus proches de{" "}
+                        <span className="font-medium text-gray-800">
+                          &ldquo;{searchQuery}&rdquo;
+                        </span>
+                      </>
+                    ) : (
+                      <>
+                        <span className="font-medium">
+                          {filteredEstablishments.length}
+                        </span>{" "}
+                        résultat
+                        {filteredEstablishments.length !== 1
+                          ? "s"
+                          : ""} pour{" "}
+                        <span className="font-medium text-gray-800">
+                          &ldquo;{searchQuery}&rdquo;
+                        </span>
+                      </>
+                    )
                   ) : (
                     <>
                       <span className="font-medium">
                         {filteredEstablishments.length}
                       </span>{" "}
-                      résultat
-                      {filteredEstablishments.length !== 1 ? "s" : ""} pour{" "}
-                      <span className="font-medium text-gray-800">
-                        &ldquo;{searchQuery}&rdquo;
-                      </span>
+                      emplacement
+                      {filteredEstablishments.length !== 1 ? "s" : ""}{" "}
+                      disponible
+                      {filteredEstablishments.length !== 1 ? "s" : ""}
                     </>
-                  )
-                ) : (
-                  <>
-                    <span className="font-medium">
-                      {filteredEstablishments.length}
-                    </span>{" "}
-                    emplacement
-                    {filteredEstablishments.length !== 1 ? "s" : ""} disponible
-                    {filteredEstablishments.length !== 1 ? "s" : ""}
-                  </>
+                  )}
+                </p>
+                {searchQuery && (
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => setSearchQuery("")}
+                    className="text-xs"
+                  >
+                    Effacer
+                  </Button>
                 )}
-              </p>
-              {searchQuery && (
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={() => setSearchQuery("")}
-                  className="text-xs"
-                >
-                  Effacer
-                </Button>
-              )}
+              </div>
             </div>
-          </div>
 
-          <div className="space-y-4">
-            {filteredEstablishments.map((spot) => (
-              <Card
-                key={spot.id}
-                id={`establishment-card-${spot.id}`}
-                className={`cursor-pointer transition-all duration-300 p-0 overflow-hidden ${
-                  hoveredEstablishment === spot.id
-                    ? "shadow-lg scale-[1.02] border-blue-300"
-                    : "hover:shadow-md"
-                }`}
-                onMouseEnter={() => setHoveredEstablishment(spot.id)}
-                onMouseLeave={() => setHoveredEstablishment(null)}
-                onClick={() => centerMapOnEstablishment(spot)}
-              >
-                <div className="relative h-32 bg-gray-200 overflow-hidden">
-                  <Image
-                    src={spot.image}
-                    alt={spot.name}
-                    width={320}
-                    height={128}
-                    className="w-full h-full object-cover rounded-t-lg"
-                  />
-                  {/* Badge de disponibilité */}
-                  <div className="absolute top-2 left-2">
-                    {availabilityData[spot.slug] ? (
-                      <AvailabilityBadge
-                        availableRooms={
-                          availabilityData[spot.slug].availableRooms
-                        }
-                        totalRooms={availabilityData[spot.slug].totalRooms}
-                        status={availabilityData[spot.slug].status}
-                        nextAvailable={
-                          availabilityData[spot.slug].nextAvailable
-                        }
-                      />
-                    ) : (
-                      <AvailabilityBadge
-                        availableRooms={0}
-                        totalRooms={0}
-                        status="available"
-                        loading={availabilityLoading}
-                      />
-                    )}
+            <div className="space-y-4">
+              {filteredEstablishments.map((spot) => (
+                <Card
+                  key={spot.id}
+                  id={`establishment-card-${spot.id}`}
+                  className={`cursor-pointer transition-all duration-300 p-0 overflow-hidden ${
+                    hoveredEstablishment === spot.id
+                      ? "shadow-lg scale-[1.02] border-blue-300"
+                      : "hover:shadow-md"
+                  }`}
+                  onMouseEnter={() => setHoveredEstablishment(spot.id)}
+                  onMouseLeave={() => setHoveredEstablishment(null)}
+                  onClick={() => centerMapOnEstablishment(spot)}
+                >
+                  <div className="relative h-32 bg-gray-200 overflow-hidden">
+                    <Image
+                      src={spot.image}
+                      alt={spot.name}
+                      width={320}
+                      height={128}
+                      className="w-full h-full object-cover rounded-t-lg"
+                    />
+                    {/* Badge de disponibilité */}
+                    <div className="absolute top-2 left-2">
+                      {availabilityData[spot.slug] ? (
+                        <AvailabilityBadge
+                          availableRooms={
+                            availabilityData[spot.slug].availableRooms
+                          }
+                          totalRooms={availabilityData[spot.slug].totalRooms}
+                          status={availabilityData[spot.slug].status}
+                          nextAvailable={
+                            availabilityData[spot.slug].nextAvailable
+                          }
+                        />
+                      ) : (
+                        <AvailabilityBadge
+                          availableRooms={0}
+                          totalRooms={0}
+                          status="available"
+                          loading={availabilityLoading}
+                        />
+                      )}
+                    </div>
                   </div>
-                </div>
-                <CardContent className="p-3">
-                  <div className="flex items-start justify-between mb-2">
-                    <h3 className="font-semibold text-gray-900">{spot.name}</h3>
-                  </div>
+                  <CardContent className="p-3">
+                    <div className="flex items-start justify-between mb-2">
+                      <h3 className="font-semibold text-gray-900">
+                        {spot.name}
+                      </h3>
+                    </div>
 
-                  <div className="flex items-center gap-1 text-sm text-gray-600 mb-2">
-                    <MapPin className="w-4 h-4" />
-                    <span>{spot.location}</span>
-                    {showingNearbyEstablishments && spot.distance && (
-                      <span className="ml-2 px-2 py-1 bg-blue-100 text-blue-700 rounded-full text-xs font-medium">
-                        {spot.distance.toFixed(1)} km
-                      </span>
-                    )}
-                  </div>
-
-                  <p className="text-gray-700 text-sm mb-3 line-clamp-2">
-                    {spot.description}
-                  </p>
-
-                  <div className="flex justify-between items-center">
-                    <div className="flex gap-2">
-                      {spot.amenities.includes("shower") && (
-                        <div className="flex items-center gap-1 text-xs text-gray-600">
-                          <ShowerHead className="w-3 h-3" />
-                          <span>Douche</span>
-                        </div>
+                    <div className="flex items-center gap-1 text-sm text-gray-600 mb-2">
+                      <MapPin className="w-4 h-4" />
+                      <span>{spot.location}</span>
+                      {showingNearbyEstablishments && spot.distance && (
+                        <span className="ml-2 px-2 py-1 bg-blue-100 text-blue-700 rounded-full text-xs font-medium">
+                          {spot.distance.toFixed(1)} km
+                        </span>
                       )}
                     </div>
 
-                    {/* Bouton GPS */}
-                    <Button
-                      size="sm"
-                      variant="outline"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        openGoogleMaps(
-                          spot.latitude,
-                          spot.longitude,
-                          spot.name
-                        );
-                      }}
-                      className="flex items-center gap-1 text-xs px-2 py-1 h-7 border-blue-200 text-blue-600 hover:bg-blue-50"
-                    >
-                      <Navigation className="w-3 h-3" />
-                      GPS
-                    </Button>
-                  </div>
-                </CardContent>
-              </Card>
-            ))}
+                    <p className="text-gray-700 text-sm mb-3 line-clamp-2">
+                      {spot.description}
+                    </p>
+
+                    <div className="flex justify-between items-center">
+                      <div className="flex gap-2">
+                        {spot.amenities.includes("shower") && (
+                          <div className="flex items-center gap-1 text-xs text-gray-600">
+                            <ShowerHead className="w-3 h-3" />
+                            <span>Douche</span>
+                          </div>
+                        )}
+                      </div>
+
+                      {/* Bouton GPS */}
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          openGoogleMaps(
+                            spot.latitude,
+                            spot.longitude,
+                            spot.name
+                          );
+                        }}
+                        className="flex items-center gap-1 text-xs px-2 py-1 h-7 border-blue-200 text-blue-600 hover:bg-blue-50"
+                      >
+                        <Navigation className="w-3 h-3" />
+                        GPS
+                      </Button>
+                    </div>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
           </div>
         </div>
-      </div>
 
-      {/* Right Map Container */}
-      <div
-        className={`
+        {/* Right Map Container */}
+        <div
+          className={`
         ${isMobile ? "w-full" : "flex-1"} 
         h-full relative
       `}
-      >
-        <InteractiveMap
-          establishments={establishments} // Afficher TOUS les établissements sur la carte
-          fullHeight
-          showTitle={false}
-          hoveredEstablishmentId={hoveredEstablishment}
-          onMarkerClick={scrollToEstablishment}
-          center={mapCenter}
-          zoom={mapZoom}
-          availabilityData={availabilityData}
-          disableAutoGeolocation={!!mapCenter && !isUserGeolocation}
-        />
-
-        {/* Barre de recherche flottante au centre en haut - universelle pour tous mobiles */}
-        <div
-          className="search-bar-overlay absolute left-1/2 transform -translate-x-1/2 w-full max-w-xs md:max-w-md lg:max-w-lg px-6"
-          style={{
-            zIndex: 1000,
-            top: isMobile ? (isKeyboardOpen ? "20px" : "80px") : "20px",
-            paddingTop: "env(safe-area-inset-top, 0px)",
-            transition: "top 0.3s ease",
-          }}
         >
-          <div
-            className="search-bar-container bg-white rounded-lg shadow-xl border-2"
-            style={{ zIndex: 1001 }}
-          >
-            <EnhancedSearchBar
-              value={searchQuery}
-              onChange={(query: string) => {
-                setSearchQuery(query);
-                // Fonction de recherche inline
-                if (query.trim() === "") {
-                  setFilteredEstablishments(establishments);
-                  setShowingNearbyEstablishments(false);
-                  return;
-                }
+          <InteractiveMap
+            establishments={establishments} // Afficher TOUS les établissements sur la carte
+            fullHeight
+            showTitle={false}
+            hoveredEstablishmentId={hoveredEstablishment}
+            onMarkerClick={scrollToEstablishment}
+            center={mapCenter}
+            zoom={mapZoom}
+            availabilityData={availabilityData}
+            disableAutoGeolocation={!!mapCenter && !isUserGeolocation}
+          />
 
-                let filtered = establishments.filter(
-                  (establishment) =>
-                    establishment.name
-                      .toLowerCase()
-                      .includes(query.toLowerCase()) ||
-                    establishment.location
-                      .toLowerCase()
-                      .includes(query.toLowerCase()) ||
-                    establishment.description
-                      .toLowerCase()
-                      .includes(query.toLowerCase())
-                );
+          {/* Barre de recherche fixe au centre - style Park4night */}
+          <div className="search-bar-overlay">
+            <div
+              className="search-bar-container bg-white rounded-lg shadow-xl border-2"
+              style={{ zIndex: 1501 }}
+            >
+              <EnhancedSearchBar
+                value={searchQuery}
+                onChange={(query: string) => {
+                  setSearchQuery(query);
+                  // Fonction de recherche inline
+                  if (query.trim() === "") {
+                    setFilteredEstablishments(establishments);
+                    setShowingNearbyEstablishments(false);
+                    return;
+                  }
 
-                if (filtered.length === 0 && mapCenter) {
-                  // Si pas de résultats, afficher les établissements les plus proches
-                  setShowingNearbyEstablishments(true);
-                  const establishmentsWithDistance = establishments.map(
-                    (establishment) => ({
-                      ...establishment,
-                      distance: calculateDistance(
-                        mapCenter.lat,
-                        mapCenter.lng,
-                        establishment.latitude,
-                        establishment.longitude
-                      ),
-                    })
+                  let filtered = establishments.filter(
+                    (establishment) =>
+                      establishment.name
+                        .toLowerCase()
+                        .includes(query.toLowerCase()) ||
+                      establishment.location
+                        .toLowerCase()
+                        .includes(query.toLowerCase()) ||
+                      establishment.description
+                        .toLowerCase()
+                        .includes(query.toLowerCase())
                   );
-                  filtered = establishmentsWithDistance
-                    .sort((a, b) => a.distance - b.distance)
-                    .slice(0, 5);
-                } else {
-                  setShowingNearbyEstablishments(false);
-                }
 
-                setFilteredEstablishments(filtered);
-              }}
-              onLocationSelect={(location) => {
-                setMapCenter({ lat: location.lat, lng: location.lng });
-                // Utiliser le zoom suggéré s'il existe, sinon valeur par défaut
-                const zoom =
-                  location.zoom || (location.name === "Ma position" ? 15 : 12);
-                setMapZoom(zoom);
-                // Marquer si c'est la géolocalisation de l'utilisateur
-                setIsUserGeolocation(location.name === "Ma position");
-              }}
-              onEstablishmentSelect={(establishment) => {
-                centerMapOnEstablishment({
-                  ...establishment,
-                  price: "",
-                  type: "",
-                  amenities: [],
-                  description: "",
-                  image: "",
-                  rating: 0,
-                  reviews: 0,
-                  slug: establishment.id,
-                  address: establishment.location,
-                });
-              }}
-              placeholder="Rechercher par nom, ville, description..."
-            />
+                  if (filtered.length === 0 && mapCenter) {
+                    // Si pas de résultats, afficher les établissements les plus proches
+                    setShowingNearbyEstablishments(true);
+                    const establishmentsWithDistance = establishments.map(
+                      (establishment) => ({
+                        ...establishment,
+                        distance: calculateDistance(
+                          mapCenter.lat,
+                          mapCenter.lng,
+                          establishment.latitude,
+                          establishment.longitude
+                        ),
+                      })
+                    );
+                    filtered = establishmentsWithDistance
+                      .sort((a, b) => a.distance - b.distance)
+                      .slice(0, 5);
+                  } else {
+                    setShowingNearbyEstablishments(false);
+                  }
+
+                  setFilteredEstablishments(filtered);
+                }}
+                onLocationSelect={(location) => {
+                  setMapCenter({ lat: location.lat, lng: location.lng });
+                  // Utiliser le zoom suggéré s'il existe, sinon valeur par défaut
+                  const zoom =
+                    location.zoom ||
+                    (location.name === "Ma position" ? 15 : 12);
+                  setMapZoom(zoom);
+                  // Marquer si c'est la géolocalisation de l'utilisateur
+                  setIsUserGeolocation(location.name === "Ma position");
+                }}
+                onEstablishmentSelect={(establishment) => {
+                  centerMapOnEstablishment({
+                    ...establishment,
+                    price: "",
+                    type: "",
+                    amenities: [],
+                    description: "",
+                    image: "",
+                    rating: 0,
+                    reviews: 0,
+                    slug: establishment.id,
+                    address: establishment.location,
+                  });
+                }}
+                placeholder="Rechercher par nom, ville, etc..."
+              />
+            </div>
           </div>
+
+          {/* Bouton flottant pour retourner à l'accueil sur mobile */}
+          {isMobile && (
+            <Link href="/">
+              <button
+                className="mobile-toggle-btn"
+                style={{
+                  bottom: `max(env(safe-area-inset-bottom, 0px) + 24px, 24px)`,
+                }}
+              >
+                <svg
+                  width="24"
+                  height="24"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <path
+                    d="M3 12h18M12 3l-9 9 9 9"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  />
+                </svg>
+              </button>
+            </Link>
+          )}
         </div>
 
-        {/* Bouton flottant pour retourner à l'accueil sur mobile */}
-        {isMobile && (
-          <Link href="/">
-            <button
-              className="mobile-toggle-btn"
-              style={{
-                bottom: `max(env(safe-area-inset-bottom, 0px) + 24px, 24px)`,
-              }}
-            >
-              <svg
-                width="24"
-                height="24"
-                viewBox="0 0 24 24"
-                fill="none"
-                xmlns="http://www.w3.org/2000/svg"
-              >
-                <path
-                  d="M3 12h18M12 3l-9 9 9 9"
-                  stroke="currentColor"
-                  strokeWidth="2"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                />
-              </svg>
-            </button>
-          </Link>
+        {/* Debug info */}
+        {process.env.NODE_ENV === "development" && (
+          <div className="fixed bottom-4 right-4 bg-black text-white p-2 text-xs rounded z-50">
+            Establishments: {filteredEstablishments.length} | Loading:{" "}
+            {loading.toString()}
+          </div>
         )}
       </div>
-
-      {/* Debug info */}
-      {process.env.NODE_ENV === "development" && (
-        <div className="fixed bottom-4 right-4 bg-black text-white p-2 text-xs rounded z-50">
-          Establishments: {filteredEstablishments.length} | Loading:{" "}
-          {loading.toString()}
-        </div>
-      )}
     </div>
   );
 }

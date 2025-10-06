@@ -1,22 +1,63 @@
 /* Améliorations CSS pour la carte mobile */
 
-/* S'assurer que la barre de recherche reste toujours visible sur tous les appareils */
-.search-bar-overlay {
-  z-index: 1000 !important;
-  position: absolute !important;
-  pointer-events: none !important;
-  /* Position pour desktop */
-  top: max(env(safe-area-inset-top, 0px) + 16px, 20px) !important;
-  /* Empêcher le repositionnement lors de l'ouverture du clavier */
-  transform: translate3d(0, 0, 0) !important;
-  will-change: transform !important;
+/* Header fixe - visible uniquement sur mobile */
+@media (max-width: 768px) {
+  header {
+    height: 64px;
+  }
 }
 
-/* Styles pour tous les navigateurs mobiles (pas seulement iOS) */
-@media (max-width: 768px) and (max-height: 1024px) {
+/* Animation du menu burger */
+.burger-line {
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Sidebar navigation */
+.sidebar-nav {
+  box-shadow: -4px 0 20px rgba(0, 0, 0, 0.1);
+}
+
+/* Overlay avec fade-in */
+.sidebar-overlay {
+  animation: fadeIn 0.3s ease-in-out;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+/* Barre de recherche fixe dans le conteneur de carte - largeur réduite */
+.search-bar-overlay {
+  z-index: 1500 !important;
+  position: fixed !important;
+  pointer-events: none !important;
+  /* Position fixe pour desktop - en haut */
+  top: 20px !important;
+  left: 50% !important;
+  transform: translateX(-50%) !important;
+  will-change: transform !important;
+  width: calc(100% - 32px) !important;
+  max-width: 400px !important;
+}
+
+/* Styles pour mobile uniquement */
+@media (max-width: 768px) {
   .search-bar-overlay {
-    /* Position plus basse sur mobile pour éviter la barre d'adresse */
-    top: max(env(safe-area-inset-top, 0px) + 80px, 90px) !important;
+    /* Position fixe sous le header mobile (64px de hauteur) */
+    top: 80px !important;
+    width: calc(100% - 32px) !important;
+    max-width: 350px !important;
+  }
+
+  /* Ajuster les contrôles de zoom pour ne pas être cachés par la barre de recherche */
+  .leaflet-control-zoom {
+    margin-left: 10px !important;
+    margin-top: 160px !important;
   }
 }
 
@@ -46,15 +87,15 @@
 
 /* Amélioration des contrôles pour tous les navigateurs mobiles */
 @media (max-width: 768px) {
-  /* Barre de recherche - position adaptée pour mobile */
+  /* Barre de recherche - sous le header mobile */
   .search-bar-overlay {
-    top: max(env(safe-area-inset-top, 0px) + 80px, 90px) !important;
+    top: 80px !important;
   }
 
-  /* Contrôles de zoom - positionnement adapté */
+  /* Contrôles de zoom - positionnement adapté sous la barre de recherche */
   .leaflet-control-zoom {
     margin-left: 10px !important;
-    margin-top: max(env(safe-area-inset-top, 0px) + 160px, 180px) !important;
+    margin-top: 160px !important;
   }
 
   .leaflet-control-zoom a {
@@ -72,8 +113,14 @@
     background: rgba(255, 255, 255, 0.8) !important;
     padding: 2px 4px !important;
     border-radius: 4px !important;
-    /* Positionnement pour éviter la zone de navigation iOS */
     bottom: calc(env(safe-area-inset-bottom) + 8px) !important;
+  }
+}
+
+/* Desktop - contrôles standards */
+@media (min-width: 769px) {
+  .leaflet-control-zoom {
+    margin-top: 80px !important;
   }
 }
 
@@ -264,32 +311,32 @@
 /* Petits téléphones (jusqu'à 480px) */
 @media (max-width: 480px) {
   .search-bar-overlay {
-    top: max(env(safe-area-inset-top, 0px) + 80px, 90px) !important;
+    top: 80px !important;
   }
 
   .leaflet-control-zoom {
-    margin-top: max(env(safe-area-inset-top, 0px) + 160px, 180px) !important;
+    margin-top: 160px !important;
   }
 }
 
 /* Téléphones moyens et grands (481px à 768px) */
 @media (min-width: 481px) and (max-width: 768px) {
   .search-bar-overlay {
-    top: max(env(safe-area-inset-top, 0px) + 80px, 90px) !important;
+    top: 80px !important;
   }
 
   .leaflet-control-zoom {
-    margin-top: max(env(safe-area-inset-top, 0px) + 160px, 180px) !important;
+    margin-top: 160px !important;
   }
 }
 
-/* Mode paysage mobile (pour éviter que la barre soit trop basse) */
+/* Mode paysage mobile */
 @media (max-width: 768px) and (orientation: landscape) {
   .search-bar-overlay {
-    top: max(env(safe-area-inset-top, 0px) + 60px, 70px) !important;
+    top: 80px !important;
   }
 
   .leaflet-control-zoom {
-    margin-top: max(env(safe-area-inset-top, 0px) + 140px, 160px) !important;
+    margin-top: 160px !important;
   }
 }
