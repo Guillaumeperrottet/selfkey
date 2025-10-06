@@ -12,6 +12,166 @@ export function SelfcampAboutPage() {
   // Données pour la timeline de développement de SelfCamp
   const timelineData = [
     {
+      title: "Soutien aux Régions",
+      content: (
+        <div className="py-10 bg-white">
+          <div className="max-w-5xl mx-auto px-4">
+            <div className="space-y-6 mb-10">
+              <div className="bg-[#84994F]/3 rounded-2xl p-6 border border-[#84994F]/30 text-center">
+                <p className="text-base text-gray-700 leading-relaxed">
+                  Le camping sauvage a l&apos;avantage de favoriser les visites
+                  des régions moins touristiques. En créant des aires de camping
+                  SelfCamp, cela permet d&apos;organiser les nuitées de ces
+                  visiteurs et de faire découvrir des villages hors des grands
+                  axes.
+                </p>
+              </div>
+
+              <div className="bg-[#84994F]/3 rounded-2xl p-6 border border-[#84994F]/30 text-center">
+                <p className="text-base text-gray-700 leading-relaxed">
+                  Dès lors, notre idée est de permettre aux artisans locaux
+                  (boulangerie, épicerie et laiterie) de profiter de cette
+                  présence en offrant des avantages dans leur commerce au moment
+                  du paiement de la taxe de séjour.
+                </p>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-10">
+                <div className="bg-[#84994F]/5 p-6 rounded-2xl border border-[#84994F]/30 text-center hover:border-[#84994F]/50 transition-all duration-300">
+                  <div className="w-12 h-12 bg-[#84994F] rounded-full flex items-center justify-center mx-auto mb-4">
+                    <span className="text-xl">🏪</span>
+                  </div>
+                  <h4 className="text-lg font-semibold text-[#84994F] mb-3">
+                    Commerce Local
+                  </h4>
+                  <p className="text-sm text-gray-700 leading-relaxed">
+                    Boulangeries, épiceries, laiteries bénéficient directement
+                    du passage des camping-caristes
+                  </p>
+                </div>
+
+                <div className="bg-[#84994F]/5 p-6 rounded-2xl border border-[#84994F]/30 text-center hover:border-[#84994F]/50 transition-all duration-300">
+                  <div className="w-12 h-12 bg-[#84994F] rounded-full flex items-center justify-center mx-auto mb-4">
+                    <span className="text-xl">🗺️</span>
+                  </div>
+                  <h4 className="text-lg font-semibold text-[#84994F] mb-3">
+                    Découverte Régionale
+                  </h4>
+                  <p className="text-sm text-gray-700 leading-relaxed">
+                    Valorisation des villages et régions moins touristiques hors
+                    des grands axes
+                  </p>
+                </div>
+
+                <div className="bg-[#84994F]/5 p-6 rounded-2xl border border-[#84994F]/30 text-center hover:border-[#84994F]/50 transition-all duration-300">
+                  <div className="w-12 h-12 bg-[#84994F] rounded-full flex items-center justify-center mx-auto mb-4">
+                    <span className="text-xl">💰</span>
+                  </div>
+                  <h4 className="text-lg font-semibold text-[#84994F] mb-3">
+                    Économie Circulaire
+                  </h4>
+                  <p className="text-sm text-gray-700 leading-relaxed">
+                    Avantages commerciaux liés au paiement des taxes de séjour,
+                    retombées économiques directes
+                  </p>
+                </div>
+              </div>
+
+              <div className="mt-10 bg-[#84994F]/3 rounded-2xl p-6 border border-[#84994F]/30 text-center max-w-4xl mx-auto">
+                <h4 className="text-xl font-semibold text-[#84994F] mb-3">
+                  Impact Territorial
+                </h4>
+                <p className="text-gray-700 text-base leading-relaxed">
+                  SelfCamp transforme le camping sauvage en opportunité
+                  économique structurée, créant un cercle vertueux qui bénéficie
+                  aux territoires, commerçants et visiteurs.
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      ),
+    },
+    {
+      title: "Nos Prestations",
+      content: (
+        <div className="py-10 bg-white">
+          <div className="max-w-5xl mx-auto px-4">
+            <div className="text-center mb-10">
+              <div className="max-w-4xl mx-auto">
+                <p className="text-lg text-gray-700 leading-relaxed mb-4">
+                  Au-delà de notre{" "}
+                  <span className="text-[#84994F] font-medium">
+                    solution d&apos;enregistrement
+                  </span>
+                  , nous vous accompagnons avec notre expertise complète pour
+                  l&apos;organisation optimale de votre aire.
+                </p>
+                <p className="text-base text-gray-600 font-medium">
+                  Nos prestations incluent :
+                </p>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+              <div className="space-y-4">
+                <div className="flex items-start space-x-4">
+                  <div className="w-2 h-2 bg-[#84994F] rounded-full mt-2.5 flex-shrink-0"></div>
+                  <p className="text-base text-gray-700 leading-relaxed">
+                    Délimitation de la zone et des places
+                  </p>
+                </div>
+                <div className="flex items-start space-x-4">
+                  <div className="w-2 h-2 bg-[#84994F] rounded-full mt-2.5 flex-shrink-0"></div>
+                  <p className="text-base text-gray-700 leading-relaxed">
+                    Mise en place de la signalétique
+                  </p>
+                </div>
+                <div className="flex items-start space-x-4">
+                  <div className="w-2 h-2 bg-[#84994F] rounded-full mt-2.5 flex-shrink-0"></div>
+                  <p className="text-base text-gray-700 leading-relaxed">
+                    Mise en place du système d&apos;enregistrement (Totem et QR
+                    code)
+                  </p>
+                </div>
+              </div>
+
+              <div className="space-y-4">
+                <div className="flex items-start space-x-4">
+                  <div className="w-2 h-2 bg-[#84994F] rounded-full mt-2.5 flex-shrink-0"></div>
+                  <p className="text-base text-gray-700 leading-relaxed">
+                    Solution de vidange (sur place ou dans campings partenaires)
+                  </p>
+                </div>
+                <div className="flex items-start space-x-4">
+                  <div className="w-2 h-2 bg-[#84994F] rounded-full mt-2.5 flex-shrink-0"></div>
+                  <p className="text-base text-gray-700 leading-relaxed">
+                    Promotion sur site internet
+                  </p>
+                </div>
+                <div className="flex items-start space-x-4">
+                  <div className="w-2 h-2 bg-[#84994F] rounded-full mt-2.5 flex-shrink-0"></div>
+                  <p className="text-base text-gray-700 leading-relaxed">
+                    Promotion sur réseaux sociaux
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            <div className="mt-10 bg-[#84994F]/3 rounded-2xl p-6 border border-[#84994F]/30 text-center max-w-4xl mx-auto">
+              <h4 className="text-xl font-semibold text-[#84994F] mb-3">
+                Solution Complète Clé en Main
+              </h4>
+              <p className="text-gray-700 text-base leading-relaxed">
+                De la conception à la promotion, nous prenons en charge tous les
+                aspects de votre aire de camping-car pour garantir son succès.
+              </p>
+            </div>
+          </div>
+        </div>
+      ),
+    },
+    {
       title: "Avantages Prestataires",
       content: (
         <div className="py-10 bg-white">
@@ -183,166 +343,6 @@ export function SelfcampAboutPage() {
         </div>
       ),
     },
-    {
-      title: "Nos Prestations",
-      content: (
-        <div className="py-10 bg-white">
-          <div className="max-w-5xl mx-auto px-4">
-            <div className="text-center mb-10">
-              <div className="max-w-4xl mx-auto">
-                <p className="text-lg text-gray-700 leading-relaxed mb-4">
-                  Au-delà de notre{" "}
-                  <span className="text-[#84994F] font-medium">
-                    solution d&apos;enregistrement
-                  </span>
-                  , nous vous accompagnons avec notre expertise complète pour
-                  l&apos;organisation optimale de votre aire.
-                </p>
-                <p className="text-base text-gray-600 font-medium">
-                  Nos prestations incluent :
-                </p>
-              </div>
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-              <div className="space-y-4">
-                <div className="flex items-start space-x-4">
-                  <div className="w-2 h-2 bg-[#84994F] rounded-full mt-2.5 flex-shrink-0"></div>
-                  <p className="text-base text-gray-700 leading-relaxed">
-                    Délimitation de la zone et des places
-                  </p>
-                </div>
-                <div className="flex items-start space-x-4">
-                  <div className="w-2 h-2 bg-[#84994F] rounded-full mt-2.5 flex-shrink-0"></div>
-                  <p className="text-base text-gray-700 leading-relaxed">
-                    Mise en place de la signalétique
-                  </p>
-                </div>
-                <div className="flex items-start space-x-4">
-                  <div className="w-2 h-2 bg-[#84994F] rounded-full mt-2.5 flex-shrink-0"></div>
-                  <p className="text-base text-gray-700 leading-relaxed">
-                    Mise en place du système d&apos;enregistrement (Totem et QR
-                    code)
-                  </p>
-                </div>
-              </div>
-
-              <div className="space-y-4">
-                <div className="flex items-start space-x-4">
-                  <div className="w-2 h-2 bg-[#84994F] rounded-full mt-2.5 flex-shrink-0"></div>
-                  <p className="text-base text-gray-700 leading-relaxed">
-                    Solution de vidange (sur place ou dans campings partenaires)
-                  </p>
-                </div>
-                <div className="flex items-start space-x-4">
-                  <div className="w-2 h-2 bg-[#84994F] rounded-full mt-2.5 flex-shrink-0"></div>
-                  <p className="text-base text-gray-700 leading-relaxed">
-                    Promotion sur site internet
-                  </p>
-                </div>
-                <div className="flex items-start space-x-4">
-                  <div className="w-2 h-2 bg-[#84994F] rounded-full mt-2.5 flex-shrink-0"></div>
-                  <p className="text-base text-gray-700 leading-relaxed">
-                    Promotion sur réseaux sociaux
-                  </p>
-                </div>
-              </div>
-            </div>
-
-            <div className="mt-10 bg-[#84994F]/3 rounded-2xl p-6 border border-[#84994F]/30 text-center max-w-4xl mx-auto">
-              <h4 className="text-xl font-semibold text-[#84994F] mb-3">
-                Solution Complète Clé en Main
-              </h4>
-              <p className="text-gray-700 text-base leading-relaxed">
-                De la conception à la promotion, nous prenons en charge tous les
-                aspects de votre aire de camping-car pour garantir son succès.
-              </p>
-            </div>
-          </div>
-        </div>
-      ),
-    },
-    {
-      title: "Soutien aux Régions",
-      content: (
-        <div className="py-10 bg-white">
-          <div className="max-w-5xl mx-auto px-4">
-            <div className="space-y-6 mb-10">
-              <div className="bg-[#84994F]/3 rounded-2xl p-6 border border-[#84994F]/30 text-center">
-                <p className="text-base text-gray-700 leading-relaxed">
-                  Le camping sauvage a l&apos;avantage de favoriser les visites
-                  des régions moins touristiques. En créant des aires de camping
-                  SelfCamp, cela permet d&apos;organiser les nuitées de ces
-                  visiteurs et de faire découvrir des villages hors des grands
-                  axes.
-                </p>
-              </div>
-
-              <div className="bg-[#84994F]/3 rounded-2xl p-6 border border-[#84994F]/30 text-center">
-                <p className="text-base text-gray-700 leading-relaxed">
-                  Dès lors, notre idée est de permettre aux artisans locaux
-                  (boulangerie, épicerie et laiterie) de profiter de cette
-                  présence en offrant des avantages dans leur commerce au moment
-                  du paiement de la taxe de séjour.
-                </p>
-              </div>
-
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-10">
-                <div className="bg-[#84994F]/5 p-6 rounded-2xl border border-[#84994F]/30 text-center hover:border-[#84994F]/50 transition-all duration-300">
-                  <div className="w-12 h-12 bg-[#84994F] rounded-full flex items-center justify-center mx-auto mb-4">
-                    <span className="text-xl">🏪</span>
-                  </div>
-                  <h4 className="text-lg font-semibold text-[#84994F] mb-3">
-                    Commerce Local
-                  </h4>
-                  <p className="text-sm text-gray-700 leading-relaxed">
-                    Boulangeries, épiceries, laiteries bénéficient directement
-                    du passage des camping-caristes
-                  </p>
-                </div>
-
-                <div className="bg-[#84994F]/5 p-6 rounded-2xl border border-[#84994F]/30 text-center hover:border-[#84994F]/50 transition-all duration-300">
-                  <div className="w-12 h-12 bg-[#84994F] rounded-full flex items-center justify-center mx-auto mb-4">
-                    <span className="text-xl">🗺️</span>
-                  </div>
-                  <h4 className="text-lg font-semibold text-[#84994F] mb-3">
-                    Découverte Régionale
-                  </h4>
-                  <p className="text-sm text-gray-700 leading-relaxed">
-                    Valorisation des villages et régions moins touristiques hors
-                    des grands axes
-                  </p>
-                </div>
-
-                <div className="bg-[#84994F]/5 p-6 rounded-2xl border border-[#84994F]/30 text-center hover:border-[#84994F]/50 transition-all duration-300">
-                  <div className="w-12 h-12 bg-[#84994F] rounded-full flex items-center justify-center mx-auto mb-4">
-                    <span className="text-xl">💰</span>
-                  </div>
-                  <h4 className="text-lg font-semibold text-[#84994F] mb-3">
-                    Économie Circulaire
-                  </h4>
-                  <p className="text-sm text-gray-700 leading-relaxed">
-                    Avantages commerciaux liés au paiement des taxes de séjour,
-                    retombées économiques directes
-                  </p>
-                </div>
-              </div>
-
-              <div className="mt-10 bg-[#84994F]/3 rounded-2xl p-6 border border-[#84994F]/30 text-center max-w-4xl mx-auto">
-                <h4 className="text-xl font-semibold text-[#84994F] mb-3">
-                  Impact Territorial
-                </h4>
-                <p className="text-gray-700 text-base leading-relaxed">
-                  SelfCamp transforme le camping sauvage en opportunité
-                  économique structurée, créant un cercle vertueux qui bénéficie
-                  aux territoires, commerçants et visiteurs.
-                </p>
-              </div>
-            </div>
-          </div>
-        </div>
-      ),
-    },
   ];
 
   return (
@@ -455,7 +455,7 @@ export function SelfcampAboutPage() {
               className="text-xl md:text-2xl text-gray-600 mb-16 max-w-4xl mx-auto leading-relaxed"
             >
               Une solution complète pour créer des aires de camping-car légales
-              qui bénéficient aux communes, aux régions et aux camping-caristes.
+              qui bénéficient aux communes, aux régions et aux vanlife.
             </motion.p>
 
             {/* Stats cards */}

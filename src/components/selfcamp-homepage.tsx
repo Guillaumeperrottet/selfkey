@@ -148,7 +148,7 @@ export function SelfcampHomepage() {
                 <p className="text-xl text-gray-600 mb-8 leading-relaxed max-w-2xl mx-auto">
                   Découvrez notre approche complète pour créer des aires de
                   camping qui bénéficient à tous : prestataires, régions et
-                  camping-caristes.
+                  Vanlife.
                 </p>
                 <div className="flex flex-col sm:flex-row gap-4 justify-center">
                   <Link
