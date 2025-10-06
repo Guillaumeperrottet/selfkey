@@ -66,26 +66,24 @@ export async function GET(
       Titre: "", // Vide par défaut (M., Mme, etc.)
       "Groupe / Entreprise": "", // Nom du groupe ou entreprise si applicable
       "Date de naissance": formatDate(booking.clientBirthDate),
-      "Lieu de naissance": booking.clientBirthPlace || "",
       Langue: "FR", // Langue par défaut
       "Adresse (Rue, Numéro)": booking.clientAddress || "",
-      "Nom du pays": booking.clientCountry || "",
+      "Code postal": booking.clientPostalCode || "",
+      "Adresse (Ville)": booking.clientCity || "",
+      "Nom du pays": getCountryCode(booking.clientCountry || ""),
       "Téléphone privé": booking.clientPhone || "",
       "E-mail": booking.clientEmail || "",
-      Nationalité: booking.clientCountry || "",
-      "Adresse (Ville)": booking.clientCity || "",
-      "Lieu de résidence": booking.clientCity
-        ? `${booking.clientCity}, ${booking.clientCountry || ""}`
-        : "",
+      Nationalité: getCountryCode(booking.clientCountry || ""),
+      "Lieu de naissance": booking.clientBirthPlace || "",
       "Nombre total d'Adultes": booking.adults || booking.guests || 0,
       "Nombre total d'enfants": booking.children || 0,
-      "Type de pièce d'identité": "Carte d'identité", // CI, Passeport, etc.
       "Type de clientèle": "Individuel", // Individuel, Groupe, Entreprise
+      "Type de pièce d'identité": "Carte d'identité", // CI, Passeport, etc.
       "Numéro de la pièce d'identité": booking.clientIdNumber || "",
       "N° d'immatriculation du véhicule": booking.clientVehicleNumber || "",
-      "Carte d'Arée": "", // Carte touristique régionale si applicable
       "Motif du séjour": "Loisir", // Loisir, Affaires, etc.
-      Time: "", // Heure d'arrivée si nécessaire
+      "Carte d'hôte par mail": "", // Toujours null/vide
+      "Carte d'hôte par sms": "1", // Toujours 1
     }));
 
     // Créer le workbook Excel
@@ -94,34 +92,34 @@ export async function GET(
 
     // Ajuster la largeur des colonnes pour correspondre au template Checkin FR
     const columnWidths = [
-      { wch: 25 }, // Numéro de référence système
+      { wch: 25 }, // Numéro de référence externe
       { wch: 12 }, // Date d'arrivée
       { wch: 12 }, // Date de départ
-      { wch: 12 }, // Exemples adultes
-      { wch: 12 }, // Exemples enfants
+      { wch: 12 }, // Exemptés adultes
+      { wch: 12 }, // Exemptés enfants
       { wch: 20 }, // Nom
       { wch: 20 }, // Prénom
       { wch: 8 }, // Titre
-      { wch: 25 }, // Groupé / Entreprise
+      { wch: 25 }, // Groupe / Entreprise
       { wch: 15 }, // Date de naissance
-      { wch: 20 }, // Lieu de naissance
       { wch: 10 }, // Langue
       { wch: 35 }, // Adresse (Rue, Numéro)
+      { wch: 12 }, // Code postal
+      { wch: 20 }, // Adresse (Ville)
       { wch: 15 }, // Nom du pays
       { wch: 15 }, // Téléphone privé
       { wch: 30 }, // E-mail
       { wch: 15 }, // Nationalité
-      { wch: 20 }, // Adresse (Ville)
-      { wch: 30 }, // Lieu de résidence
+      { wch: 20 }, // Lieu de naissance
       { wch: 15 }, // Nombre total d'Adultes
       { wch: 15 }, // Nombre total d'enfants
-      { wch: 20 }, // Type de pièce d'identité
       { wch: 15 }, // Type de clientèle
+      { wch: 20 }, // Type de pièce d'identité
       { wch: 25 }, // Numéro de la pièce d'identité
       { wch: 20 }, // N° immatriculation véhicule
-      { wch: 15 }, // Carte d'Arée
       { wch: 15 }, // Motif du séjour
-      { wch: 10 }, // Time
+      { wch: 20 }, // Carte d'hôte par mail
+      { wch: 20 }, // Carte d'hôte par sms
     ];
     worksheet["!cols"] = columnWidths;
 
@@ -176,4 +174,33 @@ function formatDate(date: Date): string {
     month: "2-digit",
     year: "numeric",
   }).format(date);
+}
+
+function getCountryCode(countryName: string): string {
+  const countryMap: { [key: string]: string } = {
+    Suisse: "CH",
+    Switzerland: "CH",
+    France: "FR",
+    Allemagne: "DE",
+    Germany: "DE",
+    Italie: "IT",
+    Italy: "IT",
+    Autriche: "AT",
+    Austria: "AT",
+    Belgique: "BE",
+    Belgium: "BE",
+    Espagne: "ES",
+    Spain: "ES",
+    Portugal: "PT",
+    "Pays-Bas": "NL",
+    Netherlands: "NL",
+    Luxembourg: "LU",
+    "Royaume-Uni": "GB",
+    "United Kingdom": "GB",
+    "États-Unis": "US",
+    "United States": "US",
+    Canada: "CA",
+  };
+
+  return countryMap[countryName] || countryName.substring(0, 2).toUpperCase();
 }
