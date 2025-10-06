@@ -7,8 +7,32 @@ import { motion } from "framer-motion";
 import { DOMAINS } from "@/lib/domains";
 import { StructuredData } from "@/components/structured-data";
 import { Timeline } from "@/components/ui/timeline";
+import { useState, useEffect } from "react";
 
 export function SelfcampAboutPage() {
+  // Carousel pour les phrases de mission
+  const quotes = [
+    "Créer un pont entre tourisme durable et développement territorial",
+    "Transformer chaque nuitée en opportunité pour les territoires",
+    "Valoriser les régions tout en respectant l'environnement",
+  ];
+
+  const [currentQuote, setCurrentQuote] = useState(0);
+
+  // Paramètres pour le swipe
+  const swipeConfidenceThreshold = 10000;
+  const swipePower = (offset: number, velocity: number) => {
+    return Math.abs(offset) * velocity;
+  };
+
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setCurrentQuote((prev) => (prev + 1) % quotes.length);
+    }, 5000); // Change toutes les 5 secondes
+
+    return () => clearInterval(timer);
+  }, [quotes.length]);
+
   // Données pour la timeline de développement de SelfCamp
   const timelineData = [
     {
@@ -807,14 +831,43 @@ export function SelfcampAboutPage() {
                 les communes suisses
               </p>
               <div className="mt-6 md:mt-8 text-center">
-                <div className="inline-block text-base md:text-lg font-medium text-[#84994F] italic px-4">
-                  &ldquo;Créer un pont entre tourisme durable et développement
-                  territorial&rdquo;
+                <div className="relative h-16 md:h-20 flex items-center justify-center overflow-hidden cursor-grab active:cursor-grabbing">
+                  <motion.div
+                    key={currentQuote}
+                    drag="x"
+                    dragConstraints={{ left: 0, right: 0 }}
+                    dragElastic={1}
+                    onDragEnd={(e, { offset, velocity }) => {
+                      const swipe = swipePower(offset.x, velocity.x);
+
+                      if (swipe < -swipeConfidenceThreshold) {
+                        // Swipe vers la gauche - citation suivante
+                        setCurrentQuote((prev) => (prev + 1) % quotes.length);
+                      } else if (swipe > swipeConfidenceThreshold) {
+                        // Swipe vers la droite - citation précédente
+                        setCurrentQuote(
+                          (prev) => (prev - 1 + quotes.length) % quotes.length
+                        );
+                      }
+                    }}
+                    className="absolute inline-block text-base md:text-lg font-medium text-[#84994F] italic px-4"
+                  >
+                    &ldquo;{quotes[currentQuote]}&rdquo;
+                  </motion.div>
                 </div>
                 <div className="flex justify-center mt-4 space-x-2">
-                  <div className="w-2 h-2 bg-[#84994F] rounded-full"></div>
-                  <div className="w-2 h-2 bg-[#84994F]/60 rounded-full"></div>
-                  <div className="w-2 h-2 bg-[#84994F]/30 rounded-full"></div>
+                  {quotes.map((_, index) => (
+                    <button
+                      key={index}
+                      onClick={() => setCurrentQuote(index)}
+                      className={`w-2 h-2 rounded-full transition-all duration-300 ${
+                        index === currentQuote
+                          ? "bg-[#84994F] w-6"
+                          : "bg-[#84994F]/30 hover:bg-[#84994F]/60"
+                      }`}
+                      aria-label={`Citation ${index + 1}`}
+                    />
+                  ))}
                 </div>
               </div>
             </motion.div>
