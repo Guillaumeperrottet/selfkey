@@ -3,6 +3,7 @@ import { NextResponse } from "next/server";
 import { sendEmail } from "@/lib/email";
 import { isRateLimited } from "@/lib/rate-limiter";
 import { replaceImagePlaceholders } from "@/lib/image-utils";
+import { generateInvoiceDownloadUrl } from "@/lib/invoice-security";
 
 interface Props {
   params: Promise<{ bookingId: string }>;
@@ -25,6 +26,7 @@ interface TemplateData {
   pricingOptionsTotal: string; // Total des options supplémentaires
   touristTaxTotal: string; // Total de la taxe de séjour
   currency: string;
+  invoiceDownloadUrl: string; // Lien de téléchargement de la facture
 }
 
 interface BookingWithDetails {
@@ -267,6 +269,12 @@ export async function POST(request: Request, { params }: Props) {
     const baseAmount =
       roomBasePrice + booking.pricingOptionsTotal + booking.touristTaxTotal;
 
+    // Générer le lien de téléchargement de facture sécurisé
+    const invoiceDownloadUrl = generateInvoiceDownloadUrl(
+      booking.id,
+      booking.clientEmail
+    );
+
     const templateData: TemplateData = {
       clientFirstName: booking.clientFirstName,
       clientLastName: booking.clientLastName,
@@ -302,6 +310,7 @@ export async function POST(request: Request, { params }: Props) {
       pricingOptionsTotal: booking.pricingOptionsTotal.toFixed(2), // Total des options
       touristTaxTotal: booking.touristTaxTotal.toFixed(2), // Total de la taxe de séjour
       currency: booking.currency || "CHF",
+      invoiceDownloadUrl, // Lien de téléchargement de la facture
     };
 
     // Envoyer la confirmation selon la méthode choisie
