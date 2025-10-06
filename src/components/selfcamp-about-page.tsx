@@ -706,13 +706,6 @@ export function SelfcampAboutPage() {
                   <span>24H/24 - 7J/7</span>
                 </div>
                 <Link
-                  href="/"
-                  className="group flex items-center space-x-2 text-gray-600 hover:text-[#84994F] transition-all duration-300"
-                >
-                  <ArrowLeft className="h-4 w-4 group-hover:-translate-x-1 transition-transform duration-300" />
-                  <span className="font-medium">Retour à l&apos;accueil</span>
-                </Link>
-                <Link
                   href="/contact"
                   className="text-[#84994F] text-sm font-bold tracking-wide uppercase hover:text-[#84994F]/80 transition-colors duration-300"
                 >

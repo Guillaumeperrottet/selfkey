@@ -256,7 +256,7 @@ export default function SearchBar() {
             onChange={(e) => handleInputChange(e.target.value)}
             onFocus={handleFocus}
             onBlur={handleBlur}
-            placeholder="Rechercher un emplacement, ville, camping..."
+            placeholder="Rechercher un emplacement"
             className="w-full pl-12 pr-12 py-4 text-lg border-2 border-gray-300 rounded-xl focus:outline-none focus:border-[#84994F] transition-colors shadow-lg bg-white"
           />
 

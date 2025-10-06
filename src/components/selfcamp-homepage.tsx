@@ -3,7 +3,6 @@
 import Image from "next/image";
 import Link from "next/link";
 import { MapPin } from "lucide-react";
-import { motion } from "framer-motion";
 import SearchBar from "@/components/ui/search-bar";
 import TextType from "@/components/ui/text-type";
 import { DOMAINS } from "@/lib/domains";
@@ -29,100 +28,106 @@ export function SelfcampHomepage() {
         .hover-brand-green:hover {
           background-color: #84994f;
         }
-        .bg-hero-light {
-          background-color: #f8f9f6;
-        }
-        .bg-search-light {
-          background-color: #f5f7f3;
-        }
         .bg-footer-dark {
           background-color: #2d3d1f;
         }
       `}</style>
-      <div className="min-h-screen">
-        {/* Hero Section */}
-        <section className="relative bg-hero-light">
+      <div className="min-h-screen bg-white">
+        {/* Hero Section avec dégradé */}
+        <section className="relative bg-gradient-to-b from-[#84994F]/8 via-white to-white">
           {/* Header intégré */}
-          <header className="container mx-auto px-4 py-3">
+          <header className="container mx-auto px-4 py-4 border-b border-gray-100">
             <div className="flex items-center justify-between">
               {/* Desktop header */}
               <div className="hidden lg:flex items-center justify-between w-full">
-                <div className="text-gray-800 font-bold uppercase tracking-wide text-sm lg:text-lg hover:text-[#84994F] transition-colors cursor-pointer">
-                  24H/24 - 7J/7
+                <div className="flex items-center space-x-2 bg-[#84994F]/10 text-[#84994F] px-3 py-1.5 rounded-full text-sm font-medium">
+                  <div className="w-2 h-2 bg-[#84994F] rounded-full animate-pulse"></div>
+                  <span>24H/24 - 7J/7</span>
                 </div>
                 <div className="text-gray-800 font-bold uppercase tracking-wide text-sm lg:text-lg hover:text-[#84994F] transition-colors cursor-pointer"></div>
-                <div className="text-gray-800 font-bold uppercase tracking-wide text-sm lg:text-lg hover:text-[#84994F] transition-colors cursor-pointer">
+                <Link
+                  href="/contact"
+                  className="text-[#84994F] font-bold uppercase tracking-wide text-sm lg:text-lg hover:text-[#84994F]/80 transition-colors cursor-pointer"
+                >
                   CONTACTEZ-NOUS
-                </div>
+                </Link>
               </div>
 
               {/* Mobile header */}
               <div className="flex lg:hidden items-center justify-between w-full">
-                <div className="text-gray-800 font-bold uppercase tracking-wide text-xs">
-                  24H/24 - 7J/7
+                <div className="flex items-center space-x-1.5 bg-[#84994F]/10 text-[#84994F] px-2.5 py-1 rounded-full text-xs font-medium">
+                  <div className="w-1.5 h-1.5 bg-[#84994F] rounded-full animate-pulse"></div>
+                  <span>24H/24 - 7J/7</span>
                 </div>
                 <div className="text-gray-800 font-bold uppercase tracking-wide text-xs text-center"></div>
-                <div className="text-gray-800 font-bold uppercase tracking-wide text-xs">
+                <Link
+                  href="/contact"
+                  className="text-[#84994F] font-bold uppercase tracking-wide text-xs hover:text-[#84994F]/80 transition-colors"
+                >
                   CONTACT
-                </div>
+                </Link>
               </div>
             </div>
           </header>
 
-          {/* Contenu Hero */}
-          <div className="text-center py-6 md:py-12 px-4">
-            <div className="container mx-auto">
-              <div className="flex flex-col items-center justify-center min-h-[25vh]">
-                {/* Logo en haut - agrandi et remonté */}
-                <div className="mb-1">
+          {/* Contenu Hero avec Search intégré */}
+          <div className="text-center py-8 md:py-12 px-4 pb-16 md:pb-20">
+            <div className="container mx-auto max-w-4xl">
+              <div className="flex flex-col items-center justify-center space-y-8 md:space-y-10">
+                {/* Logo avec cercle vert subtil */}
+                <div className="mt-4 md:mt-6 relative">
+                  <div className="absolute inset-0 bg-[#84994F]/5 rounded-full blur-2xl scale-110"></div>
                   <Image
                     src="/logo_map.png"
                     alt="SelfCamp Logo"
-                    width={180}
-                    height={180}
-                    className="mx-auto"
+                    width={160}
+                    height={160}
+                    className="mx-auto relative z-10"
                   />
                 </div>
 
-                <h1 className="text-5xl sm:text-6xl md:text-7xl lg:text-8xl font-bold mb-8 md:mb-16 text-gray-900">
+                <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold text-gray-900">
                   Selfcamp.ch
                 </h1>
-                <p className="text-xl sm:text-2xl md:text-3xl font-semibold text-[#84994F] mb-4">
+
+                <p className="text-lg sm:text-xl md:text-2xl font-semibold text-[#84994F]">
                   Développons le tourisme local ensemble
                 </p>
-                <div className="text-base sm:text-lg md:text-xl lg:text-2xl mb-4 md:mb-6 max-w-4xl mx-auto leading-relaxed text-center font-bold px-2">
-                  <TextType
-                    text="Spontané. Facile. Légal."
-                    typingSpeed={80}
-                    showCursor={true}
-                    cursorCharacter="|"
-                    cursorClassName="text-[#374151]"
-                    className="text-gray-900"
-                    textColors={["#374151"]}
-                    loop={true}
-                    loopInterval={5000}
-                    startOnVisible={true}
-                  />
-                </div>
-                <p className="text-lg text-gray-600 max-w-3xl mx-auto mb-2">
-                  Solution d&apos;accès pour le tourisme de véhicules de
-                  loisirs. Accédez aux emplacements, enregistrez-vous en
-                  quelques secondes, et profitez de votre séjour.
-                </p>
-              </div>
-            </div>
-          </div>
-        </section>
 
-        {/* Search Section - mieux aérée */}
-        <section className="relative bg-search-light px-4 pb-12 -mt-4">
-          <div className="container mx-auto">
-            <div className="max-w-4xl mx-auto">
-              <div className="pt-8 p-6 md:p-8">
-                <h2 className="text-2xl md:text-3xl lg:text-4xl font-bold text-gray-900 mb-10 text-center">
-                  Trouvez votre emplacement idéal
-                </h2>
-                <div className="mb-4">
+                {/* Badge avec point vert animé */}
+                <div className="flex items-center gap-2 bg-[#84994F]/10 px-4 py-2 rounded-full">
+                  <div className="w-2 h-2 bg-[#84994F] rounded-full animate-pulse"></div>
+                  <div className="text-sm sm:text-base md:text-lg font-bold text-gray-900">
+                    <TextType
+                      text="Spontané. Facile. Légal."
+                      typingSpeed={80}
+                      showCursor={true}
+                      cursorCharacter="|"
+                      cursorClassName="text-[#374151]"
+                      className="text-gray-900"
+                      textColors={["#374151"]}
+                      loop={true}
+                      loopInterval={5000}
+                      startOnVisible={true}
+                    />
+                  </div>
+                </div>
+
+                <p className="text-[15px] md:text-base text-gray-600 max-w-2xl mx-auto leading-relaxed mb-8 md:mb-0">
+                  Solution d&apos;accès pour le tourisme de véhicule de loisirs.
+                </p>
+
+                {/* Search Bar intégrée avec accent vert */}
+                <div className="w-full max-w-2xl mt-6 md:mt-10">
+                  <div className="mb-4 md:mb-6">
+                    <h2 className="text-base md:text-2xl font-semibold text-gray-800 text-center">
+                      Trouvez votre{" "}
+                      <span className="text-[#84994F]">emplacement idéal</span>
+                    </h2>
+                    <p className="hidden md:block text-base text-gray-500 text-center mt-2">
+                      Recherchez par ville, région ou nom de camping
+                    </p>
+                  </div>
                   <SearchBar />
                 </div>
               </div>
@@ -131,35 +136,44 @@ export function SelfcampHomepage() {
         </section>
 
         {/* Section CTA vers About */}
-        <section className="py-20 px-4 bg-hero-light">
-          <div className="container mx-auto max-w-4xl">
-            <motion.div
-              initial={{ opacity: 0, y: 30 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.8 }}
-              viewport={{ once: true }}
-              className="text-center"
-            >
-              <div className="bg-white p-8 md:p-12 rounded-2xl shadow-sm border border-gray-200">
-                <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-6">
+        <section className="py-16 md:py-24 px-4 bg-gray-50/30">
+          <div className="container mx-auto max-w-2xl">
+            <div className="bg-[#84994F]/8 p-8 md:p-10 rounded-3xl border border-gray-100 shadow-sm">
+              <div className="flex flex-col items-center text-center space-y-6">
+                <h2 className="text-2xl md:text-3xl font-bold text-gray-900">
                   Pourquoi choisir{" "}
                   <span className="text-[#84994F]">SelfCamp</span> ?
                 </h2>
-                <p className="text-xl text-gray-600 mb-8 leading-relaxed max-w-2xl mx-auto">
+                <p className="text-[15px] md:text-base text-gray-600 leading-relaxed max-w-xl">
                   Découvrez notre approche complète pour créer des aires de
                   camping qui bénéficient à tous : prestataires, régions et
                   Vanlife.
                 </p>
-                <div className="flex flex-col sm:flex-row gap-4 justify-center">
-                  <Link
-                    href="/about"
-                    className="bg-[#84994F] text-white px-8 py-4 rounded-lg hover:bg-[#84994F]/90 transition-colors font-semibold text-lg inline-block"
-                  >
+                <Link
+                  href="/about"
+                  className="group flex items-center gap-3 mt-4"
+                >
+                  <span className="text-gray-900 font-medium text-base group-hover:text-[#84994F] transition-colors">
                     En savoir plus
-                  </Link>
-                </div>
+                  </span>
+                  <div className="w-12 h-12 rounded-full bg-[#84994F] flex items-center justify-center group-hover:bg-[#84994F]/90 transition-all active:scale-95">
+                    <svg
+                      className="w-5 h-5 text-white"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M9 5l7 7-7 7"
+                      />
+                    </svg>
+                  </div>
+                </Link>
               </div>
-            </motion.div>
+            </div>
           </div>
         </section>
 
@@ -193,10 +207,18 @@ export function SelfcampHomepage() {
                   </div>
                   <div>
                     <a
-                      href="mailto:support@selfcamp.ch"
+                      href="mailto:gp@webbing.ch"
                       className="text-[#84994F] hover:text-[#6d7d3f] transition-colors duration-300"
                     >
                       gp@webbing.ch
+                    </a>
+                  </div>
+                  <div>
+                    <a
+                      href="tel:+41793414074"
+                      className="text-[#84994F] hover:text-[#6d7d3f] transition-colors duration-300"
+                    >
+                      +41 79 341 40 74
                     </a>
                   </div>
                 </div>
@@ -204,19 +226,24 @@ export function SelfcampHomepage() {
 
               <div className="text-center md:text-left">
                 <h4 className="font-semibold mb-4 text-lg text-white">
-                  Développement
+                  Navigation
                 </h4>
                 <div className="space-y-2 text-gray-400">
-                  <p>Informatique & Solutions digitales :</p>
                   <div>
-                    <a
-                      href="https://www.webbing.ch/"
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="text-[#84994F] hover:text-[#6d7d3f] transition-colors duration-300 font-medium"
+                    <Link
+                      href="/about"
+                      className="hover:text-[#84994F] transition-colors"
                     >
-                      Webbing.ch
-                    </a>
+                      À propos
+                    </Link>
+                  </div>
+                  <div>
+                    <Link
+                      href="/contact"
+                      className="hover:text-[#84994F] transition-colors"
+                    >
+                      Contact
+                    </Link>
                   </div>
                   <div>
                     <a

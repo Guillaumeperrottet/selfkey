@@ -6,14 +6,6 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
-import { Alert, AlertDescription } from "@/components/ui/alert";
 
 import {
   Mail,
@@ -96,249 +88,236 @@ export default function ContactPage() {
   };
 
   return (
-    <div className="min-h-screen bg-background py-8 px-4">
-      <div className="container mx-auto max-w-4xl">
-        {/* Header */}
-        <div className="text-center mb-12">
-          <h1 className="text-3xl md:text-4xl font-bold mb-4">
-            Créons ensemble une aire de camping-car dans votre commune
-          </h1>
-          <p className="text-lg text-muted-foreground max-w-3xl mx-auto mb-6">
-            Vous êtes une commune suisse confrontée au camping sauvage ou
-            souhaitant développer le tourisme local ? SelfCamp propose une
-            solution complète pour créer des aires de camping-car légales,
-            organisées et rentables.
-          </p>
-          <div className="bg-[#84994F]/10 border border-[#84994F]/20 rounded-lg p-4 max-w-2xl mx-auto">
-            <p className="text-sm text-[#84994F] font-medium">
-              🏛️ Solution spécialement conçue pour les communes suisses
-            </p>
+    <div className="min-h-screen bg-white">
+      {/* Header simple */}
+      <header className="bg-white/95 backdrop-blur-sm sticky top-0 z-50 border-b border-gray-100/50">
+        <div className="container mx-auto px-4 py-3">
+          <div className="flex items-center justify-between">
+            <Link
+              href="https://www.selfcamp.ch/"
+              className="text-sm text-gray-600 hover:text-[#84994F] transition-colors"
+            >
+              ← Retour
+            </Link>
+            <div className="flex items-center gap-2 bg-[#84994F]/10 text-[#84994F] px-3 py-1.5 rounded-full text-xs font-medium">
+              <div className="w-1.5 h-1.5 bg-[#84994F] rounded-full animate-pulse"></div>
+              <span>24H/24 - 7J/7</span>
+            </div>
           </div>
         </div>
+      </header>
 
-        <div className="grid lg:grid-cols-3 gap-8">
-          {/* Formulaire de contact */}
-          <div className="lg:col-span-2">
-            <Card className="border-t-4 border-t-[#84994F]">
-              <CardHeader>
-                <CardTitle>Demande d&apos;information</CardTitle>
-                <CardDescription>
-                  Parlez-nous de votre commune et de vos besoins. Nous
-                  étudierons ensemble la faisabilité d&apos;une aire de
-                  camping-car SelfCamp.
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                <form onSubmit={handleSubmit} className="space-y-6">
-                  {/* Messages de statut */}
-                  {submitStatus === "success" && (
-                    <Alert>
-                      <CheckCircle className="h-4 w-4" />
-                      <AlertDescription>
-                        Message envoyé avec succès ! Nous vous recontacterons
-                        rapidement.
-                      </AlertDescription>
-                    </Alert>
-                  )}
-
-                  {submitStatus === "error" && (
-                    <Alert variant="destructive">
-                      <AlertCircle className="h-4 w-4" />
-                      <AlertDescription>{errorMessage}</AlertDescription>
-                    </Alert>
-                  )}
-
-                  <div className="grid md:grid-cols-2 gap-4">
-                    <div className="space-y-2">
-                      <Label htmlFor="name">Nom et prénom</Label>
-                      <Input
-                        id="name"
-                        name="name"
-                        value={formData.name}
-                        onChange={handleInputChange}
-                        required
-                        disabled={isSubmitting}
-                        placeholder="Jean Dupont"
-                        className="focus:ring-[#84994F]/20 focus:border-[#84994F]"
-                      />
-                    </div>
-                    <div className="space-y-2">
-                      <Label htmlFor="email">Email</Label>
-                      <Input
-                        type="email"
-                        id="email"
-                        name="email"
-                        value={formData.email}
-                        onChange={handleInputChange}
-                        required
-                        disabled={isSubmitting}
-                        placeholder="jean.dupont@commune.ch"
-                        className="focus:ring-[#84994F]/20 focus:border-[#84994F]"
-                      />
-                    </div>
-                  </div>
-
-                  <div className="space-y-2">
-                    <Label htmlFor="company">Commune</Label>
-                    <Input
-                      id="company"
-                      name="company"
-                      value={formData.company}
-                      onChange={handleInputChange}
-                      required
-                      disabled={isSubmitting}
-                      placeholder="Nom de votre commune"
-                      className="focus:ring-[#84994F]/20 focus:border-[#84994F]"
-                    />
-                  </div>
-
-                  <div className="space-y-2">
-                    <Label htmlFor="project">
-                      Votre projet d&apos;aire de camping-car
-                    </Label>
-                    <Textarea
-                      id="project"
-                      name="project"
-                      rows={4}
-                      value={formData.project}
-                      onChange={handleInputChange}
-                      disabled={isSubmitting}
-                      placeholder="Parlez-nous de votre projet : situation actuelle, objectifs, contraintes..."
-                      className="focus:ring-[#84994F]/20 focus:border-[#84994F]"
-                    />
-                  </div>
-
-                  <div className="flex items-start space-x-3">
-                    <input
-                      type="checkbox"
-                      id="privacy"
-                      name="privacy"
-                      required
-                      disabled={isSubmitting}
-                      className="mt-1 h-4 w-4"
-                    />
-                    <Label
-                      htmlFor="privacy"
-                      className="text-sm leading-relaxed"
-                    >
-                      J&apos;accepte que mes données soient traitées
-                      conformément à la{" "}
-                      <Link
-                        href="/privacy"
-                        className="underline hover:no-underline"
-                      >
-                        politique de confidentialité
-                      </Link>
-                    </Label>
-                  </div>
-
-                  <Button
-                    type="submit"
-                    disabled={isSubmitting}
-                    className="w-full bg-[#84994F] hover:bg-[#84994F]/90 text-white"
-                  >
-                    {isSubmitting ? (
-                      <>
-                        <Loader2 className="h-4 w-4 animate-spin" />
-                        Envoi en cours...
-                      </>
-                    ) : (
-                      <>
-                        <Send className="h-4 w-4" />
-                        Envoyer le message
-                      </>
-                    )}
-                  </Button>
-                </form>
-              </CardContent>
-            </Card>
+      <div className="container mx-auto max-w-4xl px-4 py-12 md:py-20">
+        {/* Header */}
+        <div className="text-center mb-12 md:mb-16">
+          <div className="inline-flex items-center gap-2 bg-[#84994F]/10 text-[#84994F] px-4 py-2 rounded-full text-sm font-medium mb-6">
+            <span>💬</span>
+            <span>Parlons de votre projet</span>
           </div>
+          <h1 className="text-3xl md:text-5xl font-bold text-gray-900 mb-4 leading-tight">
+            Contactez <span className="text-[#84994F]">SelfCamp</span>
+          </h1>
+          <p className="text-base md:text-lg text-gray-600 max-w-2xl mx-auto">
+            Une question ? Besoin d&apos;informations ? Nous sommes à votre
+            écoute
+          </p>
+        </div>
 
-          {/* Informations de contact */}
-          <div className="space-y-6">
-            <Card>
-              <CardHeader>
-                <CardTitle>Équipe SelfCamp</CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="flex items-start space-x-3">
-                  <Mail className="h-4 w-4 mt-1 text-muted-foreground" />
-                  <div className="space-y-1">
-                    <div className="font-medium">Email</div>
-                    <div className="text-sm text-muted-foreground">
+        {/* Contact direct - En premier */}
+        <div className="mb-10">
+          <div className="bg-[#84994F]/8 rounded-2xl border border-[#84994F]/20 p-5 md:p-6">
+            <div className="text-center mb-5">
+              <h2 className="text-lg md:text-xl font-bold text-gray-900">
+                Contactez-nous directement
+              </h2>
+            </div>
+
+            <div className="bg-white rounded-xl border border-gray-100 p-4 max-w-2xl mx-auto">
+              <div className="flex flex-col md:flex-row items-center justify-around gap-4 md:gap-6">
+                <a
+                  href="mailto:gp@webbing.ch"
+                  className="flex items-center gap-3 group"
+                >
+                  <div className="w-10 h-10 rounded-full bg-[#84994F]/10 flex items-center justify-center group-hover:bg-[#84994F]/20 transition-colors flex-shrink-0">
+                    <Mail className="h-4 w-4 text-[#84994F]" />
+                  </div>
+                  <div>
+                    <div className="text-xs font-semibold text-gray-900">
+                      Email
+                    </div>
+                    <div className="text-xs text-[#84994F] group-hover:underline">
                       gp@webbing.ch
                     </div>
                   </div>
-                </div>
+                </a>
 
-                <div className="flex items-start space-x-3">
-                  <Phone className="h-4 w-4 mt-1 text-muted-foreground" />
-                  <div className="space-y-1">
-                    <div className="font-medium">Téléphone</div>
-                    <div className="text-sm text-muted-foreground">
+                <div className="hidden md:block w-px h-10 bg-gray-200"></div>
+
+                <a
+                  href="tel:+41793414074"
+                  className="flex items-center gap-3 group"
+                >
+                  <div className="w-10 h-10 rounded-full bg-[#84994F]/10 flex items-center justify-center group-hover:bg-[#84994F]/20 transition-colors flex-shrink-0">
+                    <Phone className="h-4 w-4 text-[#84994F]" />
+                  </div>
+                  <div>
+                    <div className="text-xs font-semibold text-gray-900">
+                      Téléphone
+                    </div>
+                    <div className="text-xs text-[#84994F] group-hover:underline">
                       +41 79 341 40 74
                     </div>
                   </div>
-                </div>
+                </a>
 
-                <div className="flex items-start space-x-3">
-                  <MapPin className="h-4 w-4 mt-1 text-muted-foreground" />
-                  <div className="space-y-1">
-                    <div className="font-medium">Région d&apos;activité</div>
-                    <div className="text-sm text-muted-foreground">
-                      Canton de Fribourg, Suisse
+                <div className="hidden md:block w-px h-10 bg-gray-200"></div>
+
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-full bg-[#84994F]/10 flex items-center justify-center flex-shrink-0">
+                    <MapPin className="h-4 w-4 text-[#84994F]" />
+                  </div>
+                  <div>
+                    <div className="text-xs font-semibold text-gray-900">
+                      Localisation
+                    </div>
+                    <div className="text-xs text-gray-600">
+                      Rue de Battentin 1 <br></br>
+                      1630 Bulle
                     </div>
                   </div>
                 </div>
-              </CardContent>
-            </Card>
+              </div>
+            </div>
+          </div>
+        </div>
 
-            <Card>
-              <CardHeader>
-                <CardTitle>Solution SelfCamp</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <p className="text-sm text-muted-foreground mb-4">
-                  Nous accompagnons les communes suisses dans la création
-                  d&apos;aires de camping-car légales et organisées.
-                  Infrastructure, signalétique, système d&apos;enregistrement
-                  numérique et conformité réglementaire.
-                </p>
-                <div className="text-sm font-medium">
-                  Étude de faisabilité gratuite
-                </div>
-              </CardContent>
-            </Card>
+        {/* Formulaire de contact */}
+        <div>
+          <div className="text-center mb-8">
+            <h2 className="text-xl md:text-2xl font-bold text-gray-900 mb-2">
+              Ou écrivez-nous
+            </h2>
+            <p className="text-sm md:text-base text-gray-600">
+              Décrivez votre projet, nous vous répondrons rapidement
+            </p>
+          </div>
 
-            <Card className="border-l-4 border-l-[#84994F]">
-              <CardHeader>
-                <CardTitle className="text-[#84994F]">
-                  Bénéfices pour votre commune
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-3">
-                <div className="flex items-start space-x-2">
-                  <div className="w-2 h-2 bg-[#84994F] rounded-full mt-2 flex-shrink-0"></div>
-                  <p className="text-sm">
-                    Conformité légale et contrôle du camping sauvage
-                  </p>
+          <div className="bg-white rounded-2xl border border-gray-200 p-6 md:p-8 max-w-2xl mx-auto">
+            <form onSubmit={handleSubmit} className="space-y-5">
+              {/* Messages de statut */}
+              {submitStatus === "success" && (
+                <div className="bg-green-50 border border-green-200 rounded-xl p-4 flex items-start gap-3">
+                  <CheckCircle className="h-5 w-5 text-green-600 flex-shrink-0 mt-0.5" />
+                  <div className="text-sm text-green-800">
+                    Message envoyé avec succès ! Nous vous recontacterons
+                    rapidement.
+                  </div>
                 </div>
-                <div className="flex items-start space-x-2">
-                  <div className="w-2 h-2 bg-[#84994F] rounded-full mt-2 flex-shrink-0"></div>
-                  <p className="text-sm">Nouvelles recettes pour la commune</p>
+              )}
+
+              {submitStatus === "error" && (
+                <div className="bg-red-50 border border-red-200 rounded-xl p-4 flex items-start gap-3">
+                  <AlertCircle className="h-5 w-5 text-red-600 flex-shrink-0 mt-0.5" />
+                  <div className="text-sm text-red-800">{errorMessage}</div>
                 </div>
-                <div className="flex items-start space-x-2">
-                  <div className="w-2 h-2 bg-[#84994F] rounded-full mt-2 flex-shrink-0"></div>
-                  <p className="text-sm">Dynamisation du commerce local</p>
+              )}
+
+              <div className="grid md:grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label
+                    htmlFor="name"
+                    className="text-sm font-medium text-gray-700"
+                  >
+                    Nom et prénom *
+                  </Label>
+                  <Input
+                    id="name"
+                    name="name"
+                    value={formData.name}
+                    onChange={handleInputChange}
+                    required
+                    disabled={isSubmitting}
+                    placeholder="Jean Dupont"
+                    className="border-gray-200 focus:ring-[#84994F]/20 focus:border-[#84994F] h-11"
+                  />
                 </div>
-                <div className="flex items-start space-x-2">
-                  <div className="w-2 h-2 bg-[#84994F] rounded-full mt-2 flex-shrink-0"></div>
-                  <p className="text-sm">
-                    Valorisation touristique de votre région
-                  </p>
+                <div className="space-y-2">
+                  <Label
+                    htmlFor="email"
+                    className="text-sm font-medium text-gray-700"
+                  >
+                    Email *
+                  </Label>
+                  <Input
+                    type="email"
+                    id="email"
+                    name="email"
+                    value={formData.email}
+                    onChange={handleInputChange}
+                    required
+                    disabled={isSubmitting}
+                    placeholder="jean.dupont@websud.ch"
+                    className="border-gray-200 focus:ring-[#84994F]/20 focus:border-[#84994F] h-11"
+                  />
                 </div>
-              </CardContent>
-            </Card>
+              </div>
+
+              <div className="space-y-2">
+                <Label
+                  htmlFor="company"
+                  className="text-sm font-medium text-gray-700"
+                >
+                  Commune / parking / emplacement *
+                </Label>
+                <Input
+                  id="company"
+                  name="company"
+                  value={formData.company}
+                  onChange={handleInputChange}
+                  required
+                  disabled={isSubmitting}
+                  placeholder="Nom"
+                  className="border-gray-200 focus:ring-[#84994F]/20 focus:border-[#84994F] h-11"
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label
+                  htmlFor="project"
+                  className="text-sm font-medium text-gray-700"
+                >
+                  Votre projet
+                </Label>
+                <Textarea
+                  id="project"
+                  name="project"
+                  rows={4}
+                  value={formData.project}
+                  onChange={handleInputChange}
+                  disabled={isSubmitting}
+                  placeholder="Décrivez votre situation : camping sauvage actuel, objectifs, contraintes..."
+                  className="border-gray-200 focus:ring-[#84994F]/20 focus:border-[#84994F] resize-none"
+                />
+              </div>
+
+              <Button
+                type="submit"
+                disabled={isSubmitting}
+                className="w-full bg-[#84994F] hover:bg-[#84994F]/90 text-white h-12 rounded-xl font-semibold text-[15px] shadow-md hover:shadow-lg transition-all duration-300 active:scale-95"
+              >
+                {isSubmitting ? (
+                  <>
+                    <Loader2 className="h-4 w-4 animate-spin mr-2" />
+                    Envoi en cours...
+                  </>
+                ) : (
+                  <>
+                    <Send className="h-4 w-4 mr-2" />
+                    Envoyer le message
+                  </>
+                )}
+              </Button>
+            </form>
           </div>
         </div>
       </div>
