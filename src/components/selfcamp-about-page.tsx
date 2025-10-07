@@ -1061,8 +1061,9 @@ export function SelfcampAboutPage() {
                 </a>
               </p>
               <p className="mt-2 text-xs">
-                Paiements sécurisés par <span className="font-semibold">Stripe</span> • 
-                Cartes bancaires et TWINT acceptés
+                Paiements sécurisés par{" "}
+                <span className="font-semibold">Stripe</span> • Cartes bancaires
+                et TWINT acceptés
               </p>
             </div>
           </div>
