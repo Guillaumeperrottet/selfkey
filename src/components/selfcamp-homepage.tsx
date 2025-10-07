@@ -180,7 +180,7 @@ export function SelfcampHomepage() {
         {/* Footer */}
         <footer className="py-12 px-4 bg-footer-dark text-white">
           <div className="container mx-auto max-w-6xl">
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
               <div className="text-center md:text-left">
                 <div className="flex items-center justify-center md:justify-start mb-4">
                   <Image
@@ -255,6 +255,38 @@ export function SelfcampHomepage() {
                   </div>
                 </div>
               </div>
+
+              <div className="text-center md:text-left">
+                <h4 className="font-semibold mb-4 text-lg text-white">
+                  Informations légales
+                </h4>
+                <div className="space-y-2 text-gray-400">
+                  <div>
+                    <Link
+                      href="/legal"
+                      className="hover:text-[#84994F] transition-colors"
+                    >
+                      Mentions légales
+                    </Link>
+                  </div>
+                  <div>
+                    <Link
+                      href="/legal"
+                      className="hover:text-[#84994F] transition-colors"
+                    >
+                      CGV & Droit de rétractation
+                    </Link>
+                  </div>
+                  <div>
+                    <Link
+                      href="/privacy"
+                      className="hover:text-[#84994F] transition-colors"
+                    >
+                      Politique de confidentialité
+                    </Link>
+                  </div>
+                </div>
+              </div>
             </div>
 
             <div className="border-t border-gray-700 mt-8 pt-8 text-center text-sm text-gray-400">
@@ -268,6 +300,11 @@ export function SelfcampHomepage() {
                 >
                   Webbing.ch
                 </a>
+              </p>
+              <p className="mt-2 text-xs">
+                Paiements sécurisés par{" "}
+                <span className="font-semibold">Stripe</span> • Cartes bancaires
+                et TWINT acceptés
               </p>
             </div>
           </div>
