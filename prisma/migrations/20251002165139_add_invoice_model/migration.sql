@@ -1,7 +1,6 @@
 -- AlterTable
-ALTER TABLE "bookings" ALTER COLUMN "bookingNumber" SET DEFAULT nextval('booking_number_seq'),
-ALTER COLUMN "bookingNumber" DROP DEFAULT;
-DROP SEQUENCE "booking_number_seq";
+ALTER TABLE "bookings" ALTER COLUMN "bookingNumber" DROP DEFAULT;
+DROP SEQUENCE IF EXISTS "booking_number_seq" CASCADE;
 
 -- CreateTable
 CREATE TABLE "invoices" (

@@ -28,6 +28,7 @@ export async function GET() {
         country: true,
         latitude: true,
         longitude: true,
+        isPubliclyVisible: true,
       },
     });
 
@@ -45,6 +46,7 @@ export async function GET() {
       price: "", // Vous pouvez ajouter la logique de prix si nécessaire
       image: establishment.mapImage,
       slug: establishment.slug,
+      isPubliclyVisible: establishment.isPubliclyVisible,
     }));
 
     return NextResponse.json({

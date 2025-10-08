@@ -172,8 +172,8 @@ function StripePaymentFormContent({
         pricingOptionsTotal: bookingData.pricingOptionsTotal,
       });
 
-      // APPROCHE ELEMENTS: TWINT ne peut pas être attaché à un Customer
-      console.log("🔍 Confirmation du paiement TWINT via Elements");
+      // APPROCHE ELEMENTS: Gérer TWINT et cartes différemment
+      console.log("🔍 Confirmation du paiement via Elements");
 
       const { error: confirmError } = await stripe.confirmPayment({
         elements,
@@ -183,9 +183,16 @@ function StripePaymentFormContent({
             billing_details: billingDetails,
           },
         },
-        // TWINT nécessite une redirection vers l'app ou affichage du QR code
-        redirect: "always",
+        // Redirection seulement si nécessaire (3D Secure pour cartes, ou QR code TWINT)
+        redirect: "if_required",
       });
+
+      // Si pas d'erreur ET pas de redirection, le paiement a réussi !
+      if (!confirmError) {
+        console.log("✅ Paiement confirmé avec succès, redirection...");
+        window.location.href = `/${hotelSlug}/success?paymentIntent=${paymentIntentId}&type=classic_booking`;
+        return;
+      }
 
       if (confirmError) {
         console.error("🚨 PAYMENT ERROR:", {

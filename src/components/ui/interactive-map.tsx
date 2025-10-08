@@ -16,6 +16,7 @@ interface Establishment {
   description: string;
   image?: string;
   amenities?: string[];
+  isPubliclyVisible?: boolean;
 }
 
 interface InteractiveMapProps {
