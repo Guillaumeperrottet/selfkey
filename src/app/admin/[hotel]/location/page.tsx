@@ -2,7 +2,7 @@ import { redirect } from "next/navigation";
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { notFound } from "next/navigation";
-import { LocationForm } from "@/components/ui/location-form";
+import { PresentationForm } from "@/components/ui/presentation-form";
 import { headers } from "next/headers";
 
 export default async function LocationPage({
@@ -37,13 +37,13 @@ export default async function LocationPage({
 
   return (
     <div className="container mx-auto py-8">
-      <div className="max-w-2xl mx-auto">
+      <div className="max-w-4xl mx-auto">
         <h1 className="text-3xl font-bold mb-8">
-          Localisation de {establishment.name}
+          Présentation & Carte - {establishment.name}
         </h1>
 
         <div className="bg-white rounded-lg shadow p-6">
-          <LocationForm
+          <PresentationForm
             establishmentId={establishment.slug}
             initialData={{
               address: establishment.address || "",
@@ -55,6 +55,33 @@ export default async function LocationPage({
               mapTitle: establishment.mapTitle || "",
               mapDescription: establishment.mapDescription || "",
               mapImage: establishment.mapImage || "",
+              showOnMap: establishment.showOnMap,
+              presentationImages: establishment.presentationImages || [],
+              presentationDescription:
+                establishment.presentationDescription || "",
+              presentationAttributes:
+                (establishment.presentationAttributes as Record<
+                  string,
+                  boolean
+                >) || {},
+              presentationWebsite: establishment.presentationWebsite || "",
+              presentationEmail: establishment.presentationEmail || "",
+              presentationPhone: establishment.presentationPhone || "",
+              presentationDocuments:
+                (establishment.presentationDocuments as Array<{
+                  name: string;
+                  url: string;
+                  type: string;
+                  description?: string;
+                }>) || [],
+              presentationNearbyBusinesses:
+                (establishment.presentationNearbyBusinesses as Array<{
+                  name: string;
+                  type: string;
+                  distance: string;
+                  description?: string;
+                }>) || [],
+              isPubliclyVisible: establishment.isPubliclyVisible,
             }}
           />
         </div>

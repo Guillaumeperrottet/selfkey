@@ -29,6 +29,7 @@ interface Establishment {
   reviews: number;
   address?: string; // Optionnel
   distance?: number; // Distance en km pour les recherches de proximité
+  isPubliclyVisible?: boolean; // Page de présentation publique
 }
 
 // Composant interne qui utilise useSearchParams
@@ -198,6 +199,7 @@ function MapPageContent() {
                 type?: string;
                 description: string;
                 image?: string;
+                isPubliclyVisible?: boolean;
               }) => ({
                 id: est.id,
                 slug: est.slug,
@@ -213,6 +215,7 @@ function MapPageContent() {
                 rating: 4.5, // À adapter selon vos données
                 reviews: 0, // À adapter selon vos données
                 address: est.location,
+                isPubliclyVisible: est.isPubliclyVisible,
               })
             );
 

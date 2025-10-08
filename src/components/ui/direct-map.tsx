@@ -118,6 +118,7 @@ interface Establishment {
   description: string;
   image?: string;
   amenities?: string[];
+  isPubliclyVisible?: boolean;
 }
 
 interface DirectMapProps {
@@ -286,11 +287,25 @@ const EstablishmentMarker = ({
             </div>
           )}
           <div className={`${mobile ? "px-3 pb-2" : ""}`}>
-            <h3
-              className={`font-bold text-gray-900 ${mobile ? "text-base mb-2 leading-tight" : "text-lg mb-3 leading-tight"}`}
-            >
-              {establishment.name}
-            </h3>
+            {/* Titre - cliquable si page publique disponible */}
+            {establishment.isPubliclyVisible ? (
+              <a
+                href={`/establishment/${establishment.slug}`}
+                onClick={(e) => {
+                  e.stopPropagation();
+                }}
+                className={`font-bold text-gray-900 hover:text-[#84994F] transition-colors cursor-pointer block ${mobile ? "text-base mb-2 leading-tight" : "text-lg mb-3 leading-tight"}`}
+              >
+                {establishment.name}
+                <span className="inline-block ml-1 text-[#84994F]">→</span>
+              </a>
+            ) : (
+              <h3
+                className={`font-bold text-gray-900 ${mobile ? "text-base mb-2 leading-tight" : "text-lg mb-3 leading-tight"}`}
+              >
+                {establishment.name}
+              </h3>
+            )}
 
             {/* Informations de disponibilité - design simplifié */}
             <div

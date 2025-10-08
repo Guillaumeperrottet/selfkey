@@ -28,6 +28,15 @@ export async function PATCH(
       mapDescription,
       mapImage,
       showOnMap,
+      presentationImages,
+      presentationDescription,
+      presentationAttributes,
+      presentationWebsite,
+      presentationEmail,
+      presentationPhone,
+      presentationDocuments,
+      presentationNearbyBusinesses,
+      isPubliclyVisible,
     } = await request.json();
 
     // Vérifier que l'utilisateur est propriétaire de l'établissement
@@ -49,7 +58,7 @@ export async function PATCH(
       );
     }
 
-    // Mettre à jour la localisation
+    // Mettre à jour la localisation et les informations de présentation
     const updatedEstablishment = await prisma.establishment.update({
       where: { slug: establishmentSlug },
       data: {
@@ -63,6 +72,15 @@ export async function PATCH(
         mapDescription,
         mapImage,
         showOnMap,
+        presentationImages,
+        presentationDescription,
+        presentationAttributes,
+        presentationWebsite,
+        presentationEmail,
+        presentationPhone,
+        presentationDocuments,
+        presentationNearbyBusinesses,
+        isPubliclyVisible,
       },
     });
 
