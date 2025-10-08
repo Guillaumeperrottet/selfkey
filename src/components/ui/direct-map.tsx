@@ -342,7 +342,7 @@ const EstablishmentMarker = ({
               {/* Bouton GPS */}
               <button
                 onClick={openGoogleMaps}
-                className={`flex-1 ${mobile ? "px-3 py-2.5 text-sm" : "px-4 py-2.5 text-sm"} bg-white border-2 border-[#84994F] text-[#84994F] rounded-lg font-semibold hover:bg-[#84994F] hover:text-white transition-all duration-200 flex items-center justify-center gap-1.5`}
+                className={`flex-1 ${mobile ? "px-3 py-2.5 text-sm" : "px-4 py-2.5 text-sm"} bg-white border-2 border-[#84994F] text-[#84994F] rounded-lg font-semibold hover:bg-[#84994F] hover:text-white transition-all duration-200 flex items-center justify-center gap-1.5 cursor-pointer`}
               >
                 <span className={`${mobile ? "text-base" : "text-base"}`}>
                   🧭
@@ -353,7 +353,7 @@ const EstablishmentMarker = ({
               {/* Bouton réserver */}
               <button
                 onClick={openBookingPage}
-                className={`flex-1 ${mobile ? "px-3 py-2.5 text-sm" : "px-4 py-2.5 text-sm"} bg-[#84994F] text-white rounded-lg font-semibold hover:bg-[#84994F]/90 transition-all duration-200`}
+                className={`flex-1 ${mobile ? "px-3 py-2.5 text-sm" : "px-4 py-2.5 text-sm"} bg-[#84994F] text-white rounded-lg font-semibold hover:bg-[#84994F]/90 transition-all duration-200 cursor-pointer`}
               >
                 Réserver
               </button>

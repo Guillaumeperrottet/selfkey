@@ -15,6 +15,7 @@ import {
   CheckCircle,
   AlertCircle,
   Loader2,
+  ArrowLeft,
 } from "lucide-react";
 
 interface FormData {
@@ -89,19 +90,43 @@ export default function ContactPage() {
 
   return (
     <div className="min-h-screen bg-white">
-      {/* Header simple */}
+      {/* Header harmonisé */}
       <header className="bg-white/95 backdrop-blur-sm sticky top-0 z-50 border-b border-gray-100/50">
         <div className="container mx-auto px-4 py-3">
           <div className="flex items-center justify-between">
-            <Link
-              href="https://www.selfcamp.ch/"
-              className="text-sm text-gray-600 hover:text-[#84994F] transition-colors"
-            >
-              ← Retour
-            </Link>
-            <div className="flex items-center gap-2 bg-[#84994F]/10 text-[#84994F] px-3 py-1.5 rounded-full text-xs font-medium">
-              <div className="w-1.5 h-1.5 bg-[#84994F] rounded-full animate-pulse"></div>
-              <span>24H/24 - 7J/7</span>
+            {/* Desktop header */}
+            <div className="hidden lg:flex items-center justify-between w-full">
+              <div className="flex items-center space-x-2 bg-[#84994F]/10 text-[#84994F] px-3 py-1.5 rounded-full text-sm font-medium">
+                <div className="w-2 h-2 bg-[#84994F] rounded-full animate-pulse"></div>
+                <span>24H/24 - 7J/7</span>
+              </div>
+              <Link
+                href="/contact"
+                className="text-[#84994F] text-sm font-bold tracking-wide uppercase hover:text-[#84994F]/80 transition-colors duration-300"
+              >
+                CONTACTEZ-NOUS
+              </Link>
+            </div>
+
+            {/* Mobile header */}
+            <div className="flex lg:hidden items-center justify-between w-full">
+              <div className="flex items-center space-x-1.5 bg-[#84994F]/10 text-[#84994F] px-2.5 py-1 rounded-full text-xs font-medium">
+                <div className="w-1.5 h-1.5 bg-[#84994F] rounded-full animate-pulse"></div>
+                <span>24H/24 - 7J/7</span>
+              </div>
+              <Link
+                href="/"
+                className="group flex items-center space-x-2 text-gray-600 hover:text-[#84994F] transition-all duration-300"
+              >
+                <ArrowLeft className="h-4 w-4 group-hover:-translate-x-1 transition-transform duration-300" />
+                <span className="text-sm">Accueil</span>
+              </Link>
+              <Link
+                href="/contact"
+                className="text-[#84994F] text-xs font-bold tracking-wide uppercase hover:text-[#84994F]/80 transition-colors duration-300"
+              >
+                CONTACT
+              </Link>
             </div>
           </div>
         </div>
@@ -135,7 +160,7 @@ export default function ContactPage() {
             <div className="bg-white rounded-xl shadow-sm border border-[#84994F]/30 p-6 max-w-4xl mx-auto">
               <div className="flex flex-col md:flex-row items-center justify-around gap-6 md:gap-8">
                 <a
-                  href="mailto:gp@webbing.ch"
+                  href="mailto:perrottet.guillaume.97@gmail.com"
                   className="flex items-center gap-3 group"
                 >
                   <div className="w-12 h-12 rounded-full bg-[#84994F]/10 flex items-center justify-center group-hover:bg-[#84994F] transition-colors flex-shrink-0">
@@ -146,7 +171,7 @@ export default function ContactPage() {
                       Email
                     </div>
                     <div className="text-base text-gray-900 group-hover:text-[#84994F] transition-colors">
-                      gp@webbing.ch
+                      perrottet.guillaume.97@gmail.com
                     </div>
                   </div>
                 </a>
