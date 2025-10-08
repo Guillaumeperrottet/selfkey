@@ -85,11 +85,11 @@ export function SelfcampHomepage() {
                   />
                 </div>
 
-                <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold text-gray-900">
+                <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold text-gray-900 font-display">
                   Selfcamp.ch
                 </h1>
 
-                <p className="text-lg sm:text-xl md:text-2xl font-semibold text-[#84994F]">
+                <p className="text-lg sm:text-xl md:text-2xl font-semibold text-[#84994F] font-body">
                   Développons le tourisme local ensemble
                 </p>
 

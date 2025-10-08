@@ -1,11 +1,63 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+import { Geist_Mono } from "next/font/google";
 import { Toaster } from "sonner";
 import "./globals.css";
+import localFont from "next/font/local";
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
-  subsets: ["latin"],
+// Neue Montreal pour le corps de texte
+const neueMontreal = localFont({
+  src: [
+    {
+      path: "../../public/fonts/NeueMontreal-Light.woff2",
+      weight: "300",
+      style: "normal",
+    },
+    {
+      path: "../../public/fonts/NeueMontreal-Regular.woff2",
+      weight: "400",
+      style: "normal",
+    },
+    {
+      path: "../../public/fonts/NeueMontreal-Medium.woff2",
+      weight: "500",
+      style: "normal",
+    },
+    {
+      path: "../../public/fonts/NeueMontreal-Bold.woff2",
+      weight: "700",
+      style: "normal",
+    },
+  ],
+  variable: "--font-neue-montreal",
+  display: "swap",
+});
+
+// SF Pro Display pour les titres
+const sfProDisplay = localFont({
+  src: [
+    {
+      path: "../../public/fonts/SF-Pro-Display-Regular.woff2",
+      weight: "400",
+      style: "normal",
+    },
+    {
+      path: "../../public/fonts/SF-Pro-Display-Medium.woff2",
+      weight: "500",
+      style: "normal",
+    },
+    {
+      path: "../../public/fonts/SF-Pro-Display-Bold.woff2",
+      weight: "700",
+      style: "normal",
+    },
+    {
+      path: "../../public/fonts/SF-Pro-Display-Black.woff2",
+      weight: "900",
+      style: "normal",
+    },
+  ],
+  variable: "--font-sf-pro-display",
+  display: "swap",
 });
 
 const geistMono = Geist_Mono({
@@ -153,7 +205,7 @@ export default function RootLayout({
         />
       </head>
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+        className={`${neueMontreal.variable} ${sfProDisplay.variable} ${geistMono.variable} antialiased`}
       >
         {children}
         <Toaster

@@ -10,8 +10,9 @@
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
+  --font-sans: var(--font-neue-montreal);
   --font-mono: var(--font-geist-mono);
+  --font-display: var(--font-sf-pro-display);
   --color-sidebar-ring: var(--sidebar-ring);
   --color-sidebar-border: var(--sidebar-border);
   --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
@@ -225,4 +226,57 @@
   left: 0;
   width: 100%;
   height: 100%;
+}
+
+/* Custom font utilities */
+.font-display {
+  font-family:
+    var(--font-sf-pro-display),
+    system-ui,
+    -apple-system,
+    sans-serif;
+}
+
+.font-body {
+  font-family:
+    var(--font-neue-montreal),
+    system-ui,
+    -apple-system,
+    sans-serif;
+}
+
+/* Application globale des polices */
+body {
+  font-family:
+    var(--font-neue-montreal),
+    system-ui,
+    -apple-system,
+    sans-serif;
+}
+
+/* Tous les titres utilisent SF Pro Display par défaut */
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  font-family:
+    var(--font-sf-pro-display),
+    system-ui,
+    -apple-system,
+    sans-serif;
+}
+
+/* Les paragraphes et le texte normal utilisent Neue Montreal */
+p,
+span,
+div,
+a,
+button {
+  font-family:
+    var(--font-neue-montreal),
+    system-ui,
+    -apple-system,
+    sans-serif;
 }
