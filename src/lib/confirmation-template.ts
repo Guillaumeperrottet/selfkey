@@ -35,6 +35,7 @@ export interface BookingWithDetails {
   dayParkingStartTime?: Date | null;
   dayParkingEndTime?: Date | null;
   hasDog: boolean;
+  bookingLocale?: string; // Langue choisie: "fr", "en", "de"
   stripePaymentIntentId: string | null;
   amount: number; // Montant total payé par le client
   currency: string;
@@ -50,9 +51,18 @@ export interface BookingWithDetails {
     id: string;
     name: string;
     accessCodeType: string;
+    // Templates français
     confirmationEmailTemplate: string | null;
     confirmationEmailTemplateWithDog: string | null;
     confirmationEmailTemplateWithoutDog: string | null;
+    // Templates anglais
+    confirmationEmailTemplateEn: string | null;
+    confirmationEmailTemplateWithDogEn: string | null;
+    confirmationEmailTemplateWithoutDogEn: string | null;
+    // Templates allemands
+    confirmationEmailTemplateDe: string | null;
+    confirmationEmailTemplateWithDogDe: string | null;
+    confirmationEmailTemplateWithoutDogDe: string | null;
     generalAccessCode: string | null;
     accessInstructions: string | null;
     hotelContactEmail: string | null;
@@ -157,28 +167,62 @@ export async function generateConfirmationContent(
   booking: BookingWithDetails,
   templateData: TemplateData
 ): Promise<string> {
-  // Choisir le bon template selon si le client a un chien
-  let template: string;
+  // Déterminer la langue de la réservation (par défaut: français)
+  const locale = booking.bookingLocale || "fr";
 
-  // Si le client a coché "avec chien" et qu'un template spécifique est défini
-  if (
-    booking.hasDog === true &&
-    booking.establishment.confirmationEmailTemplateWithDog
-  ) {
-    template = booking.establishment.confirmationEmailTemplateWithDog;
+  // Sélectionner le bon template selon la langue ET si le client a un chien
+  let template: string | null = null;
+
+  // Templates pour les réservations avec chien
+  if (booking.hasDog === true) {
+    switch (locale) {
+      case "en":
+        template = booking.establishment.confirmationEmailTemplateWithDogEn;
+        break;
+      case "de":
+        template = booking.establishment.confirmationEmailTemplateWithDogDe;
+        break;
+      case "fr":
+      default:
+        template = booking.establishment.confirmationEmailTemplateWithDog;
+        break;
+    }
   }
-  // Si le client a coché "sans chien" et qu'un template spécifique est défini
-  else if (
-    booking.hasDog === false &&
-    booking.establishment.confirmationEmailTemplateWithoutDog
-  ) {
-    template = booking.establishment.confirmationEmailTemplateWithoutDog;
+  // Templates pour les réservations sans chien
+  else if (booking.hasDog === false) {
+    switch (locale) {
+      case "en":
+        template = booking.establishment.confirmationEmailTemplateWithoutDogEn;
+        break;
+      case "de":
+        template = booking.establishment.confirmationEmailTemplateWithoutDogDe;
+        break;
+      case "fr":
+      default:
+        template = booking.establishment.confirmationEmailTemplateWithoutDog;
+        break;
+    }
   }
-  // Sinon, utiliser le template normal (général)
-  else {
-    template =
-      booking.establishment.confirmationEmailTemplate ||
-      getDefaultEmailTemplate();
+
+  // Si aucun template spécifique "avec/sans chien" n'est défini, utiliser le template général
+  if (!template) {
+    switch (locale) {
+      case "en":
+        template = booking.establishment.confirmationEmailTemplateEn;
+        break;
+      case "de":
+        template = booking.establishment.confirmationEmailTemplateDe;
+        break;
+      case "fr":
+      default:
+        template = booking.establishment.confirmationEmailTemplate;
+        break;
+    }
+  }
+
+  // Si toujours pas de template, utiliser le template par défaut
+  if (!template) {
+    template = getDefaultEmailTemplate(locale);
   }
 
   // Remplacer les variables dans le template
@@ -221,8 +265,82 @@ async function processImagePlaceholders(
 /**
  * Template par défaut si aucun template personnalisé n'est configuré
  */
-function getDefaultEmailTemplate(): string {
-  return `Bonjour {clientFirstName} {clientLastName},
+function getDefaultEmailTemplate(locale: string = "fr"): string {
+  if (locale === "en") {
+    return `Hello {clientFirstName} {clientLastName},
+
+Your reservation at {establishmentName} has been successfully confirmed!
+
+📋 Booking number: {bookingNumber}
+💰 Total amount paid: {totalAmount} {currency}
+
+Cost breakdown:
+- Accommodation: {roomPrice} {currency}
+- Additional options: {pricingOptionsTotal} {currency}
+- Tourist tax: {touristTaxTotal} {currency}
+- Total excl. fees: {baseAmount} {currency}
+
+Reservation details:
+- Place: {roomName}
+- Check-in: {checkInDate}
+- Check-out: {checkOutDate}
+- Access code: {accessCode}
+
+📄 Your invoice:
+Download your official invoice: {invoiceDownloadUrl}
+
+Contact us for more information
+
+For any questions, you can reach us at:
+📧 Email: {hotelContactEmail}
+📞 Phone: {hotelContactPhone}
+
+We wish you an excellent stay!
+
+Best regards,
+The {establishmentName} team
+
+---
+`;
+  } else if (locale === "de") {
+    return `Hallo {clientFirstName} {clientLastName},
+
+Ihre Reservierung bei {establishmentName} wurde erfolgreich bestätigt!
+
+📋 Buchungsnummer: {bookingNumber}
+💰 Gezahlter Gesamtbetrag: {totalAmount} {currency}
+
+Kostenaufschlüsselung:
+- Unterkunft: {roomPrice} {currency}
+- Zusätzliche Optionen: {pricingOptionsTotal} {currency}
+- Kurtaxe: {touristTaxTotal} {currency}
+- Gesamt ohne Gebühren: {baseAmount} {currency}
+
+Details Ihrer Reservierung:
+- Platz: {roomName}
+- Ankunft: {checkInDate}
+- Abreise: {checkOutDate}
+- Zugangscode: {accessCode}
+
+📄 Ihre Rechnung:
+Laden Sie Ihre offizielle Rechnung herunter: {invoiceDownloadUrl}
+
+Kontaktieren Sie uns für weitere Informationen
+
+Bei Fragen können Sie uns erreichen unter:
+📧 E-Mail: {hotelContactEmail}
+📞 Telefon: {hotelContactPhone}
+
+Wir wünschen Ihnen einen angenehmen Aufenthalt!
+
+Mit freundlichen Grüßen,
+Das {establishmentName} Team
+
+---
+`;
+  } else {
+    // Français par défaut
+    return `Bonjour {clientFirstName} {clientLastName},
 
 Votre réservation à {establishmentName} a été confirmée avec succès !
 
@@ -256,37 +374,8 @@ Cordialement,
 L'équipe de {establishmentName}
 
 ---
-
-Guten Tag {clientFirstName} {clientLastName},
-
-Ihre Buchung im {establishmentName} wurde erfolgreich bestätigt!
-
-📋 Buchungsnummer: {bookingNumber}
-💰 Gezahlter Gesamtbetrag: {totalAmount} {currency}
-
-Kostenaufstellung:
-- Unterkunft: {roomPrice} {currency}
-- Zusatzoptionen: {pricingOptionsTotal} {currency}
-- Kurtaxe: {touristTaxTotal} {currency}
-- Total ohne Gebühren: {baseAmount} {currency}
-
-Details Ihrer Buchung:
-- Zimmer: {roomName}
-- Anreise: {checkInDate}
-- Abreise: {checkOutDate}
-- Zugangscode: {accessCode}
-
-📄 Ihre Rechnung:
-Laden Sie Ihre offizielle Rechnung herunter: {invoiceDownloadUrl}
-
-Bei Fragen können Sie uns gerne kontaktieren:
-📧 E-Mail: {hotelContactEmail}
-📞 Telefon: {hotelContactPhone}
-
-Wir wünschen Ihnen einen ausgezeichneten Aufenthalt!
-
-Mit freundlichen Grüßen,
-Das Team von {establishmentName}`;
+`;
+  }
 }
 
 /**

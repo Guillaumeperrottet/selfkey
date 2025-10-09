@@ -6,10 +6,13 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
-import { Settings, Copy, Plus, X, Dog } from "lucide-react";
+import { Settings, Copy, Plus, X, Dog, Languages } from "lucide-react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { EmailEditor } from "@/components/EmailEditor";
 import { toastUtils } from "@/lib/toast-utils";
+
+// Types de langue
+type Locale = "fr" | "en" | "de";
 
 // Types pour Unlayer
 interface UnlayerDesign {
@@ -26,10 +29,21 @@ interface UnlayerDesign {
 interface ConfirmationSettings {
   confirmationEmailEnabled: boolean;
   confirmationEmailFrom: string;
+  // Templates français
   confirmationEmailTemplate: string;
   confirmationEmailTemplateWithDog: string;
   confirmationEmailDesign: UnlayerDesign | null;
   confirmationEmailDesignWithDog: UnlayerDesign | null;
+  // Templates anglais
+  confirmationEmailTemplateEn: string;
+  confirmationEmailTemplateWithDogEn: string;
+  confirmationEmailDesignEn: UnlayerDesign | null;
+  confirmationEmailDesignWithDogEn: UnlayerDesign | null;
+  // Templates allemands
+  confirmationEmailTemplateDe: string;
+  confirmationEmailTemplateWithDogDe: string;
+  confirmationEmailDesignDe: UnlayerDesign | null;
+  confirmationEmailDesignWithDogDe: UnlayerDesign | null;
   hotelContactEmail: string;
   hotelContactPhone: string;
   enableEmailCopyOnConfirmation: boolean;
@@ -97,13 +111,25 @@ const defaultMergeTags = {
 };
 
 export function ConfirmationManager({ hotelSlug }: ConfirmationManagerProps) {
+  const [selectedLocale, setSelectedLocale] = useState<Locale>("fr");
   const [settings, setSettings] = useState<ConfirmationSettings>({
     confirmationEmailEnabled: true,
     confirmationEmailFrom: "noreply@selfkey.ch",
+    // Templates français
     confirmationEmailTemplate: "",
     confirmationEmailTemplateWithDog: "",
     confirmationEmailDesign: null,
     confirmationEmailDesignWithDog: null,
+    // Templates anglais
+    confirmationEmailTemplateEn: "",
+    confirmationEmailTemplateWithDogEn: "",
+    confirmationEmailDesignEn: null,
+    confirmationEmailDesignWithDogEn: null,
+    // Templates allemands
+    confirmationEmailTemplateDe: "",
+    confirmationEmailTemplateWithDogDe: "",
+    confirmationEmailDesignDe: null,
+    confirmationEmailDesignWithDogDe: null,
     hotelContactEmail: "",
     hotelContactPhone: "",
     enableEmailCopyOnConfirmation: false,
@@ -129,12 +155,27 @@ export function ConfirmationManager({ hotelSlug }: ConfirmationManagerProps) {
             confirmationEmailEnabled: data.confirmationEmailEnabled ?? true,
             confirmationEmailFrom:
               data.confirmationEmailFrom ?? "noreply@selfkey.ch",
+            // Templates français
             confirmationEmailTemplate: data.confirmationEmailTemplate ?? "",
             confirmationEmailTemplateWithDog:
               data.confirmationEmailTemplateWithDog ?? "",
             confirmationEmailDesign: data.confirmationEmailDesign ?? null,
             confirmationEmailDesignWithDog:
               data.confirmationEmailDesignWithDog ?? null,
+            // Templates anglais
+            confirmationEmailTemplateEn: data.confirmationEmailTemplateEn ?? "",
+            confirmationEmailTemplateWithDogEn:
+              data.confirmationEmailTemplateWithDogEn ?? "",
+            confirmationEmailDesignEn: data.confirmationEmailDesignEn ?? null,
+            confirmationEmailDesignWithDogEn:
+              data.confirmationEmailDesignWithDogEn ?? null,
+            // Templates allemands
+            confirmationEmailTemplateDe: data.confirmationEmailTemplateDe ?? "",
+            confirmationEmailTemplateWithDogDe:
+              data.confirmationEmailTemplateWithDogDe ?? "",
+            confirmationEmailDesignDe: data.confirmationEmailDesignDe ?? null,
+            confirmationEmailDesignWithDogDe:
+              data.confirmationEmailDesignWithDogDe ?? null,
             hotelContactEmail: data.hotelContactEmail ?? "",
             hotelContactPhone: data.hotelContactPhone ?? "",
             enableEmailCopyOnConfirmation:
@@ -232,18 +273,23 @@ export function ConfirmationManager({ hotelSlug }: ConfirmationManagerProps) {
 
   // Fonctions de copie entre templates
   const copyGeneralToWithDog = async () => {
-    if (
-      !settings.confirmationEmailTemplate &&
-      !settings.confirmationEmailDesign
-    ) {
+    const templateField = getTemplateField("general");
+    const designField = getDesignField("general");
+    const template = settings[templateField as keyof ConfirmationSettings];
+    const design = settings[designField as keyof ConfirmationSettings];
+
+    if (!template && !design) {
       toastUtils.error("Aucun template général à copier");
       return;
     }
 
+    const withDogTemplateField = getTemplateField("withDog");
+    const withDogDesignField = getDesignField("withDog");
+
     const newSettings = {
       ...settings,
-      confirmationEmailTemplateWithDog: settings.confirmationEmailTemplate,
-      confirmationEmailDesignWithDog: settings.confirmationEmailDesign,
+      [withDogTemplateField]: template,
+      [withDogDesignField]: design,
     };
 
     setSettings(newSettings);
@@ -252,23 +298,131 @@ export function ConfirmationManager({ hotelSlug }: ConfirmationManagerProps) {
   };
 
   const copyWithDogToGeneral = async () => {
-    if (
-      !settings.confirmationEmailTemplateWithDog &&
-      !settings.confirmationEmailDesignWithDog
-    ) {
+    const templateField = getTemplateField("withDog");
+    const designField = getDesignField("withDog");
+    const template = settings[templateField as keyof ConfirmationSettings];
+    const design = settings[designField as keyof ConfirmationSettings];
+
+    if (!template && !design) {
       toastUtils.error("Aucun template avec chiens à copier");
       return;
     }
 
+    const generalTemplateField = getTemplateField("general");
+    const generalDesignField = getDesignField("general");
+
     const newSettings = {
       ...settings,
-      confirmationEmailTemplate: settings.confirmationEmailTemplateWithDog,
-      confirmationEmailDesign: settings.confirmationEmailDesignWithDog,
+      [generalTemplateField]: template,
+      [generalDesignField]: design,
     };
 
     setSettings(newSettings);
     await handleSaveWithUpdate(newSettings);
     toastUtils.success("Template avec chiens copié vers le template général !");
+  };
+
+  const copyGeneralToWithoutDog = async () => {
+    const templateField = getTemplateField("general");
+    const designField = getDesignField("general");
+    const template = settings[templateField as keyof ConfirmationSettings];
+    const design = settings[designField as keyof ConfirmationSettings];
+
+    if (!template && !design) {
+      toastUtils.error("Aucun template général à copier");
+      return;
+    }
+
+    const withoutDogTemplateField = getTemplateField("withoutDog");
+    const withoutDogDesignField = getDesignField("withoutDog");
+
+    const newSettings = {
+      ...settings,
+      [withoutDogTemplateField]: template,
+      [withoutDogDesignField]: design,
+    };
+
+    setSettings(newSettings);
+    await handleSaveWithUpdate(newSettings);
+    toastUtils.success("Template général copié vers le template sans chiens !");
+  };
+
+  const copyWithoutDogToGeneral = async () => {
+    const templateField = getTemplateField("withoutDog");
+    const designField = getDesignField("withoutDog");
+    const template = settings[templateField as keyof ConfirmationSettings];
+    const design = settings[designField as keyof ConfirmationSettings];
+
+    if (!template && !design) {
+      toastUtils.error("Aucun template sans chiens à copier");
+      return;
+    }
+
+    const generalTemplateField = getTemplateField("general");
+    const generalDesignField = getDesignField("general");
+
+    const newSettings = {
+      ...settings,
+      [generalTemplateField]: template,
+      [generalDesignField]: design,
+    };
+
+    setSettings(newSettings);
+    await handleSaveWithUpdate(newSettings);
+    toastUtils.success("Template sans chiens copié vers le template général !");
+  };
+
+  // Fonction pour propager un template vers toutes les langues
+  const propagateToAllLanguages = async (
+    variant: "general" | "withDog" | "withoutDog"
+  ) => {
+    const sourceLocale = selectedLocale;
+
+    // Récupérer le template source dans la langue actuelle
+    const sourceTemplate = getCurrentTemplate(variant);
+    const sourceDesign = getCurrentDesign(variant);
+
+    if (!sourceTemplate && !sourceDesign) {
+      toastUtils.error(
+        `Aucun template ${variant} à copier pour ${getLocaleName(sourceLocale)}`
+      );
+      return;
+    }
+
+    // Définir les champs cibles pour chaque langue
+    const variantSuffix =
+      variant === "general"
+        ? ""
+        : variant === "withDog"
+          ? "WithDog"
+          : "WithoutDog";
+
+    const newSettings: Partial<ConfirmationSettings> = { ...settings };
+
+    // Copier vers les autres langues
+    const languages: Locale[] = ["fr", "en", "de"];
+    let copiedCount = 0;
+
+    for (const targetLocale of languages) {
+      if (targetLocale !== sourceLocale) {
+        const suffix =
+          targetLocale === "fr" ? "" : targetLocale === "en" ? "En" : "De";
+        const templateField = `confirmationEmailTemplate${variantSuffix}${suffix}`;
+        const designField = `confirmationEmailDesign${variantSuffix}${suffix}`;
+
+        newSettings[templateField as keyof ConfirmationSettings] =
+          sourceTemplate as never;
+        newSettings[designField as keyof ConfirmationSettings] =
+          sourceDesign as never;
+        copiedCount++;
+      }
+    }
+
+    setSettings(newSettings as ConfirmationSettings);
+    await handleSaveWithUpdate(newSettings as ConfirmationSettings);
+    toastUtils.success(
+      `Template ${variant} (${getLocaleName(sourceLocale)}) copié vers ${copiedCount} autre${copiedCount > 1 ? "s" : ""} langue${copiedCount > 1 ? "s" : ""} !`
+    );
   };
 
   // Test d'email
@@ -318,6 +472,114 @@ export function ConfirmationManager({ hotelSlug }: ConfirmationManagerProps) {
     }
   };
 
+  // Fonctions helper pour obtenir/modifier les templates selon la langue
+  const getTemplateField = (variant: "general" | "withDog" | "withoutDog") => {
+    if (variant === "general") {
+      switch (selectedLocale) {
+        case "en":
+          return "confirmationEmailTemplateEn";
+        case "de":
+          return "confirmationEmailTemplateDe";
+        default:
+          return "confirmationEmailTemplate";
+      }
+    } else if (variant === "withDog") {
+      switch (selectedLocale) {
+        case "en":
+          return "confirmationEmailTemplateWithDogEn";
+        case "de":
+          return "confirmationEmailTemplateWithDogDe";
+        default:
+          return "confirmationEmailTemplateWithDog";
+      }
+    } else {
+      // withoutDog
+      switch (selectedLocale) {
+        case "en":
+          return "confirmationEmailTemplateWithoutDogEn";
+        case "de":
+          return "confirmationEmailTemplateWithoutDogDe";
+        default:
+          return "confirmationEmailTemplateWithoutDog";
+      }
+    }
+  };
+
+  const getDesignField = (variant: "general" | "withDog" | "withoutDog") => {
+    if (variant === "general") {
+      switch (selectedLocale) {
+        case "en":
+          return "confirmationEmailDesignEn";
+        case "de":
+          return "confirmationEmailDesignDe";
+        default:
+          return "confirmationEmailDesign";
+      }
+    } else if (variant === "withDog") {
+      switch (selectedLocale) {
+        case "en":
+          return "confirmationEmailDesignWithDogEn";
+        case "de":
+          return "confirmationEmailDesignWithDogDe";
+        default:
+          return "confirmationEmailDesignWithDog";
+      }
+    } else {
+      // withoutDog
+      switch (selectedLocale) {
+        case "en":
+          return "confirmationEmailDesignWithoutDogEn";
+        case "de":
+          return "confirmationEmailDesignWithoutDogDe";
+        default:
+          return "confirmationEmailDesignWithoutDog";
+      }
+    }
+  };
+
+  const getCurrentTemplate = (
+    variant: "general" | "withDog" | "withoutDog"
+  ) => {
+    const field = getTemplateField(variant);
+    return settings[field as keyof ConfirmationSettings] as string;
+  };
+
+  const getCurrentDesign = (variant: "general" | "withDog" | "withoutDog") => {
+    const field = getDesignField(variant);
+    return settings[
+      field as keyof ConfirmationSettings
+    ] as UnlayerDesign | null;
+  };
+
+  const updateCurrentTemplate = (
+    variant: "general" | "withDog" | "withoutDog",
+    html: string,
+    design: UnlayerDesign
+  ) => {
+    const templateField = getTemplateField(variant);
+    const designField = getDesignField(variant);
+
+    const newSettings = {
+      ...settings,
+      [templateField]: html,
+      [designField]: design,
+    };
+
+    setSettings(newSettings);
+    handleSaveWithUpdate(newSettings);
+  };
+
+  const getLocaleName = (locale: Locale) => {
+    switch (locale) {
+      case "fr":
+        return "Français";
+      case "en":
+        return "English";
+      case "de":
+        return "Deutsch";
+    }
+  };
+
   if (isLoading && !settings.confirmationEmailTemplate) {
     return (
       <div className="flex items-center justify-center p-8">
@@ -331,6 +593,46 @@ export function ConfirmationManager({ hotelSlug }: ConfirmationManagerProps) {
 
   return (
     <div className="space-y-6">
+      {/* Sélecteur de langue */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <Languages className="h-5 w-5" />
+            Langue du Template
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="flex gap-2">
+            <Button
+              variant={selectedLocale === "fr" ? "default" : "outline"}
+              onClick={() => setSelectedLocale("fr")}
+              className="flex items-center gap-2"
+            >
+              🇫🇷 Français
+            </Button>
+            <Button
+              variant={selectedLocale === "en" ? "default" : "outline"}
+              onClick={() => setSelectedLocale("en")}
+              className="flex items-center gap-2"
+            >
+              🇬🇧 English
+            </Button>
+            <Button
+              variant={selectedLocale === "de" ? "default" : "outline"}
+              onClick={() => setSelectedLocale("de")}
+              className="flex items-center gap-2"
+            >
+              🇩🇪 Deutsch
+            </Button>
+          </div>
+          <p className="text-sm text-muted-foreground mt-3">
+            Créez un email de confirmation pour chaque langue. Les clients
+            recevront automatiquement l&apos;email dans la langue qu&apos;ils
+            ont choisie lors de la réservation.
+          </p>
+        </CardContent>
+      </Card>
+
       <Tabs defaultValue="general" className="w-full">
         <TabsList className="grid w-full grid-cols-4">
           <TabsTrigger value="general">Email Général</TabsTrigger>
@@ -352,22 +654,30 @@ export function ConfirmationManager({ hotelSlug }: ConfirmationManagerProps) {
 
         {/* Template général */}
         <TabsContent value="general" className="space-y-4">
+          <div className="flex justify-end mb-4">
+            <Button
+              onClick={() => propagateToAllLanguages("general")}
+              disabled={
+                isLoading ||
+                (!getCurrentTemplate("general") && !getCurrentDesign("general"))
+              }
+              variant="outline"
+              className="gap-2"
+            >
+              <Copy className="h-4 w-4" />
+              Propager vers toutes les langues
+            </Button>
+          </div>
           <EmailEditor
-            title="Template de Confirmation Général"
+            title={`Template de Confirmation Général (${getLocaleName(selectedLocale)})`}
             description="Template utilisé par défaut pour toutes les confirmations de réservation"
             templateType="general"
-            initialDesign={settings.confirmationEmailDesign || undefined}
-            initialHtml={settings.confirmationEmailTemplate}
+            key={`general-${selectedLocale}`}
+            initialDesign={getCurrentDesign("general") || undefined}
+            initialHtml={getCurrentTemplate("general")}
             mergeTags={defaultMergeTags}
             onSave={async (design, html) => {
-              const newSettings = {
-                ...settings,
-                confirmationEmailDesign: design,
-                confirmationEmailTemplate: html,
-              };
-              setSettings(newSettings);
-              // Sauvegarder automatiquement en base
-              await handleSaveWithUpdate(newSettings);
+              updateCurrentTemplate("general", html, design);
             }}
             testEmail={testEmail}
             onTestEmailChange={setTestEmail}
@@ -379,24 +689,31 @@ export function ConfirmationManager({ hotelSlug }: ConfirmationManagerProps) {
         {/* Template avec chiens */}
         {settings.enableDogOption && (
           <TabsContent value="withDog" className="space-y-4">
+            <div className="flex justify-end mb-4">
+              <Button
+                onClick={() => propagateToAllLanguages("withDog")}
+                disabled={
+                  isLoading ||
+                  (!getCurrentTemplate("withDog") &&
+                    !getCurrentDesign("withDog"))
+                }
+                variant="outline"
+                className="gap-2"
+              >
+                <Copy className="h-4 w-4" />
+                Propager vers toutes les langues
+              </Button>
+            </div>
             <EmailEditor
-              title="Template pour Emplacements Acceptant les Chiens"
+              title={`Template pour Emplacements Acceptant les Chiens (${getLocaleName(selectedLocale)})`}
               description="Template spécialisé pour les réservations d'emplacements acceptant les animaux"
               templateType="withDogs"
-              initialDesign={
-                settings.confirmationEmailDesignWithDog || undefined
-              }
-              initialHtml={settings.confirmationEmailTemplateWithDog}
+              key={`withDog-${selectedLocale}`}
+              initialDesign={getCurrentDesign("withDog") || undefined}
+              initialHtml={getCurrentTemplate("withDog")}
               mergeTags={defaultMergeTags}
               onSave={async (design, html) => {
-                const newSettings = {
-                  ...settings,
-                  confirmationEmailDesignWithDog: design,
-                  confirmationEmailTemplateWithDog: html,
-                };
-                setSettings(newSettings);
-                // Sauvegarder automatiquement en base
-                await handleSaveWithUpdate(newSettings);
+                updateCurrentTemplate("withDog", html, design);
               }}
               testEmail={testEmail}
               onTestEmailChange={setTestEmail}
@@ -406,7 +723,6 @@ export function ConfirmationManager({ hotelSlug }: ConfirmationManagerProps) {
           </TabsContent>
         )}
 
-        {/* Template sans chiens */}
         {/* Paramètres */}
         <TabsContent value="settings" className="space-y-4">
           <Card>
@@ -565,7 +881,7 @@ export function ConfirmationManager({ hotelSlug }: ConfirmationManagerProps) {
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
                   <Copy className="h-5 w-5" />
-                  Copie entre Templates
+                  Copie entre Templates ({getLocaleName(selectedLocale)})
                 </CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
@@ -575,6 +891,7 @@ export function ConfirmationManager({ hotelSlug }: ConfirmationManagerProps) {
                 </p>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  {/* Général → Avec Chiens */}
                   <div className="space-y-3">
                     <h4 className="font-medium">
                       Template Général → Avec Chiens
@@ -586,8 +903,8 @@ export function ConfirmationManager({ hotelSlug }: ConfirmationManagerProps) {
                       onClick={copyGeneralToWithDog}
                       disabled={
                         isLoading ||
-                        (!settings.confirmationEmailTemplate &&
-                          !settings.confirmationEmailDesign)
+                        (!getCurrentTemplate("general") &&
+                          !getCurrentDesign("general"))
                       }
                       variant="outline"
                       className="w-full"
@@ -597,6 +914,7 @@ export function ConfirmationManager({ hotelSlug }: ConfirmationManagerProps) {
                     </Button>
                   </div>
 
+                  {/* Avec Chiens → Général */}
                   <div className="space-y-3">
                     <h4 className="font-medium">
                       Template Avec Chiens → Général
@@ -608,14 +926,60 @@ export function ConfirmationManager({ hotelSlug }: ConfirmationManagerProps) {
                       onClick={copyWithDogToGeneral}
                       disabled={
                         isLoading ||
-                        (!settings.confirmationEmailTemplateWithDog &&
-                          !settings.confirmationEmailDesignWithDog)
+                        (!getCurrentTemplate("withDog") &&
+                          !getCurrentDesign("withDog"))
                       }
                       variant="outline"
                       className="w-full"
                     >
                       <Copy className="h-4 w-4 mr-2" />
                       Copier Chiens → Général
+                    </Button>
+                  </div>
+
+                  {/* Général → Sans Chiens */}
+                  <div className="space-y-3">
+                    <h4 className="font-medium">
+                      Template Général → Sans Chiens
+                    </h4>
+                    <p className="text-sm text-muted-foreground">
+                      Copie le template général vers le template sans chiens
+                    </p>
+                    <Button
+                      onClick={copyGeneralToWithoutDog}
+                      disabled={
+                        isLoading ||
+                        (!getCurrentTemplate("general") &&
+                          !getCurrentDesign("general"))
+                      }
+                      variant="outline"
+                      className="w-full"
+                    >
+                      <Copy className="h-4 w-4 mr-2" />
+                      Copier Général → Sans Chiens
+                    </Button>
+                  </div>
+
+                  {/* Sans Chiens → Général */}
+                  <div className="space-y-3">
+                    <h4 className="font-medium">
+                      Template Sans Chiens → Général
+                    </h4>
+                    <p className="text-sm text-muted-foreground">
+                      Copie le template sans chiens vers le template général
+                    </p>
+                    <Button
+                      onClick={copyWithoutDogToGeneral}
+                      disabled={
+                        isLoading ||
+                        (!getCurrentTemplate("withoutDog") &&
+                          !getCurrentDesign("withoutDog"))
+                      }
+                      variant="outline"
+                      className="w-full"
+                    >
+                      <Copy className="h-4 w-4 mr-2" />
+                      Copier Sans Chiens → Général
                     </Button>
                   </div>
                 </div>

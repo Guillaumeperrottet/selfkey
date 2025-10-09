@@ -41,6 +41,20 @@ export async function GET(request: Request, { params }: Props) {
             confirmationEmailDesign: true,
             confirmationEmailDesignWithDog: true,
             confirmationEmailDesignWithoutDog: true,
+            // English templates
+            confirmationEmailTemplateEn: true,
+            confirmationEmailTemplateWithDogEn: true,
+            confirmationEmailTemplateWithoutDogEn: true,
+            confirmationEmailDesignEn: true,
+            confirmationEmailDesignWithDogEn: true,
+            confirmationEmailDesignWithoutDogEn: true,
+            // German templates
+            confirmationEmailTemplateDe: true,
+            confirmationEmailTemplateWithDogDe: true,
+            confirmationEmailTemplateWithoutDogDe: true,
+            confirmationEmailDesignDe: true,
+            confirmationEmailDesignWithDogDe: true,
+            confirmationEmailDesignWithoutDogDe: true,
             confirmationWhatsappTemplate: true,
             hotelContactEmail: true,
             hotelContactPhone: true,
@@ -106,6 +120,20 @@ export async function POST(request: Request, { params }: Props) {
       confirmationEmailDesign,
       confirmationEmailDesignWithDog,
       confirmationEmailDesignWithoutDog,
+      // English templates
+      confirmationEmailTemplateEn,
+      confirmationEmailTemplateWithDogEn,
+      confirmationEmailTemplateWithoutDogEn,
+      confirmationEmailDesignEn,
+      confirmationEmailDesignWithDogEn,
+      confirmationEmailDesignWithoutDogEn,
+      // German templates
+      confirmationEmailTemplateDe,
+      confirmationEmailTemplateWithDogDe,
+      confirmationEmailTemplateWithoutDogDe,
+      confirmationEmailDesignDe,
+      confirmationEmailDesignWithDogDe,
+      confirmationEmailDesignWithoutDogDe,
       confirmationWhatsappTemplate,
       hotelContactEmail,
       hotelContactPhone,
@@ -171,6 +199,30 @@ export async function POST(request: Request, { params }: Props) {
         confirmationEmailDesignWithDog: confirmationEmailDesignWithDog || null,
         confirmationEmailDesignWithoutDog:
           confirmationEmailDesignWithoutDog || null,
+        // English templates
+        confirmationEmailTemplateEn:
+          confirmationEmailTemplateEn?.trim() || null,
+        confirmationEmailTemplateWithDogEn:
+          confirmationEmailTemplateWithDogEn?.trim() || null,
+        confirmationEmailTemplateWithoutDogEn:
+          confirmationEmailTemplateWithoutDogEn?.trim() || null,
+        confirmationEmailDesignEn: confirmationEmailDesignEn || null,
+        confirmationEmailDesignWithDogEn:
+          confirmationEmailDesignWithDogEn || null,
+        confirmationEmailDesignWithoutDogEn:
+          confirmationEmailDesignWithoutDogEn || null,
+        // German templates
+        confirmationEmailTemplateDe:
+          confirmationEmailTemplateDe?.trim() || null,
+        confirmationEmailTemplateWithDogDe:
+          confirmationEmailTemplateWithDogDe?.trim() || null,
+        confirmationEmailTemplateWithoutDogDe:
+          confirmationEmailTemplateWithoutDogDe?.trim() || null,
+        confirmationEmailDesignDe: confirmationEmailDesignDe || null,
+        confirmationEmailDesignWithDogDe:
+          confirmationEmailDesignWithDogDe || null,
+        confirmationEmailDesignWithoutDogDe:
+          confirmationEmailDesignWithoutDogDe || null,
         confirmationWhatsappTemplate:
           confirmationWhatsappTemplate?.trim() || null,
         hotelContactEmail: hotelContactEmail?.trim() || null,

@@ -13,7 +13,8 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 import { format } from "date-fns";
-import { fr } from "date-fns/locale";
+import { fr, enUS, de } from "date-fns/locale";
+import { useBookingTranslation } from "@/hooks/useBookingTranslation";
 import {
   Select,
   SelectContent,
@@ -82,7 +83,11 @@ export function DateSelector({
   initialHasDog,
   initialPricingOptions = {},
 }: DateSelectorProps) {
+  const { t, locale } = useBookingTranslation();
   const today = new Date().toISOString().split("T")[0];
+
+  // Sélectionner la locale date-fns selon la langue
+  const dateLocale = locale === "fr" ? fr : locale === "de" ? de : enUS;
 
   const [checkInDate, setCheckInDate] = useState(initialCheckInDate || today);
   const [checkOutDate, setCheckOutDate] = useState(initialCheckOutDate || "");
@@ -183,34 +188,32 @@ export function DateSelector({
           (Array.isArray(selectedValue) && selectedValue.length === 0) ||
           (typeof selectedValue === "string" && selectedValue.trim() === "")
         ) {
-          toastUtils.error(`L'option "${option.name}" est obligatoire`);
+          toastUtils.error(t.dates.optionRequired(option.name));
           return;
         }
       }
     }
 
     if (!checkOutDate) {
-      toastUtils.error("Veuillez sélectionner la date de départ");
+      toastUtils.error(t.dates.pleaseSelectCheckout);
       return;
     }
 
     if (checkInDate >= checkOutDate) {
-      toastUtils.error("La date de départ doit être après la date d'arrivée");
+      toastUtils.error(t.dates.checkoutAfterCheckin);
       return;
     }
 
     // Vérifier que la date d'arrivée n'est pas dans le passé
     if (new Date(checkInDate) < new Date(today)) {
-      toastUtils.error("La date d'arrivée ne peut pas être dans le passé");
+      toastUtils.error(t.dates.checkinNotPast);
       return;
     }
 
     // Pour les établissements qui n'autorisent pas les réservations futures,
     // vérifier que la date d'arrivée est bien aujourd'hui
     if (!establishment.allowFutureBookings && checkInDate !== today) {
-      toastUtils.error(
-        "La date d'arrivée doit être aujourd'hui pour cet établissement"
-      );
+      toastUtils.error(t.dates.checkinMustBeToday);
       return;
     }
 
@@ -222,7 +225,7 @@ export function DateSelector({
     );
 
     if (!validation.isValid) {
-      toastUtils.error(validation.error || "Dates invalides");
+      toastUtils.error(validation.error || t.dates.invalidDates);
       return;
     }
 
@@ -239,7 +242,7 @@ export function DateSelector({
         selectedPricingOptions
       );
     } catch {
-      toastUtils.error("Erreur lors de la validation des dates");
+      toastUtils.error(t.dates.dateValidationError);
     } finally {
       setLoading(false);
     }
@@ -258,7 +261,7 @@ export function DateSelector({
     if (pricingOptionsLoading) {
       return (
         <div className="space-y-4">
-          <h3 className="text-lg font-semibold">Chargement des options...</h3>
+          <h3 className="text-lg font-semibold">{t.dates.loadingOptions}</h3>
         </div>
       );
     }
@@ -292,7 +295,7 @@ export function DateSelector({
                 }
               >
                 <SelectTrigger>
-                  <SelectValue placeholder="Sélectionnez une option" />
+                  <SelectValue placeholder={t.dates.selectOption} />
                 </SelectTrigger>
                 <SelectContent>
                   {option.values.map((optionValue) => (
@@ -391,7 +394,7 @@ export function DateSelector({
       <CardHeader>
         <CardTitle className="flex items-center gap-2 text-xl md:text-2xl">
           <Calendar className="h-6 w-6" />
-          Dates de séjour / Stay Dates
+          {t.dates.stayDates}
         </CardTitle>
       </CardHeader>
       <CardContent className="space-y-4">
@@ -401,12 +404,12 @@ export function DateSelector({
             <AlertTriangle className="h-5 w-5 text-red-600 mt-0.5 flex-shrink-0" />
             <div className="space-y-1">
               <p className="text-base font-medium text-red-800">
-                Réservations fermées / Bookings Closed
+                {t.dates.bookingsClosed}
               </p>
               <p className="text-base text-red-700">{cutoffResult.message}</p>
               {cutoffResult.nextAvailableTime && (
                 <p className="text-sm text-red-600">
-                  Prochaine ouverture / Next opening:{" "}
+                  {t.dates.nextOpening}{" "}
                   {formatTimeForDisplay(cutoffResult.nextAvailableTime)}
                 </p>
               )}
@@ -422,8 +425,7 @@ export function DateSelector({
               <Clock className="h-5 w-5 text-blue-600 mt-0.5 flex-shrink-0" />
               <div>
                 <p className="text-base font-medium text-blue-800">
-                  Réservations ouvertes jusqu&apos;à {establishment.cutoffTime}{" "}
-                  / Bookings open until {establishment.cutoffTime}
+                  {t.dates.bookingsOpenUntil(establishment.cutoffTime)}
                 </p>
                 <p className="text-sm text-blue-600">{cutoffResult.message}</p>
               </div>
@@ -436,7 +438,7 @@ export function DateSelector({
               htmlFor="checkIn"
               className="text-base md:text-lg font-medium"
             >
-              Check-in Date
+              {t.dates.checkIn}
             </Label>
             <Input
               id="checkIn"
@@ -449,11 +451,7 @@ export function DateSelector({
                   ? "bg-gray-50 cursor-not-allowed opacity-60"
                   : ""
               }`}
-              title={
-                establishment.allowFutureBookings
-                  ? "Sélectionnez votre date d'arrivée"
-                  : "La date d'arrivée est fixée à aujourd'hui - les réservations futures ne sont pas autorisées"
-              }
+              title={t.dates.selectCheckIn}
               min={today}
               max={
                 establishment.allowFutureBookings
@@ -471,7 +469,7 @@ export function DateSelector({
               htmlFor="checkOut"
               className="text-base md:text-lg font-medium"
             >
-              Check-out Date
+              {t.dates.checkOut}
             </Label>
             <Popover open={isCalendarOpen} onOpenChange={setIsCalendarOpen}>
               <PopoverTrigger asChild>
@@ -483,10 +481,10 @@ export function DateSelector({
                   <CalendarIcon className="mr-2 h-4 w-4" />
                   {checkOutDate ? (
                     format(new Date(checkOutDate), "EEEE dd MMMM yyyy", {
-                      locale: fr,
+                      locale: dateLocale,
                     })
                   ) : (
-                    <span>Sélectionnez une date</span>
+                    <span>{t.dates.selectCheckOut}</span>
                   )}
                 </Button>
               </PopoverTrigger>
@@ -615,7 +613,7 @@ export function DateSelector({
               htmlFor="hasDog"
               className="text-base md:text-lg font-medium text-gray-700 flex items-center cursor-pointer"
             >
-              🐕 Avec chien / With dog
+              🐕 {t.dates.dogOption}
             </label>
           </div>
         )}
@@ -626,10 +624,7 @@ export function DateSelector({
         {duration > 0 && (
           <div className="flex items-center gap-2 text-base md:text-lg text-gray-700">
             <Clock className="h-5 w-5" />
-            <span>
-              {duration} nuit
-              {duration > 1 ? "s" : ""} / night{duration > 1 ? "s" : ""}
-            </span>
+            <span>{t.dates.nights(duration)}</span>
           </div>
         )}
 
@@ -640,10 +635,10 @@ export function DateSelector({
           size="lg"
         >
           {cutoffResult.isAfterCutoff
-            ? "Réservations fermées / Bookings Closed"
+            ? t.dates.bookingsClosed
             : loading
-              ? "Validation en cours... / Validating..."
-              : "Rechercher / Search "}
+              ? t.dates.validating
+              : t.dates.search}
         </Button>
       </CardContent>
     </Card>

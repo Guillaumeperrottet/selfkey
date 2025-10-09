@@ -39,7 +39,8 @@ export async function POST(
       clientVehicleNumber,
       expectedPrice,
       selectedPricingOptions,
-      hasDog, // Ajout du champ hasDog
+      hasDog, // Champ pour indiquer si le client a un chien
+      bookingLocale, // Langue choisie par l'utilisateur
     } = body;
 
     // Validation des données
@@ -319,7 +320,8 @@ export async function POST(
         selected_pricing_options: JSON.stringify(selectedPricingOptions || {}),
         pricing_options_total: validatedPricingOptionsTotal.toString(),
         tourist_tax_total: touristTaxCalculation.totalTax.toString(),
-        has_dog: hasDog ? "true" : "false", // Ajout de hasDog dans les metadata
+        has_dog: hasDog ? "true" : "false", // Si le client a un chien
+        booking_locale: bookingLocale || "fr", // Langue choisie
       }
     );
 

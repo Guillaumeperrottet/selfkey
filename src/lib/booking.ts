@@ -49,6 +49,7 @@ export async function createBooking(
         platformCommission,
         ownerAmount,
         hasDog: bookingData.hasDog || false,
+        bookingLocale: bookingData.bookingLocale || "fr",
       },
     });
     return booking;
@@ -133,6 +134,7 @@ export async function createBooking(
       platformCommission,
       ownerAmount,
       hasDog: bookingData.hasDog || false,
+      bookingLocale: bookingData.bookingLocale || "fr",
     },
   });
 

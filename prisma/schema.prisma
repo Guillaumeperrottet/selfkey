@@ -156,11 +156,26 @@ model Establishment {
   localImpactTitle                    String?                 @default("L'impact de votre séjour")
   localImpactDescription              String?                 // Description personnalisée de l'impact local
   touristTaxImpactMessage             String?                 // Message sur l'utilisation de la taxe de séjour
+  // Templates d'emails en français (par défaut)
   confirmationEmailTemplateWithDog    String?
   confirmationEmailTemplateWithoutDog String?
   confirmationEmailDesign             Json?
   confirmationEmailDesignWithDog      Json?
   confirmationEmailDesignWithoutDog   Json?
+  // Templates d'emails en anglais
+  confirmationEmailTemplateEn         String?
+  confirmationEmailTemplateWithDogEn  String?
+  confirmationEmailTemplateWithoutDogEn String?
+  confirmationEmailDesignEn           Json?
+  confirmationEmailDesignWithDogEn    Json?
+  confirmationEmailDesignWithoutDogEn Json?
+  // Templates d'emails en allemand
+  confirmationEmailTemplateDe         String?
+  confirmationEmailTemplateWithDogDe  String?
+  confirmationEmailTemplateWithoutDogDe String?
+  confirmationEmailDesignDe           Json?
+  confirmationEmailDesignWithDogDe    Json?
+  confirmationEmailDesignWithoutDogDe Json?
   hidePlatformFees                    Boolean                 @default(false)
   users                               UserEstablishment[]
   bookings                            Booking[]
@@ -231,6 +246,7 @@ model Booking {
   emailConfirmation      Boolean       @default(true)
   touristTaxTotal        Float         @default(0)
   hasDog                 Boolean       @default(false)
+  bookingLocale          String        @default("fr") // Langue choisie lors de la réservation: "fr", "en", "de"
   establishment          Establishment @relation(fields: [hotelSlug], references: [slug])
   room                   Room?         @relation(fields: [roomId], references: [id])
   invoice                Invoice?
