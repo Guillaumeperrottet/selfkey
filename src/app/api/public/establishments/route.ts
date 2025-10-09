@@ -21,6 +21,7 @@ export async function GET() {
         mapTitle: true,
         mapDescription: true,
         mapImage: true,
+        isPubliclyVisible: true,
       },
     });
 
@@ -38,6 +39,7 @@ export async function GET() {
         establishment.mapDescription ||
         `Emplacement de camping à ${establishment.city}`, // Description personnalisée ou par défaut
       image: establishment.mapImage || "/background-selfcamp.jpg", // Image personnalisée ou par défaut
+      isPubliclyVisible: establishment.isPubliclyVisible || false,
     }));
 
     return NextResponse.json(formattedEstablishments);

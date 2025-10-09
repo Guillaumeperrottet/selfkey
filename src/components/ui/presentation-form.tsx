@@ -8,6 +8,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Checkbox } from "@/components/ui/checkbox";
 import { ImageUpload } from "@/components/ui/image-upload";
+import { PdfUpload } from "@/components/ui/pdf-upload";
 import {
   MapPin,
   Search,
@@ -61,8 +62,28 @@ interface PresentationData {
     type: string;
     distance: string;
     description?: string;
+    website?: string;
+    mapsUrl?: string;
+    image?: string;
+    documents?: Array<{
+      name: string;
+      url: string;
+    }>;
   }>;
   isPubliclyVisible?: boolean;
+
+  // Horaires
+  is24h7Access?: boolean;
+  checkInStartTime?: string;
+  checkInEndTime?: string;
+  checkOutTime?: string;
+  accessRestrictions?: string;
+
+  // Impact local
+  showLocalImpact?: boolean;
+  localImpactTitle?: string;
+  localImpactDescription?: string;
+  touristTaxImpactMessage?: string;
 }
 
 interface PresentationFormProps {
@@ -120,6 +141,20 @@ export function PresentationForm({
     presentationNearbyBusinesses:
       initialData?.presentationNearbyBusinesses || [],
     isPubliclyVisible: initialData?.isPubliclyVisible ?? false,
+
+    // Horaires
+    is24h7Access: initialData?.is24h7Access ?? true,
+    checkInStartTime: initialData?.checkInStartTime || "",
+    checkInEndTime: initialData?.checkInEndTime || "",
+    checkOutTime: initialData?.checkOutTime || "",
+    accessRestrictions: initialData?.accessRestrictions || "",
+
+    // Impact local
+    showLocalImpact: initialData?.showLocalImpact ?? false,
+    localImpactTitle:
+      initialData?.localImpactTitle || "L'impact de votre séjour",
+    localImpactDescription: initialData?.localImpactDescription || "",
+    touristTaxImpactMessage: initialData?.touristTaxImpactMessage || "",
   });
 
   const [isGeocoding, setIsGeocoding] = useState(false);
@@ -127,6 +162,9 @@ export function PresentationForm({
   const [activeTab, setActiveTab] = useState<"location" | "presentation">(
     "location"
   );
+  const [businessDocNames, setBusinessDocNames] = useState<
+    Record<number, string>
+  >({});
 
   const handleInputChange = (
     field: string,
@@ -213,6 +251,15 @@ export function PresentationForm({
             presentationDocuments: formData.presentationDocuments,
             presentationNearbyBusinesses: formData.presentationNearbyBusinesses,
             isPubliclyVisible: formData.isPubliclyVisible,
+            is24h7Access: formData.is24h7Access,
+            checkInStartTime: formData.checkInStartTime || null,
+            checkInEndTime: formData.checkInEndTime || null,
+            checkOutTime: formData.checkOutTime || null,
+            accessRestrictions: formData.accessRestrictions || null,
+            showLocalImpact: formData.showLocalImpact,
+            localImpactTitle: formData.localImpactTitle || null,
+            localImpactDescription: formData.localImpactDescription || null,
+            touristTaxImpactMessage: formData.touristTaxImpactMessage || null,
           }),
         }
       );
@@ -288,7 +335,11 @@ export function PresentationForm({
     }));
   };
 
-  const updateBusiness = (index: number, field: string, value: string) => {
+  const updateBusiness = (
+    index: number,
+    field: string,
+    value: string | Array<{ name: string; url: string }>
+  ) => {
     setFormData((prev) => ({
       ...prev,
       presentationNearbyBusinesses: prev.presentationNearbyBusinesses.map(
@@ -463,7 +514,7 @@ export function PresentationForm({
 
                 <div className="space-y-4">
                   <div>
-                    <Label htmlFor="mapTitle">Titre affiché (optionnel)</Label>
+                    <Label htmlFor="mapTitle">Titre affiché</Label>
                     <Input
                       id="mapTitle"
                       value={formData.mapTitle}
@@ -475,9 +526,7 @@ export function PresentationForm({
                   </div>
 
                   <div>
-                    <Label htmlFor="mapDescription">
-                      Description brève (optionnel)
-                    </Label>
+                    <Label htmlFor="mapDescription">Description brève</Label>
                     <Textarea
                       id="mapDescription"
                       value={formData.mapDescription}
@@ -490,7 +539,7 @@ export function PresentationForm({
                   </div>
 
                   <div>
-                    <Label>Image pour la carte (optionnel)</Label>
+                    <Label>Image pour la carte</Label>
                     <ImageUpload
                       value={formData.mapImage}
                       onChange={(value) => handleInputChange("mapImage", value)}
@@ -529,6 +578,138 @@ export function PresentationForm({
                   Cette page détaillée sera accessible depuis la carte. Les
                   visiteurs pourront voir toutes les informations ci-dessous
                   avant de réserver.
+                </p>
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Horaires d'arrivée et de départ */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <MapPin className="h-5 w-5" />
+                Horaires d&apos;arrivée et de départ
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-6">
+              {/* Checkbox Accès 24h/24 */}
+              <div className="p-4 bg-green-50 rounded-lg border border-green-200">
+                <div className="flex items-center space-x-2">
+                  <Checkbox
+                    id="is24h7Access"
+                    checked={formData.is24h7Access}
+                    onCheckedChange={(checked) =>
+                      handleInputChange("is24h7Access", checked === true)
+                    }
+                  />
+                  <Label
+                    htmlFor="is24h7Access"
+                    className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                  >
+                    Accès 24h/24 et 7j/7
+                  </Label>
+                </div>
+                <p className="text-xs text-gray-600 mt-1 ml-6">
+                  Les clients peuvent arriver et partir à n&apos;importe quelle
+                  heure
+                </p>
+              </div>
+
+              {/* Horaires (affichés uniquement si pas 24h/24) */}
+              {!formData.is24h7Access && (
+                <>
+                  <p className="text-sm text-gray-600">
+                    Définissez les heures pendant lesquelles les clients peuvent
+                    arriver et partir.
+                  </p>
+
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    {/* Début arrivée */}
+                    <div className="space-y-2">
+                      <Label htmlFor="checkInStartTime">
+                        Arrivée à partir de
+                      </Label>
+                      <Input
+                        id="checkInStartTime"
+                        type="time"
+                        value={formData.checkInStartTime}
+                        onChange={(e) =>
+                          handleInputChange("checkInStartTime", e.target.value)
+                        }
+                        placeholder="08:00"
+                      />
+                      <p className="text-xs text-gray-500">
+                        Heure d&apos;ouverture
+                      </p>
+                    </div>
+
+                    {/* Fin arrivée */}
+                    <div className="space-y-2">
+                      <Label htmlFor="checkInEndTime">
+                        Arrivée jusqu&apos;à
+                      </Label>
+                      <Input
+                        id="checkInEndTime"
+                        type="time"
+                        value={formData.checkInEndTime}
+                        onChange={(e) =>
+                          handleInputChange("checkInEndTime", e.target.value)
+                        }
+                        placeholder="22:00"
+                      />
+                      <p className="text-xs text-gray-500">
+                        Dernière heure d&apos;arrivée
+                      </p>
+                    </div>
+
+                    {/* Heure de départ */}
+                    <div className="space-y-2">
+                      <Label htmlFor="checkOutTime">Départ avant</Label>
+                      <Input
+                        id="checkOutTime"
+                        type="time"
+                        value={formData.checkOutTime}
+                        onChange={(e) =>
+                          handleInputChange("checkOutTime", e.target.value)
+                        }
+                        placeholder="12:00"
+                      />
+                      <p className="text-xs text-gray-500">Heure limite</p>
+                    </div>
+                  </div>
+
+                  {formData.checkInStartTime && formData.checkInEndTime && (
+                    <div className="mt-4 p-3 bg-blue-50 rounded-lg border border-blue-200">
+                      <p className="text-sm text-blue-900">
+                        📅 Arrivées possibles de{" "}
+                        <strong>{formData.checkInStartTime}</strong> à{" "}
+                        <strong>{formData.checkInEndTime}</strong>
+                        {formData.checkOutTime &&
+                          ` • Départ avant ${formData.checkOutTime}`}
+                      </p>
+                    </div>
+                  )}
+                </>
+              )}
+
+              {/* Champ texte libre pour restrictions (toujours visible) */}
+              <div className="space-y-2">
+                <Label htmlFor="accessRestrictions">
+                  Restrictions d&apos;accès (optionnel)
+                </Label>
+                <Textarea
+                  id="accessRestrictions"
+                  value={formData.accessRestrictions}
+                  onChange={(e) =>
+                    handleInputChange("accessRestrictions", e.target.value)
+                  }
+                  placeholder="Ex: Fermé le mercredi, Barrière fermée de 22h à 8h, etc."
+                  rows={3}
+                  className="resize-none"
+                />
+                <p className="text-xs text-gray-500">
+                  Informations supplémentaires sur les restrictions d&apos;accès
+                  ou fermetures spécifiques
                 </p>
               </div>
             </CardContent>
@@ -711,29 +892,40 @@ export function PresentationForm({
                           <Trash2 className="h-4 w-4 text-red-500" />
                         </Button>
                       </div>
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+
+                      <div>
+                        <Label>Nom du document</Label>
                         <Input
-                          placeholder="Nom du document"
+                          placeholder="Ex: Règlement intérieur, Tarifs..."
                           value={doc.name}
                           onChange={(e) =>
                             updateDocument(index, "name", e.target.value)
                           }
                         />
-                        <Input
-                          placeholder="URL du document"
+                      </div>
+
+                      <div>
+                        <Label>Fichier PDF</Label>
+                        <PdfUpload
                           value={doc.url}
-                          onChange={(e) =>
-                            updateDocument(index, "url", e.target.value)
+                          onChange={(url) => updateDocument(index, "url", url)}
+                          fileName={doc.name}
+                          onFileNameChange={(name) =>
+                            updateDocument(index, "name", name)
                           }
                         />
                       </div>
-                      <Input
-                        placeholder="Description (optionnel)"
-                        value={doc.description}
-                        onChange={(e) =>
-                          updateDocument(index, "description", e.target.value)
-                        }
-                      />
+
+                      <div>
+                        <Label>Description (optionnel)</Label>
+                        <Input
+                          placeholder="Description du document"
+                          value={doc.description}
+                          onChange={(e) =>
+                            updateDocument(index, "description", e.target.value)
+                          }
+                        />
+                      </div>
                     </div>
                   ))}
                   <Button
@@ -802,6 +994,114 @@ export function PresentationForm({
                             updateBusiness(index, "description", e.target.value)
                           }
                         />
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                          <div>
+                            <Label className="text-xs text-gray-600 mb-1">
+                              Site web (optionnel)
+                            </Label>
+                            <Input
+                              placeholder="https://..."
+                              value={business.website || ""}
+                              onChange={(e) =>
+                                updateBusiness(index, "website", e.target.value)
+                              }
+                            />
+                          </div>
+                          <div>
+                            <Label className="text-xs text-gray-600 mb-1">
+                              Lien Google Maps (optionnel)
+                            </Label>
+                            <Input
+                              placeholder="https://maps.google.com/..."
+                              value={business.mapsUrl || ""}
+                              onChange={(e) =>
+                                updateBusiness(index, "mapsUrl", e.target.value)
+                              }
+                            />
+                          </div>
+                        </div>
+
+                        <div>
+                          <Label className="text-xs text-gray-600 mb-1">
+                            Image (optionnel)
+                          </Label>
+                          <ImageUpload
+                            value={business.image || ""}
+                            onChange={(url) =>
+                              updateBusiness(index, "image", url)
+                            }
+                          />
+                        </div>
+
+                        {/* Documents du commerce */}
+                        <div>
+                          <Label className="text-xs text-gray-600 mb-2">
+                            Documents (menu, brochure...) - Optionnel
+                          </Label>
+                          {business.documents &&
+                            business.documents.length > 0 && (
+                              <div className="space-y-2 mb-3">
+                                {business.documents.map((doc, docIndex) => (
+                                  <div
+                                    key={docIndex}
+                                    className="flex items-center gap-2 p-2 bg-gray-50 rounded border"
+                                  >
+                                    <FileText className="h-4 w-4 text-gray-600" />
+                                    <span className="text-sm flex-1 truncate">
+                                      {doc.name}
+                                    </span>
+                                    <Button
+                                      type="button"
+                                      variant="ghost"
+                                      size="sm"
+                                      onClick={() => {
+                                        const newDocs = [
+                                          ...(business.documents || []),
+                                        ];
+                                        newDocs.splice(docIndex, 1);
+                                        updateBusiness(
+                                          index,
+                                          "documents",
+                                          newDocs
+                                        );
+                                      }}
+                                    >
+                                      <Trash2 className="h-3 w-3 text-red-500" />
+                                    </Button>
+                                  </div>
+                                ))}
+                              </div>
+                            )}
+                          <div className="space-y-2">
+                            <Input
+                              placeholder="Nom du document"
+                              value={businessDocNames[index] || ""}
+                              onChange={(e) => {
+                                setBusinessDocNames((prev) => ({
+                                  ...prev,
+                                  [index]: e.target.value,
+                                }));
+                              }}
+                            />
+                            <PdfUpload
+                              value=""
+                              onChange={(url) => {
+                                const docName =
+                                  businessDocNames[index] || "Document";
+                                const newDocs = [
+                                  ...(business.documents || []),
+                                  { name: docName, url },
+                                ];
+                                updateBusiness(index, "documents", newDocs);
+                                // Reset le nom après ajout
+                                setBusinessDocNames((prev) => ({
+                                  ...prev,
+                                  [index]: "",
+                                }));
+                              }}
+                            />
+                          </div>
+                        </div>
                       </div>
                     )
                   )}
@@ -813,6 +1113,133 @@ export function PresentationForm({
                     <Plus className="h-4 w-4 mr-2" />
                     Ajouter un commerce
                   </Button>
+                </CardContent>
+              </Card>
+
+              {/* Impact local et taxe de séjour */}
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    💚 Impact Territorial
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div className="flex items-start space-x-3 p-4 bg-green-50 border border-green-100 rounded-lg">
+                    <Checkbox
+                      id="showLocalImpact"
+                      checked={formData.showLocalImpact}
+                      onCheckedChange={(checked) =>
+                        handleInputChange("showLocalImpact", checked === true)
+                      }
+                    />
+                    <div className="flex-1">
+                      <Label
+                        htmlFor="showLocalImpact"
+                        className="font-semibold cursor-pointer"
+                      >
+                        Afficher l&apos;encart &quot;Impact de votre
+                        séjour&quot;
+                      </Label>
+                      <p className="text-sm text-gray-600 mt-1">
+                        Mettez en avant l&apos;impact positif de la taxe de
+                        séjour et les avantages pour les visiteurs
+                      </p>
+                    </div>
+                  </div>
+
+                  {formData.showLocalImpact && (
+                    <div className="space-y-4 pl-4 border-l-4 border-green-200">
+                      <div>
+                        <Label htmlFor="localImpactTitle">
+                          Titre de l&apos;encart
+                        </Label>
+                        <Input
+                          id="localImpactTitle"
+                          placeholder="L'impact de votre séjour"
+                          value={formData.localImpactTitle}
+                          onChange={(e) =>
+                            handleInputChange(
+                              "localImpactTitle",
+                              e.target.value
+                            )
+                          }
+                        />
+                        <p className="text-xs text-gray-500 mt-1">
+                          Par défaut : &quot;L&apos;impact de votre séjour&quot;
+                        </p>
+                      </div>
+
+                      <div>
+                        <Label htmlFor="touristTaxImpactMessage">
+                          Message sur la taxe de séjour{" "}
+                          <span className="text-red-500">*</span>
+                        </Label>
+                        <Textarea
+                          id="touristTaxImpactMessage"
+                          placeholder="Exemple : Votre taxe de séjour de 2.50 CHF soutient l'économie locale et vous donne accès à des avantages exclusifs."
+                          value={formData.touristTaxImpactMessage}
+                          onChange={(e) =>
+                            handleInputChange(
+                              "touristTaxImpactMessage",
+                              e.target.value
+                            )
+                          }
+                          rows={3}
+                          className="resize-none"
+                        />
+                        <p className="text-xs text-gray-500 mt-1">
+                          Expliquez brièvement l&apos;utilisation de la taxe de
+                          séjour
+                        </p>
+                      </div>
+
+                      <div>
+                        <Label htmlFor="localImpactDescription">
+                          Liste des avantages{" "}
+                          <span className="text-red-500">*</span>
+                        </Label>
+                        <Textarea
+                          id="localImpactDescription"
+                          placeholder={`Exemple :\n✓ -10% chez Boulangerie du Village\n✓ Café offert au Restaurant du Lac\n✓ Accès gratuit à la piscine publique\n✓ Guide touristique numérique gratuit`}
+                          value={formData.localImpactDescription}
+                          onChange={(e) =>
+                            handleInputChange(
+                              "localImpactDescription",
+                              e.target.value
+                            )
+                          }
+                          rows={6}
+                          className="resize-none font-mono text-sm"
+                        />
+                        <p className="text-xs text-gray-500 mt-1">
+                          Listez les avantages concrets. Utilisez ✓ ou • pour
+                          les puces
+                        </p>
+                      </div>
+
+                      <div className="bg-blue-50 border border-blue-100 rounded-lg p-4">
+                        <h4 className="font-semibold text-sm text-blue-900 mb-2">
+                          💡 Aperçu
+                        </h4>
+                        <div className="bg-[#F5F5F0] rounded-xl p-6 border border-[#E5E5DD]">
+                          <h3 className="text-lg font-bold text-[#84994F] mb-3 text-center">
+                            {formData.localImpactTitle ||
+                              "L'impact de votre séjour"}
+                          </h3>
+                          {formData.touristTaxImpactMessage && (
+                            <p className="text-gray-700 text-sm mb-4 text-center">
+                              {formData.touristTaxImpactMessage}
+                            </p>
+                          )}
+                          {formData.localImpactDescription && (
+                            <div className="text-gray-700 text-sm whitespace-pre-line">
+                              {formData.localImpactDescription}
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                  )}
                 </CardContent>
               </Card>
             </>

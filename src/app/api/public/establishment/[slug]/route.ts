@@ -41,6 +41,19 @@ export async function GET(
         presentationDocuments: true,
         presentationNearbyBusinesses: true,
 
+        // Horaires
+        is24h7Access: true,
+        checkInStartTime: true,
+        checkInEndTime: true,
+        checkOutTime: true,
+        accessRestrictions: true,
+
+        // Impact local
+        showLocalImpact: true,
+        localImpactTitle: true,
+        localImpactDescription: true,
+        touristTaxImpactMessage: true,
+
         // Infos de la carte (fallback si pas de présentation)
         mapTitle: true,
         mapDescription: true,
@@ -79,6 +92,19 @@ export async function GET(
       phone: establishment.presentationPhone,
       documents: establishment.presentationDocuments || [],
       nearbyBusinesses: establishment.presentationNearbyBusinesses || [],
+
+      // Horaires
+      is24h7Access: establishment.is24h7Access,
+      checkInStartTime: establishment.checkInStartTime,
+      checkInEndTime: establishment.checkInEndTime,
+      checkOutTime: establishment.checkOutTime,
+      accessRestrictions: establishment.accessRestrictions,
+
+      // Impact local
+      showLocalImpact: establishment.showLocalImpact,
+      localImpactTitle: establishment.localImpactTitle,
+      localImpactDescription: establishment.localImpactDescription,
+      touristTaxImpactMessage: establishment.touristTaxImpactMessage,
     };
 
     return NextResponse.json(publicData);

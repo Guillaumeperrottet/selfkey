@@ -147,6 +147,15 @@ model Establishment {
   presentationDocuments               Json?
   presentationNearbyBusinesses        Json?
   isPubliclyVisible                   Boolean                 @default(false)
+  is24h7Access                        Boolean                 @default(true) // Accès 24h/24
+  checkInStartTime                    String?                 // Heure de début d'arrivée (ex: "08:00")
+  checkInEndTime                      String?                 // Heure de fin d'arrivée (ex: "22:00")
+  checkOutTime                        String?                 // Heure de départ (ex: "12:00")
+  accessRestrictions                  String?                 // Notes sur les restrictions (ex: "Fermé le mercredi")
+  showLocalImpact                     Boolean                 @default(false) // Afficher l'encart "Impact de votre séjour"
+  localImpactTitle                    String?                 @default("L'impact de votre séjour")
+  localImpactDescription              String?                 // Description personnalisée de l'impact local
+  touristTaxImpactMessage             String?                 // Message sur l'utilisation de la taxe de séjour
   confirmationEmailTemplateWithDog    String?
   confirmationEmailTemplateWithoutDog String?
   confirmationEmailDesign             Json?

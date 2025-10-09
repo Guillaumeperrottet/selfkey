@@ -80,8 +80,26 @@ export default async function LocationPage({
                   type: string;
                   distance: string;
                   description?: string;
+                  website?: string;
+                  mapsUrl?: string;
+                  image?: string;
+                  documents?: Array<{
+                    name: string;
+                    url: string;
+                  }>;
                 }>) || [],
               isPubliclyVisible: establishment.isPubliclyVisible,
+              is24h7Access: establishment.is24h7Access,
+              checkInStartTime: establishment.checkInStartTime || "",
+              checkInEndTime: establishment.checkInEndTime || "",
+              checkOutTime: establishment.checkOutTime || "",
+              accessRestrictions: establishment.accessRestrictions || "",
+              showLocalImpact: establishment.showLocalImpact,
+              localImpactTitle: establishment.localImpactTitle || "",
+              localImpactDescription:
+                establishment.localImpactDescription || "",
+              touristTaxImpactMessage:
+                establishment.touristTaxImpactMessage || "",
             }}
           />
         </div>

@@ -37,6 +37,15 @@ export async function PATCH(
       presentationDocuments,
       presentationNearbyBusinesses,
       isPubliclyVisible,
+      is24h7Access,
+      checkInStartTime,
+      checkInEndTime,
+      checkOutTime,
+      accessRestrictions,
+      showLocalImpact,
+      localImpactTitle,
+      localImpactDescription,
+      touristTaxImpactMessage,
     } = await request.json();
 
     // Vérifier que l'utilisateur est propriétaire de l'établissement
@@ -81,6 +90,15 @@ export async function PATCH(
         presentationDocuments,
         presentationNearbyBusinesses,
         isPubliclyVisible,
+        is24h7Access,
+        checkInStartTime,
+        checkInEndTime,
+        checkOutTime,
+        accessRestrictions,
+        showLocalImpact,
+        localImpactTitle,
+        localImpactDescription,
+        touristTaxImpactMessage,
       },
     });
 

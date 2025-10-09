@@ -4,7 +4,6 @@ import { useCallback, useState } from "react";
 import { useDropzone } from "react-dropzone";
 import Image from "next/image";
 import { Button } from "@/components/ui/button";
-import { Label } from "@/components/ui/label";
 import { Upload, Camera, X, Image as ImageIcon } from "lucide-react";
 import { toast } from "sonner";
 
@@ -88,8 +87,6 @@ export function ImageUpload({ value, onChange }: ImageUploadProps) {
 
   return (
     <div className="space-y-4">
-      <Label>Image pour la carte</Label>
-
       {preview && (
         <div className="relative">
           <Image

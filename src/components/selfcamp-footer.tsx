@@ -69,6 +69,22 @@ export function SelfcampFooter() {
                   </Link>
                 </div>
                 <div>
+                  <Link
+                    href="/about"
+                    className="hover:text-[#84994F] transition-colors"
+                  >
+                    A propos de SelfCamp
+                  </Link>
+                </div>
+                <div>
+                  <Link
+                    href="/contact"
+                    className="hover:text-[#84994F] transition-colors"
+                  >
+                    Contactez-nous
+                  </Link>
+                </div>
+                <div>
                   <a
                     href={DOMAINS.SELFKEY}
                     className="text-[#84994F] hover:text-[#6d7d3f] transition-colors duration-300"

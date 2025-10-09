@@ -270,20 +270,42 @@ const EstablishmentMarker = ({
         className="mobile-popup"
       >
         <div className={`${mobile ? "overflow-hidden" : "p-3"}`}>
-          {/* Image de l'établissement */}
+          {/* Image de l'établissement - cliquable si page publique disponible */}
           {establishment.image && (
             <div className={`${mobile ? "mb-3 -mx-3 -mt-3" : "mb-3"}`}>
-              <Image
-                src={establishment.image}
-                alt={establishment.name}
-                width={320}
-                height={mobile ? 100 : 96}
-                className={`w-full ${mobile ? "h-[100px]" : "h-24 rounded-lg"} object-cover`}
-                onError={(e) => {
-                  // Image de fallback si l'image principale ne charge pas
-                  e.currentTarget.src = "/selfcamp_logo.png";
-                }}
-              />
+              {establishment.isPubliclyVisible ? (
+                <a
+                  href={`/establishment/${establishment.slug}`}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                  }}
+                  className="block"
+                >
+                  <Image
+                    src={establishment.image}
+                    alt={establishment.name}
+                    width={320}
+                    height={mobile ? 100 : 96}
+                    className={`w-full ${mobile ? "h-[100px]" : "h-24 rounded-lg"} object-cover hover:opacity-90 transition-opacity cursor-pointer`}
+                    onError={(e) => {
+                      // Image de fallback si l'image principale ne charge pas
+                      e.currentTarget.src = "/selfcamp_logo.png";
+                    }}
+                  />
+                </a>
+              ) : (
+                <Image
+                  src={establishment.image}
+                  alt={establishment.name}
+                  width={320}
+                  height={mobile ? 100 : 96}
+                  className={`w-full ${mobile ? "h-[100px]" : "h-24 rounded-lg"} object-cover`}
+                  onError={(e) => {
+                    // Image de fallback si l'image principale ne charge pas
+                    e.currentTarget.src = "/selfcamp_logo.png";
+                  }}
+                />
+              )}
             </div>
           )}
           <div className={`${mobile ? "px-3 pb-2" : ""}`}>

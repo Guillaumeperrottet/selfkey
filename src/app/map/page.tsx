@@ -626,15 +626,32 @@ function MapPageContent() {
                   onClick={() => centerMapOnEstablishment(spot)}
                 >
                   <div className="relative h-32 bg-gray-200 overflow-hidden">
-                    <Image
-                      src={spot.image}
-                      alt={spot.name}
-                      width={320}
-                      height={128}
-                      className="w-full h-full object-cover rounded-t-lg"
-                    />
+                    {/* Image cliquable si la page de présentation est disponible */}
+                    {spot.isPubliclyVisible ? (
+                      <Link
+                        href={`/establishment/${spot.slug}`}
+                        onClick={(e) => e.stopPropagation()}
+                        className="block w-full h-full"
+                      >
+                        <Image
+                          src={spot.image}
+                          alt={spot.name}
+                          width={320}
+                          height={128}
+                          className="w-full h-full object-cover rounded-t-lg hover:opacity-90 transition-opacity cursor-pointer"
+                        />
+                      </Link>
+                    ) : (
+                      <Image
+                        src={spot.image}
+                        alt={spot.name}
+                        width={320}
+                        height={128}
+                        className="w-full h-full object-cover rounded-t-lg"
+                      />
+                    )}
                     {/* Badge de disponibilité */}
-                    <div className="absolute top-2 left-2">
+                    <div className="absolute top-2 left-2 pointer-events-none">
                       {availabilityData[spot.slug] ? (
                         <AvailabilityBadge
                           availableRooms={
@@ -676,6 +693,17 @@ function MapPageContent() {
                     <p className="text-gray-700 text-sm mb-3 line-clamp-2">
                       {spot.description}
                     </p>
+
+                    {/* Lien vers la page de présentation si disponible */}
+                    {spot.isPubliclyVisible && (
+                      <Link
+                        href={`/establishment/${spot.slug}`}
+                        className="text-xs text-[#84994F] hover:text-[#6d7d3f] hover:underline transition-colors mb-3 inline-block"
+                        onClick={(e) => e.stopPropagation()}
+                      >
+                        En savoir plus →
+                      </Link>
+                    )}
 
                     <div className="flex justify-between items-center">
                       <div className="flex gap-2">
