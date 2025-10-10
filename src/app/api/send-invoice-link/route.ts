@@ -82,7 +82,7 @@ export async function POST(request: NextRequest) {
               <p><strong>Date :</strong> ${booking.bookingDate.toLocaleDateString("fr-FR")}</p>
               
               <a href="${invoiceDownloadUrl}" class="invoice-button">
-                📥 Télécharger la facture PDF
+                📥 Facture / Rechnung / Invoice PDF
               </a>
               
               <p style="font-size: 12px; color: #666; margin-top: 15px;">

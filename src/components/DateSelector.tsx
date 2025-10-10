@@ -417,21 +417,6 @@ export function DateSelector({
           </div>
         )}
 
-        {/* Info heure limite active */}
-        {establishment.enableCutoffTime &&
-          !cutoffResult.isAfterCutoff &&
-          establishment.cutoffTime && (
-            <div className="flex items-start gap-3 p-4 bg-blue-50 border border-blue-200 rounded-lg">
-              <Clock className="h-5 w-5 text-blue-600 mt-0.5 flex-shrink-0" />
-              <div>
-                <p className="text-base font-medium text-blue-800">
-                  {t.dates.bookingsOpenUntil(establishment.cutoffTime)}
-                </p>
-                <p className="text-sm text-blue-600">{cutoffResult.message}</p>
-              </div>
-            </div>
-          )}
-
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>
             <Label
