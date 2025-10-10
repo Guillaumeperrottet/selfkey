@@ -53,6 +53,7 @@ interface BookingWithDetails {
   dayParkingStartTime: Date | null;
   dayParkingEndTime: Date | null;
   hasDog: boolean | null;
+  bookingLocale: string | null; // Langue de la réservation
   room: {
     id: string;
     name: string;
@@ -66,9 +67,18 @@ interface BookingWithDetails {
     accessCodeType: string;
     confirmationEmailEnabled: boolean;
     confirmationWhatsappEnabled: boolean;
+    // Templates français
     confirmationEmailTemplate: string | null;
     confirmationEmailTemplateWithDog: string | null;
     confirmationEmailTemplateWithoutDog: string | null;
+    // Templates anglais
+    confirmationEmailTemplateEn: string | null;
+    confirmationEmailTemplateWithDogEn: string | null;
+    confirmationEmailTemplateWithoutDogEn: string | null;
+    // Templates allemands
+    confirmationEmailTemplateDe: string | null;
+    confirmationEmailTemplateWithDogDe: string | null;
+    confirmationEmailTemplateWithoutDogDe: string | null;
     confirmationWhatsappTemplate: string | null;
     confirmationEmailFrom: string | null;
     confirmationWhatsappFrom: string | null;
@@ -139,6 +149,7 @@ export async function POST(request: Request, { params }: Props) {
         dayParkingStartTime: true,
         dayParkingEndTime: true,
         hasDog: true,
+        bookingLocale: true, // Langue choisie lors de la réservation
         room: {
           select: {
             id: true,
@@ -158,6 +169,12 @@ export async function POST(request: Request, { params }: Props) {
             confirmationEmailTemplate: true,
             confirmationEmailTemplateWithDog: true,
             confirmationEmailTemplateWithoutDog: true,
+            confirmationEmailTemplateEn: true,
+            confirmationEmailTemplateWithDogEn: true,
+            confirmationEmailTemplateWithoutDogEn: true,
+            confirmationEmailTemplateDe: true,
+            confirmationEmailTemplateWithDogDe: true,
+            confirmationEmailTemplateWithoutDogDe: true,
             confirmationWhatsappTemplate: true,
             confirmationEmailFrom: true,
             confirmationWhatsappFrom: true,

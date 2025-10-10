@@ -7,6 +7,7 @@ import { Badge } from "@/components/ui/badge";
 import { CalendarDays } from "lucide-react";
 import { toastUtils } from "@/lib/toast-utils";
 import { calculateStayDuration } from "@/lib/availability";
+import { useBookingTranslation } from "@/hooks/useBookingTranslation";
 
 interface Room {
   id: string;
@@ -31,6 +32,7 @@ export function RoomSelector({
   onRoomSelected,
   onBack,
 }: RoomSelectorProps) {
+  const { t } = useBookingTranslation();
   const [availableRooms, setAvailableRooms] = useState<Room[]>([]);
   const [selectedRoom, setSelectedRoom] = useState<Room | null>(null);
   const [loading, setLoading] = useState(true);
@@ -58,9 +60,7 @@ export function RoomSelector({
           );
 
           if (!response.ok) {
-            throw new Error(
-              "Erreur lors de la recherche des chambres disponibles"
-            );
+            throw new Error(t.rooms.errorSearching);
           }
 
           const data = await response.json();
@@ -85,9 +85,7 @@ export function RoomSelector({
           }
         } catch (err) {
           toastUtils.error(
-            err instanceof Error
-              ? err.message
-              : "Erreur lors de la recherche des chambres"
+            err instanceof Error ? err.message : t.rooms.errorSearching
           );
         } finally {
           setLoading(false);
@@ -99,7 +97,7 @@ export function RoomSelector({
 
     // Cleanup function pour annuler le timeout si les dépendances changent
     return () => clearTimeout(timeoutId);
-  }, [hotelSlug, checkInDate, checkOutDate, hasDog]);
+  }, [hotelSlug, checkInDate, checkOutDate, hasDog, t]);
 
   const handleRoomSelect = (room: Room) => {
     setSelectedRoom(room);
@@ -128,7 +126,7 @@ export function RoomSelector({
         <CardContent className="flex items-center justify-center p-8">
           <div className="text-center">
             <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto mb-4"></div>
-            <p className="text-gray-600">Recherche des places disponibles...</p>
+            <p className="text-gray-600">{t.rooms.searchingPlaces}</p>
           </div>
         </CardContent>
       </Card>
@@ -141,15 +139,13 @@ export function RoomSelector({
         <div className="flex items-center justify-between">
           <CardTitle className="flex items-center gap-2">
             <CalendarDays className="h-5 w-5" />
-            Available Places
+            {t.rooms.availablePlaces}
             {duration > 0 && (
-              <Badge variant="secondary">
-                {duration} night{duration > 1 ? "s" : ""}
-              </Badge>
+              <Badge variant="secondary">{t.dates.nights(duration)}</Badge>
             )}
           </CardTitle>
           <Button variant="outline" onClick={onBack}>
-            Change dates
+            {t.rooms.changeDates}
           </Button>
         </div>
       </CardHeader>
@@ -157,11 +153,9 @@ export function RoomSelector({
         {availableRooms.length === 0 ? (
           <div className="text-center py-8">
             <div className="text-4xl mb-2">😔</div>
-            <p className="text-gray-600 mb-4">
-              No place available for these dates
-            </p>
+            <p className="text-gray-600 mb-4">{t.rooms.noPlacesAvailable}</p>
             <Button variant="outline" onClick={onBack}>
-              Choose different dates
+              {t.rooms.chooseDifferentDates}
             </Button>
           </div>
         ) : (
@@ -211,7 +205,7 @@ export function RoomSelector({
                   className="w-full"
                   size="lg"
                 >
-                  Continue with {selectedRoom.name}
+                  {t.rooms.continueWith(selectedRoom.name)}
                 </Button>
               </div>
             )}

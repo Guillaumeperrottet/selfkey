@@ -416,7 +416,8 @@ async function createClassicBookingFromMetadata(
         paymentStatus: "succeeded",
         stripePaymentIntentId: paymentIntent.id,
         bookingType: "classic_booking", // Type payment-first pour réservations classiques
-        hasDog: metadata.has_dog === "true", // Ajout de hasDog depuis les metadata
+        hasDog: metadata.has_dog === "true", // Si le client a un chien
+        bookingLocale: metadata.booking_locale || "fr", // Langue choisie
       },
       select: {
         id: true,

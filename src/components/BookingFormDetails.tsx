@@ -24,6 +24,7 @@ import {
   type PricingOption,
 } from "@/lib/pricing-options-calculator";
 import { CompactBookingCart } from "@/components/CompactBookingCart";
+import { useBookingTranslation } from "@/hooks/useBookingTranslation";
 
 interface Room {
   id: string;
@@ -74,6 +75,7 @@ export function BookingFormDetails({
 }: BookingFormDetailsProps) {
   const router = useRouter();
   const { isFieldEnabled, isFieldRequired } = useFormConfig(hotelSlug);
+  const { t, locale } = useBookingTranslation();
 
   // États pour les invités
   const [adults, setAdults] = useState(initialData?.adults || 1);
@@ -307,19 +309,19 @@ export function BookingFormDetails({
     );
 
     if (missingFields.length > 0 || adults < 1) {
-      toastUtils.error("Please fill in all required fields");
+      toastUtils.error(t.validation.requiredFields);
       return;
     }
 
     // Validation email
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(clientEmail)) {
-      toastUtils.error("Please enter a valid email address");
+      toastUtils.error(t.validation.invalidEmail);
       return;
     }
 
     setBookingInProgress(true);
-    const loadingToast = toastUtils.loading("Creating your booking...");
+    const loadingToast = toastUtils.loading(t.messages.creatingBooking);
 
     try {
       const totalPrice =
@@ -357,6 +359,7 @@ export function BookingFormDetails({
         touristTaxPerPersonPerNight: touristTaxAmount,
         guests: adults + children,
         hasDog: hasDog || initialData?.hasDog || false,
+        bookingLocale: locale, // Langue choisie par l'utilisateur
       };
 
       const tempBookingId = `temp_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
@@ -369,9 +372,7 @@ export function BookingFormDetails({
       router.push(`/${hotelSlug}/summary?booking=${tempBookingId}`);
     } catch (err) {
       toastUtils.dismiss(loadingToast);
-      toastUtils.error(
-        err instanceof Error ? err.message : "Error creating booking"
-      );
+      toastUtils.error(err instanceof Error ? err.message : t.messages.error);
     } finally {
       setBookingInProgress(false);
     }
@@ -386,11 +387,11 @@ export function BookingFormDetails({
             onClick={onBack}
             className="text-gray-700 border-gray-300 hover:bg-gray-50"
           >
-            ← Place
+            {t.navigation.back}
           </Button>
           <div className="flex-1 text-center">
             <CardTitle className="text-xl font-medium text-gray-900">
-              Contact details
+              {t.form.contactDetails}
             </CardTitle>
           </div>
           <CompactBookingCart
@@ -410,10 +411,10 @@ export function BookingFormDetails({
           <div className="space-y-4">
             <div>
               <h4 className="font-medium text-gray-900 mb-1">
-                Guest Information
+                {t.form.guestInfo}
               </h4>
               <p className="text-sm text-gray-600">
-                Adults (16+) and children (15-)
+                {t.form.guestInfoDescription}
               </p>
             </div>
 
@@ -423,7 +424,7 @@ export function BookingFormDetails({
                   htmlFor="adults"
                   className="text-sm font-medium text-gray-700"
                 >
-                  Adults *
+                  {t.form.adults} *
                 </Label>
                 <Select
                   value={adults.toString()}
@@ -435,7 +436,8 @@ export function BookingFormDetails({
                   <SelectContent>
                     {[1, 2, 3, 4, 5, 6].map((num) => (
                       <SelectItem key={num} value={num.toString()}>
-                        {num} adult{num > 1 ? "s" : ""}
+                        {num}{" "}
+                        {num > 1 ? t.form.adults.toLowerCase() : t.form.adult}
                       </SelectItem>
                     ))}
                   </SelectContent>
@@ -448,7 +450,7 @@ export function BookingFormDetails({
                     htmlFor="children"
                     className="text-sm font-medium text-gray-700"
                   >
-                    Children
+                    {t.form.children}
                   </Label>
                   <Select
                     value={children.toString()}
@@ -460,7 +462,10 @@ export function BookingFormDetails({
                     <SelectContent>
                       {[0, 1, 2, 3, 4].map((num) => (
                         <SelectItem key={num} value={num.toString()}>
-                          {num} child{num > 1 ? "ren" : ""}
+                          {num}{" "}
+                          {num > 1
+                            ? t.form.children.toLowerCase()
+                            : t.form.child}
                         </SelectItem>
                       ))}
                     </SelectContent>
@@ -472,8 +477,7 @@ export function BookingFormDetails({
             {/* Information taxe de séjour discrète */}
             {touristTaxEnabled && (
               <div className="text-xs text-gray-500 mt-2">
-                ℹ️ Tourist tax: {touristTaxAmount.toFixed(2)} CHF per adult per
-                night (applied at checkout)
+                {t.form.touristTaxInfo(touristTaxAmount.toFixed(2))}
               </div>
             )}
           </div>
@@ -482,10 +486,10 @@ export function BookingFormDetails({
           <div className="space-y-4">
             <div>
               <h4 className="font-medium text-gray-900 mb-1">
-                Personal Information
+                {t.form.personalInfo}
               </h4>
               <p className="text-sm text-gray-600">
-                Required for your booking confirmation
+                {t.form.personalInfoDescription}
               </p>
             </div>
 
@@ -497,7 +501,7 @@ export function BookingFormDetails({
                     htmlFor="clientLastName"
                     className="text-sm font-medium text-gray-700"
                   >
-                    Last Name *
+                    {t.form.lastName} *
                   </Label>
                   <Input
                     id="clientLastName"
@@ -514,14 +518,14 @@ export function BookingFormDetails({
                     htmlFor="clientFirstName"
                     className="text-sm font-medium text-gray-700"
                   >
-                    First Name *
+                    {t.form.firstName} *
                   </Label>
                   <Input
                     id="clientFirstName"
                     type="text"
                     value={clientFirstName}
                     onChange={(e) => setClientFirstName(e.target.value)}
-                    placeholder="Your first name"
+                    placeholder={t.form.firstName}
                     className="h-10"
                     required
                   />
@@ -535,14 +539,14 @@ export function BookingFormDetails({
                     htmlFor="clientEmail"
                     className="text-sm font-medium text-gray-700"
                   >
-                    Email Address *
+                    {t.form.email} *
                   </Label>
                   <Input
                     id="clientEmail"
                     type="email"
                     value={clientEmail}
                     onChange={(e) => setClientEmail(e.target.value)}
-                    placeholder="your@email.com"
+                    placeholder={t.form.email}
                     className="h-10"
                     required
                   />
@@ -552,7 +556,7 @@ export function BookingFormDetails({
                     htmlFor="clientPhone"
                     className="text-sm font-medium text-gray-700"
                   >
-                    Phone Number *
+                    {t.form.phone} *
                   </Label>
                   <Input
                     id="clientPhone"
@@ -576,13 +580,13 @@ export function BookingFormDetails({
                         htmlFor="clientBirthDate"
                         className="text-sm font-medium text-gray-700"
                       >
-                        Date of Birth{" "}
+                        {t.form.birthDate}{" "}
                         {isFieldRequired("clientBirthDate") ? "*" : ""}
                       </Label>
                       <DatePicker
                         date={clientBirthDate}
                         onDateChange={setClientBirthDate}
-                        placeholder="Select your birth date"
+                        placeholder={t.form.birthDate}
                         className="w-full"
                       />
                     </div>
@@ -593,7 +597,7 @@ export function BookingFormDetails({
                         htmlFor="clientBirthPlace"
                         className="text-sm font-medium text-gray-700"
                       >
-                        Place of Birth{" "}
+                        {t.form.birthPlace}{" "}
                         {isFieldRequired("clientBirthPlace") ? "*" : ""}
                       </Label>
                       <Input
@@ -617,14 +621,15 @@ export function BookingFormDetails({
                     htmlFor="clientAddress"
                     className="text-sm font-medium text-gray-700"
                   >
-                    Address {isFieldRequired("clientAddress") ? "*" : ""}
+                    {t.form.address}{" "}
+                    {isFieldRequired("clientAddress") ? "*" : ""}
                   </Label>
                   <Input
                     id="clientAddress"
                     type="text"
                     value={clientAddress}
                     onChange={(e) => setClientAddress(e.target.value)}
-                    placeholder="Street and number"
+                    placeholder={t.form.address}
                     className="h-10"
                     required={isFieldRequired("clientAddress")}
                   />
@@ -642,7 +647,7 @@ export function BookingFormDetails({
                         htmlFor="clientPostalCode"
                         className="text-sm font-medium text-gray-700"
                       >
-                        Postal Code{" "}
+                        {t.form.postalCode}{" "}
                         {isFieldRequired("clientPostalCode") ? "*" : ""}
                       </Label>
                       <Input
@@ -650,7 +655,7 @@ export function BookingFormDetails({
                         type="text"
                         value={clientPostalCode}
                         onChange={(e) => setClientPostalCode(e.target.value)}
-                        placeholder="1234"
+                        placeholder={t.form.postalCode}
                         className="h-10"
                         required={isFieldRequired("clientPostalCode")}
                       />
@@ -662,14 +667,14 @@ export function BookingFormDetails({
                         htmlFor="clientCity"
                         className="text-sm font-medium text-gray-700"
                       >
-                        City {isFieldRequired("clientCity") ? "*" : ""}
+                        {t.form.city} {isFieldRequired("clientCity") ? "*" : ""}
                       </Label>
                       <Input
                         id="clientCity"
                         type="text"
                         value={clientCity}
                         onChange={(e) => setClientCity(e.target.value)}
-                        placeholder="Your city"
+                        placeholder={t.form.city}
                         className="h-10"
                         required={isFieldRequired("clientCity")}
                       />
@@ -681,20 +686,27 @@ export function BookingFormDetails({
                         htmlFor="clientCountry"
                         className="text-sm font-medium text-gray-700"
                       >
-                        Country {isFieldRequired("clientCountry") ? "*" : ""}
+                        {t.form.country}{" "}
+                        {isFieldRequired("clientCountry") ? "*" : ""}
                       </Label>
                       <Select
                         value={clientCountry}
                         onValueChange={(value) => setClientCountry(value)}
                       >
                         <SelectTrigger className="h-10">
-                          <SelectValue placeholder="Select country" />
+                          <SelectValue placeholder={t.form.country} />
                         </SelectTrigger>
                         <SelectContent className="max-h-60">
-                          <SelectItem value="Suisse">Switzerland</SelectItem>
-                          <SelectItem value="France">France</SelectItem>
-                          <SelectItem value="Allemagne">Germany</SelectItem>
-                          <SelectItem value="Italie">Italy</SelectItem>
+                          <SelectItem value="Suisse">
+                            {t.form.switzerland}
+                          </SelectItem>
+                          <SelectItem value="France">
+                            {t.form.france}
+                          </SelectItem>
+                          <SelectItem value="Allemagne">
+                            {t.form.germany}
+                          </SelectItem>
+                          <SelectItem value="Italie">{t.form.italy}</SelectItem>
                           <SelectItem value="Autriche">Austria</SelectItem>
                           <SelectItem value="Belgique">Belgium</SelectItem>
                           <SelectItem value="Pays-Bas">Netherlands</SelectItem>
@@ -725,7 +737,7 @@ export function BookingFormDetails({
                           htmlFor="clientIdType"
                           className="text-sm font-medium text-gray-700"
                         >
-                          Type de document{" "}
+                          {t.form.idType}{" "}
                           {isFieldRequired("clientIdNumber") ? "*" : ""}
                         </Label>
                         <Select
@@ -733,15 +745,17 @@ export function BookingFormDetails({
                           onValueChange={setClientIdType}
                         >
                           <SelectTrigger className="h-10">
-                            <SelectValue placeholder="Sélectionner un type" />
+                            <SelectValue placeholder={t.form.idType} />
                           </SelectTrigger>
                           <SelectContent>
                             <SelectItem value="Carte d'identité">
-                              Carte d&apos;identité
+                              {t.form.idCard}
                             </SelectItem>
-                            <SelectItem value="Passeport">Passeport</SelectItem>
+                            <SelectItem value="Passeport">
+                              {t.form.passport}
+                            </SelectItem>
                             <SelectItem value="Permis de conduire">
-                              Permis de conduire
+                              {t.form.drivingLicense}
                             </SelectItem>
                           </SelectContent>
                         </Select>
@@ -751,7 +765,7 @@ export function BookingFormDetails({
                           htmlFor="clientIdNumber"
                           className="text-sm font-medium text-gray-700"
                         >
-                          Numéro de document{" "}
+                          {t.form.idNumber}{" "}
                           {isFieldRequired("clientIdNumber") ? "*" : ""}
                         </Label>
                         <Input
@@ -759,7 +773,7 @@ export function BookingFormDetails({
                           type="text"
                           value={clientIdNumber}
                           onChange={(e) => setClientIdNumber(e.target.value)}
-                          placeholder="Numéro de document"
+                          placeholder={t.form.idNumber}
                           className="h-10"
                           required={isFieldRequired("clientIdNumber")}
                         />
@@ -772,7 +786,7 @@ export function BookingFormDetails({
                         htmlFor="clientVehicleNumber"
                         className="text-sm font-medium text-gray-700"
                       >
-                        License Plate{" "}
+                        {t.form.vehicleNumber}{" "}
                         {isFieldRequired("clientVehicleNumber") ? "*" : ""}
                       </Label>
                       <Input
@@ -794,7 +808,7 @@ export function BookingFormDetails({
           {/* Boutons de navigation */}
           <div className="flex gap-4 pt-6">
             <Button variant="outline" onClick={onBack} className="flex-1">
-              ← Back
+              {t.navigation.back}
             </Button>
             <Button
               onClick={handleConfirmBooking}
@@ -804,10 +818,10 @@ export function BookingFormDetails({
               {bookingInProgress ? (
                 <div className="flex items-center gap-2">
                   <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
-                  Processing...
+                  {t.messages.loading}
                 </div>
               ) : (
-                "Next / Suivant →"
+                t.navigation.continue + " →"
               )}
             </Button>
           </div>

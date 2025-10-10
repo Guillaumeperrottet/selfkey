@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import { DateSelector } from "@/components/DateSelector";
 import { RoomSelector } from "@/components/RoomSelector";
 import { BookingFormDetails } from "@/components/BookingFormDetails";
+import { LanguageSelector } from "@/components/LanguageSelector";
 
 interface Room {
   id: string;
@@ -119,6 +120,13 @@ export function BookingFormModern({
 
   return (
     <div className="space-y-6">
+      {/* Sélecteur de langue - Affiché uniquement à la première étape */}
+      {currentStep === "dates" && (
+        <div className="flex justify-end mb-4">
+          <LanguageSelector />
+        </div>
+      )}
+
       {/* Contenu selon l'étape actuelle */}
       {currentStep === "dates" && (
         <DateSelector

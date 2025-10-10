@@ -30,9 +30,18 @@ export async function GET(request: Request, { params }: Props) {
             id: true,
             name: true,
             accessCodeType: true,
+            // Templates français
             confirmationEmailTemplate: true,
             confirmationEmailTemplateWithDog: true,
             confirmationEmailTemplateWithoutDog: true,
+            // Templates anglais
+            confirmationEmailTemplateEn: true,
+            confirmationEmailTemplateWithDogEn: true,
+            confirmationEmailTemplateWithoutDogEn: true,
+            // Templates allemands
+            confirmationEmailTemplateDe: true,
+            confirmationEmailTemplateWithDogDe: true,
+            confirmationEmailTemplateWithoutDogDe: true,
             generalAccessCode: true,
             accessInstructions: true,
             hotelContactEmail: true,

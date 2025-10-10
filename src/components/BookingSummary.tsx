@@ -448,7 +448,10 @@ export function BookingSummary({ bookingId }: BookingSummaryProps) {
               selectedPricingOptions: booking.selectedPricingOptions,
               pricingOptionsTotal: booking.pricingOptionsTotal,
               hasDog:
-                (booking as BookingData & { hasDog?: boolean }).hasDog || false, // Ajout de hasDog
+                (booking as BookingData & { hasDog?: boolean }).hasDog || false,
+              bookingLocale:
+                (booking as BookingData & { bookingLocale?: string })
+                  .bookingLocale || "fr", // Langue choisie
             }),
           }
         );

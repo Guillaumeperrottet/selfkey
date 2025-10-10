@@ -45,6 +45,7 @@ export interface BookingData {
   checkInDate: Date;
   checkOutDate: Date;
   hasDog?: boolean;
+  bookingLocale?: string; // Langue choisie lors de la réservation: "fr", "en", "de"
 }
 
 export interface StripeAccount {

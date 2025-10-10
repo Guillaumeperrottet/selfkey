@@ -84,6 +84,7 @@ interface Booking {
   adults?: number;
   children?: number;
   hasDog?: boolean;
+  bookingLocale?: string;
   room: {
     name: string;
     price?: number;
@@ -1162,6 +1163,13 @@ export function BookingsTable({ bookings, establishment }: BookingsTableProps) {
                         envoyée
                         {selectedBooking.confirmationSentAt &&
                           ` le ${formatDateTime(selectedBooking.confirmationSentAt)}`}
+                        {selectedBooking.bookingLocale && (
+                          <span className="ml-1">
+                            {selectedBooking.bookingLocale === "fr" && "🇫🇷"}
+                            {selectedBooking.bookingLocale === "en" && "🇬🇧"}
+                            {selectedBooking.bookingLocale === "de" && "🇩🇪"}
+                          </span>
+                        )}
                       </div>
                     )}
                   </div>

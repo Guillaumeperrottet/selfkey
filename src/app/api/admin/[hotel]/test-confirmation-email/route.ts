@@ -120,7 +120,7 @@ export async function POST(request: NextRequest, { params }: Params) {
     Object.entries(sampleData).forEach(([key, value]) => {
       // Transformer automatiquement invoiceDownloadUrl en bouton HTML
       if (key === "invoiceDownloadUrl" && value && isHtmlTemplate) {
-        value = `<a href="${value}" style="background-color: #1976d2; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px; display: inline-block; font-weight: bold;">📥 Télécharger la facture PDF</a>`;
+        value = `<a href="${value}" style="background-color: #1976d2; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px; display: inline-block; font-weight: bold;">📥 Facture / Rechnung / Invoice PDF</a>`;
       }
       const regex = new RegExp(`\\{${key}\\}`, "g");
       emailContent = emailContent.replace(regex, value);

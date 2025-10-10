@@ -90,6 +90,7 @@ export default async function AdminPage({ params }: Props) {
       adults: true,
       children: true,
       hasDog: true,
+      bookingLocale: true,
       checkInDate: true,
       checkOutDate: true,
       bookingDate: true,
