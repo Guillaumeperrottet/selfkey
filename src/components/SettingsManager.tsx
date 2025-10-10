@@ -65,6 +65,14 @@ export function SettingsManager({ hotelSlug }: SettingsManagerProps) {
   // État pour masquer les frais de plateforme
   const [hidePlatformFees, setHidePlatformFees] = useState<boolean>(false);
 
+  // États pour les informations de facturation
+  const [billingCompanyName, setBillingCompanyName] = useState<string>("");
+  const [billingAddress, setBillingAddress] = useState<string>("");
+  const [billingPostalCode, setBillingPostalCode] = useState<string>("");
+  const [billingCity, setBillingCity] = useState<string>("");
+  const [billingCountry, setBillingCountry] = useState<string>("Switzerland");
+  const [vatNumber, setVatNumber] = useState<string>("");
+
   // Active tab state
   const [activeTab, setActiveTab] = useState("booking");
 
@@ -89,6 +97,13 @@ export function SettingsManager({ hotelSlug }: SettingsManagerProps) {
           setTouristTaxAmount(data.touristTaxAmount || 3.0);
           setEnableDogOption(data.enableDogOption || false);
           setHidePlatformFees(data.hidePlatformFees || false);
+          // Charger les informations de facturation
+          setBillingCompanyName(data.billingCompanyName || "");
+          setBillingAddress(data.billingAddress || "");
+          setBillingPostalCode(data.billingPostalCode || "");
+          setBillingCity(data.billingCity || "");
+          setBillingCountry(data.billingCountry || "Switzerland");
+          setVatNumber(data.vatNumber || "");
         } else {
           toastUtils.error("Erreur lors du chargement des paramètres");
         }
@@ -149,6 +164,13 @@ export function SettingsManager({ hotelSlug }: SettingsManagerProps) {
             touristTaxAmount,
             enableDogOption,
             hidePlatformFees,
+            // Informations de facturation
+            billingCompanyName,
+            billingAddress,
+            billingPostalCode,
+            billingCity,
+            billingCountry,
+            vatNumber,
           }),
         }
       );
@@ -342,7 +364,7 @@ export function SettingsManager({ hotelSlug }: SettingsManagerProps) {
         onValueChange={setActiveTab}
         className="space-y-6"
       >
-        <TabsList className="grid w-full grid-cols-5">
+        <TabsList className="grid w-full grid-cols-6">
           <TabsTrigger value="booking" className="flex items-center gap-2">
             <Calendar className="h-4 w-4" />
             <span className="hidden sm:inline">Réservations</span>
@@ -354,6 +376,10 @@ export function SettingsManager({ hotelSlug }: SettingsManagerProps) {
           <TabsTrigger value="pricing" className="flex items-center gap-2">
             <DollarSign className="h-4 w-4" />
             <span className="hidden sm:inline">Tarification</span>
+          </TabsTrigger>
+          <TabsTrigger value="billing" className="flex items-center gap-2">
+            <Settings2 className="h-4 w-4" />
+            <span className="hidden sm:inline">Facturation</span>
           </TabsTrigger>
           <TabsTrigger value="parking" className="flex items-center gap-2">
             <Car className="h-4 w-4" />
@@ -744,6 +770,129 @@ export function SettingsManager({ hotelSlug }: SettingsManagerProps) {
                       )}
                     </p>
                   </div>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        {/* Onglet Facturation */}
+        <TabsContent value="billing" className="space-y-6">
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Settings2 className="h-5 w-5" />
+                Informations de facturation
+              </CardTitle>
+              <CardDescription>
+                Ces informations apparaîtront en haut à gauche de vos factures
+                PDF
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-6">
+              {/* Nom de l'entreprise */}
+              <div className="space-y-2">
+                <Label htmlFor="billingCompanyName">
+                  Nom de l&apos;entreprise
+                </Label>
+                <Input
+                  id="billingCompanyName"
+                  value={billingCompanyName}
+                  onChange={(e) => setBillingCompanyName(e.target.value)}
+                  placeholder="Ex: Camping du Lac SA"
+                />
+                <p className="text-xs text-muted-foreground">
+                  Nom officiel de votre entreprise pour la facturation
+                </p>
+              </div>
+
+              {/* Adresse */}
+              <div className="space-y-2">
+                <Label htmlFor="billingAddress">Adresse</Label>
+                <Input
+                  id="billingAddress"
+                  value={billingAddress}
+                  onChange={(e) => setBillingAddress(e.target.value)}
+                  placeholder="Ex: L'Etrey 87"
+                />
+              </div>
+
+              {/* Code postal et ville */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label htmlFor="billingPostalCode">Code postal</Label>
+                  <Input
+                    id="billingPostalCode"
+                    value={billingPostalCode}
+                    onChange={(e) => setBillingPostalCode(e.target.value)}
+                    placeholder="Ex: 1643"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="billingCity">Ville</Label>
+                  <Input
+                    id="billingCity"
+                    value={billingCity}
+                    onChange={(e) => setBillingCity(e.target.value)}
+                    placeholder="Ex: Gumefens"
+                  />
+                </div>
+              </div>
+
+              {/* Pays */}
+              <div className="space-y-2">
+                <Label htmlFor="billingCountry">Pays</Label>
+                <Input
+                  id="billingCountry"
+                  value={billingCountry}
+                  onChange={(e) => setBillingCountry(e.target.value)}
+                  placeholder="Ex: Switzerland"
+                />
+              </div>
+
+              {/* Numéro de TVA */}
+              <div className="space-y-2">
+                <Label htmlFor="vatNumber">Numéro de TVA</Label>
+                <Input
+                  id="vatNumber"
+                  value={vatNumber}
+                  onChange={(e) => setVatNumber(e.target.value)}
+                  placeholder="Ex: CHE-123.456.789 TVA"
+                />
+                <p className="text-xs text-muted-foreground">
+                  Votre numéro d&apos;identification TVA (optionnel)
+                </p>
+              </div>
+
+              <Separator />
+
+              {/* Aperçu */}
+              <div className="p-4 border rounded-lg bg-gray-50 space-y-2">
+                <h4 className="font-medium text-sm">
+                  📄 Aperçu de la facturation :
+                </h4>
+                <div className="text-sm space-y-1">
+                  {billingCompanyName && (
+                    <p className="font-semibold">{billingCompanyName}</p>
+                  )}
+                  {billingAddress && <p>{billingAddress}</p>}
+                  {(billingPostalCode || billingCity) && (
+                    <p>
+                      {billingPostalCode} {billingCity}
+                    </p>
+                  )}
+                  {billingCountry && <p>{billingCountry}</p>}
+                  {vatNumber && <p className="mt-2">TVA: {vatNumber}</p>}
+                  {!billingCompanyName &&
+                    !billingAddress &&
+                    !billingPostalCode &&
+                    !billingCity &&
+                    !billingCountry &&
+                    !vatNumber && (
+                      <p className="text-muted-foreground italic">
+                        Aucune information de facturation configurée
+                      </p>
+                    )}
                 </div>
               </div>
             </CardContent>

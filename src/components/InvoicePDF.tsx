@@ -45,6 +45,13 @@ interface InvoiceData {
     country?: string;
     phone?: string;
     email?: string;
+    // Informations de facturation (priorité sur les infos générales)
+    billingCompanyName?: string;
+    billingAddress?: string;
+    billingCity?: string;
+    billingPostalCode?: string;
+    billingCountry?: string;
+    vatNumber?: string;
   };
 }
 
@@ -193,25 +200,45 @@ export function InvoicePDF({ data }: InvoicePDFProps) {
             <Text
               style={{ fontSize: 16, fontWeight: "bold", color: "#111827" }}
             >
-              {data.establishment.name}
+              {data.establishment.billingCompanyName || data.establishment.name}
             </Text>
-            {data.establishment.address && (
+            {(data.establishment.billingAddress ||
+              data.establishment.address) && (
               <Text style={styles.companyInfo}>
-                {data.establishment.address}
+                {data.establishment.billingAddress ||
+                  data.establishment.address}
               </Text>
             )}
-            {(data.establishment.postalCode || data.establishment.city) && (
+            {((data.establishment.billingPostalCode &&
+              data.establishment.billingCity) ||
+              (data.establishment.postalCode && data.establishment.city)) && (
               <Text style={styles.companyInfo}>
-                {data.establishment.postalCode} {data.establishment.city}
+                {data.establishment.billingPostalCode ||
+                  data.establishment.postalCode}{" "}
+                {data.establishment.billingCity || data.establishment.city}
               </Text>
             )}
-            {data.establishment.country && (
+            {(data.establishment.billingCountry ||
+              data.establishment.country) && (
               <Text style={styles.companyInfo}>
-                {data.establishment.country}
+                {data.establishment.billingCountry ||
+                  data.establishment.country}
+              </Text>
+            )}
+            {data.establishment.vatNumber && (
+              <Text
+                style={{
+                  ...styles.companyInfo,
+                  marginTop: 5,
+                  fontWeight: "bold",
+                }}
+              >
+                TVA: {data.establishment.vatNumber}
               </Text>
             )}
           </View>
           <View style={styles.companyInfo}>
+            <Text style={{ marginBottom: 3 }}>{data.establishment.name}</Text>
             {data.establishment.phone && (
               <Text>Tél: {data.establishment.phone}</Text>
             )}

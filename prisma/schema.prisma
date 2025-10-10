@@ -93,6 +93,13 @@ model Establishment {
   commissionRate                      Float                   @default(0)
   fixedFee                            Float                   @default(3.00)
   createdAt                           DateTime                @default(now())
+  // Informations de facturation
+  billingCompanyName                  String?                 // Nom de l'entreprise pour la facturation
+  billingAddress                      String?                 // Adresse de facturation
+  billingPostalCode                   String?                 // Code postal de facturation
+  billingCity                         String?                 // Ville de facturation
+  billingCountry                      String?                 @default("Switzerland") // Pays de facturation
+  vatNumber                           String?                 // Numéro de TVA (ex: CHE-123.456.789 TVA)
   accessCodeType                      String                  @default("room")
   accessInstructions                  String?
   generalAccessCode                   String?
