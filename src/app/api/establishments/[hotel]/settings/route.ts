@@ -24,6 +24,13 @@ export async function GET(
         touristTaxAmount: true,
         enableDogOption: true,
         hidePlatformFees: true,
+        // Informations de facturation
+        billingCompanyName: true,
+        billingAddress: true,
+        billingPostalCode: true,
+        billingCity: true,
+        billingCountry: true,
+        vatNumber: true,
       },
     });
 
@@ -75,6 +82,13 @@ export async function PUT(
       touristTaxAmount,
       enableDogOption,
       hidePlatformFees,
+      // Informations de facturation
+      billingCompanyName,
+      billingAddress,
+      billingPostalCode,
+      billingCity,
+      billingCountry,
+      vatNumber,
     } = body;
 
     // Validation
@@ -178,6 +192,13 @@ export async function PUT(
         touristTaxAmount: touristTaxAmount || 3.0,
         enableDogOption: enableDogOption ?? false,
         hidePlatformFees: hidePlatformFees ?? false,
+        // Informations de facturation
+        billingCompanyName: billingCompanyName || null,
+        billingAddress: billingAddress || null,
+        billingPostalCode: billingPostalCode || null,
+        billingCity: billingCity || null,
+        billingCountry: billingCountry || null,
+        vatNumber: vatNumber || null,
       },
       select: {
         id: true,
@@ -193,6 +214,13 @@ export async function PUT(
         touristTaxAmount: true,
         enableDogOption: true,
         hidePlatformFees: true,
+        // Informations de facturation
+        billingCompanyName: true,
+        billingAddress: true,
+        billingPostalCode: true,
+        billingCity: true,
+        billingCountry: true,
+        vatNumber: true,
       },
     });
 

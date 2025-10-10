@@ -106,6 +106,17 @@ interface BookingsTableProps {
     fixedFee: number;
     hotelContactEmail?: string | null;
     hotelContactPhone?: string | null;
+    address?: string | null;
+    city?: string | null;
+    postalCode?: string | null;
+    country?: string | null;
+    // Informations de facturation
+    billingCompanyName?: string | null;
+    billingAddress?: string | null;
+    billingCity?: string | null;
+    billingPostalCode?: string | null;
+    billingCountry?: string | null;
+    vatNumber?: string | null;
   };
 }
 

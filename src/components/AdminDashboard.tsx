@@ -68,6 +68,16 @@ interface AdminDashboardProps {
     accessInstructions: string | null;
     hotelContactEmail?: string | null;
     hotelContactPhone?: string | null;
+    address?: string | null;
+    city?: string | null;
+    postalCode?: string | null;
+    country?: string | null;
+    billingCompanyName?: string | null;
+    billingAddress?: string | null;
+    billingCity?: string | null;
+    billingPostalCode?: string | null;
+    billingCountry?: string | null;
+    vatNumber?: string | null;
   };
   roomsWithInventory: Array<{
     id: string;
@@ -713,6 +723,16 @@ export function AdminDashboard({
                   fixedFee: establishment.fixedFee,
                   hotelContactEmail: establishment.hotelContactEmail,
                   hotelContactPhone: establishment.hotelContactPhone,
+                  address: establishment.address,
+                  city: establishment.city,
+                  postalCode: establishment.postalCode,
+                  country: establishment.country,
+                  billingCompanyName: establishment.billingCompanyName,
+                  billingAddress: establishment.billingAddress,
+                  billingCity: establishment.billingCity,
+                  billingPostalCode: establishment.billingPostalCode,
+                  billingCountry: establishment.billingCountry,
+                  vatNumber: establishment.vatNumber,
                 }}
               />
             </CardContent>

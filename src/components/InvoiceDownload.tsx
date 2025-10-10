@@ -57,6 +57,13 @@ interface InvoiceDownloadProps {
     country?: string | null;
     hotelContactPhone?: string | null;
     hotelContactEmail?: string | null;
+    // Informations de facturation
+    billingCompanyName?: string | null;
+    billingAddress?: string | null;
+    billingCity?: string | null;
+    billingPostalCode?: string | null;
+    billingCountry?: string | null;
+    vatNumber?: string | null;
   };
   variant?: "default" | "outline" | "ghost";
   size?: "default" | "sm" | "lg";
@@ -212,6 +219,13 @@ export function InvoiceDownload({
           country: establishment.country || "Suisse",
           phone: establishment.hotelContactPhone || undefined,
           email: establishment.hotelContactEmail || undefined,
+          // Informations de facturation
+          billingCompanyName: establishment.billingCompanyName || undefined,
+          billingAddress: establishment.billingAddress || undefined,
+          billingCity: establishment.billingCity || undefined,
+          billingPostalCode: establishment.billingPostalCode || undefined,
+          billingCountry: establishment.billingCountry || undefined,
+          vatNumber: establishment.vatNumber || undefined,
         },
       };
 

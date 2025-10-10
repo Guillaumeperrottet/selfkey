@@ -169,6 +169,17 @@ export default async function AdminPage({ params }: Props) {
         accessInstructions: establishment.accessInstructions,
         hotelContactEmail: establishment.hotelContactEmail,
         hotelContactPhone: establishment.hotelContactPhone,
+        address: establishment.address,
+        city: establishment.city,
+        postalCode: establishment.postalCode,
+        country: establishment.country,
+        // Informations de facturation
+        billingCompanyName: establishment.billingCompanyName,
+        billingAddress: establishment.billingAddress,
+        billingCity: establishment.billingCity,
+        billingPostalCode: establishment.billingPostalCode,
+        billingCountry: establishment.billingCountry,
+        vatNumber: establishment.vatNumber,
       }}
       roomsWithInventory={roomsWithInventory}
       allBookings={allBookings}

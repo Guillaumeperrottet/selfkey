@@ -80,6 +80,13 @@ export async function GET(
       country: booking.establishment.country,
       hotelContactPhone: booking.establishment.hotelContactPhone,
       hotelContactEmail: booking.establishment.hotelContactEmail,
+      // Informations de facturation
+      billingCompanyName: booking.establishment.billingCompanyName,
+      billingAddress: booking.establishment.billingAddress,
+      billingCity: booking.establishment.billingCity,
+      billingPostalCode: booking.establishment.billingPostalCode,
+      billingCountry: booking.establishment.billingCountry,
+      vatNumber: booking.establishment.vatNumber,
     };
 
     return NextResponse.json({
