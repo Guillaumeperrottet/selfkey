@@ -13,7 +13,10 @@
     "clean-test-emails": "node clean-test-emails.js",
     "clean-test-emails:force": "node clean-test-emails.js --force",
     "reset-db": "node reset-db.js",
-    "reset-db:force": "node reset-db.js --force"
+    "reset-db:force": "node reset-db.js --force",
+    "test:booking": "npx tsx scripts/test-complete-booking.ts",
+    "test:booking:en": "npx tsx scripts/test-complete-booking.ts en",
+    "test:booking:de": "npx tsx scripts/test-complete-booking.ts de"
   },
   "dependencies": {
     "@prisma/client": "^6.10.1",
