@@ -369,35 +369,83 @@ async function sendEmailConfirmation(
   booking: BookingWithDetails,
   templateData: TemplateData
 ) {
-  // Choisir le bon template selon si le client a un chien
+  // Déterminer la langue de la réservation (par défaut : français)
+  const locale = booking.bookingLocale || "fr";
+  console.log(`🌍 Langue de la réservation: ${locale}`);
+
+  // Choisir le bon template selon la langue ET si le client a un chien
   let template: string;
 
-  // Si le client a coché "avec chien" et qu'un template spécifique est défini
-  if (
-    booking.hasDog === true &&
-    booking.establishment.confirmationEmailTemplateWithDog
-  ) {
-    template = booking.establishment.confirmationEmailTemplateWithDog;
-    console.log(
-      "📧 Utilisation du template EMAIL AVEC CHIEN (client a un chien)"
-    );
+  // === TEMPLATES ALLEMANDS (DE) ===
+  if (locale === "de") {
+    if (
+      booking.hasDog === true &&
+      booking.establishment.confirmationEmailTemplateWithDogDe
+    ) {
+      template = booking.establishment.confirmationEmailTemplateWithDogDe;
+      console.log("📧 🇩🇪 Template ALLEMAND AVEC CHIEN");
+    } else if (
+      booking.hasDog === false &&
+      booking.establishment.confirmationEmailTemplateWithoutDogDe
+    ) {
+      template = booking.establishment.confirmationEmailTemplateWithoutDogDe;
+      console.log("📧 🇩🇪 Template ALLEMAND SANS CHIEN");
+    } else if (booking.establishment.confirmationEmailTemplateDe) {
+      template = booking.establishment.confirmationEmailTemplateDe;
+      console.log("📧 🇩🇪 Template ALLEMAND GÉNÉRAL");
+    } else {
+      // Fallback vers français si pas de template allemand
+      console.log("⚠️ Pas de template allemand, fallback vers français");
+      template =
+        booking.establishment.confirmationEmailTemplate ||
+        getDefaultEmailTemplate();
+    }
   }
-  // Si le client a coché "sans chien" et qu'un template spécifique est défini
-  else if (
-    booking.hasDog === false &&
-    booking.establishment.confirmationEmailTemplateWithoutDog
-  ) {
-    template = booking.establishment.confirmationEmailTemplateWithoutDog;
-    console.log(
-      "📧 Utilisation du template EMAIL SANS CHIEN (client n'a pas de chien)"
-    );
+  // === TEMPLATES ANGLAIS (EN) ===
+  else if (locale === "en") {
+    if (
+      booking.hasDog === true &&
+      booking.establishment.confirmationEmailTemplateWithDogEn
+    ) {
+      template = booking.establishment.confirmationEmailTemplateWithDogEn;
+      console.log("📧 🇬🇧 Template ANGLAIS AVEC CHIEN");
+    } else if (
+      booking.hasDog === false &&
+      booking.establishment.confirmationEmailTemplateWithoutDogEn
+    ) {
+      template = booking.establishment.confirmationEmailTemplateWithoutDogEn;
+      console.log("📧 🇬🇧 Template ANGLAIS SANS CHIEN");
+    } else if (booking.establishment.confirmationEmailTemplateEn) {
+      template = booking.establishment.confirmationEmailTemplateEn;
+      console.log("📧 🇬🇧 Template ANGLAIS GÉNÉRAL");
+    } else {
+      // Fallback vers français si pas de template anglais
+      console.log("⚠️ Pas de template anglais, fallback vers français");
+      template =
+        booking.establishment.confirmationEmailTemplate ||
+        getDefaultEmailTemplate();
+    }
   }
-  // Sinon, utiliser le template normal (général) ou le template par défaut
+  // === TEMPLATES FRANÇAIS (FR) - PAR DÉFAUT ===
   else {
-    template =
-      booking.establishment.confirmationEmailTemplate ||
-      getDefaultEmailTemplate();
-    console.log("📧 Utilisation du template EMAIL NORMAL (général)");
+    if (
+      booking.hasDog === true &&
+      booking.establishment.confirmationEmailTemplateWithDog
+    ) {
+      template = booking.establishment.confirmationEmailTemplateWithDog;
+      console.log("📧 🇫🇷 Template FRANÇAIS AVEC CHIEN");
+    } else if (
+      booking.hasDog === false &&
+      booking.establishment.confirmationEmailTemplateWithoutDog
+    ) {
+      template = booking.establishment.confirmationEmailTemplateWithoutDog;
+      console.log("📧 🇫🇷 Template FRANÇAIS SANS CHIEN");
+    } else {
+      template =
+        booking.establishment.confirmationEmailTemplate ||
+        getDefaultEmailTemplate();
+      console.log("📧 🇫🇷 Template FRANÇAIS GÉNÉRAL");
+    }
   }
 
   // Détecter si c'est du HTML Unlayer AVANT le remplacement des variables
