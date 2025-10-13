@@ -27,7 +27,7 @@ export async function GET(request: NextRequest) {
     const apiKey = await authenticateApiKey(request);
     if (!apiKey) {
       await logApiRequest(
-        "anonymous",
+        null,
         "/api/v1/bookings",
         "GET",
         401,

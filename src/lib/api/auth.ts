@@ -90,7 +90,7 @@ export function hasPermission(
  * Log une requête API
  */
 export async function logApiRequest(
-  apiKeyId: string,
+  apiKeyId: string | null,
   endpoint: string,
   method: string,
   statusCode: number,
@@ -101,7 +101,7 @@ export async function logApiRequest(
   try {
     await prisma.apiLog.create({
       data: {
-        apiKeyId,
+        apiKeyId: apiKeyId || undefined,
         endpoint,
         method,
         statusCode,
