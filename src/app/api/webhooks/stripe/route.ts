@@ -3,6 +3,7 @@ import Stripe from "stripe";
 import { prisma } from "@/lib/prisma";
 import { sendDayParkingConfirmation } from "@/lib/email";
 import { stripe, stripeWebhookSecret } from "@/lib/stripe";
+import { sendBookingWebhook } from "@/lib/api/webhook";
 
 const endpointSecret = stripeWebhookSecret!;
 
@@ -223,6 +224,11 @@ async function createDayParkingBookingFromMetadata(
       `Day parking booking created: ${booking.id} for PaymentIntent: ${paymentIntent.id}`
     );
 
+    // Envoyer le webhook vers la police (sans attendre)
+    sendBookingWebhook(booking.id, "booking.completed").catch((error) => {
+      console.error("Error sending webhook:", error);
+    });
+
     // Envoyer l'email de confirmation si demandé
     if (metadata.email_confirmation === "true") {
       try {
@@ -339,6 +345,11 @@ async function createNightParkingBookingFromMetadata(
       `Night parking booking created: ${booking.id} for PaymentIntent: ${paymentIntent.id}`
     );
 
+    // Envoyer le webhook vers la police (sans attendre)
+    sendBookingWebhook(booking.id, "booking.completed").catch((error) => {
+      console.error("Error sending webhook:", error);
+    });
+
     // TODO: Envoyer l'email de confirmation pour parking nuit si nécessaire
     // Cette logique peut être ajoutée plus tard si besoin
   } catch (error) {
@@ -428,6 +439,11 @@ async function createClassicBookingFromMetadata(
     console.log(
       `Classic booking created: ${booking.id} for PaymentIntent: ${paymentIntent.id}`
     );
+
+    // Envoyer le webhook vers la police (sans attendre)
+    sendBookingWebhook(booking.id, "booking.completed").catch((error) => {
+      console.error("Error sending webhook:", error);
+    });
 
     // TODO: Envoyer l'email de confirmation pour réservation classique si nécessaire
     // Cette logique peut être ajoutée plus tard si besoin
