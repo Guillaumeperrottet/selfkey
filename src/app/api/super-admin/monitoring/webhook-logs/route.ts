@@ -8,11 +8,32 @@ import { prisma } from "@/lib/prisma";
 export async function GET(request: NextRequest) {
   try {
     const searchParams = request.nextUrl.searchParams;
-    const limit = Math.min(parseInt(searchParams.get("limit") || "50"), 200);
+    const limit = Math.min(parseInt(searchParams.get("limit") || "50"), 1000);
     const offset = parseInt(searchParams.get("offset") || "0");
+    const startDate = searchParams.get("startDate");
+    const endDate = searchParams.get("endDate");
+
+    // Construire le filtre WHERE
+    const where: {
+      createdAt?: {
+        gte?: Date;
+        lte?: Date;
+      };
+    } = {};
+
+    if (startDate || endDate) {
+      where.createdAt = {};
+      if (startDate) {
+        where.createdAt.gte = new Date(startDate);
+      }
+      if (endDate) {
+        where.createdAt.lte = new Date(endDate);
+      }
+    }
 
     // Récupérer les logs
     const logs = await prisma.webhookLog.findMany({
+      where,
       take: limit,
       skip: offset,
       orderBy: { createdAt: "desc" },
@@ -27,9 +48,10 @@ export async function GET(request: NextRequest) {
 
     // Statistiques
     const [totalCount, errorCount] = await Promise.all([
-      prisma.webhookLog.count(),
+      prisma.webhookLog.count({ where }),
       prisma.webhookLog.count({
         where: {
+          ...where,
           success: false,
         },
       }),
@@ -42,9 +64,10 @@ export async function GET(request: NextRequest) {
         errors: errorCount,
       },
       pagination: {
+        total: totalCount,
         limit,
         offset,
-        hasMore: logs.length === limit,
+        hasMore: offset + logs.length < totalCount,
       },
     });
   } catch (error) {

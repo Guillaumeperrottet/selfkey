@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import SuperAdminLayout from "@/components/SuperAdminLayout";
 import {
   Card,
@@ -26,6 +26,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import {
   Activity,
   TrendingUp,
@@ -36,6 +38,9 @@ import {
   RefreshCw,
   Filter,
   Eye,
+  ChevronLeft,
+  ChevronRight,
+  Calendar,
 } from "lucide-react";
 import {
   Dialog,
@@ -103,17 +108,49 @@ export default function MonitoringApiPage() {
   );
   const [logType, setLogType] = useState<"api" | "webhook">("api");
 
+  // Pagination & Filtres
+  const [apiPage, setApiPage] = useState(1);
+  const [webhookPage, setWebhookPage] = useState(1);
+  const [apiLimit, setApiLimit] = useState(50);
+  const [webhookLimit, setWebhookLimit] = useState(50);
+  const [apiTotal, setApiTotal] = useState(0);
+  const [webhookTotal, setWebhookTotal] = useState(0);
+  const [startDate, setStartDate] = useState<string>("");
+  const [endDate, setEndDate] = useState<string>("");
+
   // Charger les données
-  const loadData = async () => {
+  const loadData = useCallback(async () => {
     try {
+      // Construire les query params
+      const apiParams = new URLSearchParams({
+        limit: apiLimit.toString(),
+        offset: ((apiPage - 1) * apiLimit).toString(),
+      });
+
+      const webhookParams = new URLSearchParams({
+        limit: webhookLimit.toString(),
+        offset: ((webhookPage - 1) * webhookLimit).toString(),
+      });
+
+      // Ajouter les filtres de date si présents
+      if (startDate) {
+        apiParams.append("startDate", startDate);
+        webhookParams.append("startDate", startDate);
+      }
+      if (endDate) {
+        apiParams.append("endDate", endDate);
+        webhookParams.append("endDate", endDate);
+      }
+
       const [apiRes, webhookRes] = await Promise.all([
-        fetch("/api/super-admin/monitoring/api-logs?limit=200"),
-        fetch("/api/super-admin/monitoring/webhook-logs?limit=200"),
+        fetch(`/api/super-admin/monitoring/api-logs?${apiParams}`),
+        fetch(`/api/super-admin/monitoring/webhook-logs?${webhookParams}`),
       ]);
 
       if (apiRes.ok) {
         const data = await apiRes.json();
         setApiLogs(data.logs || []);
+        setApiTotal(data.pagination?.total || 0);
         setStats((prev) => ({
           ...prev,
           totalApiCalls: data.stats?.total || 0,
@@ -126,6 +163,7 @@ export default function MonitoringApiPage() {
       if (webhookRes.ok) {
         const data = await webhookRes.json();
         setWebhookLogs(data.logs || []);
+        setWebhookTotal(data.pagination?.total || 0);
         setStats((prev) => ({
           ...prev,
           totalWebhooks: data.stats?.total || 0,
@@ -137,11 +175,11 @@ export default function MonitoringApiPage() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [apiPage, webhookPage, apiLimit, webhookLimit, startDate, endDate]);
 
   useEffect(() => {
     loadData();
-  }, []);
+  }, [loadData]);
 
   // Auto-refresh toutes les 5 secondes
   useEffect(() => {
@@ -152,7 +190,7 @@ export default function MonitoringApiPage() {
     }, 5000);
 
     return () => clearInterval(interval);
-  }, [autoRefresh]);
+  }, [autoRefresh, loadData]);
 
   // Filtrer les logs API
   const filteredApiLogs = apiLogs.filter((log) => {
@@ -359,7 +397,7 @@ export default function MonitoringApiPage() {
             <div className="flex items-center justify-between">
               <CardTitle className="flex items-center gap-2">
                 <Filter className="w-5 h-5" />
-                Filtres
+                Filtres & Pagination
               </CardTitle>
               <div className="flex items-center gap-2">
                 <Select value={filterStatus} onValueChange={setFilterStatus}>
@@ -377,15 +415,136 @@ export default function MonitoringApiPage() {
               </div>
             </div>
           </CardHeader>
+          <CardContent>
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+              {/* Date de début */}
+              <div className="space-y-2">
+                <Label htmlFor="startDate" className="flex items-center gap-2">
+                  <Calendar className="w-4 h-4" />
+                  Date de début
+                </Label>
+                <Input
+                  id="startDate"
+                  type="datetime-local"
+                  value={startDate}
+                  onChange={(e) => setStartDate(e.target.value)}
+                  className="w-full"
+                />
+              </div>
+
+              {/* Date de fin */}
+              <div className="space-y-2">
+                <Label htmlFor="endDate" className="flex items-center gap-2">
+                  <Calendar className="w-4 h-4" />
+                  Date de fin
+                </Label>
+                <Input
+                  id="endDate"
+                  type="datetime-local"
+                  value={endDate}
+                  onChange={(e) => setEndDate(e.target.value)}
+                  className="w-full"
+                />
+              </div>
+
+              {/* Limite API */}
+              <div className="space-y-2">
+                <Label htmlFor="apiLimit">Logs API par page</Label>
+                <Select
+                  value={apiLimit.toString()}
+                  onValueChange={(value) => {
+                    setApiLimit(parseInt(value));
+                    setApiPage(1);
+                  }}
+                >
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="25">25</SelectItem>
+                    <SelectItem value="50">50</SelectItem>
+                    <SelectItem value="100">100</SelectItem>
+                    <SelectItem value="200">200</SelectItem>
+                    <SelectItem value="500">500</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+
+              {/* Limite Webhook */}
+              <div className="space-y-2">
+                <Label htmlFor="webhookLimit">Logs Webhook par page</Label>
+                <Select
+                  value={webhookLimit.toString()}
+                  onValueChange={(value) => {
+                    setWebhookLimit(parseInt(value));
+                    setWebhookPage(1);
+                  }}
+                >
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="25">25</SelectItem>
+                    <SelectItem value="50">50</SelectItem>
+                    <SelectItem value="100">100</SelectItem>
+                    <SelectItem value="200">200</SelectItem>
+                    <SelectItem value="500">500</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+
+            {/* Boutons d'action */}
+            <div className="flex items-center gap-2 mt-4">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => {
+                  setStartDate("");
+                  setEndDate("");
+                  setApiPage(1);
+                  setWebhookPage(1);
+                }}
+              >
+                Réinitialiser les filtres
+              </Button>
+            </div>
+          </CardContent>
         </Card>
 
         {/* API Logs */}
         <Card>
           <CardHeader>
-            <CardTitle>📊 Logs API (200 derniers)</CardTitle>
-            <CardDescription>
-              Historique des requêtes API en temps réel
-            </CardDescription>
+            <div className="flex items-center justify-between">
+              <div>
+                <CardTitle>📊 Logs API</CardTitle>
+                <CardDescription>
+                  {apiTotal} log{apiTotal > 1 ? "s" : ""} au total - Page{" "}
+                  {apiPage} sur {Math.ceil(apiTotal / apiLimit) || 1}
+                </CardDescription>
+              </div>
+              <div className="flex items-center gap-2">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setApiPage((p) => Math.max(1, p - 1))}
+                  disabled={apiPage === 1}
+                >
+                  <ChevronLeft className="w-4 h-4" />
+                </Button>
+                <span className="text-sm text-muted-foreground px-2">
+                  {apiPage}
+                </span>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setApiPage((p) => p + 1)}
+                  disabled={apiPage >= Math.ceil(apiTotal / apiLimit)}
+                >
+                  <ChevronRight className="w-4 h-4" />
+                </Button>
+              </div>
+            </div>
           </CardHeader>
           <CardContent>
             <Table>
@@ -419,7 +578,7 @@ export default function MonitoringApiPage() {
                       </TableCell>
                       <TableCell>
                         {log.apiKey?.name || (
-                          <span className="text-muted-foreground">
+                          <span className="text-red-600 dark:text-red-400 font-medium">
                             Anonymous
                           </span>
                         )}
@@ -467,10 +626,39 @@ export default function MonitoringApiPage() {
         {/* Webhook Logs */}
         <Card>
           <CardHeader>
-            <CardTitle>🪝 Logs Webhooks (200 derniers)</CardTitle>
-            <CardDescription>
-              Historique des webhooks envoyés en temps réel
-            </CardDescription>
+            <div className="flex items-center justify-between">
+              <div>
+                <CardTitle>🪝 Logs Webhooks</CardTitle>
+                <CardDescription>
+                  {webhookTotal} log{webhookTotal > 1 ? "s" : ""} au total -
+                  Page {webhookPage} sur{" "}
+                  {Math.ceil(webhookTotal / webhookLimit) || 1}
+                </CardDescription>
+              </div>
+              <div className="flex items-center gap-2">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setWebhookPage((p) => Math.max(1, p - 1))}
+                  disabled={webhookPage === 1}
+                >
+                  <ChevronLeft className="w-4 h-4" />
+                </Button>
+                <span className="text-sm text-muted-foreground px-2">
+                  {webhookPage}
+                </span>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setWebhookPage((p) => p + 1)}
+                  disabled={
+                    webhookPage >= Math.ceil(webhookTotal / webhookLimit)
+                  }
+                >
+                  <ChevronRight className="w-4 h-4" />
+                </Button>
+              </div>
+            </div>
           </CardHeader>
           <CardContent>
             <Table>

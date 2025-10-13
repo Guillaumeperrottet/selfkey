@@ -394,7 +394,7 @@ model ApiKey {
 
 model ApiLog {
   id            String   @id @default(cuid())
-  apiKeyId      String
+  apiKeyId      String?  // Nullable pour les requêtes anonymes/invalides
   endpoint      String   // ex: GET /api/v1/bookings
   method        String   // GET, POST, etc.
   statusCode    Int      // 200, 404, 500, etc.
@@ -403,7 +403,7 @@ model ApiLog {
   requestBody   Json?    // Corps de la requête (si pertinent)
   responseTime  Int?     // Temps de réponse en ms
   createdAt     DateTime @default(now())
-  apiKey        ApiKey   @relation(fields: [apiKeyId], references: [id], onDelete: Cascade)
+  apiKey        ApiKey?  @relation(fields: [apiKeyId], references: [id], onDelete: Cascade)
 
   @@index([apiKeyId, createdAt])
   @@map("api_logs")
