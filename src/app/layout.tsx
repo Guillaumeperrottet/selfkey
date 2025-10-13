@@ -65,6 +65,15 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
+// Configuration viewport séparée (Next.js 14+)
+export const viewport = {
+  width: "device-width",
+  initialScale: 1,
+  maximumScale: 5,
+  userScalable: true,
+  viewportFit: "cover", // Important pour iOS safe area
+};
+
 export const metadata: Metadata = {
   title: {
     default: "SelfKey - Check-in automatique pour votre établissement",
@@ -92,14 +101,6 @@ export const metadata: Metadata = {
     email: false,
     address: false,
     telephone: false,
-  },
-  // Configuration viewport pour la safe area iOS
-  viewport: {
-    width: "device-width",
-    initialScale: 1,
-    maximumScale: 5,
-    userScalable: true,
-    viewportFit: "cover", // Important pour iOS safe area
   },
   metadataBase: new URL("https://www.selfkey.ch"), // Votre domaine officiel
   alternates: {
