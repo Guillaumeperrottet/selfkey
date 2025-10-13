@@ -192,6 +192,8 @@ model Establishment {
   integrations                        Integration[]
   pricingOptions                      PricingOption[]
   rooms                               Room[]
+  apiKeys                             ApiKey[]
+  webhooks                            Webhook[]
 
   @@map("establishments")
 }
@@ -371,4 +373,78 @@ model Invoice {
   booking     Booking  @relation(fields: [bookingId], references: [id], onDelete: Cascade)
 
   @@map("invoices")
+}
+
+model ApiKey {
+  id                String        @id @default(cuid())
+  name              String        // Nom descriptif (ex: "Police Fribourg")
+  key               String        @unique // La clé API elle-même (ex: sk_live_abc123)
+  establishmentSlug String?       // Si la clé est limitée à un établissement
+  isActive          Boolean       @default(true)
+  permissions       Json          @default("{}") // Permissions granulaires { "bookings": ["read"], "webhooks": ["read", "write"] }
+  lastUsedAt        DateTime?
+  createdAt         DateTime      @default(now())
+  createdBy         String        // ID du super-admin qui a créé la clé
+  expiresAt         DateTime?     // Optionnel: date d'expiration
+  establishment     Establishment? @relation(fields: [establishmentSlug], references: [slug], onDelete: Cascade)
+  logs              ApiLog[]
+
+  @@map("api_keys")
+}
+
+model ApiLog {
+  id            String   @id @default(cuid())
+  apiKeyId      String
+  endpoint      String   // ex: GET /api/v1/bookings
+  method        String   // GET, POST, etc.
+  statusCode    Int      // 200, 404, 500, etc.
+  ipAddress     String?
+  userAgent     String?
+  requestBody   Json?    // Corps de la requête (si pertinent)
+  responseTime  Int?     // Temps de réponse en ms
+  createdAt     DateTime @default(now())
+  apiKey        ApiKey   @relation(fields: [apiKeyId], references: [id], onDelete: Cascade)
+
+  @@index([apiKeyId, createdAt])
+  @@map("api_logs")
+}
+
+model Webhook {
+  id                String        @id @default(cuid())
+  establishmentSlug String
+  name              String        // Nom descriptif (ex: "Police Fribourg - SMS")
+  url               String        // URL de destination
+  events            String[]      // ["booking.completed", "booking.cancelled"]
+  isActive          Boolean       @default(true)
+  secret            String?       // Secret pour signature HMAC
+  format            String        @default("json") // "json" ou "csv"
+  retryCount        Int           @default(3) // Nombre de tentatives
+  retryDelay        Int           @default(60) // Délai entre tentatives (secondes)
+  createdAt         DateTime      @default(now())
+  updatedAt         DateTime      @updatedAt
+  establishment     Establishment @relation(fields: [establishmentSlug], references: [slug], onDelete: Cascade)
+  logs              WebhookLog[]
+
+  @@map("webhooks")
+}
+
+model WebhookLog {
+  id               String   @id @default(cuid())
+  webhookId        String
+  bookingId        String?  // ID de la réservation concernée
+  event            String   // "booking.completed"
+  url              String   // URL appelée
+  payload          Json     // Données envoyées
+  statusCode       Int?     // Code de réponse HTTP
+  responseBody     String?  // Réponse reçue
+  success          Boolean  @default(false)
+  attempt          Int      @default(1) // Numéro de la tentative
+  error            String?  // Message d'erreur si échec
+  executionTime    Int?     // Temps d'exécution en ms
+  createdAt        DateTime @default(now())
+  webhook          Webhook  @relation(fields: [webhookId], references: [id], onDelete: Cascade)
+
+  @@index([webhookId, createdAt])
+  @@index([bookingId])
+  @@map("webhook_logs")
 }

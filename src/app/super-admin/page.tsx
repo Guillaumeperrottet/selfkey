@@ -28,6 +28,9 @@ import {
   Menu,
   X,
   Home,
+  Key,
+  Webhook,
+  BookOpen,
 } from "lucide-react";
 import { SuperAdminCommissions } from "@/components/SuperAdminCommissions";
 import { SuperAdminEstablishments } from "@/components/SuperAdminEstablishments";
@@ -70,6 +73,27 @@ export default function SuperAdminPage() {
       icon: Users,
       description: "Gestion des utilisateurs",
     },
+    {
+      id: "api-management",
+      label: "Clés API",
+      icon: Key,
+      description: "Gestion des clés API",
+      href: "/super-admin/api-management",
+    },
+    {
+      id: "webhooks",
+      label: "Webhooks",
+      icon: Webhook,
+      description: "Configuration des webhooks",
+      href: "/super-admin/webhooks",
+    },
+    {
+      id: "monitoring-api",
+      label: "Monitoring API",
+      icon: Activity,
+      description: "Logs et statistiques",
+      href: "/super-admin/monitoring-api",
+    },
   ];
 
   // Vérifier l'authentification au chargement
@@ -91,30 +115,18 @@ export default function SuperAdminPage() {
     }
   }, [isAuthenticated]);
 
-  // Déconnexion automatique quand on quitte la page
+  // Déconnexion automatique UNIQUEMENT à la fermeture du navigateur/onglet
   useEffect(() => {
     const handleBeforeUnload = () => {
+      // Déconnexion silencieuse (pas de confirmation)
       performSilentLogout();
     };
 
-    const handleVisibilityChange = () => {
-      if (document.visibilityState === "hidden") {
-        performSilentLogout();
-      }
-    };
-
-    // Déconnexion à la fermeture/navigation
+    // Déconnexion UNIQUEMENT à la fermeture réelle du navigateur
     window.addEventListener("beforeunload", handleBeforeUnload);
 
-    // Déconnexion quand on change d'onglet
-    document.addEventListener("visibilitychange", handleVisibilityChange);
-
-    // Déconnexion au démontage du composant
     return () => {
       window.removeEventListener("beforeunload", handleBeforeUnload);
-      document.removeEventListener("visibilitychange", handleVisibilityChange);
-
-      performSilentLogout();
     };
   }, [performSilentLogout]);
 
@@ -301,7 +313,7 @@ export default function SuperAdminPage() {
       {/* Sidebar */}
       <div
         className={cn(
-          "fixed inset-y-0 left-0 z-50 w-72 bg-white dark:bg-gray-800 shadow-xl transform transition-transform duration-300 ease-in-out lg:translate-x-0 lg:static lg:inset-0",
+          "fixed inset-y-0 left-0 z-50 w-64 bg-white dark:bg-gray-800 shadow-xl transform transition-transform duration-300 ease-in-out lg:translate-x-0 lg:static lg:inset-0",
           sidebarOpen ? "translate-x-0" : "-translate-x-full"
         )}
       >
@@ -341,6 +353,35 @@ export default function SuperAdminPage() {
               const Icon = item.icon;
               const isActive = activeTab === item.id;
 
+              // Si l'item a un href, c'est un lien externe
+              if (item.href) {
+                return (
+                  <Link
+                    key={item.id}
+                    href={item.href}
+                    className={cn(
+                      "w-full flex items-center px-3 py-3 rounded-xl text-left transition-all duration-200 group",
+                      "text-gray-600 hover:bg-gray-50 hover:text-gray-900 dark:text-gray-300 dark:hover:bg-gray-700/50 dark:hover:text-white"
+                    )}
+                    onClick={() => setSidebarOpen(false)}
+                  >
+                    <Icon
+                      className={cn(
+                        "w-5 h-5 mr-3 transition-colors duration-200",
+                        "text-gray-400 group-hover:text-gray-600"
+                      )}
+                    />
+                    <div className="flex-1">
+                      <div className="font-medium text-sm">{item.label}</div>
+                      <div className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">
+                        {item.description}
+                      </div>
+                    </div>
+                  </Link>
+                );
+              }
+
+              // Sinon c'est un tab interne
               return (
                 <button
                   key={item.id}
@@ -378,6 +419,22 @@ export default function SuperAdminPage() {
 
           {/* Footer Actions */}
           <div className="p-4 space-y-1">
+            <Button
+              variant="ghost"
+              asChild
+              size="sm"
+              className="w-full justify-start text-gray-600 hover:text-gray-900 hover:bg-gray-50 dark:text-gray-300 dark:hover:text-white dark:hover:bg-gray-700/50"
+            >
+              <Link href="/api-docs" target="_blank">
+                <BookOpen className="w-4 h-4 mr-3" />
+                <div className="text-left">
+                  <div className="font-medium text-sm">Documentation API</div>
+                  <div className="text-xs text-gray-500 dark:text-gray-400">
+                    Swagger UI
+                  </div>
+                </div>
+              </Link>
+            </Button>
             <Button
               variant="ghost"
               asChild
