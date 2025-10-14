@@ -18,6 +18,7 @@ import {
   MapPin,
   Star,
 } from "lucide-react";
+import { SelfkeyFooter } from "@/components/selfkey-footer";
 
 export function SelfkeyHomepage() {
   const jsonLd = {
@@ -510,40 +511,7 @@ export function SelfkeyHomepage() {
       </main>
 
       {/* Footer */}
-      <footer className="border-t border-gray-200 dark:border-gray-800 py-12">
-        <div className="container mx-auto px-6 text-center">
-          <div className="flex items-center justify-center space-x-2 mb-4">
-            <div className="w-8 h-8 rounded-lg flex items-center justify-center">
-              <Image
-                src="/logo.png"
-                alt="SelfKey Logo"
-                width={32}
-                height={32}
-                className="rounded-lg"
-              />
-            </div>
-            <span className="text-xl font-semibold text-gray-900 dark:text-white">
-              SelfKey
-            </span>
-          </div>
-          <p className="text-gray-600 dark:text-gray-400">
-            Solution suisse de check-in automatique
-          </p>
-          <div className="mt-4 flex items-center justify-center space-x-2">
-            <span className="text-sm text-gray-700 flex items-center gap-2">
-              Create and powered by
-              <a
-                href="https://www.webbing.ch"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="ml-1 hover:text-gray-900 dark:hover:text-white"
-              >
-                Webbing
-              </a>
-            </span>
-          </div>
-        </div>
-      </footer>
+      <SelfkeyFooter />
     </div>
   );
 }
