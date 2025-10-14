@@ -104,13 +104,12 @@ export function SelfcampHomepage() {
                   {/* Phrase de motivation pour les utilisateurs */}
                   <div className="text-center mt-6 md:mt-8 max-w-2xl mx-auto space-y-3">
                     <h3 className="text-lg md:text-xl font-bold text-gray-900">
-                      L&apos;appli incontournable pour stationner en toute
-                      liberté !
+                      La liberté de camper, sans contraintes
                     </h3>
                     <p className="text-base md:text-lg text-gray-600 leading-relaxed">
-                      Trouvez des emplacements pour camping-cars sans
-                      réservation, enregistrez-vous en quelques clics sur place
-                      et passez la nuit en toute sécurité, où que vous soyez.
+                      Trouvez des aires Selfcamp, enregistrez-vous en quelques
+                      clics et profitez d&apos;avantages auprès des commerces
+                      locaux, où que vous soyez.
                     </p>
                   </div>
                 </div>
