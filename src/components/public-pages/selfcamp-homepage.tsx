@@ -100,6 +100,20 @@ export function SelfcampHomepage() {
                     </p>
                   </div>
                   <SearchBar />
+
+                  {/* Phrase de motivation pour les utilisateurs */}
+                  <p className="text-base md:text-lg text-gray-600 text-center mt-6 md:mt-8 max-w-xl mx-auto">
+                    Réservez en ligne 24/7, payez en ligne, et profitez
+                    d&apos;une{" "}
+                    <span className="text-[#84994F] font-semibold">
+                      arrivée autonome
+                    </span>{" "}
+                    sans attente. Découvrez aussi les{" "}
+                    <span className="text-[#84994F] font-semibold">
+                      commerces locaux
+                    </span>{" "}
+                    partenaires à proximité.
+                  </p>
                 </div>
               </div>
             </div>
