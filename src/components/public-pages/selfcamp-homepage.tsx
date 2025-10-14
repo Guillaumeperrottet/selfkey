@@ -3,7 +3,6 @@
 import Image from "next/image";
 import Link from "next/link";
 import SearchBar from "@/components/ui/search-bar";
-import TextType from "@/components/ui/text-type";
 import { StructuredData } from "@/components/shared/structured-data";
 import { SelfcampFooter } from "@/components/public-pages/selfcamp-footer";
 
@@ -88,33 +87,6 @@ export function SelfcampHomepage() {
                 <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold text-gray-900 font-display">
                   Selfcamp.ch
                 </h1>
-
-                <p className="text-lg sm:text-xl md:text-2xl font-semibold text-[#84994F] font-body">
-                  Développons le tourisme local ensemble
-                </p>
-
-                {/* Badge avec point vert animé */}
-                <div className="flex items-center gap-2 bg-[#84994F]/10 px-4 py-2 rounded-full">
-                  <div className="w-2 h-2 bg-[#84994F] rounded-full animate-pulse"></div>
-                  <div className="text-sm sm:text-base md:text-lg font-bold text-gray-900">
-                    <TextType
-                      text="Autonome. Facile. Légal."
-                      typingSpeed={80}
-                      showCursor={true}
-                      cursorCharacter="|"
-                      cursorClassName="text-[#374151]"
-                      className="text-gray-900"
-                      textColors={["#374151"]}
-                      loop={true}
-                      loopInterval={5000}
-                      startOnVisible={true}
-                    />
-                  </div>
-                </div>
-
-                <p className="text-[15px] md:text-base text-gray-600 max-w-2xl mx-auto leading-relaxed mb-8 md:mb-0">
-                  Solution d&apos;accès pour le tourisme de véhicule de loisirs.
-                </p>
 
                 {/* Search Bar intégrée avec accent vert */}
                 <div className="w-full max-w-2xl mt-6 md:mt-10">
