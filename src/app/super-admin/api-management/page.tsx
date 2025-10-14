@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import SuperAdminLayout from "@/components/SuperAdminLayout";
+import SuperAdminLayout from "@/components/super-admin/SuperAdminLayout";
 import { Button } from "@/components/ui/button";
 import {
   Card,

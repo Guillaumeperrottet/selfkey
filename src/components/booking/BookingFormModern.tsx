@@ -1,10 +1,10 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { DateSelector } from "@/components/DateSelector";
-import { RoomSelector } from "@/components/RoomSelector";
-import { BookingFormDetails } from "@/components/BookingFormDetails";
-import { LanguageSelector } from "@/components/LanguageSelector";
+import { DateSelector } from "@/components/booking/DateSelector";
+import { RoomSelector } from "@/components/booking/RoomSelector";
+import { BookingFormDetails } from "@/components/booking/BookingFormDetails";
+import { LanguageSelector } from "@/components/shared/LanguageSelector";
 
 interface Room {
   id: string;

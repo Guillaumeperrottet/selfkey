@@ -1,4 +1,4 @@
-import { QRCodeGenerator } from "@/components/QRCodeGenerator";
+import { QRCodeGenerator } from "@/components/shared/QRCodeGenerator";
 
 export default function QRTestPage() {
   return (

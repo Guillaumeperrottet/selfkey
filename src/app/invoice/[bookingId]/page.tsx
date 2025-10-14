@@ -2,7 +2,7 @@
 
 import React, { useEffect, useState } from "react";
 import { useParams, useSearchParams } from "next/navigation";
-import { InvoiceDownload } from "@/components/InvoiceDownload";
+import { InvoiceDownload } from "@/components/invoice/InvoiceDownload";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { FileText, AlertCircle } from "lucide-react";
 

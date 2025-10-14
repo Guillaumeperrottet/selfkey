@@ -1,7 +1,7 @@
 import { Metadata } from "next";
-import { DomainRouter } from "@/components/domain-router";
-import { SelfcampHomepage } from "@/components/selfcamp-homepage";
-import { SelfkeyHomepage } from "@/components/selfkey-homepage";
+import { DomainRouter } from "@/components/shared/domain-router";
+import { SelfcampHomepage } from "@/components/public-pages/selfcamp-homepage";
+import { SelfkeyHomepage } from "@/components/public-pages/selfkey-homepage";
 
 export const metadata: Metadata = {
   title: "SelfCamp - L'App de Camping-Car en Suisse | Aires de Qualité 24h/24",

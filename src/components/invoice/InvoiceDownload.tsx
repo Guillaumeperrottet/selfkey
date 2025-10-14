@@ -2,7 +2,7 @@
 
 import React, { useEffect, useState } from "react";
 import { pdf } from "@react-pdf/renderer";
-import { InvoicePDF } from "@/components/InvoicePDF";
+import { InvoicePDF } from "@/components/invoice/InvoicePDF";
 import { Button } from "@/components/ui/button";
 import { FileText } from "lucide-react";
 import { calculateFees } from "@/lib/fee-calculator";

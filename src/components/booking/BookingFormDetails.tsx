@@ -23,7 +23,7 @@ import {
   fetchPricingOptions,
   type PricingOption,
 } from "@/lib/pricing-options-calculator";
-import { CompactBookingCart } from "@/components/CompactBookingCart";
+import { CompactBookingCart } from "@/components/booking/CompactBookingCart";
 import { useBookingTranslation } from "@/hooks/useBookingTranslation";
 
 interface Room {

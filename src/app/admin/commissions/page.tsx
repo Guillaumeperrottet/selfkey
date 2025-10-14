@@ -3,8 +3,8 @@
 import { useEffect, useState, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { CommissionsDashboard } from "@/components/CommissionsDashboard";
-import { CommissionsTable } from "@/components/CommissionsTable";
+import { CommissionsDashboard } from "@/components/admin/dashboard/CommissionsDashboard";
+import { CommissionsTable } from "@/components/admin/dashboard/CommissionsTable";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Building, LogOut, CreditCard, BarChart3 } from "lucide-react";

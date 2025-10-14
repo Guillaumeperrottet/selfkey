@@ -30,8 +30,8 @@ import {
   AlertTriangle,
 } from "lucide-react";
 import { toastUtils } from "@/lib/toast-utils";
-import { DayParkingSetupModal } from "@/components/DayParkingSetupModal";
-import { ParkingControlAccess } from "@/components/ParkingControlAccess";
+import { DayParkingSetupModal } from "@/components/parking/DayParkingSetupModal";
+import { ParkingControlAccess } from "@/components/parking/ParkingControlAccess";
 
 interface SettingsManagerProps {
   hotelSlug: string;

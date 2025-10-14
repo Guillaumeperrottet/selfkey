@@ -1,5 +1,5 @@
 import { notFound } from "next/navigation";
-import { HotelLanding } from "@/components/HotelLanding";
+import { HotelLanding } from "@/components/public-pages/HotelLanding";
 import { prisma } from "@/lib/prisma";
 
 interface Props {

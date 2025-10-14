@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { TutorialGuide } from "./TutorialGuide";
+import { TutorialGuide } from "@/components/shared/TutorialGuide";
 
 interface TutorialStep {
   target: string;

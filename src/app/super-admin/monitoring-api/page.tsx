@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
-import SuperAdminLayout from "@/components/SuperAdminLayout";
+import SuperAdminLayout from "@/components/super-admin/SuperAdminLayout";
 import {
   Card,
   CardContent,

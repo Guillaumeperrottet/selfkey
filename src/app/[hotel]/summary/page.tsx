@@ -1,4 +1,4 @@
-import { BookingSummary } from "@/components/BookingSummary";
+import { BookingSummary } from "@/components/booking/BookingSummary";
 import { Suspense } from "react";
 
 interface Props {

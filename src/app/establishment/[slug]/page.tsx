@@ -7,7 +7,7 @@ import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
-import { SelfcampFooter } from "@/components/selfcamp-footer";
+import { SelfcampFooter } from "@/components/public-pages/selfcamp-footer";
 import {
   MapPin,
   Globe,

@@ -1,5 +1,5 @@
 import { prisma } from "@/lib/prisma";
-import { AdminDashboard } from "@/components/AdminDashboard";
+import { AdminDashboard } from "@/components/admin/dashboard/AdminDashboard";
 import { auth } from "@/lib/auth";
 import { headers } from "next/headers";
 import { redirect } from "next/navigation";

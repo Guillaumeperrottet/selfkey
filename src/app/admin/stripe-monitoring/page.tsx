@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft } from "lucide-react";
-import { StripeDashboard } from "@/components/StripeDashboard";
+import { StripeDashboard } from "@/components/admin/integrations/StripeDashboard";
 
 export default function StripeMonitoringPage() {
   const router = useRouter();

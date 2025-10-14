@@ -14,7 +14,7 @@ import {
 } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
 import { Settings, ChevronLeft } from "lucide-react";
-import { CompactBookingCart } from "@/components/CompactBookingCart";
+import { CompactBookingCart } from "@/components/booking/CompactBookingCart";
 
 interface PricingOptionValue {
   id: string;

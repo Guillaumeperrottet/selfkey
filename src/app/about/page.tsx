@@ -1,5 +1,5 @@
 import { Metadata } from "next";
-import { SelfcampAboutPage } from "@/components/selfcamp-about-page";
+import { SelfcampAboutPage } from "@/components/public-pages/selfcamp-about-page";
 
 export const metadata: Metadata = {
   title: "À propos - SelfCamp | Notre Approche & Solutions",

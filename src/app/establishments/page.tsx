@@ -4,8 +4,8 @@ import { useEffect, useState, useCallback } from "react";
 import { signOut } from "@/lib/auth-client";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useTutorial } from "@/components/TutorialManager";
-import { TutorialMenu } from "@/components/TutorialMenu";
+import { useTutorial } from "@/components/admin/settings/TutorialManager";
+import { TutorialMenu } from "@/components/shared/TutorialMenu";
 import {
   Card,
   CardContent,
@@ -42,8 +42,8 @@ import {
 } from "lucide-react";
 import Image from "next/image";
 import { toastUtils } from "@/lib/toast-utils";
-import { EstablishmentTransfer } from "@/components/EstablishmentTransfer";
-import { EstablishmentTransferHistory } from "@/components/EstablishmentTransferHistory";
+import { EstablishmentTransfer } from "@/components/super-admin/EstablishmentTransfer";
+import { EstablishmentTransferHistory } from "@/components/super-admin/EstablishmentTransferHistory";
 
 interface User {
   id: string;

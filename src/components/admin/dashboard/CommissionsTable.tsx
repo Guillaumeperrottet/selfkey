@@ -29,7 +29,7 @@ import {
   TrendingUp,
   DollarSign,
 } from "lucide-react";
-import { EditCommissionModal } from "@/components/EditCommissionModal";
+import { EditCommissionModal } from "@/components/super-admin/EditCommissionModal";
 
 interface EstablishmentCommission {
   id: string;

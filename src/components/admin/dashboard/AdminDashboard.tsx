@@ -1,25 +1,25 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { AdminSidebar } from "@/components/AdminSidebar";
-import { useTutorial } from "@/components/TutorialManager";
-import { TutorialMenu } from "@/components/TutorialMenu";
-import { StripeOnboarding } from "@/components/StripeOnboarding";
-import { RoomManagement } from "@/components/RoomManagement";
-import { AccessCodeManager } from "@/components/AccessCodeManager";
-import { SettingsManager } from "@/components/SettingsManager";
-import { FormCustomizer } from "@/components/FormCustomizer";
-import { PricingOptionsManager } from "@/components/PricingOptionsManager";
-import { ConfirmationManager } from "@/components/ConfirmationManager";
-import { DayParkingManager } from "@/components/DayParkingManager";
-import { DayParkingEmailManager } from "@/components/DayParkingEmailManager";
-import { DayParkingControlTable } from "@/components/DayParkingControlTable";
-import { BookingsTable } from "@/components/BookingsTable";
-import { DashboardCharts } from "@/components/DashboardCharts";
-import { DashboardPublicAccess } from "@/components/DashboardPublicAccess";
-import { ChartColorSelector } from "@/components/ChartColorSelector";
-import { TouristTaxDashboard } from "@/components/TouristTaxDashboard";
-import ExcelExportManager from "@/components/ExcelExportManager";
+import { AdminSidebar } from "@/components/admin/AdminSidebar";
+import { useTutorial } from "@/components/admin/settings/TutorialManager";
+import { TutorialMenu } from "@/components/shared/TutorialMenu";
+import { StripeOnboarding } from "@/components/admin/integrations/StripeOnboarding";
+import { RoomManagement } from "@/components/admin/settings/RoomManagement";
+import { AccessCodeManager } from "@/components/admin/settings/AccessCodeManager";
+import { SettingsManager } from "@/components/admin/settings/SettingsManager";
+import { FormCustomizer } from "@/components/admin/settings/FormCustomizer";
+import { PricingOptionsManager } from "@/components/admin/settings/PricingOptionsManager";
+import { ConfirmationManager } from "@/components/admin/settings/ConfirmationManager";
+import { DayParkingManager } from "@/components/parking/DayParkingManager";
+import { DayParkingEmailManager } from "@/components/admin/email/DayParkingEmailManager";
+import { DayParkingControlTable } from "@/components/parking/DayParkingControlTable";
+import { BookingsTable } from "@/components/admin/dashboard/BookingsTable";
+import { DashboardCharts } from "@/components/admin/dashboard/DashboardCharts";
+import { DashboardPublicAccess } from "@/components/admin/dashboard/DashboardPublicAccess";
+import { ChartColorSelector } from "@/components/shared/ChartColorSelector";
+import { TouristTaxDashboard } from "@/components/admin/dashboard/TouristTaxDashboard";
+import ExcelExportManager from "@/components/admin/settings/ExcelExportManager";
 import {
   Card,
   CardContent,

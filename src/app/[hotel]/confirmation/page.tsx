@@ -1,4 +1,4 @@
-import { ConfirmationChoice } from "@/components/ConfirmationChoice";
+import { ConfirmationChoice } from "@/components/confirmation/ConfirmationChoice";
 import { Card, CardContent } from "@/components/ui/card";
 import { CheckCircle } from "lucide-react";
 

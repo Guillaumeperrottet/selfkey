@@ -1,6 +1,6 @@
 import { notFound } from "next/navigation";
 import { prisma } from "@/lib/prisma";
-import { QRCodeGenerator } from "@/components/QRCodeGenerator";
+import { QRCodeGenerator } from "@/components/shared/QRCodeGenerator";
 import {
   Card,
   CardContent,

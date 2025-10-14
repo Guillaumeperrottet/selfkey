@@ -18,7 +18,7 @@ import {
   MapPin,
   Star,
 } from "lucide-react";
-import { SelfkeyFooter } from "@/components/selfkey-footer";
+import { SelfkeyFooter } from "@/components/public-pages/selfkey-footer";
 
 export function SelfkeyHomepage() {
   const jsonLd = {

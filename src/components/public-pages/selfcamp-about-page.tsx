@@ -3,9 +3,9 @@
 import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
 import { motion } from "framer-motion";
-import { StructuredData } from "@/components/structured-data";
+import { StructuredData } from "@/components/shared/structured-data";
 import { Timeline } from "@/components/ui/timeline";
-import { SelfcampFooter } from "@/components/selfcamp-footer";
+import { SelfcampFooter } from "@/components/public-pages/selfcamp-footer";
 import { useState, useEffect } from "react";
 
 export function SelfcampAboutPage() {

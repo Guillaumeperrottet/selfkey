@@ -1,9 +1,9 @@
 import { notFound, redirect } from "next/navigation";
 import { prisma } from "@/lib/prisma";
-import { PaymentFormMultiple } from "@/components/PaymentFormMultiple";
-import { DayParkingPaymentForm } from "@/components/DayParkingPaymentForm";
-import { ClassicBookingPaymentForm } from "@/components/ClassicBookingPaymentForm";
-import { BookingSteps } from "@/components/BookingSteps";
+import { PaymentFormMultiple } from "@/components/payment/PaymentFormMultiple";
+import { DayParkingPaymentForm } from "@/components/payment/DayParkingPaymentForm";
+import { ClassicBookingPaymentForm } from "@/components/payment/ClassicBookingPaymentForm";
+import { BookingSteps } from "@/components/booking/BookingSteps";
 
 interface Props {
   params: Promise<{ hotel: string }>;

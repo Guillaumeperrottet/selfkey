@@ -4,8 +4,8 @@ import Image from "next/image";
 import Link from "next/link";
 import SearchBar from "@/components/ui/search-bar";
 import TextType from "@/components/ui/text-type";
-import { StructuredData } from "@/components/structured-data";
-import { SelfcampFooter } from "@/components/selfcamp-footer";
+import { StructuredData } from "@/components/shared/structured-data";
+import { SelfcampFooter } from "@/components/public-pages/selfcamp-footer";
 
 export function SelfcampHomepage() {
   return (

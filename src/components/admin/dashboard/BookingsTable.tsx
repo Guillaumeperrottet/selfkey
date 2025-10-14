@@ -36,7 +36,7 @@ import {
 } from "lucide-react";
 import { calculateStayDuration } from "@/lib/availability";
 import { formatCHF, calculateFees } from "@/lib/fee-calculator";
-import { InvoiceDownload } from "@/components/InvoiceDownload";
+import { InvoiceDownload } from "@/components/invoice/InvoiceDownload";
 
 interface PricingOptionValue {
   id: string;

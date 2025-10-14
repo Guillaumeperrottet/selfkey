@@ -4,8 +4,8 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { CheckCircle, MapPin } from "lucide-react";
 import Link from "next/link";
-import { AutoEmailConfirmation } from "@/components/AutoEmailConfirmation";
-import { ConfirmationDetails } from "@/components/ConfirmationDetails";
+import { AutoEmailConfirmation } from "@/components/admin/email/AutoEmailConfirmation";
+import { ConfirmationDetails } from "@/components/confirmation/ConfirmationDetails";
 
 interface Props {
   params: Promise<{ hotel: string }>;

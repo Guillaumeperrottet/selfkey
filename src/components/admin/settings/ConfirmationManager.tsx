@@ -8,7 +8,7 @@ import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { Settings, Copy, Plus, X, Dog, Languages } from "lucide-react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { EmailEditor } from "@/components/EmailEditor";
+import { EmailEditor } from "@/components/admin/email/EmailEditor";
 import { toastUtils } from "@/lib/toast-utils";
 
 // Types de langue

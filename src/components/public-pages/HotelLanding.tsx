@@ -1,11 +1,11 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { BookingFormModern } from "@/components/BookingFormModern";
-import { ParkingTypeSelector } from "@/components/ParkingTypeSelector";
-import { DayParkingDurationSelector } from "@/components/DayParkingDurationSelector";
-import { DayParkingForm } from "@/components/DayParkingForm";
-import { ClosedPage } from "@/components/ClosedPage";
+import { BookingFormModern } from "@/components/booking/BookingFormModern";
+import { ParkingTypeSelector } from "@/components/parking/ParkingTypeSelector";
+import { DayParkingDurationSelector } from "@/components/parking/DayParkingDurationSelector";
+import { DayParkingForm } from "@/components/parking/DayParkingForm";
+import { ClosedPage } from "@/components/public-pages/ClosedPage";
 import { checkCutoffTime } from "@/lib/time-utils";
 
 interface Establishment {

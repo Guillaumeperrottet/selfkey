@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { DashboardCharts } from "@/components/DashboardCharts";
+import { DashboardCharts } from "@/components/admin/dashboard/DashboardCharts";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Shield, BarChart3, Eye, Users, Building } from "lucide-react";

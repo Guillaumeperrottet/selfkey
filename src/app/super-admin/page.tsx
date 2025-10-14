@@ -32,10 +32,10 @@ import {
   Webhook,
   BookOpen,
 } from "lucide-react";
-import { SuperAdminCommissions } from "@/components/SuperAdminCommissions";
-import { SuperAdminEstablishments } from "@/components/SuperAdminEstablishments";
-import { SuperAdminUsers } from "@/components/SuperAdminUsers";
-import { SuperAdminTouristTax } from "@/components/SuperAdminTouristTax";
+import { SuperAdminCommissions } from "@/components/super-admin/SuperAdminCommissions";
+import { SuperAdminEstablishments } from "@/components/super-admin/SuperAdminEstablishments";
+import { SuperAdminUsers } from "@/components/super-admin/SuperAdminUsers";
+import { SuperAdminTouristTax } from "@/components/super-admin/SuperAdminTouristTax";
 import { toastUtils } from "@/lib/toast-utils";
 
 export default function SuperAdminPage() {
