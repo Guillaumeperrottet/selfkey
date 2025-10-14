@@ -1,13 +1,3 @@
-import { PrismaClient } from "@prisma/client";
-
-const globalForPrisma = globalThis as unknown as {
-  prisma: PrismaClient | undefined;
-};
-
-export const prisma =
-  globalForPrisma.prisma ??
-  new PrismaClient({
-    log: ["query"],
-  });
-
-if (process.env.NODE_ENV !== "production") globalForPrisma.prisma = prisma;
+// Rétrocompatibilité - À supprimer après migration complète
+// Nouveau code devrait utiliser: @/lib/database/prisma ou @/lib/database
+export * from './database/prisma';
