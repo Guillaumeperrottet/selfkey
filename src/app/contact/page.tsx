@@ -158,10 +158,10 @@ export default function ContactPage() {
           </div>
 
           <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 max-w-4xl mx-auto">
-            <div className="flex flex-col md:flex-row items-center justify-around gap-6 md:gap-8">
+            <div className="flex flex-col md:flex-row items-start md:items-center justify-around gap-6 md:gap-8">
               <a
                 href="mailto:perrottet.guillaume.97@gmail.com"
-                className="flex items-center gap-3 group"
+                className="flex items-center gap-3 group w-full md:w-auto"
               >
                 <div className="w-12 h-12 rounded-full bg-[#84994F]/10 flex items-center justify-center group-hover:bg-[#84994F] transition-colors flex-shrink-0">
                   <Mail className="h-5 w-5 text-[#84994F] group-hover:text-white transition-colors" />
@@ -180,7 +180,7 @@ export default function ContactPage() {
 
               <a
                 href="tel:+41793414074"
-                className="flex items-center gap-3 group"
+                className="flex items-center gap-3 group w-full md:w-auto"
               >
                 <div className="w-12 h-12 rounded-full bg-[#84994F]/10 flex items-center justify-center group-hover:bg-[#84994F] transition-colors flex-shrink-0">
                   <Phone className="h-5 w-5 text-[#84994F] group-hover:text-white transition-colors" />
@@ -197,7 +197,7 @@ export default function ContactPage() {
 
               <div className="hidden md:block w-px h-12 bg-gray-200"></div>
 
-              <div className="flex items-center gap-3">
+              <div className="flex items-center gap-3 w-full md:w-auto">
                 <div className="w-12 h-12 rounded-full bg-[#84994F]/10 flex items-center justify-center flex-shrink-0">
                   <MapPin className="h-5 w-5 text-[#84994F]" />
                 </div>
