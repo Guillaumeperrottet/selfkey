@@ -91,6 +91,9 @@ export function SelfcampHomepage() {
                 <p className="text-xl md:text-2xl text-gray-900 font-semibold -mt-6 md:-mt-8">
                   Fribourg
                 </p>
+                <h3 className="text-lg md:text-xl font-bold text-gray-900">
+                  La liberté de camper, sans contraintes
+                </h3>
 
                 {/* Search Bar intégrée avec accent vert */}
                 <div className="w-full max-w-2xl mt-6 md:mt-10">
@@ -107,16 +110,9 @@ export function SelfcampHomepage() {
 
                   {/* Phrase de motivation pour les utilisateurs */}
                   <div className="text-center mt-6 md:mt-8 max-w-2xl mx-auto space-y-3">
-                    <h3 className="text-lg md:text-xl font-bold text-gray-900">
-                      La liberté de camper, sans contraintes
-                    </h3>
                     {/* <p className="text-base md:text-lg text-gray-600 leading-relaxed">
                       <span className="text-[#84994F] font-semibold">et</span>
                     </p> */}
-                    <p className="text-base md:text-lg text-gray-600 leading-relaxed">
-                      Profitez d&apos;avantages auprès des commerces locaux, où
-                      que vous soyez.
-                    </p>
                   </div>
                 </div>
               </div>
@@ -128,29 +124,16 @@ export function SelfcampHomepage() {
         <section className="py-12 md:py-20 px-4 bg-gray-50/30">
           <div className="container mx-auto max-w-4xl">
             <div className="text-center mb-10 md:mb-14">
-              <h2 className="text-2xl md:text-3xl font-bold text-gray-900 mb-3">
-                Pourquoi choisir nos aires ?
+              <h2 className="text-2xl md:text-3xl font-bold text-gray-900">
+                Pourquoi choisir{" "}
+                <span className="text-[#84994F]">SelfCamp</span> ?
               </h2>
               <div className="flex items-center justify-center opacity-70">
-                <VanIcon size="sm" showRoad={true} />
+                <VanIcon size="md" showRoad={true} />
               </div>
             </div>
 
             <div className="space-y-6 md:space-y-8 max-w-3xl mx-auto">
-              {/* Avantage 1 */}
-              <div className="flex gap-4 md:gap-6 items-start">
-                <div className="flex-shrink-0 w-1.5 h-1.5 md:w-2 md:h-2 bg-[#84994F] rounded-full mt-2"></div>
-                <div>
-                  <h3 className="text-lg md:text-xl font-semibold text-gray-900 mb-2">
-                    Emplacements légaux et sécurisés
-                  </h3>
-                  <p className="text-sm md:text-base text-gray-600 leading-relaxed">
-                    En partenariat avec les communes, dormez en toute
-                    tranquillité dans le respect des réglementations locales.
-                  </p>
-                </div>
-              </div>
-
               {/* Avantage 2 */}
               <div className="flex gap-4 md:gap-6 items-start">
                 <div className="flex-shrink-0 w-1.5 h-1.5 md:w-2 md:h-2 bg-[#84994F] rounded-full mt-2"></div>
@@ -170,11 +153,25 @@ export function SelfcampHomepage() {
                 <div className="flex-shrink-0 w-1.5 h-1.5 md:w-2 md:h-2 bg-[#84994F] rounded-full mt-2"></div>
                 <div>
                   <h3 className="text-lg md:text-xl font-semibold text-gray-900 mb-2">
-                    Réductions chez nos partenaires locaux
+                    Réductions auprès d&apos;artisans locaux
                   </h3>
                   <p className="text-sm md:text-base text-gray-600 leading-relaxed">
-                    Profitez d&apos;avantages exclusifs auprès des artisans et
-                    commerces de la région.
+                    Profitez d&apos;avantages dans les boulangeries, épiceries
+                    et boucheries... de la région
+                  </p>
+                </div>
+              </div>
+
+              {/* Avantage 1 */}
+              <div className="flex gap-4 md:gap-6 items-start">
+                <div className="flex-shrink-0 w-1.5 h-1.5 md:w-2 md:h-2 bg-[#84994F] rounded-full mt-2"></div>
+                <div>
+                  <h3 className="text-lg md:text-xl font-semibold text-gray-900 mb-2">
+                    Emplacements conforme à la loi
+                  </h3>
+                  <p className="text-sm md:text-base text-gray-600 leading-relaxed">
+                    Dormez en toute tranquillité dans le respect des
+                    réglementations locales
                   </p>
                 </div>
               </div>
@@ -188,8 +185,8 @@ export function SelfcampHomepage() {
             <div className="bg-[#84994F]/8 p-8 md:p-10 rounded-3xl border border-gray-100 shadow-sm">
               <div className="flex flex-col items-center text-center space-y-6">
                 <h2 className="text-2xl md:text-3xl font-bold text-gray-900">
-                  Intéressé par <span className="text-[#84994F]">SelfCamp</span>{" "}
-                  ?
+                  Intéressés par{" "}
+                  <span className="text-[#84994F]">SelfCamp</span> ?
                 </h2>
                 <p className="text-[15px] md:text-base text-gray-600 leading-relaxed max-w-xl">
                   Si vous êtes propriétaire d&apos;un parking ou d&apos;un

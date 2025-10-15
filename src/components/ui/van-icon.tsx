@@ -115,17 +115,17 @@ export function VanIcon({ size = "sm", showRoad = true }: VanIconProps) {
         </svg>
       </motion.div>
 
-      {/* Route de campagne terre/beige - discrète */}
+      {/* Route de campagne terre/beige - très douce et transparente */}
       {showRoad && (
         <div className={`${roadWidthClasses[size]} relative`}>
-          {/* Route principale style chemin de terre - plus petite et discrète */}
-          <div className="relative h-1.5 bg-gradient-to-b from-amber-700/30 via-amber-600/35 to-amber-700/30 rounded-sm overflow-hidden">
-            {/* Ligne centrale en pointillés animée - très discrète */}
+          {/* Route principale style chemin de terre - douce et transparente */}
+          <div className="relative h-1.5 bg-gradient-to-b from-amber-600/15 via-amber-500/20 to-amber-600/15 rounded-sm overflow-hidden">
+            {/* Ligne centrale en pointillés animée - très douce */}
             <motion.div
               className="absolute top-1/2 left-0 w-full h-px flex items-center"
               style={{ transform: "translateY(-50%)" }}
             >
-              {/* Traits beige clair qui défilent - plus petits */}
+              {/* Traits beige clair qui défilent - très transparents */}
               <motion.div
                 className="flex items-center w-[200%]"
                 animate={{
@@ -139,19 +139,19 @@ export function VanIcon({ size = "sm", showRoad = true }: VanIconProps) {
               >
                 {[...Array(8)].map((_, i) => (
                   <div key={i} className="flex items-center">
-                    <div className="w-2 h-px bg-amber-200/40 rounded-full mx-1.5"></div>
+                    <div className="w-2 h-px bg-amber-300/25 rounded-full mx-1.5"></div>
                   </div>
                 ))}
               </motion.div>
             </motion.div>
 
-            {/* Texture terre avec petites variations */}
-            <div className="absolute inset-0 bg-amber-800/5"></div>
+            {/* Texture terre très légère */}
+            <div className="absolute inset-0 bg-amber-700/3"></div>
           </div>
 
-          {/* Herbe/végétation sur les côtés - plus discrète */}
-          <div className="absolute -left-0.5 top-0 w-0.5 h-1.5 bg-green-700/20 rounded-l-sm"></div>
-          <div className="absolute -right-0.5 top-0 w-0.5 h-1.5 bg-green-700/20 rounded-r-sm"></div>
+          {/* Herbe/végétation sur les côtés - très discrète */}
+          <div className="absolute -left-0.5 top-0 w-0.5 h-1.5 bg-green-600/12 rounded-l-sm"></div>
+          <div className="absolute -right-0.5 top-0 w-0.5 h-1.5 bg-green-600/12 rounded-r-sm"></div>
         </div>
       )}
     </div>
