@@ -51,8 +51,8 @@ export function SelfcampAboutPage() {
                 </div>
                 <div className="bg-gradient-to-r from-[#84994F]/5 to-transparent rounded-2xl p-5 border-l-4 border-[#84994F]/40">
                   <p className="text-[15px] text-gray-700 leading-[1.7] font-medium">
-                    Les artisans locaux reçoivent des avantages via les taxes de
-                    séjour.
+                    Les artisans locaux profitent des touristes grâce au système
+                    de partenariat
                   </p>
                 </div>
               </div>
@@ -127,9 +127,8 @@ export function SelfcampAboutPage() {
 
               <div className="bg-gradient-to-r from-[#84994F]/5 to-transparent rounded-2xl p-6 border-l-4 border-[#84994F]/40">
                 <p className="text-base text-gray-700 leading-relaxed font-medium">
-                  Les artisans locaux (boulangerie, épicerie, laiterie)
-                  profitent de cette présence via des avantages offerts lors du
-                  paiement de la taxe de séjour.
+                  Les artisans locaux profitent des touristes grâce au système
+                  de partenariat
                 </p>
               </div>
 
