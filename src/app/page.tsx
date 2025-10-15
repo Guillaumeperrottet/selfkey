@@ -4,9 +4,10 @@ import { SelfcampHomepage } from "@/components/public-pages/selfcamp-homepage";
 import { SelfkeyHomepage } from "@/components/public-pages/selfkey-homepage";
 
 export const metadata: Metadata = {
-  title: "SelfCamp - L'App de Camping-Car en Suisse | Aires de Qualité 24h/24",
+  title:
+    "SelfCamp - La liberté de camper, sans contraintes dans le canton de Fribourg",
   description:
-    "Découvrez des aires de camping-car avec SelfCamp ! Accès spontané sans réservation, paiement sécurisé, emplacements de qualité créés par nos soins. La liberté de camper en toute sérénité en Suisse.",
+    "Découvrez des aires de camping-car officielles ! Accès spontané sans réservation, paiement sécurisé, emplacements de qualité.",
   keywords: [
     "camping-car Suisse",
     "aires camping-car",
