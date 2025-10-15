@@ -6,6 +6,7 @@ import { motion } from "framer-motion";
 import { StructuredData } from "@/components/shared/structured-data";
 import { Timeline } from "@/components/ui/timeline";
 import { SelfcampFooter } from "@/components/public-pages/selfcamp-footer";
+import { VanIcon } from "@/components/ui/van-icon";
 import { useState, useEffect } from "react";
 
 export function SelfcampAboutPage() {
@@ -101,17 +102,6 @@ export function SelfcampAboutPage() {
                   </div>
                 </div>
               </div>
-
-              {/* Impact final */}
-              <div className="bg-gradient-to-br from-[#84994F]/5 to-transparent rounded-2xl p-5 border border-[#84994F]/10">
-                <h4 className="text-[15px] font-bold text-[#84994F] mb-2">
-                  Impact Territorial
-                </h4>
-                <p className="text-gray-600 text-[14px] leading-relaxed">
-                  Un cercle vertueux pour les territoires, commerçants et
-                  visiteurs.
-                </p>
-              </div>
             </div>
 
             {/* Desktop: Cards layout */}
@@ -172,17 +162,6 @@ export function SelfcampAboutPage() {
                   </p>
                 </div>
               </div>
-
-              <div className="mt-10 bg-[#84994F]/3 rounded-2xl p-6 border border-[#84994F]/30 text-center max-w-4xl mx-auto">
-                <h4 className="text-xl font-semibold text-[#84994F] mb-3">
-                  Impact Territorial
-                </h4>
-                <p className="text-gray-700 text-base leading-relaxed">
-                  SelfCamp transforme le camping sauvage en opportunité
-                  économique structurée, créant un cercle vertueux qui bénéficie
-                  aux territoires, commerçants et visiteurs.
-                </p>
-              </div>
             </div>
           </div>
         </div>
@@ -201,8 +180,8 @@ export function SelfcampAboutPage() {
                   <span className="text-[#84994F] font-semibold">
                     solution d&apos;enregistrement
                   </span>
-                  , nous vous accompagnons avec notre expertise complète pour
-                  l&apos;organisation optimale de votre aire.
+                  , nous vous accompagnons pour l&apos;organisation optimale de
+                  votre aire.
                 </p>
               </div>
 
@@ -273,8 +252,8 @@ export function SelfcampAboutPage() {
                     <span className="text-[#84994F] font-medium">
                       solution d&apos;enregistrement
                     </span>
-                    , nous vous accompagnons avec notre expertise complète pour
-                    l&apos;organisation optimale de votre aire.
+                    , nous vous accompagnons pour l&apos;organisation optimale
+                    de votre aire.
                   </p>
                   <p className="text-base text-gray-600 font-medium">
                     Nos prestations incluent :
@@ -875,8 +854,8 @@ export function SelfcampAboutPage() {
               <div className="md:hidden">
                 <div className="bg-gradient-to-br from-[#84994F]/8 via-white to-[#84994F]/5 rounded-3xl p-8 border border-[#84994F]/15 shadow-lg">
                   <div className="text-center space-y-6">
-                    <div className="inline-flex items-center justify-center w-14 h-14 bg-[#84994F]/15 rounded-full mb-2">
-                      <span className="text-2xl">🚐</span>
+                    <div className="flex items-center justify-center opacity-80">
+                      <VanIcon size="md" showRoad={false} />
                     </div>
                     <div className="space-y-3">
                       <h3 className="text-xl font-bold text-gray-900 leading-tight">
@@ -909,8 +888,8 @@ export function SelfcampAboutPage() {
               <div className="hidden md:block">
                 <div className="bg-gradient-to-br from-[#84994F]/10 via-white to-[#84994F]/5 rounded-3xl p-12 border border-[#84994F]/20 shadow-xl max-w-5xl mx-auto">
                   <div className="text-center space-y-6">
-                    <div className="inline-flex items-center justify-center w-16 h-16 bg-[#84994F] rounded-full mb-4">
-                      <span className="text-3xl">🚐</span>
+                    <div className="flex items-center justify-center opacity-80 mb-4">
+                      <VanIcon size="lg" showRoad={false} />
                     </div>
                     <h3 className="text-3xl md:text-4xl font-bold text-gray-900">
                       Nous sommes à disposition pour plus de détails
