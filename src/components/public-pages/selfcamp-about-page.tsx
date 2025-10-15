@@ -132,7 +132,7 @@ export function SelfcampAboutPage() {
                   </h4>
                   <p className="text-sm text-gray-600 leading-relaxed">
                     Boulangeries, épiceries, laiteries bénéficient directement
-                    du passage des camping-caristes
+                    du passage des vanlifer
                   </p>
                 </div>
 
@@ -157,8 +157,7 @@ export function SelfcampAboutPage() {
                     Économie Circulaire
                   </h4>
                   <p className="text-sm text-gray-600 leading-relaxed">
-                    Avantages commerciaux liés au paiement des taxes de séjour,
-                    retombées économiques directes
+                    Retombées économiques directes pour la région
                   </p>
                 </div>
               </div>
@@ -742,7 +741,7 @@ export function SelfcampAboutPage() {
               className="text-base md:text-xl lg:text-2xl text-gray-600 mb-10 md:mb-16 max-w-4xl mx-auto leading-relaxed px-2"
             >
               Une solution complète pour créer des aires de camping-car qui
-              bénéficient aux communes, aux régions et aux vanlifer.
+              bénéficient aux communes, aux régions et aux vanlifer
             </motion.p>
 
             {/* Stats cards */}
