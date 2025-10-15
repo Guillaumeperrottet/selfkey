@@ -598,8 +598,8 @@ export default function DirectMap({
     );
   }
 
-  // Coordonnées par défaut (Suisse)
-  const defaultCenter: [number, number] = [46.8182, 8.2275];
+  // Coordonnées par défaut (Fribourg, Suisse)
+  const defaultCenter: [number, number] = [46.8182, 7.1512];
   const mapCenter: [number, number] = center
     ? [center.lat, center.lng]
     : defaultCenter;

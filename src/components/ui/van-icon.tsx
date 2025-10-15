@@ -14,10 +14,10 @@ export function VanIcon({ size = "sm", showRoad = true }: VanIconProps) {
     lg: "w-20 h-20",
   };
 
-  const roadWidthClasses = {
-    sm: "w-32",
-    md: "w-40",
-    lg: "w-48",
+  const roadSizeClasses = {
+    sm: "w-32 h-2",
+    md: "w-48 h-3",
+    lg: "w-64 h-4",
   };
 
   return (
@@ -115,43 +115,43 @@ export function VanIcon({ size = "sm", showRoad = true }: VanIconProps) {
         </svg>
       </motion.div>
 
-      {/* Route de campagne terre/beige - très douce et transparente */}
+      {/* Route avec animation - identique à van-loading */}
       {showRoad && (
-        <div className={`${roadWidthClasses[size]} relative`}>
-          {/* Route principale style chemin de terre - douce et transparente */}
-          <div className="relative h-1.5 bg-gradient-to-b from-amber-600/15 via-amber-500/20 to-amber-600/15 rounded-sm overflow-hidden">
-            {/* Ligne centrale en pointillés animée - très douce */}
+        <div className="relative flex items-center">
+          {/* Route simple */}
+          <div
+            className={`${roadSizeClasses[size]} bg-gray-100 rounded-full relative overflow-hidden`}
+          >
+            {/* Lignes de route animées */}
             <motion.div
-              className="absolute top-1/2 left-0 w-full h-px flex items-center"
+              className="absolute top-1/2 left-0 w-full h-0.5 bg-gray-300"
               style={{ transform: "translateY(-50%)" }}
             >
-              {/* Traits beige clair qui défilent - très transparents */}
+              {/* Petites lignes blanches qui défilent en boucle continue */}
               <motion.div
-                className="flex items-center w-[200%]"
+                key="road-animation"
+                className="flex items-center"
+                style={{ width: "200%" }}
+                initial={{ x: "0%" }}
                 animate={{
-                  x: ["-50%", "0%"],
+                  x: "-50%",
                 }}
                 transition={{
-                  duration: 2,
+                  duration: 6,
                   repeat: Infinity,
                   ease: "linear",
+                  repeatType: "loop",
                 }}
               >
-                {[...Array(8)].map((_, i) => (
-                  <div key={i} className="flex items-center">
-                    <div className="w-2 h-px bg-amber-300/25 rounded-full mx-1.5"></div>
-                  </div>
+                {[...Array(16)].map((_, i) => (
+                  <div
+                    key={i}
+                    className="w-3 h-0.5 bg-white mx-2 rounded-full flex-shrink-0"
+                  />
                 ))}
               </motion.div>
             </motion.div>
-
-            {/* Texture terre très légère */}
-            <div className="absolute inset-0 bg-amber-700/3"></div>
           </div>
-
-          {/* Herbe/végétation sur les côtés - très discrète */}
-          <div className="absolute -left-0.5 top-0 w-0.5 h-1.5 bg-green-600/12 rounded-l-sm"></div>
-          <div className="absolute -right-0.5 top-0 w-0.5 h-1.5 bg-green-600/12 rounded-r-sm"></div>
         </div>
       )}
     </div>

@@ -46,7 +46,7 @@ function MapPageContent() {
   const [mapCenter, setMapCenter] = useState<{
     lat: number;
     lng: number;
-  } | null>(null);
+  } | null>({ lat: 46.8182, lng: 7.1512 }); // Centré sur Fribourg par défaut
   const [mapZoom, setMapZoom] = useState<number>(9);
   const [isUserGeolocation, setIsUserGeolocation] = useState(false); // Nouveau état
   const [showingNearbyEstablishments, setShowingNearbyEstablishments] =
