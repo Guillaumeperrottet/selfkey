@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { SelfcampFooter } from "@/components/public-pages/selfcamp-footer";
+import { AmenityIcon } from "@/components/ui/amenity-icon";
 import {
   MapPin,
   Globe,
@@ -70,20 +71,20 @@ interface EstablishmentData {
   touristTaxImpactMessage?: string;
 }
 
-const ATTRIBUTE_LABELS: Record<string, { label: string; icon: string }> = {
-  wifi: { label: "WiFi gratuit", icon: "📶" },
-  electricity: { label: "Électricité", icon: "⚡" },
-  water: { label: "Eau potable", icon: "💧" },
-  showers: { label: "Douches", icon: "🚿" },
-  toilets: { label: "Toilettes", icon: "🚽" },
-  wasteDisposal: { label: "Vidange eaux usées", icon: "🚰" },
-  parking: { label: "Parking", icon: "🅿️" },
-  security: { label: "Sécurité 24h/24", icon: "🔒" },
-  restaurant: { label: "Restaurant", icon: "🍽️" },
-  store: { label: "Boutique", icon: "🏪" },
-  laundry: { label: "Laverie", icon: "🧺" },
-  playground: { label: "Aire de jeux", icon: "🎮" },
-  petFriendly: { label: "Animaux acceptés", icon: "🐕" },
+const ATTRIBUTE_LABELS: Record<string, { label: string }> = {
+  wifi: { label: "WiFi gratuit" },
+  electricity: { label: "Électricité" },
+  water: { label: "Eau potable" },
+  showers: { label: "Douches" },
+  toilets: { label: "Toilettes" },
+  wasteDisposal: { label: "Vidange eaux usées" },
+  parking: { label: "Parking" },
+  security: { label: "Sécurité 24h/24" },
+  restaurant: { label: "Restaurant" },
+  store: { label: "Boutique" },
+  laundry: { label: "Laverie" },
+  playground: { label: "Aire de jeux" },
+  petFriendly: { label: "Animaux acceptés" },
 };
 
 export default function EstablishmentPage() {
@@ -611,7 +612,25 @@ export default function EstablishmentPage() {
                           key={key}
                           className="flex items-center gap-3 p-4 rounded-xl bg-gradient-to-r from-[#84994F]/5 to-transparent border-l-2 border-[#84994F]/30 hover:border-[#84994F] hover:from-[#84994F]/10 transition-all"
                         >
-                          <span className="text-2xl">{attr.icon}</span>
+                          <AmenityIcon
+                            type={
+                              key as
+                                | "wifi"
+                                | "electricity"
+                                | "water"
+                                | "showers"
+                                | "toilets"
+                                | "wasteDisposal"
+                                | "parking"
+                                | "security"
+                                | "restaurant"
+                                | "store"
+                                | "laundry"
+                                | "playground"
+                                | "petFriendly"
+                            }
+                            size={28}
+                          />
                           <span className="text-sm font-medium text-gray-700">
                             {attr.label}
                           </span>
