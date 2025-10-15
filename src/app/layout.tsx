@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Geist_Mono } from "next/font/google";
 import { Toaster } from "sonner";
+import { Analytics } from "@vercel/analytics/next";
 import "./globals.css";
 import localFont from "next/font/local";
 
@@ -216,6 +217,7 @@ export default function RootLayout({
           expand={false}
           duration={4000}
         />
+        <Analytics />
       </body>
     </html>
   );
