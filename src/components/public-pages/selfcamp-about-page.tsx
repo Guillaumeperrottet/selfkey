@@ -763,8 +763,8 @@ export function SelfcampAboutPage() {
               transition={{ duration: 0.8, delay: 0.4 }}
               className="text-base md:text-xl lg:text-2xl text-gray-600 mb-10 md:mb-16 max-w-4xl mx-auto leading-relaxed px-2"
             >
-              Une solution complète pour créer des aires de camping-car légales
-              qui bénéficient aux communes, aux régions et aux vanlife.
+              Une solution complète pour créer des aires de camping-car qui
+              bénéficient aux communes, aux régions et aux vanlifer.
             </motion.p>
 
             {/* Stats cards */}
@@ -779,7 +779,7 @@ export function SelfcampAboutPage() {
                   100%
                 </div>
                 <div className="text-gray-700 font-medium text-sm md:text-base">
-                  Conformité légale
+                  Conforme à la loi
                 </div>
               </div>
               <div className="bg-white border border-[#84994F]/30 rounded-xl md:rounded-2xl p-5 md:p-6 hover:border-[#84994F]/50 transition-all duration-300">
@@ -816,7 +816,7 @@ export function SelfcampAboutPage() {
               </h2>
               <p className="text-lg md:text-xl lg:text-2xl text-gray-600 max-w-4xl mx-auto leading-relaxed px-2">
                 Transformer le camping sauvage en opportunité économique pour
-                les communes suisses
+                les communes fribourgeoises
               </p>
               <div className="mt-6 md:mt-8 text-center">
                 <div className="relative h-16 md:h-20 flex items-center justify-center overflow-hidden cursor-grab active:cursor-grabbing">

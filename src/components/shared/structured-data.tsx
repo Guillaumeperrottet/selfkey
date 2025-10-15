@@ -26,6 +26,9 @@ export function StructuredData() {
         "@type": "PostalAddress",
         addressCountry: "CH",
         addressRegion: "Fribourg",
+        addressLocality: "Bulle",
+        postalCode: "1643",
+        streetAddress: "Bulle",
       },
       contactPoint: {
         "@type": "ContactPoint",
@@ -58,6 +61,9 @@ export function StructuredData() {
       "@type": "PostalAddress",
       addressCountry: "CH",
       addressRegion: "Fribourg",
+      addressLocality: "Bulle",
+      postalCode: "1643",
+      streetAddress: "Bulle",
     },
     sameAs: ["https://selfkey.ch"],
     potentialAction: {
