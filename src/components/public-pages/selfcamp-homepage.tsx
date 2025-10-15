@@ -188,13 +188,13 @@ export function SelfcampHomepage() {
             <div className="bg-[#84994F]/8 p-8 md:p-10 rounded-3xl border border-gray-100 shadow-sm">
               <div className="flex flex-col items-center text-center space-y-6">
                 <h2 className="text-2xl md:text-3xl font-bold text-gray-900">
-                  Prestataire et{" "}
-                  <span className="text-[#84994F]">SelfCamp</span>
+                  Intéressé par <span className="text-[#84994F]">SelfCamp</span>{" "}
+                  ?
                 </h2>
                 <p className="text-[15px] md:text-base text-gray-600 leading-relaxed max-w-xl">
-                  Découvrez notre approche complète pour créer des aires de
-                  camping qui bénéficient à tous : prestataires, régions et
-                  Vanlife.
+                  Si vous êtes propriétaire d&apos;un parking ou d&apos;un
+                  espace pouvant accueillir des vans, découvrez comment devenir
+                  prestataire vous aussi.
                 </p>
                 <Link
                   href="/about"
