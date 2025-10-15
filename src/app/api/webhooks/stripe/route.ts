@@ -445,10 +445,203 @@ async function createClassicBookingFromMetadata(
       console.error("Error sending webhook:", error);
     });
 
-    // TODO: Envoyer l'email de confirmation pour réservation classique si nécessaire
-    // Cette logique peut être ajoutée plus tard si besoin
+    // Envoyer l'email de confirmation pour réservation classique (multilingue)
+    if (establishment.confirmationEmailEnabled) {
+      try {
+        console.log("📧 Envoi de l'email de confirmation classique...");
+
+        // Récupérer le booking complet avec tous les champs nécessaires
+        const fullBooking = await prisma.booking.findUnique({
+          where: { id: booking.id },
+          include: {
+            room: {
+              select: {
+                name: true,
+                price: true,
+                accessCode: true,
+              },
+            },
+            establishment: {
+              select: {
+                id: true,
+                name: true,
+                accessCodeType: true,
+                confirmationEmailFrom: true,
+                // Templates français
+                confirmationEmailTemplate: true,
+                confirmationEmailTemplateWithDog: true,
+                confirmationEmailTemplateWithoutDog: true,
+                // Templates anglais
+                confirmationEmailTemplateEn: true,
+                confirmationEmailTemplateWithDogEn: true,
+                confirmationEmailTemplateWithoutDogEn: true,
+                // Templates allemands
+                confirmationEmailTemplateDe: true,
+                confirmationEmailTemplateWithDogDe: true,
+                confirmationEmailTemplateWithoutDogDe: true,
+                generalAccessCode: true,
+                accessInstructions: true,
+                hotelContactEmail: true,
+                hotelContactPhone: true,
+              },
+            },
+          },
+        });
+
+        if (fullBooking && fullBooking.room) {
+          // Envoyer la confirmation multilingue
+          await sendMultilingualConfirmationEmail(fullBooking);
+
+          console.log("✅ Email de confirmation classique envoyé");
+
+          // Marquer la confirmation comme envoyée
+          await prisma.booking.update({
+            where: { id: booking.id },
+            data: {
+              confirmationSent: true,
+              confirmationMethod: "email",
+              confirmationSentAt: new Date(),
+            },
+          });
+        }
+      } catch (emailError) {
+        console.error(
+          "❌ Erreur lors de l'envoi de l'email de confirmation classique:",
+          emailError
+        );
+        // Ne pas faire échouer la création de la réservation si l'email échoue
+      }
+    } else {
+      console.log("ℹ️ Email de confirmation désactivé pour cet établissement");
+    }
   } catch (error) {
     console.error("Error creating classic booking from metadata:", error);
     throw error;
   }
+}
+
+/**
+ * Envoie l'email de confirmation multilingue pour une réservation
+ */
+async function sendMultilingualConfirmationEmail(booking: {
+  id: string;
+  bookingNumber: number;
+  clientFirstName: string;
+  clientLastName: string;
+  clientEmail: string;
+  clientPhone: string;
+  checkInDate: Date;
+  checkOutDate: Date;
+  bookingType: string;
+  dayParkingDuration: string | null;
+  dayParkingStartTime: Date | null;
+  dayParkingEndTime: Date | null;
+  hasDog: boolean;
+  bookingLocale: string | null | undefined;
+  stripePaymentIntentId: string | null;
+  amount: number;
+  currency: string;
+  ownerAmount: number;
+  pricingOptionsTotal: number;
+  touristTaxTotal: number;
+  room: {
+    name: string;
+    price: number;
+    accessCode: string | null;
+  } | null;
+  establishment: {
+    id: string;
+    name: string;
+    accessCodeType: string;
+    confirmationEmailFrom: string | null;
+    confirmationEmailTemplate: string | null;
+    confirmationEmailTemplateWithDog: string | null;
+    confirmationEmailTemplateWithoutDog: string | null;
+    confirmationEmailTemplateEn: string | null;
+    confirmationEmailTemplateWithDogEn: string | null;
+    confirmationEmailTemplateWithoutDogEn: string | null;
+    confirmationEmailTemplateDe: string | null;
+    confirmationEmailTemplateWithDogDe: string | null;
+    confirmationEmailTemplateWithoutDogDe: string | null;
+    generalAccessCode: string | null;
+    accessInstructions: string | null;
+    hotelContactEmail: string | null;
+    hotelContactPhone: string | null;
+  };
+}) {
+  const { generateTemplateData, generateConfirmationContent } = await import(
+    "@/lib/email/templates/confirmation"
+  );
+  const { sendEmail } = await import("@/lib/email/client");
+
+  // Convertir null en undefined pour bookingLocale (compatibilité de type)
+  const bookingWithCompatibleLocale = {
+    ...booking,
+    bookingLocale: booking.bookingLocale ?? undefined,
+  };
+
+  // Déterminer la langue de la réservation (par défaut: français)
+  const locale = booking.bookingLocale || "fr";
+  console.log(`🌍 Langue de la réservation: ${locale}`);
+
+  // Générer les données du template
+  const templateData = generateTemplateData(bookingWithCompatibleLocale);
+
+  // Générer le contenu de confirmation (gère automatiquement le multilingue)
+  const emailContent = await generateConfirmationContent(
+    bookingWithCompatibleLocale,
+    templateData
+  );
+
+  // Déterminer le sujet selon la langue
+  let subject = "Confirmation de réservation";
+  switch (locale) {
+    case "en":
+      subject = "Booking Confirmation";
+      break;
+    case "de":
+      subject = "Buchungsbestätigung";
+      break;
+    case "fr":
+    default:
+      subject = "Confirmation de réservation";
+      break;
+  }
+
+  // Préparer l'adresse d'envoi
+  const fromEmail =
+    booking.establishment.confirmationEmailFrom ||
+    `${booking.establishment.name} <noreply@selfkey.ch>`;
+
+  // En développement, utiliser l'adresse de test Resend
+  let destinationEmail = booking.clientEmail;
+  if (process.env.NODE_ENV === "development") {
+    const fromEmailDomain = fromEmail.split("@")[1];
+    if (fromEmailDomain?.includes("resend.dev")) {
+      destinationEmail = "delivered@resend.dev";
+      console.log(
+        `📧 [DEV] Utilisation de l'adresse de test: ${destinationEmail} (original: ${booking.clientEmail})`
+      );
+    }
+  }
+
+  console.log(`📧 Envoi de l'email de confirmation à: ${destinationEmail}`);
+  console.log(`📧 Depuis: ${fromEmail}`);
+  console.log(`📧 Sujet: ${subject} - ${booking.establishment.name}`);
+
+  // Envoyer l'email
+  const result = await sendEmail({
+    from: fromEmail,
+    to: destinationEmail,
+    subject: `${subject} - ${booking.establishment.name}`,
+    html: emailContent,
+  });
+
+  if (!result.success) {
+    throw new Error(
+      result.error || "Erreur lors de l'envoi de l'email de confirmation"
+    );
+  }
+
+  console.log(`✅ Email envoyé avec succès (ID: ${result.data?.id})`);
 }
