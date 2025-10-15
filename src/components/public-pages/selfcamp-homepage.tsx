@@ -5,6 +5,7 @@ import Link from "next/link";
 import SearchBar from "@/components/ui/search-bar";
 import { StructuredData } from "@/components/shared/structured-data";
 import { SelfcampFooter } from "@/components/public-pages/selfcamp-footer";
+import { VanIcon } from "@/components/ui/van-icon";
 
 export function SelfcampHomepage() {
   return (
@@ -87,6 +88,9 @@ export function SelfcampHomepage() {
                 <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold text-gray-900 font-display">
                   Selfcamp.ch
                 </h1>
+                <p className="text-xl md:text-2xl text-gray-900 font-semibold -mt-6 md:-mt-8">
+                  Fribourg
+                </p>
 
                 {/* Search Bar intégrée avec accent vert */}
                 <div className="w-full max-w-2xl mt-6 md:mt-10">
@@ -106,12 +110,72 @@ export function SelfcampHomepage() {
                     <h3 className="text-lg md:text-xl font-bold text-gray-900">
                       La liberté de camper, sans contraintes
                     </h3>
+                    {/* <p className="text-base md:text-lg text-gray-600 leading-relaxed">
+                      <span className="text-[#84994F] font-semibold">et</span>
+                    </p> */}
                     <p className="text-base md:text-lg text-gray-600 leading-relaxed">
-                      Trouvez des aires Selfcamp, enregistrez-vous en quelques
-                      clics et profitez d&apos;avantages auprès des commerces
-                      locaux, où que vous soyez.
+                      Profitez d&apos;avantages auprès des commerces locaux, où
+                      que vous soyez.
                     </p>
                   </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* Section avantages pour les voyageurs - Style discret */}
+        <section className="py-12 md:py-20 px-4 bg-gray-50/30">
+          <div className="container mx-auto max-w-4xl">
+            <div className="text-center mb-10 md:mb-14">
+              <h2 className="text-2xl md:text-3xl font-bold text-gray-900 mb-3">
+                Pourquoi choisir nos aires ?
+              </h2>
+              <div className="flex items-center justify-center opacity-70">
+                <VanIcon size="sm" showRoad={true} />
+              </div>
+            </div>
+
+            <div className="space-y-6 md:space-y-8 max-w-3xl mx-auto">
+              {/* Avantage 1 */}
+              <div className="flex gap-4 md:gap-6 items-start">
+                <div className="flex-shrink-0 w-1.5 h-1.5 md:w-2 md:h-2 bg-[#84994F] rounded-full mt-2"></div>
+                <div>
+                  <h3 className="text-lg md:text-xl font-semibold text-gray-900 mb-2">
+                    Emplacements légaux et sécurisés
+                  </h3>
+                  <p className="text-sm md:text-base text-gray-600 leading-relaxed">
+                    En partenariat avec les communes, dormez en toute
+                    tranquillité dans le respect des réglementations locales.
+                  </p>
+                </div>
+              </div>
+
+              {/* Avantage 2 */}
+              <div className="flex gap-4 md:gap-6 items-start">
+                <div className="flex-shrink-0 w-1.5 h-1.5 md:w-2 md:h-2 bg-[#84994F] rounded-full mt-2"></div>
+                <div>
+                  <h3 className="text-lg md:text-xl font-semibold text-gray-900 mb-2">
+                    Accès 24h/24 et 7j/7
+                  </h3>
+                  <p className="text-sm md:text-base text-gray-600 leading-relaxed">
+                    Enregistrement autonome et facile, sans application à
+                    télécharger ni compte à créer. Arrivez quand vous voulez.
+                  </p>
+                </div>
+              </div>
+
+              {/* Avantage 3 */}
+              <div className="flex gap-4 md:gap-6 items-start">
+                <div className="flex-shrink-0 w-1.5 h-1.5 md:w-2 md:h-2 bg-[#84994F] rounded-full mt-2"></div>
+                <div>
+                  <h3 className="text-lg md:text-xl font-semibold text-gray-900 mb-2">
+                    Réductions chez nos partenaires locaux
+                  </h3>
+                  <p className="text-sm md:text-base text-gray-600 leading-relaxed">
+                    Profitez d&apos;avantages exclusifs auprès des artisans et
+                    commerces de la région.
+                  </p>
                 </div>
               </div>
             </div>
@@ -124,8 +188,8 @@ export function SelfcampHomepage() {
             <div className="bg-[#84994F]/8 p-8 md:p-10 rounded-3xl border border-gray-100 shadow-sm">
               <div className="flex flex-col items-center text-center space-y-6">
                 <h2 className="text-2xl md:text-3xl font-bold text-gray-900">
-                  Pourquoi choisir{" "}
-                  <span className="text-[#84994F]">SelfCamp</span> ?
+                  Prestataire et{" "}
+                  <span className="text-[#84994F]">SelfCamp</span>
                 </h2>
                 <p className="text-[15px] md:text-base text-gray-600 leading-relaxed max-w-xl">
                   Découvrez notre approche complète pour créer des aires de

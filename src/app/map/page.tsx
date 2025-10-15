@@ -47,7 +47,7 @@ function MapPageContent() {
     lat: number;
     lng: number;
   } | null>(null);
-  const [mapZoom, setMapZoom] = useState<number>(6);
+  const [mapZoom, setMapZoom] = useState<number>(9);
   const [isUserGeolocation, setIsUserGeolocation] = useState(false); // Nouveau état
   const [showingNearbyEstablishments, setShowingNearbyEstablishments] =
     useState(false);

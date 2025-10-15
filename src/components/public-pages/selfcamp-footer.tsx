@@ -25,7 +25,7 @@ export function SelfcampFooter() {
                 />
               </div>
               <p className="text-gray-400 mb-4">
-                L&apos;accès de stationnement pour camping-cars en Suisse.
+                L&apos;accès de stationnement pour vanlife en Suisse.
               </p>
             </div>
 

@@ -570,7 +570,7 @@ export default function DirectMap({
   hoveredEstablishmentId,
   onMarkerClick,
   center,
-  zoom = 6,
+  zoom = 9,
   availabilityData,
   disableAutoGeolocation = false,
 }: DirectMapProps) {
