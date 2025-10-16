@@ -6,8 +6,11 @@ import SearchBar from "@/components/ui/search-bar";
 import { StructuredData } from "@/components/shared/structured-data";
 import { SelfcampFooter } from "@/components/public-pages/selfcamp-footer";
 import { VanIcon } from "@/components/ui/van-icon";
+import { useAnalytics } from "@/hooks/useAnalytics";
 
 export function SelfcampHomepage() {
+  const { trackHomepage } = useAnalytics();
+
   return (
     <>
       <StructuredData />
@@ -46,6 +49,7 @@ export function SelfcampHomepage() {
                 <div className="text-gray-800 font-bold uppercase tracking-wide text-sm lg:text-lg hover:text-[#84994F] transition-colors cursor-pointer"></div>
                 <Link
                   href="/contact"
+                  onClick={() => trackHomepage.contactClicked()}
                   className="text-[#84994F] font-bold uppercase tracking-wide text-sm lg:text-lg hover:text-[#84994F]/80 transition-colors cursor-pointer"
                 >
                   CONTACTEZ-NOUS
@@ -61,6 +65,7 @@ export function SelfcampHomepage() {
                 <div className="text-gray-800 font-bold uppercase tracking-wide text-xs text-center"></div>
                 <Link
                   href="/contact"
+                  onClick={() => trackHomepage.contactClicked()}
                   className="text-[#84994F] font-bold uppercase tracking-wide text-xs hover:text-[#84994F]/80 transition-colors"
                 >
                   CONTACT
@@ -195,6 +200,7 @@ export function SelfcampHomepage() {
                 </p>
                 <Link
                   href="/about"
+                  onClick={() => trackHomepage.ctaAboutClicked()}
                   className="group flex items-center gap-3 mt-4"
                 >
                   <span className="text-gray-900 font-medium text-base group-hover:text-[#84994F] transition-colors">

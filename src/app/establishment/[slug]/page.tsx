@@ -9,6 +9,7 @@ import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { SelfcampFooter } from "@/components/public-pages/selfcamp-footer";
 import { AmenityIcon } from "@/components/ui/amenity-icon";
+import { useAnalytics } from "@/hooks/useAnalytics";
 import {
   MapPin,
   Globe,
@@ -99,6 +100,9 @@ export default function EstablishmentPage() {
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [lightboxOpen, setLightboxOpen] = useState(false);
 
+  // Analytics hook
+  const { trackEstablishment } = useAnalytics();
+
   // Fonction helper pour obtenir l'URL de téléchargement
   const getDownloadUrl = (url: string) => {
     // Pour Cloudinary, on utilise l'URL directe sans transformation
@@ -113,6 +117,9 @@ export default function EstablishmentPage() {
         if (response.ok) {
           const data = await response.json();
           setEstablishment(data);
+
+          // Track establishment view
+          trackEstablishment.viewed(slug, data.name || data.title);
         } else if (response.status === 404) {
           toast.error("Établissement non trouvé");
           router.push("/map");
@@ -130,10 +137,16 @@ export default function EstablishmentPage() {
     if (slug) {
       fetchEstablishment();
     }
-  }, [slug, router]);
+  }, [slug, router, trackEstablishment]);
 
   const openInMaps = () => {
     if (establishment) {
+      // Track directions click
+      trackEstablishment.directionsClicked(
+        slug,
+        establishment.name || establishment.title
+      );
+
       const url = `https://www.google.com/maps/dir/?api=1&destination=${establishment.latitude},${establishment.longitude}`;
       window.open(url, "_blank");
     }
@@ -333,6 +346,9 @@ export default function EstablishmentPage() {
                   {establishment.email && (
                     <a
                       href={`mailto:${establishment.email}`}
+                      onClick={() =>
+                        trackEstablishment.contactClicked(slug, "email")
+                      }
                       className="flex items-center gap-1.5 text-gray-600 hover:text-[#84994F] transition-colors group"
                     >
                       <Mail className="h-4 w-4" />
@@ -344,6 +360,9 @@ export default function EstablishmentPage() {
                   {establishment.phone && (
                     <a
                       href={`tel:${establishment.phone}`}
+                      onClick={() =>
+                        trackEstablishment.contactClicked(slug, "phone")
+                      }
                       className="flex items-center gap-1.5 text-gray-600 hover:text-[#84994F] transition-colors group"
                     >
                       <Phone className="h-4 w-4" />
@@ -362,7 +381,13 @@ export default function EstablishmentPage() {
                 {establishment.images.length > 0 ? (
                   <>
                     <div
-                      onClick={() => setLightboxOpen(true)}
+                      onClick={() => {
+                        setLightboxOpen(true);
+                        trackEstablishment.imageGalleryOpened(
+                          slug,
+                          currentImageIndex
+                        );
+                      }}
                       className="relative aspect-[4/3] w-full rounded-2xl overflow-hidden shadow-xl cursor-pointer group"
                     >
                       <Image
@@ -541,6 +566,13 @@ export default function EstablishmentPage() {
                               href={business.website}
                               target="_blank"
                               rel="noopener noreferrer"
+                              onClick={() =>
+                                trackEstablishment.nearbyBusinessClicked(
+                                  slug,
+                                  business.name,
+                                  business.type
+                                )
+                              }
                               className="inline-flex items-center gap-1.5 text-xs text-gray-700 hover:text-[#84994F] transition-colors group"
                             >
                               <Globe className="h-3.5 w-3.5" />
@@ -554,6 +586,13 @@ export default function EstablishmentPage() {
                               href={business.mapsUrl}
                               target="_blank"
                               rel="noopener noreferrer"
+                              onClick={() =>
+                                trackEstablishment.nearbyBusinessClicked(
+                                  slug,
+                                  business.name,
+                                  business.type
+                                )
+                              }
                               className="inline-flex items-center gap-1.5 text-xs text-gray-700 hover:text-[#84994F] transition-colors group"
                             >
                               <MapPin className="h-3.5 w-3.5" />

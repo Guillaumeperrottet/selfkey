@@ -4,6 +4,7 @@ import { useState, useEffect, useCallback, useRef } from "react";
 import { Search, Map, Navigation, X } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { useAnalytics } from "@/hooks/useAnalytics";
 
 interface Establishment {
   id: string;
@@ -72,6 +73,7 @@ export default function SearchBar() {
     lng: number;
   } | null>(null);
   const router = useRouter();
+  const { trackSearch, trackHomepage } = useAnalytics();
   const searchTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   // Récupérer la position de l'utilisateur au montage
@@ -167,6 +169,11 @@ export default function SearchBar() {
   const handleInputChange = (value: string) => {
     setSearchValue(value);
 
+    // Track search initiation
+    if (value.trim().length > 0) {
+      trackSearch.initiated(value, "homepage");
+    }
+
     // Annuler la recherche précédente
     if (searchTimeoutRef.current) {
       clearTimeout(searchTimeoutRef.current);
@@ -203,6 +210,10 @@ export default function SearchBar() {
 
   const handleSuggestionClick = (suggestion: SearchSuggestion) => {
     if (suggestion.type === "establishment" && suggestion.establishment) {
+      // Track suggestion click
+      trackSearch.suggestionClicked(suggestion.title);
+      trackHomepage.searchUsed(suggestion.title);
+
       // Sauvegarder dans l'historique
       saveRecentSearch({
         title: suggestion.title,
@@ -216,6 +227,10 @@ export default function SearchBar() {
       });
       router.push(`/map?${params.toString()}`);
     } else if (suggestion.type === "location" && suggestion.coordinates) {
+      // Track location search
+      trackSearch.suggestionClicked(suggestion.title);
+      trackHomepage.searchUsed(suggestion.title);
+
       // Sauvegarder dans l'historique
       saveRecentSearch({
         title: suggestion.title,
@@ -233,6 +248,9 @@ export default function SearchBar() {
       });
       router.push(`/map?${params.toString()}`);
     } else if (suggestion.type === "recent") {
+      // Track recent search click
+      trackSearch.suggestionClicked(suggestion.title);
+
       // Pour les recherches récentes, utiliser directement les coordonnées si disponibles
       if (suggestion.coordinates) {
         const params = new URLSearchParams({

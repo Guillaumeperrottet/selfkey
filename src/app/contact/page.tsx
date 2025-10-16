@@ -7,6 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { SelfcampFooter } from "@/components/public-pages/selfcamp-footer";
+import { useAnalytics } from "@/hooks/useAnalytics";
 
 import {
   Mail,
@@ -39,11 +40,22 @@ export default function ContactPage() {
     "idle" | "success" | "error"
   >("idle");
   const [errorMessage, setErrorMessage] = useState("");
+  const [formStarted, setFormStarted] = useState(false);
+
+  // Analytics hook
+  const { trackContact } = useAnalytics();
 
   const handleInputChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
   ) => {
     const { name, value } = e.target;
+
+    // Track form started on first input
+    if (!formStarted && value.length > 0) {
+      setFormStarted(true);
+      trackContact.formStarted();
+    }
+
     setFormData((prev) => ({
       ...prev,
       [name]: value,
@@ -69,6 +81,9 @@ export default function ContactPage() {
 
       if (response.ok) {
         setSubmitStatus("success");
+        // Track successful submission
+        trackContact.formSubmitted(true);
+
         // Reset form
         setFormData({
           name: "",
@@ -76,14 +91,19 @@ export default function ContactPage() {
           company: "",
           project: "",
         });
+        setFormStarted(false);
       } else {
         setSubmitStatus("error");
         setErrorMessage(result.error || "Une erreur est survenue");
+        // Track form error
+        trackContact.formError(result.error || "submission_failed");
       }
     } catch (error) {
       console.error("Erreur lors de la soumission:", error);
       setSubmitStatus("error");
       setErrorMessage("Erreur de connexion. Veuillez réessayer.");
+      // Track connection error
+      trackContact.formError("connection_error");
     } finally {
       setIsSubmitting(false);
     }

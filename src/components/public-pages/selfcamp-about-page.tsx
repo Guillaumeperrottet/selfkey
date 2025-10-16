@@ -7,9 +7,11 @@ import { StructuredData } from "@/components/shared/structured-data";
 import { Timeline } from "@/components/ui/timeline";
 import { SelfcampFooter } from "@/components/public-pages/selfcamp-footer";
 import { VanIcon } from "@/components/ui/van-icon";
+import { useAnalytics } from "@/hooks/useAnalytics";
 import { useState, useEffect } from "react";
 
 export function SelfcampAboutPage() {
+  const { trackAbout } = useAnalytics();
   // Carousel pour les phrases de mission
   const quotes = [
     "Créer un pont entre tourisme durable et développement territorial",
@@ -868,12 +870,18 @@ export function SelfcampAboutPage() {
                     <div className="flex flex-col gap-3 pt-2">
                       <Link
                         href="/contact"
+                        onClick={() =>
+                          trackAbout.contactCtaClicked("mobile_bottom")
+                        }
                         className="bg-[#84994F] text-white px-8 py-4 rounded-xl hover:bg-[#84994F]/90 transition-all duration-300 font-semibold text-[15px] shadow-md hover:shadow-lg active:scale-95"
                       >
                         Nous contacter
                       </Link>
                       <Link
                         href="/map"
+                        onClick={() =>
+                          trackAbout.mapCtaClicked("mobile_bottom")
+                        }
                         className="bg-white border-2 border-[#84994F]/30 text-[#84994F] px-8 py-4 rounded-xl hover:border-[#84994F] hover:bg-[#84994F]/5 transition-all duration-300 font-semibold text-[15px] active:scale-95"
                       >
                         Voir les aires existantes
@@ -900,12 +908,18 @@ export function SelfcampAboutPage() {
                     <div className="flex flex-col sm:flex-row gap-4 justify-center pt-4">
                       <Link
                         href="/contact"
+                        onClick={() =>
+                          trackAbout.contactCtaClicked("desktop_bottom")
+                        }
                         className="bg-[#84994F] text-white px-10 py-4 rounded-xl hover:bg-[#84994F]/90 transition-all duration-300 font-semibold text-lg shadow-lg hover:shadow-xl hover:scale-105"
                       >
                         Contactez-nous
                       </Link>
                       <Link
                         href="/map"
+                        onClick={() =>
+                          trackAbout.mapCtaClicked("desktop_bottom")
+                        }
                         className="border-2 border-[#84994F] text-[#84994F] px-10 py-4 rounded-xl hover:bg-[#84994F] hover:text-white transition-all duration-300 font-semibold text-lg"
                       >
                         Voir les aires existantes

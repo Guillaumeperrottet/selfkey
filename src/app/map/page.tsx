@@ -10,6 +10,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { AvailabilityBadge } from "@/components/ui/availability-badge";
 import { VanLoading } from "@/components/ui/van-loading";
 import { useAvailability } from "@/hooks/useAvailability";
+import { useAnalytics } from "@/hooks/useAnalytics";
 import { useState, useEffect, useMemo, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
 
@@ -56,6 +57,9 @@ function MapPageContent() {
   const [selectedEstablishmentId, setSelectedEstablishmentId] = useState<
     string | null
   >(null);
+
+  // Analytics hook
+  const { trackMap, trackSearch } = useAnalytics();
 
   // Gérer les paramètres URL pour les recherches depuis la homepage
   const searchParams = useSearchParams();
@@ -128,14 +132,21 @@ function MapPageContent() {
   const openGoogleMaps = (
     latitude: number,
     longitude: number,
-    name: string
+    name: string,
+    slug: string
   ) => {
+    // Track directions click
+    trackMap.directionsClicked(slug, name);
+
     const url = `https://www.google.com/maps/dir/?api=1&destination=${latitude},${longitude}&destination_place_id=${encodeURIComponent(name)}`;
     window.open(url, "_blank");
   };
 
   // Fonction pour centrer la carte sur un établissement
   const centerMapOnEstablishment = (establishment: Establishment) => {
+    // Track map centering on establishment
+    trackMap.establishmentSelected(establishment.slug, establishment.name);
+
     console.log(
       "Centrage sur:",
       establishment.name,
@@ -336,6 +347,12 @@ function MapPageContent() {
         filtered = establishmentsWithDistance
           .sort((a, b) => a.distance - b.distance)
           .slice(0, 5);
+
+        // Track no results
+        trackSearch.noResults(query);
+      } else {
+        // Track successful search
+        trackSearch.completed(query, filtered.length);
       }
     }
 
@@ -732,7 +749,8 @@ function MapPageContent() {
                           openGoogleMaps(
                             spot.latitude,
                             spot.longitude,
-                            spot.name
+                            spot.name,
+                            spot.slug
                           );
                         }}
                         className="flex items-center gap-1 text-xs px-2 py-1 h-7 border-blue-200 text-blue-600 hover:bg-blue-50"
