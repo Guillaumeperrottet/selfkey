@@ -53,6 +53,9 @@ function MapPageContent() {
     useState(false);
   const [isMobile, setIsMobile] = useState(false);
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const [selectedEstablishmentId, setSelectedEstablishmentId] = useState<
+    string | null
+  >(null);
 
   // Gérer les paramètres URL pour les recherches depuis la homepage
   const searchParams = useSearchParams();
@@ -145,6 +148,11 @@ function MapPageContent() {
     // Mettre en surbrillance temporaire l'établissement
     setHoveredEstablishment(establishment.id);
     setTimeout(() => setHoveredEstablishment(null), 2000);
+
+    // Définir l'établissement sélectionné pour ouvrir son popup
+    setSelectedEstablishmentId(establishment.id);
+    // Réinitialiser après un court délai pour permettre une nouvelle sélection
+    setTimeout(() => setSelectedEstablishmentId(null), 500);
   };
 
   useEffect(() => {
@@ -757,6 +765,7 @@ function MapPageContent() {
             zoom={mapZoom}
             availabilityData={availabilityData}
             disableAutoGeolocation={!!mapCenter && !isUserGeolocation}
+            selectedEstablishmentId={selectedEstablishmentId}
           />
 
           {/* Barre de recherche fixe au centre - style Park4night */}

@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { MapContainer, TileLayer, Marker, Popup, useMap } from "react-leaflet";
 import { MapPin } from "lucide-react";
 import { VanLoading } from "@/components/ui/van-loading";
@@ -137,6 +137,7 @@ interface DirectMapProps {
     }
   >;
   disableAutoGeolocation?: boolean;
+  selectedEstablishmentId?: string | null; // Nouvel prop pour ouvrir le popup
 }
 
 // Composant pour mettre à jour la carte quand les props changent
@@ -171,6 +172,7 @@ const EstablishmentMarker = ({
   isHovered,
   onMarkerClick,
   availabilityData,
+  isSelected,
 }: {
   establishment: Establishment;
   isHovered: boolean;
@@ -184,7 +186,20 @@ const EstablishmentMarker = ({
       nextAvailable?: string | null;
     }
   >;
+  isSelected?: boolean;
 }) => {
+  const markerRef = useRef<L.Marker | null>(null);
+
+  // Ouvrir le popup quand l'établissement est sélectionné
+  useEffect(() => {
+    if (isSelected && markerRef.current) {
+      // Petit délai pour laisser le temps à la carte de se centrer
+      setTimeout(() => {
+        markerRef.current?.openPopup();
+      }, 300);
+    }
+  }, [isSelected]);
+
   const handleClick = () => {
     if (onMarkerClick) {
       onMarkerClick(establishment.id);
@@ -254,6 +269,7 @@ const EstablishmentMarker = ({
 
   return (
     <Marker
+      ref={markerRef}
       position={[establishment.latitude, establishment.longitude]}
       icon={createAnimatedIcon(isHovered)}
       eventHandlers={{
@@ -573,6 +589,7 @@ export default function DirectMap({
   zoom = 9,
   availabilityData,
   disableAutoGeolocation = false,
+  selectedEstablishmentId,
 }: DirectMapProps) {
   const [mounted, setMounted] = useState(false);
 
@@ -647,6 +664,7 @@ export default function DirectMap({
           isHovered={hoveredEstablishmentId === establishment.id}
           onMarkerClick={onMarkerClick}
           availabilityData={availabilityData}
+          isSelected={selectedEstablishmentId === establishment.id}
         />
       ))}
     </MapContainer>
