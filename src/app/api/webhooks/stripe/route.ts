@@ -483,6 +483,9 @@ async function createClassicBookingFromMetadata(
                 accessInstructions: true,
                 hotelContactEmail: true,
                 hotelContactPhone: true,
+                // Paramètres de copie email
+                enableEmailCopyOnConfirmation: true,
+                emailCopyAddresses: true,
               },
             },
           },
@@ -567,6 +570,8 @@ async function sendMultilingualConfirmationEmail(booking: {
     accessInstructions: string | null;
     hotelContactEmail: string | null;
     hotelContactPhone: string | null;
+    enableEmailCopyOnConfirmation: boolean;
+    emailCopyAddresses: string[];
   };
 }) {
   const { generateTemplateData, generateConfirmationContent } = await import(
@@ -629,12 +634,24 @@ async function sendMultilingualConfirmationEmail(booking: {
   console.log(`📧 Depuis: ${fromEmail}`);
   console.log(`📧 Sujet: ${subject} - ${booking.establishment.name}`);
 
+  // Préparer les adresses en copie (BCC) si activées
+  let bccAddresses: string[] = [];
+  if (
+    booking.establishment.enableEmailCopyOnConfirmation &&
+    booking.establishment.emailCopyAddresses &&
+    booking.establishment.emailCopyAddresses.length > 0
+  ) {
+    bccAddresses = booking.establishment.emailCopyAddresses;
+    console.log(`📧 Envoi en copie (BCC) à: ${bccAddresses.join(", ")}`);
+  }
+
   // Envoyer l'email
   const result = await sendEmail({
     from: fromEmail,
     to: destinationEmail,
     subject: `${subject} - ${booking.establishment.name}`,
     html: emailContent,
+    bcc: bccAddresses.length > 0 ? bccAddresses : undefined,
   });
 
   if (!result.success) {
