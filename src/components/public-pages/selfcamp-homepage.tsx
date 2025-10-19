@@ -78,24 +78,17 @@ export function SelfcampHomepage() {
           <div className="text-center py-8 md:py-12 px-4 pb-16 md:pb-20">
             <div className="container mx-auto max-w-4xl">
               <div className="flex flex-col items-center justify-center space-y-8 md:space-y-10">
-                {/* Logo avec cercle vert subtil */}
+                {/* Logo */}
                 <div className="mt-4 md:mt-6 relative">
-                  <div className="absolute inset-0 bg-[#84994F]/5 rounded-full blur-2xl scale-110"></div>
                   <Image
-                    src="/logo_map.png"
+                    src="/selfcamp_logo_black.png"
                     alt="SelfCamp Logo"
-                    width={160}
-                    height={160}
-                    className="mx-auto relative z-10"
+                    width={400}
+                    height={200}
+                    className="mx-auto"
                   />
                 </div>
 
-                <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold text-gray-900 font-display">
-                  Selfcamp.ch
-                </h1>
-                <p className="text-xl md:text-2xl text-gray-900 font-semibold -mt-6 md:-mt-8">
-                  Fribourg
-                </p>
                 <h3 className="text-lg md:text-xl font-bold text-gray-900">
                   La liberté de camper, sans contraintes
                 </h3>
