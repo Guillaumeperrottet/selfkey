@@ -508,7 +508,7 @@ export function BookingFormDetails({
                     type="text"
                     value={clientLastName}
                     onChange={(e) => setClientLastName(e.target.value)}
-                    placeholder="Your last name"
+                    placeholder={t.form.lastNamePlaceholder}
                     className="h-10"
                     required
                   />
@@ -563,7 +563,7 @@ export function BookingFormDetails({
                     type="tel"
                     value={clientPhone}
                     onChange={(e) => setClientPhone(e.target.value)}
-                    placeholder="+41 79 123 45 67"
+                    placeholder={t.form.phonePlaceholder}
                     className="h-10"
                     required
                   />
@@ -605,7 +605,7 @@ export function BookingFormDetails({
                         type="text"
                         value={clientBirthPlace}
                         onChange={(e) => setClientBirthPlace(e.target.value)}
-                        placeholder="City, Country"
+                        placeholder={t.form.birthPlacePlaceholder}
                         className="h-10"
                         required={isFieldRequired("clientBirthPlace")}
                       />
@@ -773,7 +773,7 @@ export function BookingFormDetails({
                           type="text"
                           value={clientIdNumber}
                           onChange={(e) => setClientIdNumber(e.target.value)}
-                          placeholder={t.form.idNumber}
+                          placeholder={t.form.idNumberPlaceholder}
                           className="h-10"
                           required={isFieldRequired("clientIdNumber")}
                         />
@@ -794,7 +794,7 @@ export function BookingFormDetails({
                         type="text"
                         value={clientVehicleNumber}
                         onChange={(e) => setClientVehicleNumber(e.target.value)}
-                        placeholder="FR 123456"
+                        placeholder={t.form.vehicleNumberPlaceholder}
                         className="h-10"
                         required={isFieldRequired("clientVehicleNumber")}
                       />

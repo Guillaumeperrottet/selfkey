@@ -400,7 +400,7 @@ export function ClassicBookingPaymentForm({
             </Button>
             <div className="flex-1">
               <h1 className="text-2xl font-bold text-gray-900 mb-2">
-                Finalize réservation
+                Paiement
               </h1>
               <p className="text-gray-600">
                 Paiement secure with Stripe • Cartes • TWINT • Apple Pay
