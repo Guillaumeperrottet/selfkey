@@ -1,6 +1,7 @@
 "use client";
 
 import { motion } from "framer-motion";
+import { useSelfcampTranslation } from "@/hooks/useSelfcampTranslation";
 
 interface VanLoadingProps {
   message?: string;
@@ -9,10 +10,13 @@ interface VanLoadingProps {
 }
 
 export function VanLoading({
-  message = "Chargement en cours...",
+  message,
   size = "md",
   showRoad = true,
 }: VanLoadingProps) {
+  const { t } = useSelfcampTranslation();
+  const defaultMessage = t.loading.message;
+
   const sizeClasses = {
     sm: "w-16 h-16",
     md: "w-24 h-24",
@@ -188,7 +192,9 @@ export function VanLoading({
 
       {/* Message de chargement */}
       <div className="text-center space-y-2">
-        <p className="text-lg font-medium text-[#84994F]">{message}</p>
+        <p className="text-lg font-medium text-[#84994F]">
+          {message || defaultMessage}
+        </p>
 
         {/* Points de chargement animés */}
         <div className="flex justify-center space-x-1">
@@ -215,12 +221,16 @@ export function VanLoading({
 
 // Composant pour page de loading pleine page
 export function VanLoadingPage({
-  message = "SelfCamp se prépare pour votre aventure...",
-  subtitle = "Recherche des meilleurs emplacements de camping",
+  message,
+  subtitle,
 }: {
   message?: string;
   subtitle?: string;
 }) {
+  const { t } = useSelfcampTranslation();
+  const defaultMessage = t.loading.message;
+  const defaultSubtitle = t.loading.subtitle;
+
   return (
     <div className="min-h-screen bg-white flex items-center justify-center p-4">
       <div className="text-center max-w-md mx-auto">
@@ -232,7 +242,7 @@ export function VanLoadingPage({
           className="mb-8"
         >
           <h1 className="text-4xl font-bold text-[#84994F] mb-2">SelfCamp</h1>
-          <p className="text-gray-600">{subtitle}</p>
+          <p className="text-gray-600">{subtitle || defaultSubtitle}</p>
         </motion.div>
 
         {/* Van qui roule */}
@@ -241,7 +251,7 @@ export function VanLoadingPage({
           animate={{ y: 0, opacity: 1 }}
           transition={{ duration: 0.7, delay: 0.2 }}
         >
-          <VanLoading message={message} size="lg" />
+          <VanLoading message={message || defaultMessage} size="lg" />
         </motion.div>
       </div>
     </div>

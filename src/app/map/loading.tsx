@@ -1,10 +1,12 @@
+"use client";
+
 import { VanLoadingPage } from "@/components/ui/van-loading";
+import { useSelfcampTranslation } from "@/hooks/useSelfcampTranslation";
 
 export default function MapLoadingPage() {
+  const { t } = useSelfcampTranslation();
+
   return (
-    <VanLoadingPage
-      message="Chargement de votre carte SelfCamp..."
-      subtitle="Préparation des meilleurs spots de camping-car"
-    />
+    <VanLoadingPage message={t.loading.message} subtitle={t.loading.subtitle} />
   );
 }

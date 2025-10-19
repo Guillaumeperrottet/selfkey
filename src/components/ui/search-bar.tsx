@@ -5,6 +5,7 @@ import { Search, Map, Navigation, X } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useAnalytics } from "@/hooks/useAnalytics";
+import { useSelfcampTranslation } from "@/hooks/useSelfcampTranslation";
 
 interface Establishment {
   id: string;
@@ -74,6 +75,7 @@ export default function SearchBar() {
   } | null>(null);
   const router = useRouter();
   const { trackSearch, trackHomepage } = useAnalytics();
+  const { t } = useSelfcampTranslation();
   const searchTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   // Récupérer la position de l'utilisateur au montage
@@ -342,7 +344,7 @@ export default function SearchBar() {
             onChange={(e) => handleInputChange(e.target.value)}
             onFocus={handleFocus}
             onBlur={handleBlur}
-            placeholder="Rechercher un emplacement"
+            placeholder={t.hero.searchPlaceholder}
             className="w-full pl-12 pr-12 py-4 text-lg border-2 border-gray-300 rounded-xl focus:outline-none focus:border-[#84994F] transition-colors shadow-lg bg-white"
           />
 
@@ -378,11 +380,9 @@ export default function SearchBar() {
             </div>
             <div>
               <div className="font-medium text-gray-900 group-hover:text-[#84994F] transition-colors duration-200">
-                Voir la carte
+                {t.search.seeMap}
               </div>
-              <div className="text-sm text-gray-600">
-                Explorer tous les emplacements disponibles
-              </div>
+              <div className="text-sm text-gray-600">{t.search.exploreAll}</div>
             </div>
           </Link>
 
@@ -391,7 +391,7 @@ export default function SearchBar() {
             <>
               {!searchValue.trim() && recentSearches.length > 0 && (
                 <div className="px-4 py-3 text-sm font-medium text-gray-500 bg-gray-50">
-                  Recherches récentes
+                  {t.search.recentSearches}
                 </div>
               )}
               {searchValue.trim() && (

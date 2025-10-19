@@ -123,6 +123,13 @@ export interface BookingTranslations {
     germany: string;
     italy: string;
     other: string;
+
+    // Placeholders
+    lastNamePlaceholder: string;
+    phonePlaceholder: string;
+    birthPlacePlaceholder: string;
+    vehicleNumberPlaceholder: string;
+    idNumberPlaceholder: string;
   };
 
   // Validation
@@ -205,6 +212,7 @@ export interface BookingTranslations {
     termsText: string;
     proceedToPayment: string;
     processing: string;
+    termsRequired: string;
 
     // Messages
     bookingNotFound: string;
@@ -363,6 +371,12 @@ export const translations: Record<Locale, BookingTranslations> = {
       germany: "Allemagne",
       italy: "Italie",
       other: "Autre",
+
+      lastNamePlaceholder: "Votre nom",
+      phonePlaceholder: "+41 79 123 45 67",
+      birthPlacePlaceholder: "Ville, Pays",
+      vehicleNumberPlaceholder: "FR 123456",
+      idNumberPlaceholder: "FR 123456",
     },
 
     validation: {
@@ -443,6 +457,8 @@ export const translations: Record<Locale, BookingTranslations> = {
         "En procédant au paiement, vous acceptez nos conditions générales de vente et notre politique de confidentialité.",
       proceedToPayment: "Procéder au paiement",
       processing: "Traitement en cours...",
+      termsRequired:
+        "Veuillez accepter les conditions générales pour continuer",
 
       bookingNotFound: "Réservation non trouvée",
       loadingBooking: "Chargement de votre réservation...",
@@ -595,6 +611,12 @@ export const translations: Record<Locale, BookingTranslations> = {
       germany: "Germany",
       italy: "Italy",
       other: "Other",
+
+      lastNamePlaceholder: "Your last name",
+      phonePlaceholder: "+41 79 123 45 67",
+      birthPlacePlaceholder: "City, Country",
+      vehicleNumberPlaceholder: "FR 123456",
+      idNumberPlaceholder: "FR 123456",
     },
 
     validation: {
@@ -674,6 +696,7 @@ export const translations: Record<Locale, BookingTranslations> = {
         "By proceeding to payment, you accept our terms of service and privacy policy.",
       proceedToPayment: "Proceed to payment",
       processing: "Processing...",
+      termsRequired: "Please accept the terms and conditions to continue",
 
       bookingNotFound: "Booking not found",
       loadingBooking: "Loading your booking...",
@@ -829,6 +852,12 @@ export const translations: Record<Locale, BookingTranslations> = {
       germany: "Deutschland",
       italy: "Italien",
       other: "Andere",
+
+      lastNamePlaceholder: "Ihr Nachname",
+      phonePlaceholder: "+41 79 123 45 67",
+      birthPlacePlaceholder: "Stadt, Land",
+      vehicleNumberPlaceholder: "FR 123456",
+      idNumberPlaceholder: "FR 123456",
     },
 
     validation: {
@@ -909,6 +938,8 @@ export const translations: Record<Locale, BookingTranslations> = {
         "Mit der Zahlung akzeptieren Sie unsere Allgemeinen Geschäftsbedingungen und Datenschutzrichtlinie.",
       proceedToPayment: "Zur Zahlung",
       processing: "Wird verarbeitet...",
+      termsRequired:
+        "Bitte akzeptieren Sie die Allgemeinen Geschäftsbedingungen, um fortzufahren",
 
       bookingNotFound: "Buchung nicht gefunden",
       loadingBooking: "Ihre Buchung wird geladen...",

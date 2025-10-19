@@ -11,6 +11,8 @@ import { AvailabilityBadge } from "@/components/ui/availability-badge";
 import { VanLoading } from "@/components/ui/van-loading";
 import { useAvailability } from "@/hooks/useAvailability";
 import { useAnalytics } from "@/hooks/useAnalytics";
+import { useSelfcampTranslation } from "@/hooks/useSelfcampTranslation";
+import { selfcampTranslations } from "@/lib/selfcamp-translations";
 import { useState, useEffect, useMemo, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
 
@@ -60,6 +62,9 @@ function MapPageContent() {
 
   // Analytics hook
   const { trackMap, trackSearch } = useAnalytics();
+
+  // Translation hook
+  const { t, locale } = useSelfcampTranslation();
 
   // Gérer les paramètres URL pour les recherches depuis la homepage
   const searchParams = useSearchParams();
@@ -182,7 +187,8 @@ function MapPageContent() {
       window.removeEventListener("resize", checkMobile);
       window.removeEventListener("orientationchange", checkMobile);
     };
-  }, []);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [locale]); // Recharger quand la langue change
 
   useEffect(() => {
     filterEstablishments();
@@ -200,7 +206,9 @@ function MapPageContent() {
 
   const fetchEstablishments = async () => {
     try {
-      const response = await fetch("/api/public/map/establishments");
+      const response = await fetch(
+        `/api/public/map/establishments?locale=${locale}`
+      );
       if (response.ok) {
         const result = await response.json();
         if (result.success) {
@@ -226,7 +234,7 @@ function MapPageContent() {
                 location: est.location,
                 latitude: est.latitude,
                 longitude: est.longitude,
-                price: est.price || "Sur demande",
+                price: est.price || t.map.onRequest,
                 type: est.type || "camping",
                 amenities: ["wifi", "douche"], // À adapter selon vos données
                 description: est.description,
@@ -362,7 +370,7 @@ function MapPageContent() {
   if (loading) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <VanLoading message="Découverte des spots de camping..." size="lg" />
+        <VanLoading message={t.map.discovering} size="lg" />
       </div>
     );
   }
@@ -429,7 +437,9 @@ function MapPageContent() {
         <div className="flex flex-col h-full">
           {/* Header simple avec couleur */}
           <div className="flex items-center justify-between p-6 border-b border-gray-200">
-            <h2 className="text-lg font-semibold text-[#84994F]">Menu</h2>
+            <h2 className="text-lg font-semibold text-[#84994F]">
+              {t.map.menu}
+            </h2>
             <button
               onClick={() => setIsSidebarOpen(false)}
               className="p-2 hover:bg-[#84994F]/10 rounded-lg transition-colors"
@@ -447,21 +457,21 @@ function MapPageContent() {
                 onClick={() => setIsSidebarOpen(false)}
                 className="block px-4 py-3.5 text-base font-medium text-gray-700 hover:text-[#84994F] bg-gray-50 hover:bg-[#84994F]/10 rounded-xl transition-all duration-200 border-l-4 border-l-[#84994F]/30 hover:border-l-[#84994F]"
               >
-                Accueil
+                {t.map.home}
               </Link>
               <Link
                 href="/about"
                 onClick={() => setIsSidebarOpen(false)}
                 className="block px-4 py-3.5 text-base font-medium text-gray-700 hover:text-[#84994F] bg-gray-50 hover:bg-[#84994F]/10 rounded-xl transition-all duration-200 border-l-4 border-l-[#84994F]/30 hover:border-l-[#84994F]"
               >
-                À propos
+                {t.map.about}
               </Link>
               <Link
                 href="/help"
                 onClick={() => setIsSidebarOpen(false)}
                 className="block px-4 py-3.5 text-base font-medium text-gray-700 hover:text-[#84994F] bg-gray-50 hover:bg-[#84994F]/10 rounded-xl transition-all duration-200 border-l-4 border-l-[#84994F]/30 hover:border-l-[#84994F]"
               >
-                Contact
+                {t.map.contact}
               </Link>
             </div>
 
@@ -474,7 +484,7 @@ function MapPageContent() {
                 <div className="flex items-center gap-2">
                   <div className="text-lg">🚐</div>
                   <p className="text-xs text-gray-700 font-medium">
-                    Trouvez votre spot, pas votre stress.
+                    {t.map.tagline}
                   </p>
                 </div>
               </div>
@@ -504,7 +514,7 @@ function MapPageContent() {
                         @selfcamp_ch
                       </div>
                       <div className="text-[10px] text-gray-500">
-                        Suivez-nous
+                        {t.map.followUs}
                       </div>
                     </div>
                   </div>
@@ -542,7 +552,7 @@ function MapPageContent() {
             <div className="bg-[#84994F]/10 text-[#84994F] px-4 py-2.5 rounded-lg text-center">
               <div className="flex items-center justify-center space-x-2">
                 <div className="w-2 h-2 bg-[#84994F] rounded-full animate-pulse"></div>
-                <p className="text-sm font-medium">Disponible 24H/24 - 7J/7</p>
+                <p className="text-sm font-medium">{t.map.availability}</p>
               </div>
             </div>
           </div>
@@ -590,9 +600,9 @@ function MapPageContent() {
                         <span className="font-medium">
                           {filteredEstablishments.length}
                         </span>{" "}
-                        établissement
-                        {filteredEstablishments.length !== 1 ? "s" : ""} les
-                        plus proches de{" "}
+                        {filteredEstablishments.length !== 1
+                          ? t.map.results
+                          : t.map.result}{" "}
                         <span className="font-medium text-gray-800">
                           &ldquo;{searchQuery}&rdquo;
                         </span>
@@ -602,10 +612,9 @@ function MapPageContent() {
                         <span className="font-medium">
                           {filteredEstablishments.length}
                         </span>{" "}
-                        résultat
                         {filteredEstablishments.length !== 1
-                          ? "s"
-                          : ""} pour{" "}
+                          ? t.map.results
+                          : t.map.result}{" "}
                         <span className="font-medium text-gray-800">
                           &ldquo;{searchQuery}&rdquo;
                         </span>
@@ -616,9 +625,10 @@ function MapPageContent() {
                       <span className="font-medium">
                         {filteredEstablishments.length}
                       </span>{" "}
-                      emplacement
-                      {filteredEstablishments.length !== 1 ? "s" : ""}{" "}
-                      disponible
+                      {filteredEstablishments.length !== 1
+                        ? t.map.results
+                        : t.map.result}{" "}
+                      {t.map.available}
                       {filteredEstablishments.length !== 1 ? "s" : ""}
                     </>
                   )}
@@ -630,7 +640,7 @@ function MapPageContent() {
                     onClick={() => setSearchQuery("")}
                     className="text-xs"
                   >
-                    Effacer
+                    {t.map.clearSearch}
                   </Button>
                 )}
               </div>
@@ -726,7 +736,7 @@ function MapPageContent() {
                         className="text-xs text-[#84994F] hover:text-[#6d7d3f] hover:underline transition-colors mb-3 inline-block"
                         onClick={(e) => e.stopPropagation()}
                       >
-                        En savoir plus →
+                        {t.map.seeDetails} →
                       </Link>
                     )}
 
@@ -756,7 +766,7 @@ function MapPageContent() {
                         className="flex items-center gap-1 text-xs px-2 py-1 h-7 border-blue-200 text-blue-600 hover:bg-blue-50"
                       >
                         <Navigation className="w-3 h-3" />
-                        GPS
+                        {t.map.gps}
                       </Button>
                     </div>
                   </CardContent>
@@ -863,7 +873,7 @@ function MapPageContent() {
                     address: establishment.location,
                   });
                 }}
-                placeholder="Rechercher un lieu, une ville, un emplacement..."
+                placeholder={t.map.searchPlaceholder}
               />
             </div>
           </div>
@@ -915,7 +925,10 @@ export default function MapPage() {
     <Suspense
       fallback={
         <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-          <VanLoading message="Chargement de la carte..." size="lg" />
+          <VanLoading
+            message={selfcampTranslations.fr.map.loadingMapFallback}
+            size="lg"
+          />
         </div>
       }
     >

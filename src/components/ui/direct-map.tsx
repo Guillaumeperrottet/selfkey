@@ -4,6 +4,7 @@ import { useEffect, useState, useRef } from "react";
 import { MapContainer, TileLayer, Marker, Popup, useMap } from "react-leaflet";
 import { MapPin } from "lucide-react";
 import { VanLoading } from "@/components/ui/van-loading";
+import { useSelfcampTranslation } from "@/hooks/useSelfcampTranslation";
 import L from "leaflet";
 import Image from "next/image";
 import "leaflet/dist/leaflet.css";
@@ -189,6 +190,7 @@ const EstablishmentMarker = ({
   isSelected?: boolean;
 }) => {
   const markerRef = useRef<L.Marker | null>(null);
+  const { t } = useSelfcampTranslation();
 
   // Ouvrir le popup quand l'établissement est sélectionné
   useEffect(() => {
@@ -388,7 +390,7 @@ const EstablishmentMarker = ({
               >
                 <span>ℹ️</span>
               </div>
-              <span>Réservation en ligne disponible</span>
+              <span>{t.map.onlineBooking}</span>
             </div>
             {/* Boutons d'action - design moderne et simple */}
             <div className={`flex ${mobile ? "gap-2.5" : "gap-3"} w-full`}>
@@ -400,7 +402,7 @@ const EstablishmentMarker = ({
                 <span className={`${mobile ? "text-base" : "text-base"}`}>
                   🧭
                 </span>
-                <span>GPS</span>
+                <span>{t.map.gps}</span>
               </button>
 
               {/* Bouton réserver */}
@@ -408,7 +410,7 @@ const EstablishmentMarker = ({
                 onClick={openBookingPage}
                 className={`flex-1 ${mobile ? "px-3 py-2.5 text-sm" : "px-4 py-2.5 text-sm"} bg-[#84994F] text-white rounded-lg font-semibold hover:bg-[#84994F]/90 transition-all duration-200 cursor-pointer`}
               >
-                Réserver
+                {t.map.reserve}
               </button>
             </div>
           </div>

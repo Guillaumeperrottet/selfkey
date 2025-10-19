@@ -11,6 +11,7 @@ import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Separator } from "@/components/ui/separator";
 import { toastUtils } from "@/lib/toast-utils";
+import { useBookingTranslation } from "@/hooks/useBookingTranslation";
 import {
   Select,
   SelectContent,
@@ -102,6 +103,7 @@ interface BookingSummaryProps {
 
 export function BookingSummary({ bookingId }: BookingSummaryProps) {
   const router = useRouter();
+  const { t } = useBookingTranslation();
   const [booking, setBooking] = useState<BookingData | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
@@ -411,7 +413,7 @@ export function BookingSummary({ bookingId }: BookingSummaryProps) {
 
   const handleProceedToPayment = async () => {
     if (!acceptedTerms) {
-      setError("Veuillez accepter les conditions générales pour continuer");
+      setError(t.summary.termsRequired);
       return;
     }
 
@@ -721,14 +723,14 @@ export function BookingSummary({ bookingId }: BookingSummaryProps) {
             className="flex items-center gap-2 text-gray-600 hover:text-gray-800"
           >
             <ArrowLeft className="h-4 w-4" />
-            <span className="hidden sm:inline">Back</span>
+            <span className="hidden sm:inline">{t.summary.back}</span>
           </Button>
           <div>
             <h1 className="text-xl sm:text-2xl font-bold text-gray-900">
-              Booking Summary
+              {t.summary.bookingSummary}
             </h1>
             <p className="text-base text-gray-600">
-              Check your information before payment
+              {t.summary.checkBeforePayment}
             </p>
           </div>
           <div className="w-20"></div> {/* Spacer pour équilibrer */}
@@ -744,7 +746,7 @@ export function BookingSummary({ bookingId }: BookingSummaryProps) {
               <CardHeader className="pb-1">
                 <CardTitle className="flex items-center gap-2 text-base md:text-lg">
                   <Calendar className="h-5 w-5" />
-                  Details
+                  {t.summary.details}
                 </CardTitle>
               </CardHeader>
               <CardContent className="space-y-3">
@@ -755,7 +757,7 @@ export function BookingSummary({ bookingId }: BookingSummaryProps) {
                       <Clock className="h-5 w-5 text-gray-600" />
                       <div>
                         <div className="text-sm font-medium text-gray-700">
-                          Check-in
+                          {t.summary.checkIn}
                         </div>
                         <div className="text-base font-semibold text-gray-900">
                           {formatDate(booking.checkInDate)}
@@ -769,7 +771,7 @@ export function BookingSummary({ bookingId }: BookingSummaryProps) {
                       <Clock className="h-5 w-5 text-gray-600" />
                       <div>
                         <div className="text-sm font-medium text-gray-700">
-                          Check-out
+                          {t.summary.checkOut}
                         </div>
                         <div className="text-base font-semibold text-gray-900">
                           {formatDate(booking.checkOutDate)}
@@ -783,20 +785,20 @@ export function BookingSummary({ bookingId }: BookingSummaryProps) {
                     <MapPin className="h-5 w-5 text-gray-600" />
                     <div className="flex-1">
                       <div className="text-sm font-medium text-gray-700">
-                        Établissement
+                        {t.summary.establishment}
                       </div>
                       <div className="text-lg font-semibold text-gray-900">
                         {booking.establishment.name}
                       </div>
                       <div className="text-base text-gray-700 font-medium">
-                        Place: {booking.room.name}
+                        {t.summary.place}: {booking.room.name}
                       </div>
                     </div>
                     <Badge
                       variant="secondary"
                       className="text-base px-3 py-1 bg-gray-100 text-gray-800 border-gray-300"
                     >
-                      {duration} night{duration > 1 ? "s" : ""}
+                      {t.summary.nights(duration)}
                     </Badge>
                   </div>
 
@@ -806,7 +808,7 @@ export function BookingSummary({ bookingId }: BookingSummaryProps) {
                       <User className="h-4 w-4 text-gray-600" />
                       <div>
                         <div className="text-sm font-medium text-gray-700">
-                          Adults
+                          {t.summary.adults}
                         </div>
                         <div className="text-base font-semibold text-gray-900">
                           {booking.adults}
@@ -817,7 +819,7 @@ export function BookingSummary({ bookingId }: BookingSummaryProps) {
                       <User className="h-4 w-4 text-gray-600" />
                       <div>
                         <div className="text-sm font-medium text-gray-700">
-                          Children
+                          {t.summary.children}
                         </div>
                         <div className="text-base font-semibold text-gray-900">
                           {booking.children}
@@ -835,9 +837,9 @@ export function BookingSummary({ bookingId }: BookingSummaryProps) {
             <CardHeader className="pb-1">
               <CardTitle className="flex items-center gap-2 text-base md:text-lg">
                 <User className="h-5 w-5" />
-                Your Information
+                {t.summary.yourInformation}
                 <Badge variant="outline" className="ml-auto text-sm">
-                  Editable
+                  {t.summary.editable}
                 </Badge>
               </CardTitle>
             </CardHeader>
@@ -845,18 +847,18 @@ export function BookingSummary({ bookingId }: BookingSummaryProps) {
               {/* Personal Information - Optimized Grid Layout */}
               <div>
                 <h4 className="font-medium text-sm text-gray-700 mb-1">
-                  Personal Information
+                  {t.summary.personalInformation}
                 </h4>
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-1">
                   <EditableField
                     field="clientFirstName"
-                    label="First Name"
+                    label={t.summary.firstName}
                     value={booking.clientFirstName}
                     icon={User}
                   />
                   <EditableField
                     field="clientLastName"
-                    label="Last Name"
+                    label={t.summary.lastName}
                     value={booking.clientLastName}
                     icon={User}
                   />
@@ -864,7 +866,7 @@ export function BookingSummary({ bookingId }: BookingSummaryProps) {
                     <Calendar className="h-3 w-3 text-gray-600" />
                     <div>
                       <div className="text-xs font-medium text-gray-600">
-                        Birth Date
+                        {t.summary.birthDate}
                       </div>
                       <div className="text-xs text-gray-900">
                         {formatDate(booking.clientBirthDate)}
@@ -873,7 +875,7 @@ export function BookingSummary({ bookingId }: BookingSummaryProps) {
                   </div>
                   <EditableField
                     field="clientBirthPlace"
-                    label="Birth Place"
+                    label={t.summary.birthPlace}
                     value={booking.clientBirthPlace}
                     icon={MapPin}
                   />
@@ -888,14 +890,14 @@ export function BookingSummary({ bookingId }: BookingSummaryProps) {
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-1">
                   <EditableField
                     field="clientEmail"
-                    label="Email"
+                    label={t.summary.email}
                     value={booking.clientEmail}
                     type="email"
                     icon={Mail}
                   />
                   <EditableField
                     field="clientPhone"
-                    label="Phone"
+                    label={t.summary.phone}
                     value={booking.clientPhone}
                     type="tel"
                     icon={Phone}
@@ -906,30 +908,30 @@ export function BookingSummary({ bookingId }: BookingSummaryProps) {
               {/* Address - Inline Layout */}
               <div>
                 <h4 className="font-medium text-sm text-gray-700 mb-1">
-                  Address
+                  {t.summary.address}
                 </h4>
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-1">
                   <EditableField
                     field="clientAddress"
-                    label="Address"
+                    label={t.summary.address}
                     value={booking.clientAddress}
                     icon={MapPin}
                   />
                   <EditableField
                     field="clientPostalCode"
-                    label="Postal Code"
+                    label={t.summary.postalCode}
                     value={booking.clientPostalCode}
                     icon={MapPin}
                   />
                   <EditableField
                     field="clientCity"
-                    label="City"
+                    label={t.summary.city}
                     value={booking.clientCity}
                     icon={MapPin}
                   />
                   <EditableField
                     field="clientCountry"
-                    label="Country"
+                    label={t.summary.country}
                     value={booking.clientCountry}
                     icon={MapPin}
                   />
@@ -944,13 +946,13 @@ export function BookingSummary({ bookingId }: BookingSummaryProps) {
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-1">
                   <EditableField
                     field="clientIdNumber"
-                    label="ID Number"
+                    label={t.summary.idNumber}
                     value={booking.clientIdNumber}
                     icon={FileText}
                   />
                   <EditableField
                     field="clientVehicleNumber"
-                    label="License Plate"
+                    label={t.summary.vehicleNumber}
                     value={booking.clientVehicleNumber}
                     icon={Car}
                   />
@@ -965,15 +967,14 @@ export function BookingSummary({ bookingId }: BookingSummaryProps) {
           <Card className="lg:sticky lg:top-4">
             <CardHeader className="pb-2">
               <CardTitle className="flex items-center gap-2 text-base md:text-lg">
-                Reservation
+                {t.summary.title}
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-3">
               <div className="space-y-2">
                 <div className="flex justify-between items-center">
                   <span className="text-base text-gray-600">
-                    {booking.room.name} ({duration} night
-                    {duration > 1 ? "s" : ""})
+                    {booking.room.name} ({t.summary.nights(duration)})
                   </span>
                   {booking.room.price > 0 && (
                     <span className="text-base md:text-lg font-medium">
@@ -1037,7 +1038,9 @@ export function BookingSummary({ bookingId }: BookingSummaryProps) {
                 {/* Tourist Tax */}
                 {touristTaxSettings.enabled && touristTaxSettings.total > 0 && (
                   <div className="flex justify-between items-center">
-                    <span className="text-base text-gray-600">Tourist tax</span>
+                    <span className="text-base text-gray-600">
+                      {t.summary.touristTax}
+                    </span>
                     <span className="text-base md:text-lg font-medium">
                       {touristTaxSettings.total.toFixed(2)} {booking.currency}
                     </span>
@@ -1048,7 +1051,7 @@ export function BookingSummary({ bookingId }: BookingSummaryProps) {
                 {!hidePlatformFees && platformFees.total > 0 && (
                   <div className="flex justify-between items-center">
                     <span className="text-base text-gray-600">
-                      Frais Plateforme
+                      {t.summary.platformFees}
                     </span>
                     <span className="text-base md:text-lg font-medium">
                       {platformFees.total.toFixed(2)} {booking.currency}
@@ -1060,7 +1063,7 @@ export function BookingSummary({ bookingId }: BookingSummaryProps) {
               <Separator />
 
               <div className="flex justify-between items-center">
-                <span className="text-lg font-semibold">Total</span>
+                <span className="text-lg font-semibold">{t.summary.total}</span>
                 <span className="text-2xl font-bold text-gray-900">
                   {(booking.amount + platformFees.total).toFixed(2)}{" "}
                   {booking.currency}
@@ -1113,11 +1116,11 @@ export function BookingSummary({ bookingId }: BookingSummaryProps) {
                       htmlFor="terms"
                       className="text-base cursor-pointer leading-relaxed"
                     >
-                      I accept the{" "}
+                      {t.summary.acceptTerms}{" "}
                       <Dialog>
                         <DialogTrigger asChild>
                           <span className="text-gray-700 hover:underline cursor-pointer">
-                            terms and conditions
+                            {t.summary.termsText}
                           </span>
                         </DialogTrigger>
                         <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">
@@ -1193,10 +1196,10 @@ export function BookingSummary({ bookingId }: BookingSummaryProps) {
                 size="lg"
               >
                 {processingPayment ? (
-                  "Redirecting..."
+                  t.summary.processing
                 ) : (
                   <>
-                    Proceed to Payment
+                    {t.summary.proceedToPayment}
                     <ChevronRight className="h-5 w-5 ml-2" />
                   </>
                 )}
