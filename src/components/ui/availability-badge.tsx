@@ -2,6 +2,7 @@
 
 import { Badge } from "@/components/ui/badge";
 import { Clock, Users, Calendar } from "lucide-react";
+import { useSelfcampTranslation } from "@/hooks/useSelfcampTranslation";
 
 interface AvailabilityBadgeProps {
   availableRooms: number;
@@ -20,6 +21,8 @@ export function AvailabilityBadge({
   loading = false,
   className = "",
 }: AvailabilityBadgeProps) {
+  const { t } = useSelfcampTranslation();
+
   if (loading) {
     return (
       <Badge
@@ -27,7 +30,7 @@ export function AvailabilityBadge({
         className={`flex items-center gap-1 ${className}`}
       >
         <Clock className="w-3 h-3 animate-spin" />
-        <span className="text-xs">Chargement...</span>
+        <span className="text-xs">{t.loading.message}</span>
       </Badge>
     );
   }
@@ -49,7 +52,7 @@ export function AvailabilityBadge({
     if (status === "full") {
       return nextAvailable ? `Libre le ${nextAvailable}` : "Complet";
     }
-    return `${availableRooms}/${totalRooms} places`;
+    return `${availableRooms}/${totalRooms} ${t.map.placesAvailable}`;
   };
 
   const getIcon = () => {

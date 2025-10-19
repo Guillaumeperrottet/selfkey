@@ -1,9 +1,14 @@
+"use client";
+
 import Image from "next/image";
 import Link from "next/link";
 import { MapPin } from "lucide-react";
 import { DOMAINS } from "@/lib/domains";
+import { useSelfcampTranslation } from "@/hooks/useSelfcampTranslation";
 
 export function SelfcampFooter() {
+  const { t } = useSelfcampTranslation();
+
   return (
     <>
       <style jsx>{`
@@ -24,17 +29,17 @@ export function SelfcampFooter() {
                   className="object-contain"
                 />
               </div>
-              <p className="text-gray-400 mb-4">
-                L&apos;accès de stationnement pour vanlife en Suisse.
-              </p>
+              <p className="text-gray-400 mb-4">{t.footer.description}</p>
             </div>
 
             <div className="text-center md:text-left">
-              <h4 className="font-semibold mb-4 text-lg text-white">Contact</h4>
+              <h4 className="font-semibold mb-4 text-lg text-white">
+                {t.footer.contact.title}
+              </h4>
               <div className="space-y-2 text-gray-400">
                 <div className="flex items-center justify-center md:justify-start space-x-2">
                   <MapPin className="h-4 w-4 flex-shrink-0 text-[#84994F]" />
-                  <span>Canton de Fribourg, Suisse</span>
+                  <span>{t.footer.contact.location}</span>
                 </div>
                 <div>
                   <a
@@ -49,7 +54,7 @@ export function SelfcampFooter() {
 
             <div className="text-center md:text-left">
               <h4 className="font-semibold mb-4 text-lg text-white">
-                Navigation
+                {t.footer.navigation.title}
               </h4>
               <div className="space-y-2 text-gray-400">
                 <div>
@@ -57,7 +62,7 @@ export function SelfcampFooter() {
                     href="/"
                     className="hover:text-[#84994F] transition-colors"
                   >
-                    Accueil
+                    {t.footer.navigation.home}
                   </Link>
                 </div>
                 <div>
@@ -65,7 +70,7 @@ export function SelfcampFooter() {
                     href="/map"
                     className="hover:text-[#84994F] transition-colors"
                   >
-                    Carte des aires
+                    {t.footer.navigation.map}
                   </Link>
                 </div>
                 <div>
@@ -73,7 +78,7 @@ export function SelfcampFooter() {
                     href="/about"
                     className="hover:text-[#84994F] transition-colors"
                   >
-                    A propos de SelfCamp
+                    {t.footer.navigation.about}
                   </Link>
                 </div>
                 <div>
@@ -81,7 +86,7 @@ export function SelfcampFooter() {
                     href="/contact"
                     className="hover:text-[#84994F] transition-colors"
                   >
-                    Contactez-nous
+                    {t.footer.navigation.contact}
                   </Link>
                 </div>
                 <div>
@@ -89,7 +94,7 @@ export function SelfcampFooter() {
                     href={DOMAINS.SELFKEY}
                     className="text-[#84994F] hover:text-[#6d7d3f] transition-colors duration-300"
                   >
-                    Système SelfKey
+                    {t.footer.navigation.selfkeySystem}
                   </a>
                 </div>
               </div>
@@ -97,7 +102,7 @@ export function SelfcampFooter() {
 
             <div className="text-center md:text-left">
               <h4 className="font-semibold mb-4 text-lg text-white">
-                Informations légales
+                {t.footer.legal.title}
               </h4>
               <div className="space-y-2 text-gray-400">
                 <div>
@@ -105,7 +110,7 @@ export function SelfcampFooter() {
                     href="/legal"
                     className="hover:text-[#84994F] transition-colors"
                   >
-                    Mentions légales
+                    {t.footer.legal.terms}
                   </Link>
                 </div>
                 <div>
@@ -113,7 +118,7 @@ export function SelfcampFooter() {
                     href="/legal"
                     className="hover:text-[#84994F] transition-colors"
                   >
-                    CGV & Droit de rétractation
+                    {t.footer.legal.termsConditions}
                   </Link>
                 </div>
                 <div>
@@ -121,7 +126,7 @@ export function SelfcampFooter() {
                     href="/privacy"
                     className="hover:text-[#84994F] transition-colors"
                   >
-                    Politique de confidentialité
+                    {t.footer.legal.privacy}
                   </Link>
                 </div>
               </div>
@@ -130,21 +135,17 @@ export function SelfcampFooter() {
 
           <div className="border-t border-gray-700 mt-8 pt-8 text-center text-sm text-gray-400">
             <p>
-              &copy; 2025 SelfCamp. Tous droits réservés. Développé par{" "}
+              {t.footer.copyright}{" "}
               <a
                 href="https://www.webbing.ch/"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="text-[#84994F] hover:text-[#6d7d3f] transition-colors duration-300"
               >
-                Webbing.ch
+                {t.footer.developedBy}
               </a>
             </p>
-            <p className="mt-2 text-xs">
-              Paiements sécurisés par{" "}
-              <span className="font-semibold">Stripe</span> • Cartes bancaires
-              et TWINT acceptés
-            </p>
+            <p className="mt-2 text-xs">{t.footer.payments}</p>
           </div>
         </div>
       </footer>

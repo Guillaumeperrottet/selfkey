@@ -9,7 +9,9 @@ import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { SelfcampFooter } from "@/components/public-pages/selfcamp-footer";
 import { AmenityIcon } from "@/components/ui/amenity-icon";
+import { SelfcampLanguageSelector } from "@/components/ui/selfcamp-language-selector";
 import { useAnalytics } from "@/hooks/useAnalytics";
+import { useSelfcampTranslation } from "@/hooks/useSelfcampTranslation";
 import {
   MapPin,
   Globe,
@@ -72,22 +74,6 @@ interface EstablishmentData {
   touristTaxImpactMessage?: string;
 }
 
-const ATTRIBUTE_LABELS: Record<string, { label: string }> = {
-  wifi: { label: "WiFi gratuit" },
-  electricity: { label: "Électricité" },
-  water: { label: "Eau potable" },
-  showers: { label: "Douches" },
-  toilets: { label: "Toilettes" },
-  wasteDisposal: { label: "Vidange eaux usées" },
-  parking: { label: "Parking" },
-  security: { label: "Sécurité 24h/24" },
-  restaurant: { label: "Restaurant" },
-  store: { label: "Boutique" },
-  laundry: { label: "Laverie" },
-  playground: { label: "Aire de jeux" },
-  petFriendly: { label: "Animaux acceptés" },
-};
-
 export default function EstablishmentPage() {
   const params = useParams();
   const router = useRouter();
@@ -99,6 +85,9 @@ export default function EstablishmentPage() {
   const [loading, setLoading] = useState(true);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [lightboxOpen, setLightboxOpen] = useState(false);
+
+  // Translation hook
+  const { t, locale } = useSelfcampTranslation();
 
   // Analytics hook
   const { trackEstablishment } = useAnalytics();
@@ -113,7 +102,9 @@ export default function EstablishmentPage() {
   useEffect(() => {
     const fetchEstablishment = async () => {
       try {
-        const response = await fetch(`/api/public/establishment/${slug}`);
+        const response = await fetch(
+          `/api/public/establishment/${slug}?locale=${locale}`
+        );
         if (response.ok) {
           const data = await response.json();
           setEstablishment(data);
@@ -137,7 +128,7 @@ export default function EstablishmentPage() {
     if (slug) {
       fetchEstablishment();
     }
-  }, [slug, router, trackEstablishment]);
+  }, [slug, locale, router, trackEstablishment]);
 
   const openInMaps = () => {
     if (establishment) {
@@ -174,15 +165,14 @@ export default function EstablishmentPage() {
       <div className="min-h-screen bg-gradient-to-b from-[#84994F]/8 via-white to-white flex items-center justify-center">
         <div className="text-center space-y-4">
           <h1 className="text-3xl font-bold text-gray-900">
-            Établissement non trouvé
+            {t.establishment.notFound.title}
           </h1>
           <p className="text-gray-600">
-            Cet établissement n&apos;existe pas ou n&apos;est pas disponible
-            publiquement.
+            {t.establishment.notFound.description}
           </p>
           <Link href="/map">
             <Button className="bg-[#84994F] hover:bg-[#6d7d3f] mt-4">
-              Retour à la carte
+              {t.establishment.notFound.backButton}
             </Button>
           </Link>
         </div>
@@ -225,7 +215,9 @@ export default function EstablishmentPage() {
                   className="flex items-center gap-2 text-gray-600 hover:text-[#84994F] transition-colors"
                 >
                   <ArrowLeft className="h-5 w-5" />
-                  <span className="font-medium">Retour à la carte</span>
+                  <span className="font-medium">
+                    {t.establishment.backToMap}
+                  </span>
                 </Link>
 
                 <Link
@@ -235,12 +227,15 @@ export default function EstablishmentPage() {
                   Selfcamp
                 </Link>
 
-                <Link
-                  href="/contact"
-                  className="text-[#84994F] font-bold uppercase tracking-wide text-sm hover:text-[#6d7d3f] transition-colors"
-                >
-                  CONTACTEZ-NOUS
-                </Link>
+                <div className="flex items-center gap-4">
+                  <Link
+                    href="/contact"
+                    className="text-[#84994F] font-bold uppercase tracking-wide text-sm hover:text-[#6d7d3f] transition-colors"
+                  >
+                    {t.establishment.contactUs}
+                  </Link>
+                  <SelfcampLanguageSelector variant="compact" />
+                </div>
               </div>
 
               {/* Mobile header */}
@@ -259,12 +254,15 @@ export default function EstablishmentPage() {
                   Selfcamp
                 </Link>
 
-                <Link
-                  href="/contact"
-                  className="text-[#84994F] font-bold uppercase tracking-wide text-xs hover:text-[#84994F]/80 transition-colors"
-                >
-                  CONTACT
-                </Link>
+                <div className="flex items-center gap-2">
+                  <Link
+                    href="/contact"
+                    className="text-[#84994F] font-bold uppercase tracking-wide text-xs hover:text-[#84994F]/80 transition-colors"
+                  >
+                    {t.establishment.contactShort}
+                  </Link>
+                  <SelfcampLanguageSelector variant="minimal" />
+                </div>
               </div>
             </div>
           </header>
@@ -289,18 +287,20 @@ export default function EstablishmentPage() {
                 {establishment.is24h7Access ? (
                   <Badge className="bg-[#84994F]/10 text-[#84994F] border-[#84994F]/20 px-4 py-1.5">
                     <div className="w-2 h-2 bg-[#84994F] rounded-full animate-pulse mr-2"></div>
-                    Ouvert 24h/24
+                    {t.establishment.header.open247}
                   </Badge>
                 ) : establishment.checkInStartTime &&
                   establishment.checkInEndTime ? (
                   <div className="flex flex-wrap items-center gap-2">
                     <Badge className="bg-[#84994F]/10 text-[#84994F] border-[#84994F]/20 px-4 py-1.5">
-                      🕐 Arrivée: {establishment.checkInStartTime} -{" "}
+                      🕐 {t.establishment.header.arrival}{" "}
+                      {establishment.checkInStartTime} -{" "}
                       {establishment.checkInEndTime}
                     </Badge>
                     {establishment.checkOutTime && (
                       <Badge className="bg-gray-100 text-gray-700 border-gray-200 px-4 py-1.5">
-                        🏁 Départ avant {establishment.checkOutTime}
+                        🏁 {t.establishment.header.departureBefore}{" "}
+                        {establishment.checkOutTime}
                       </Badge>
                     )}
                   </div>
@@ -340,7 +340,9 @@ export default function EstablishmentPage() {
                       className="flex items-center gap-1.5 text-gray-600 hover:text-[#84994F] transition-colors group"
                     >
                       <Globe className="h-4 w-4" />
-                      <span className="group-hover:underline">Site web</span>
+                      <span className="group-hover:underline">
+                        {t.establishment.info.website}
+                      </span>
                     </a>
                   )}
                   {establishment.email && (
@@ -448,7 +450,7 @@ export default function EstablishmentPage() {
                   <div className="aspect-[4/3] rounded-2xl bg-gradient-to-br from-gray-50 to-gray-100 flex items-center justify-center border border-gray-200">
                     <div className="text-center text-gray-400">
                       <MapPin className="h-16 w-16 mx-auto mb-2" />
-                      <p>Aucune image disponible</p>
+                      <p>{t.establishment.images.noImage}</p>
                     </div>
                   </div>
                 )}
@@ -460,7 +462,7 @@ export default function EstablishmentPage() {
                 {establishment.description && (
                   <div className="bg-[#F5F5F0] rounded-3xl p-6 md:p-8 border border-[#E5E5DD]">
                     <h2 className="text-xl md:text-2xl font-bold text-[#84994F] mb-4 text-center">
-                      À propos
+                      {t.establishment.about.title}
                     </h2>
                     <p className="text-gray-700 text-sm md:text-base leading-relaxed text-center whitespace-pre-line">
                       {establishment.description}
@@ -474,7 +476,7 @@ export default function EstablishmentPage() {
                     size="lg"
                     className="w-full bg-[#84994F] hover:bg-[#6d7d3f] text-white font-semibold"
                   >
-                    Réserver maintenant
+                    {t.establishment.cta.bookNow}
                   </Button>
                 </Link>
 
@@ -486,7 +488,7 @@ export default function EstablishmentPage() {
                     onClick={openInMaps}
                   >
                     <Navigation className="h-4 w-4 mr-2" />
-                    Obtenir l&apos;itinéraire
+                    {t.establishment.cta.getDirections}
                   </Button>
                 </div>
               </div>
@@ -499,7 +501,7 @@ export default function EstablishmentPage() {
                   <div className="bg-[#84994F]/[0.02] rounded-3xl p-6 md:p-8 border border-[#84994F]/[0.08]">
                     <h2 className="text-xl md:text-2xl font-bold text-[#84994F] mb-4 text-center">
                       {establishment.localImpactTitle ||
-                        "L'impact de votre séjour"}
+                        t.establishment.impact.title}
                     </h2>
                     {establishment.touristTaxImpactMessage && (
                       <p className="text-gray-700 text-sm md:text-base mb-4 text-center leading-relaxed">
@@ -518,7 +520,7 @@ export default function EstablishmentPage() {
             {establishment.nearbyBusinesses.length > 0 && (
               <div className="mb-16">
                 <h2 className="text-2xl md:text-3xl font-bold text-gray-900 mb-6">
-                  À proximité
+                  {t.establishment.nearby.title}
                 </h2>
                 <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
                   {establishment.nearbyBusinesses.map((business, index) => (
@@ -577,7 +579,7 @@ export default function EstablishmentPage() {
                             >
                               <Globe className="h-3.5 w-3.5" />
                               <span className="group-hover:underline">
-                                Site web
+                                {t.establishment.nearby.website}
                               </span>
                             </a>
                           )}
@@ -597,7 +599,7 @@ export default function EstablishmentPage() {
                             >
                               <MapPin className="h-3.5 w-3.5" />
                               <span className="group-hover:underline">
-                                Itinéraire
+                                {t.establishment.nearby.directions}
                               </span>
                             </a>
                           )}
@@ -608,7 +610,7 @@ export default function EstablishmentPage() {
                       {business.documents && business.documents.length > 0 && (
                         <div className="mt-3 pt-3 border-t border-[#84994F]/[0.1]">
                           <p className="text-xs text-gray-600 mb-2 font-medium">
-                            Documents :
+                            {t.establishment.nearby.documents}
                           </p>
                           <div className="flex flex-wrap gap-2">
                             {business.documents.map((doc, docIndex) => (
@@ -640,12 +642,14 @@ export default function EstablishmentPage() {
                 <div className="bg-white rounded-2xl p-6 md:p-10 border border-gray-100 shadow-sm">
                   <h2 className="text-2xl md:text-3xl font-bold text-gray-900 mb-8 flex items-center gap-3">
                     <CheckCircle2 className="h-7 w-7 text-[#84994F]" />
-                    Équipements et services
+                    {t.establishment.amenities.title}
                   </h2>
                   <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
                     {activeAttributes.map((key) => {
-                      const attr = ATTRIBUTE_LABELS[key];
-                      if (!attr) return null;
+                      const attributeKey =
+                        key as keyof typeof t.establishment.attributes;
+                      const label = t.establishment.attributes[attributeKey];
+                      if (!label) return null;
                       return (
                         <div
                           key={key}
@@ -671,7 +675,7 @@ export default function EstablishmentPage() {
                             size={28}
                           />
                           <span className="text-sm font-medium text-gray-700">
-                            {attr.label}
+                            {label}
                           </span>
                         </div>
                       );
@@ -686,7 +690,7 @@ export default function EstablishmentPage() {
                 <div className="bg-white rounded-2xl p-6 md:p-10 border border-gray-100 shadow-sm">
                   <h2 className="text-2xl md:text-3xl font-bold text-gray-900 mb-8 flex items-center gap-3">
                     <FileText className="h-7 w-7 text-[#84994F]" />
-                    Documents utiles
+                    {t.establishment.documents.title}
                   </h2>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     {establishment.documents.map((doc, index) => (
@@ -718,22 +722,21 @@ export default function EstablishmentPage() {
                 </div>
               </div>
             )}
-            {/* CTA final */} {/* CTA final */}
+            {/* CTA final */}
             <div className="bg-gradient-to-br from-[#84994F]/10 to-[#84994F]/5 rounded-3xl p-8 md:p-12 border border-[#84994F]/20 shadow-sm">
               <div className="text-center space-y-6">
                 <h2 className="text-2xl md:text-4xl font-bold text-gray-900">
-                  Prêt à réserver votre place ?
+                  {t.establishment.finalCta.title}
                 </h2>
                 <p className="text-gray-600 text-base md:text-lg max-w-2xl mx-auto leading-relaxed">
-                  Réservation simple et rapide. Paiement sécurisé. Accès
-                  immédiat.
+                  {t.establishment.finalCta.description}
                 </p>
                 <Link href={`/${establishment.slug}`}>
                   <Button
                     size="lg"
                     className="bg-[#84994F] hover:bg-[#6d7d3f] text-white font-semibold px-10 py-6 text-lg active:scale-95 transition-all shadow-md hover:shadow-lg"
                   >
-                    Réserver maintenant
+                    {t.establishment.finalCta.button}
                   </Button>
                 </Link>
               </div>

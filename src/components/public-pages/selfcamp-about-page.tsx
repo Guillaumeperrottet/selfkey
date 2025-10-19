@@ -9,16 +9,14 @@ import { SelfcampFooter } from "@/components/public-pages/selfcamp-footer";
 import { VanIcon } from "@/components/ui/van-icon";
 import { useAnalytics } from "@/hooks/useAnalytics";
 import { useState, useEffect } from "react";
+import { useSelfcampTranslation } from "@/hooks/useSelfcampTranslation";
+import { SelfcampLanguageSelector } from "@/components/ui/selfcamp-language-selector";
 
 export function SelfcampAboutPage() {
   const { trackAbout } = useAnalytics();
-  // Carousel pour les phrases de mission
-  const quotes = [
-    "Créer un pont entre tourisme durable et développement territorial",
-    "Transformer chaque nuitée en opportunité pour les territoires",
-    "Valoriser les régions tout en respectant l'environnement",
-  ];
+  const { t } = useSelfcampTranslation();
 
+  // Carousel pour les phrases de mission
   const [currentQuote, setCurrentQuote] = useState(0);
 
   // Paramètres pour le swipe
@@ -29,16 +27,16 @@ export function SelfcampAboutPage() {
 
   useEffect(() => {
     const timer = setInterval(() => {
-      setCurrentQuote((prev) => (prev + 1) % quotes.length);
+      setCurrentQuote((prev) => (prev + 1) % t.mission.quotes.length);
     }, 5000); // Change toutes les 5 secondes
 
     return () => clearInterval(timer);
-  }, [quotes.length]);
+  }, [t.mission.quotes.length]);
 
   // Données pour la timeline de développement de SelfCamp
   const timelineData = [
     {
-      title: "Soutien aux Régions",
+      title: t.timeline.regionalSupport.title,
       content: (
         <div className="py-6 md:py-10 bg-white">
           <div className="max-w-5xl mx-auto px-4">
@@ -48,14 +46,12 @@ export function SelfcampAboutPage() {
               <div className="space-y-4">
                 <div className="bg-gradient-to-r from-[#84994F]/5 to-transparent rounded-2xl p-5 border-l-4 border-[#84994F]/40">
                   <p className="text-[15px] text-gray-700 leading-[1.7] font-medium">
-                    Des aires de camping organisées pour valoriser les régions
-                    moins touristiques.
+                    {t.timeline.regionalSupport.intro1}
                   </p>
                 </div>
                 <div className="bg-gradient-to-r from-[#84994F]/5 to-transparent rounded-2xl p-5 border-l-4 border-[#84994F]/40">
                   <p className="text-[15px] text-gray-700 leading-[1.7] font-medium">
-                    Les artisans locaux profitent des touristes grâce au système
-                    de partenariat
+                    {t.timeline.regionalSupport.intro2}
                   </p>
                 </div>
               </div>
@@ -68,10 +64,10 @@ export function SelfcampAboutPage() {
                   </div>
                   <div className="pt-1">
                     <h4 className="text-[15px] font-semibold text-gray-900 mb-1">
-                      Commerce Local
+                      {t.timeline.regionalSupport.localCommerce.title}
                     </h4>
                     <p className="text-[13px] text-gray-500 leading-relaxed">
-                      Boulangeries, épiceries profitent du passage
+                      {t.timeline.regionalSupport.localCommerce.description}
                     </p>
                   </div>
                 </div>
@@ -82,10 +78,10 @@ export function SelfcampAboutPage() {
                   </div>
                   <div className="pt-1">
                     <h4 className="text-[15px] font-semibold text-gray-900 mb-1">
-                      Découverte Régionale
+                      {t.timeline.regionalSupport.regionalDiscovery.title}
                     </h4>
                     <p className="text-[13px] text-gray-500 leading-relaxed">
-                      Villages hors des grands axes touristiques
+                      {t.timeline.regionalSupport.regionalDiscovery.description}
                     </p>
                   </div>
                 </div>
@@ -96,10 +92,10 @@ export function SelfcampAboutPage() {
                   </div>
                   <div className="pt-1">
                     <h4 className="text-[15px] font-semibold text-gray-900 mb-1">
-                      Économie Circulaire
+                      {t.timeline.regionalSupport.circularEconomy.title}
                     </h4>
                     <p className="text-[13px] text-gray-500 leading-relaxed">
-                      Retombées économiques directes pour la région
+                      {t.timeline.regionalSupport.circularEconomy.description}
                     </p>
                   </div>
                 </div>
@@ -110,17 +106,13 @@ export function SelfcampAboutPage() {
             <div className="hidden md:block space-y-6 mb-10">
               <div className="bg-gradient-to-r from-[#84994F]/5 to-transparent rounded-2xl p-6 border-l-4 border-[#84994F]/40">
                 <p className="text-base text-gray-700 leading-relaxed font-medium">
-                  Le camping sauvage favorise les visites des régions moins
-                  touristiques. En créant des aires SelfCamp, nous organisons
-                  ces nuitées et faisons découvrir des villages hors des grands
-                  axes.
+                  {t.timeline.regionalSupport.desktopIntro1}
                 </p>
               </div>
 
               <div className="bg-gradient-to-r from-[#84994F]/5 to-transparent rounded-2xl p-6 border-l-4 border-[#84994F]/40">
                 <p className="text-base text-gray-700 leading-relaxed font-medium">
-                  Les artisans locaux profitent des touristes grâce au système
-                  de partenariat
+                  {t.timeline.regionalSupport.desktopIntro2}
                 </p>
               </div>
 
@@ -130,11 +122,10 @@ export function SelfcampAboutPage() {
                     <span className="text-2xl">🏪</span>
                   </div>
                   <h4 className="text-lg font-semibold text-[#84994F] mb-3">
-                    Commerce Local
+                    {t.timeline.regionalSupport.localCommerce.title}
                   </h4>
                   <p className="text-sm text-gray-600 leading-relaxed">
-                    Boulangeries, épiceries, laiteries bénéficient directement
-                    du passage des vanlifer
+                    {t.timeline.regionalSupport.localCommerce.description}
                   </p>
                 </div>
 
@@ -143,11 +134,10 @@ export function SelfcampAboutPage() {
                     <span className="text-2xl">🗺️</span>
                   </div>
                   <h4 className="text-lg font-semibold text-[#84994F] mb-3">
-                    Découverte Régionale
+                    {t.timeline.regionalSupport.regionalDiscovery.title}
                   </h4>
                   <p className="text-sm text-gray-600 leading-relaxed">
-                    Valorisation des villages et régions moins touristiques hors
-                    des grands axes
+                    {t.timeline.regionalSupport.regionalDiscovery.description}
                   </p>
                 </div>
 
@@ -156,10 +146,10 @@ export function SelfcampAboutPage() {
                     <span className="text-2xl">💰</span>
                   </div>
                   <h4 className="text-lg font-semibold text-[#84994F] mb-3">
-                    Économie Circulaire
+                    {t.timeline.regionalSupport.circularEconomy.title}
                   </h4>
                   <p className="text-sm text-gray-600 leading-relaxed">
-                    Retombées économiques directes pour la région
+                    {t.timeline.regionalSupport.circularEconomy.description}
                   </p>
                 </div>
               </div>
@@ -169,7 +159,7 @@ export function SelfcampAboutPage() {
       ),
     },
     {
-      title: "Nos Prestations",
+      title: t.timeline.services.title,
       content: (
         <div className="py-6 md:py-10 bg-white">
           <div className="max-w-5xl mx-auto px-4">
@@ -177,69 +167,36 @@ export function SelfcampAboutPage() {
             <div className="md:hidden space-y-7">
               <div>
                 <p className="text-[15px] text-gray-600 leading-[1.7]">
-                  Au-delà de notre{" "}
+                  {t.timeline.services.intro}{" "}
                   <span className="text-[#84994F] font-semibold">
-                    solution d&apos;enregistrement
+                    {t.timeline.services.introHighlight}
                   </span>
-                  , nous vous accompagnons pour l&apos;organisation optimale de
-                  votre aire.
+                  , {t.timeline.services.introContinuation}
                 </p>
               </div>
 
               <div className="pt-1">
                 <h4 className="text-[14px] font-semibold text-gray-400 uppercase tracking-wider mb-4">
-                  Nos prestations incluent :
+                  {t.timeline.services.listTitle}
                 </h4>
                 <div className="space-y-3">
-                  <div className="flex items-start gap-3">
-                    <div className="w-1.5 h-1.5 bg-[#84994F] rounded-full mt-2 flex-shrink-0"></div>
-                    <p className="text-[14px] text-gray-700 leading-relaxed">
-                      Délimitation de la zone et des places
-                    </p>
-                  </div>
-                  <div className="flex items-start gap-3">
-                    <div className="w-1.5 h-1.5 bg-[#84994F] rounded-full mt-2 flex-shrink-0"></div>
-                    <p className="text-[14px] text-gray-700 leading-relaxed">
-                      Mise en place de la signalétique
-                    </p>
-                  </div>
-                  <div className="flex items-start gap-3">
-                    <div className="w-1.5 h-1.5 bg-[#84994F] rounded-full mt-2 flex-shrink-0"></div>
-                    <p className="text-[14px] text-gray-700 leading-relaxed">
-                      Mise en place du système d&apos;enregistrement (Totem et
-                      QR code)
-                    </p>
-                  </div>
-                  <div className="flex items-start gap-3">
-                    <div className="w-1.5 h-1.5 bg-[#84994F] rounded-full mt-2 flex-shrink-0"></div>
-                    <p className="text-[14px] text-gray-700 leading-relaxed">
-                      Solution de vidange (sur place ou dans campings
-                      partenaires)
-                    </p>
-                  </div>
-                  <div className="flex items-start gap-3">
-                    <div className="w-1.5 h-1.5 bg-[#84994F] rounded-full mt-2 flex-shrink-0"></div>
-                    <p className="text-[14px] text-gray-700 leading-relaxed">
-                      Promotion sur site internet
-                    </p>
-                  </div>
-                  <div className="flex items-start gap-3">
-                    <div className="w-1.5 h-1.5 bg-[#84994F] rounded-full mt-2 flex-shrink-0"></div>
-                    <p className="text-[14px] text-gray-700 leading-relaxed">
-                      Promotion sur réseaux sociaux
-                    </p>
-                  </div>
+                  {t.timeline.services.items.map((item, index) => (
+                    <div key={index} className="flex items-start gap-3">
+                      <div className="w-1.5 h-1.5 bg-[#84994F] rounded-full mt-2 flex-shrink-0"></div>
+                      <p className="text-[14px] text-gray-700 leading-relaxed">
+                        {item}
+                      </p>
+                    </div>
+                  ))}
                 </div>
               </div>
 
               <div className="bg-gradient-to-br from-[#84994F]/5 to-transparent rounded-2xl p-5 border border-[#84994F]/10">
                 <h4 className="text-[15px] font-bold text-[#84994F] mb-2">
-                  Solution Complète Clé en Main
+                  {t.timeline.services.highlight.title}
                 </h4>
                 <p className="text-gray-600 text-[14px] leading-relaxed">
-                  De la conception à la promotion, nous prenons en charge tous
-                  les aspects de votre aire de camping-car pour garantir son
-                  succès.
+                  {t.timeline.services.highlight.description}
                 </p>
               </div>
             </div>
@@ -249,73 +206,48 @@ export function SelfcampAboutPage() {
               <div className="text-center mb-10">
                 <div className="max-w-4xl mx-auto">
                   <p className="text-lg text-gray-700 leading-relaxed mb-4">
-                    Au-delà de notre{" "}
+                    {t.timeline.services.intro}{" "}
                     <span className="text-[#84994F] font-medium">
-                      solution d&apos;enregistrement
+                      {t.timeline.services.introHighlight}
                     </span>
-                    , nous vous accompagnons pour l&apos;organisation optimale
-                    de votre aire.
+                    , {t.timeline.services.introContinuation}
                   </p>
                   <p className="text-base text-gray-600 font-medium">
-                    Nos prestations incluent :
+                    {t.timeline.services.listTitle}
                   </p>
                 </div>
               </div>
 
               <div className="grid grid-cols-2 gap-8">
                 <div className="space-y-4">
-                  <div className="flex items-start space-x-4">
-                    <div className="w-2 h-2 bg-[#84994F] rounded-full mt-2.5 flex-shrink-0"></div>
-                    <p className="text-base text-gray-700 leading-relaxed">
-                      Délimitation de la zone et des places
-                    </p>
-                  </div>
-                  <div className="flex items-start space-x-4">
-                    <div className="w-2 h-2 bg-[#84994F] rounded-full mt-2.5 flex-shrink-0"></div>
-                    <p className="text-base text-gray-700 leading-relaxed">
-                      Mise en place de la signalétique
-                    </p>
-                  </div>
-                  <div className="flex items-start space-x-4">
-                    <div className="w-2 h-2 bg-[#84994F] rounded-full mt-2.5 flex-shrink-0"></div>
-                    <p className="text-base text-gray-700 leading-relaxed">
-                      Mise en place du système d&apos;enregistrement (Totem et
-                      QR code)
-                    </p>
-                  </div>
+                  {t.timeline.services.items.slice(0, 3).map((item, index) => (
+                    <div key={index} className="flex items-start space-x-4">
+                      <div className="w-2 h-2 bg-[#84994F] rounded-full mt-2.5 flex-shrink-0"></div>
+                      <p className="text-base text-gray-700 leading-relaxed">
+                        {item}
+                      </p>
+                    </div>
+                  ))}
                 </div>
 
                 <div className="space-y-4">
-                  <div className="flex items-start space-x-4">
-                    <div className="w-2 h-2 bg-[#84994F] rounded-full mt-2.5 flex-shrink-0"></div>
-                    <p className="text-base text-gray-700 leading-relaxed">
-                      Solution de vidange (sur place ou dans campings
-                      partenaires)
-                    </p>
-                  </div>
-                  <div className="flex items-start space-x-4">
-                    <div className="w-2 h-2 bg-[#84994F] rounded-full mt-2.5 flex-shrink-0"></div>
-                    <p className="text-base text-gray-700 leading-relaxed">
-                      Promotion sur site internet
-                    </p>
-                  </div>
-                  <div className="flex items-start space-x-4">
-                    <div className="w-2 h-2 bg-[#84994F] rounded-full mt-2.5 flex-shrink-0"></div>
-                    <p className="text-base text-gray-700 leading-relaxed">
-                      Promotion sur réseaux sociaux
-                    </p>
-                  </div>
+                  {t.timeline.services.items.slice(3).map((item, index) => (
+                    <div key={index} className="flex items-start space-x-4">
+                      <div className="w-2 h-2 bg-[#84994F] rounded-full mt-2.5 flex-shrink-0"></div>
+                      <p className="text-base text-gray-700 leading-relaxed">
+                        {item}
+                      </p>
+                    </div>
+                  ))}
                 </div>
               </div>
 
               <div className="mt-10 bg-[#84994F]/3 rounded-2xl p-6 border border-[#84994F]/30 text-center max-w-4xl mx-auto">
                 <h4 className="text-xl font-semibold text-[#84994F] mb-3">
-                  Solution Complète Clé en Main
+                  {t.timeline.services.highlight.title}
                 </h4>
                 <p className="text-gray-700 text-base leading-relaxed">
-                  De la conception à la promotion, nous prenons en charge tous
-                  les aspects de votre aire de camping-car pour garantir son
-                  succès.
+                  {t.timeline.services.highlight.description}
                 </p>
               </div>
             </div>
@@ -324,7 +256,7 @@ export function SelfcampAboutPage() {
       ),
     },
     {
-      title: "Avantages Prestataires",
+      title: t.timeline.providerBenefits.title,
       content: (
         <div className="py-6 md:py-10 bg-white">
           <div className="max-w-7xl mx-auto px-4">
@@ -335,34 +267,20 @@ export function SelfcampAboutPage() {
                 <div className="flex items-center gap-2.5 mb-4">
                   <span className="text-xl">✓</span>
                   <h4 className="text-[15px] font-bold text-gray-900">
-                    Conformité Réglementaire
+                    {t.timeline.providerBenefits.regulatory.title}
                   </h4>
                 </div>
                 <ul className="space-y-2.5">
-                  <li className="flex items-start gap-2.5">
-                    <div className="w-1 h-1 bg-[#84994F] rounded-full mt-2 flex-shrink-0"></div>
-                    <span className="text-[13px] text-gray-600 leading-relaxed">
-                      Structure légale pour interdire le camping sauvage
-                    </span>
-                  </li>
-                  <li className="flex items-start gap-2.5">
-                    <div className="w-1 h-1 bg-[#84994F] rounded-full mt-2 flex-shrink-0"></div>
-                    <span className="text-[13px] text-gray-600 leading-relaxed">
-                      Respect des obligations de déclaration
-                    </span>
-                  </li>
-                  <li className="flex items-start gap-2.5">
-                    <div className="w-1 h-1 bg-[#84994F] rounded-full mt-2 flex-shrink-0"></div>
-                    <span className="text-[13px] text-gray-600 leading-relaxed">
-                      Traçabilité complète pour audits
-                    </span>
-                  </li>
-                  <li className="flex items-start gap-2.5">
-                    <div className="w-1 h-1 bg-[#84994F] rounded-full mt-2 flex-shrink-0"></div>
-                    <span className="text-[13px] text-gray-600 leading-relaxed">
-                      Conformité RGPD et protection des données
-                    </span>
-                  </li>
+                  {t.timeline.providerBenefits.regulatory.items.map(
+                    (item, index) => (
+                      <li key={index} className="flex items-start gap-2.5">
+                        <div className="w-1 h-1 bg-[#84994F] rounded-full mt-2 flex-shrink-0"></div>
+                        <span className="text-[13px] text-gray-600 leading-relaxed">
+                          {item}
+                        </span>
+                      </li>
+                    )
+                  )}
                 </ul>
               </div>
 
@@ -371,22 +289,20 @@ export function SelfcampAboutPage() {
                 <div className="flex items-center gap-2.5 mb-4">
                   <span className="text-xl">💰</span>
                   <h4 className="text-[15px] font-bold text-gray-900">
-                    Revenus Garantis
+                    {t.timeline.providerBenefits.revenue.title}
                   </h4>
                 </div>
                 <ul className="space-y-2.5">
-                  <li className="flex items-start gap-2.5">
-                    <div className="w-1 h-1 bg-[#84994F] rounded-full mt-2 flex-shrink-0"></div>
-                    <span className="text-[13px] text-gray-600 leading-relaxed">
-                      Collecte automatisée des taxes sans perte
-                    </span>
-                  </li>
-                  <li className="flex items-start gap-2.5">
-                    <div className="w-1 h-1 bg-[#84994F] rounded-full mt-2 flex-shrink-0"></div>
-                    <span className="text-[13px] text-gray-600 leading-relaxed">
-                      Augmentation des recettes fiscales
-                    </span>
-                  </li>
+                  {t.timeline.providerBenefits.revenue.items.map(
+                    (item, index) => (
+                      <li key={index} className="flex items-start gap-2.5">
+                        <div className="w-1 h-1 bg-[#84994F] rounded-full mt-2 flex-shrink-0"></div>
+                        <span className="text-[13px] text-gray-600 leading-relaxed">
+                          {item}
+                        </span>
+                      </li>
+                    )
+                  )}
                 </ul>
               </div>
 
@@ -395,28 +311,20 @@ export function SelfcampAboutPage() {
                 <div className="flex items-center gap-2.5 mb-4">
                   <span className="text-xl">🤝</span>
                   <h4 className="text-[15px] font-bold text-gray-900">
-                    Partenariat Tout-en-un
+                    {t.timeline.providerBenefits.partnership.title}
                   </h4>
                 </div>
                 <ul className="space-y-2.5">
-                  <li className="flex items-start gap-2.5">
-                    <div className="w-1 h-1 bg-[#84994F] rounded-full mt-2 flex-shrink-0"></div>
-                    <span className="text-[13px] text-gray-600 leading-relaxed">
-                      Amélioration des infrastructures
-                    </span>
-                  </li>
-                  <li className="flex items-start gap-2.5">
-                    <div className="w-1 h-1 bg-[#84994F] rounded-full mt-2 flex-shrink-0"></div>
-                    <span className="text-[13px] text-gray-600 leading-relaxed">
-                      Réseau de services via campings partenaires
-                    </span>
-                  </li>
-                  <li className="flex items-start gap-2.5">
-                    <div className="w-1 h-1 bg-[#84994F] rounded-full mt-2 flex-shrink-0"></div>
-                    <span className="text-[13px] text-gray-600 leading-relaxed">
-                      Option de parking payant
-                    </span>
-                  </li>
+                  {t.timeline.providerBenefits.partnership.items.map(
+                    (item, index) => (
+                      <li key={index} className="flex items-start gap-2.5">
+                        <div className="w-1 h-1 bg-[#84994F] rounded-full mt-2 flex-shrink-0"></div>
+                        <span className="text-[13px] text-gray-600 leading-relaxed">
+                          {item}
+                        </span>
+                      </li>
+                    )
+                  )}
                 </ul>
               </div>
 
@@ -425,44 +333,27 @@ export function SelfcampAboutPage() {
                 <div className="flex items-center gap-2.5 mb-4">
                   <span className="text-xl">📊</span>
                   <h4 className="text-[15px] font-bold text-gray-900">
-                    Données Stratégiques
+                    {t.timeline.providerBenefits.data.title}
                   </h4>
                 </div>
                 <ul className="space-y-2.5">
-                  <li className="flex items-start gap-2.5">
-                    <div className="w-1 h-1 bg-[#84994F] rounded-full mt-2 flex-shrink-0"></div>
-                    <span className="text-[13px] text-gray-600 leading-relaxed">
-                      Fréquentation, flux et saisonnalité
-                    </span>
-                  </li>
-                  <li className="flex items-start gap-2.5">
-                    <div className="w-1 h-1 bg-[#84994F] rounded-full mt-2 flex-shrink-0"></div>
-                    <span className="text-[13px] text-gray-600 leading-relaxed">
-                      Profiling visiteurs et origine géographique
-                    </span>
-                  </li>
-                  <li className="flex items-start gap-2.5">
-                    <div className="w-1 h-1 bg-[#84994F] rounded-full mt-2 flex-shrink-0"></div>
-                    <span className="text-[13px] text-gray-600 leading-relaxed">
-                      Identification des zones sous-exploitées
-                    </span>
-                  </li>
-                  <li className="flex items-start gap-2.5">
-                    <div className="w-1 h-1 bg-[#84994F] rounded-full mt-2 flex-shrink-0"></div>
-                    <span className="text-[13px] text-gray-600 leading-relaxed">
-                      Anticipation des pics d&apos;affluence
-                    </span>
-                  </li>
+                  {t.timeline.providerBenefits.data.items.map((item, index) => (
+                    <li key={index} className="flex items-start gap-2.5">
+                      <div className="w-1 h-1 bg-[#84994F] rounded-full mt-2 flex-shrink-0"></div>
+                      <span className="text-[13px] text-gray-600 leading-relaxed">
+                        {item}
+                      </span>
+                    </li>
+                  ))}
                 </ul>
               </div>
 
               <div className="bg-gradient-to-br from-[#84994F]/5 to-transparent rounded-2xl p-5 border border-[#84994F]/10 mt-2">
                 <h4 className="text-[15px] font-bold text-[#84994F] mb-2">
-                  Valorisez Votre Territoire
+                  {t.timeline.providerBenefits.highlight.title}
                 </h4>
                 <p className="text-gray-600 text-[14px] leading-relaxed">
-                  Des outils concrets pour gérer, monétiser et développer votre
-                  attractivité touristique.
+                  {t.timeline.providerBenefits.highlight.description}
                 </p>
               </div>
             </div>
@@ -479,34 +370,19 @@ export function SelfcampAboutPage() {
                   className="bg-white rounded-2xl p-8 border border-[#84994F]/30 hover:border-[#84994F]/50 transition-all duration-300"
                 >
                   <h4 className="text-xl font-semibold text-[#84994F] mb-6">
-                    Conformité Réglementaire
+                    {t.timeline.providerBenefits.regulatory.title}
                   </h4>
                   <ul className="space-y-4 text-gray-700">
-                    <li className="flex items-start">
-                      <div className="w-2 h-2 bg-[#84994F] rounded-full mt-2.5 mr-4 flex-shrink-0"></div>
-                      <span className="text-base leading-relaxed">
-                        Création d&apos;une structure légale permettant
-                        d&apos;interdire le camping sauvage
-                      </span>
-                    </li>
-                    <li className="flex items-start">
-                      <div className="w-2 h-2 bg-[#84994F] rounded-full mt-2.5 mr-4 flex-shrink-0"></div>
-                      <span className="text-base leading-relaxed">
-                        Respect des obligations légales de déclaration
-                      </span>
-                    </li>
-                    <li className="flex items-start">
-                      <div className="w-2 h-2 bg-[#84994F] rounded-full mt-2.5 mr-4 flex-shrink-0"></div>
-                      <span className="text-base leading-relaxed">
-                        Traçabilité complète pour contrôles et audits
-                      </span>
-                    </li>
-                    <li className="flex items-start">
-                      <div className="w-2 h-2 bg-[#84994F] rounded-full mt-2.5 mr-4 flex-shrink-0"></div>
-                      <span className="text-base leading-relaxed">
-                        Conformité RGPD et protection des données
-                      </span>
-                    </li>
+                    {t.timeline.providerBenefits.regulatory.items.map(
+                      (item, index) => (
+                        <li key={index} className="flex items-start">
+                          <div className="w-2 h-2 bg-[#84994F] rounded-full mt-2.5 mr-4 flex-shrink-0"></div>
+                          <span className="text-base leading-relaxed">
+                            {item}
+                          </span>
+                        </li>
+                      )
+                    )}
                   </ul>
                 </motion.div>
 
@@ -519,23 +395,19 @@ export function SelfcampAboutPage() {
                   className="bg-white rounded-2xl p-8 border border-[#84994F]/30 hover:border-[#84994F]/50 transition-all duration-300"
                 >
                   <h4 className="text-xl font-semibold text-[#84994F] mb-6">
-                    Revenus Garantis
+                    {t.timeline.providerBenefits.revenue.title}
                   </h4>
                   <ul className="space-y-4 text-gray-700">
-                    <li className="flex items-start">
-                      <div className="w-2 h-2 bg-[#84994F] rounded-full mt-2.5 mr-4 flex-shrink-0"></div>
-                      <span className="text-base leading-relaxed">
-                        Collecte automatisée des taxes de séjour sans perte ni
-                        oubli
-                      </span>
-                    </li>
-                    <li className="flex items-start">
-                      <div className="w-2 h-2 bg-[#84994F] rounded-full mt-2.5 mr-4 flex-shrink-0"></div>
-                      <span className="text-base leading-relaxed">
-                        Augmentation significative des recettes fiscales
-                        touristiques
-                      </span>
-                    </li>
+                    {t.timeline.providerBenefits.revenue.items.map(
+                      (item, index) => (
+                        <li key={index} className="flex items-start">
+                          <div className="w-2 h-2 bg-[#84994F] rounded-full mt-2.5 mr-4 flex-shrink-0"></div>
+                          <span className="text-base leading-relaxed">
+                            {item}
+                          </span>
+                        </li>
+                      )
+                    )}
                   </ul>
                 </motion.div>
 
@@ -548,29 +420,19 @@ export function SelfcampAboutPage() {
                   className="bg-white rounded-2xl p-8 border border-[#84994F]/30 hover:border-[#84994F]/50 transition-all duration-300"
                 >
                   <h4 className="text-xl font-semibold text-[#84994F] mb-6">
-                    Partenariat Tout-en-un
+                    {t.timeline.providerBenefits.partnership.title}
                   </h4>
                   <ul className="space-y-4 text-gray-700">
-                    <li className="flex items-start">
-                      <div className="w-2 h-2 bg-[#84994F] rounded-full mt-2.5 mr-4 flex-shrink-0"></div>
-                      <span className="text-base leading-relaxed">
-                        Amélioration concrète des infrastructures (signalétique,
-                        parkings)
-                      </span>
-                    </li>
-                    <li className="flex items-start">
-                      <div className="w-2 h-2 bg-[#84994F] rounded-full mt-2.5 mr-4 flex-shrink-0"></div>
-                      <span className="text-base leading-relaxed">
-                        Réseau de services intégrés via partenariats campings
-                      </span>
-                    </li>
-                    <li className="flex items-start">
-                      <div className="w-2 h-2 bg-[#84994F] rounded-full mt-2.5 mr-4 flex-shrink-0"></div>
-                      <span className="text-base leading-relaxed">
-                        Possibilité de rendre payant les parkings (en sus des
-                        taxes)
-                      </span>
-                    </li>
+                    {t.timeline.providerBenefits.partnership.items.map(
+                      (item, index) => (
+                        <li key={index} className="flex items-start">
+                          <div className="w-2 h-2 bg-[#84994F] rounded-full mt-2.5 mr-4 flex-shrink-0"></div>
+                          <span className="text-base leading-relaxed">
+                            {item}
+                          </span>
+                        </li>
+                      )
+                    )}
                   </ul>
                 </motion.div>
 
@@ -583,36 +445,19 @@ export function SelfcampAboutPage() {
                   className="bg-white rounded-2xl p-8 border border-[#84994F]/30 hover:border-[#84994F]/50 transition-all duration-300"
                 >
                   <h4 className="text-xl font-semibold text-[#84994F] mb-6">
-                    Données Stratégiques
+                    {t.timeline.providerBenefits.data.title}
                   </h4>
                   <ul className="space-y-4 text-gray-700">
-                    <li className="flex items-start">
-                      <div className="w-2 h-2 bg-[#84994F] rounded-full mt-2.5 mr-4 flex-shrink-0"></div>
-                      <span className="text-base leading-relaxed">
-                        Fréquentation détaillée, flux par site, saisonnalité,
-                        durée des séjours
-                      </span>
-                    </li>
-                    <li className="flex items-start">
-                      <div className="w-2 h-2 bg-[#84994F] rounded-full mt-2.5 mr-4 flex-shrink-0"></div>
-                      <span className="text-base leading-relaxed">
-                        Profiling visiteurs : origine géographique, type de
-                        tourisme
-                      </span>
-                    </li>
-                    <li className="flex items-start">
-                      <div className="w-2 h-2 bg-[#84994F] rounded-full mt-2.5 mr-4 flex-shrink-0"></div>
-                      <span className="text-base leading-relaxed">
-                        Identification des zones sous/surexploitées
-                      </span>
-                    </li>
-                    <li className="flex items-start">
-                      <div className="w-2 h-2 bg-[#84994F] rounded-full mt-2.5 mr-4 flex-shrink-0"></div>
-                      <span className="text-base leading-relaxed">
-                        Anticipation des pics, dimensionnement des
-                        infrastructures
-                      </span>
-                    </li>
+                    {t.timeline.providerBenefits.data.items.map(
+                      (item, index) => (
+                        <li key={index} className="flex items-start">
+                          <div className="w-2 h-2 bg-[#84994F] rounded-full mt-2.5 mr-4 flex-shrink-0"></div>
+                          <span className="text-base leading-relaxed">
+                            {item}
+                          </span>
+                        </li>
+                      )
+                    )}
                   </ul>
                 </motion.div>
               </div>
@@ -626,11 +471,10 @@ export function SelfcampAboutPage() {
                 className="bg-[#84994F]/3 rounded-2xl p-8 border border-[#84994F]/30 text-center max-w-4xl mx-auto"
               >
                 <h4 className="text-xl font-semibold text-[#84994F] mb-3">
-                  Valorisez Votre Territoire
+                  {t.timeline.providerBenefits.highlight.title}
                 </h4>
                 <p className="text-gray-700 text-base leading-relaxed">
-                  Des outils concrets pour gérer, monétiser et développer votre
-                  attractivité touristique.
+                  {t.timeline.providerBenefits.highlight.description}
                 </p>
               </motion.div>
             </div>
@@ -678,35 +522,43 @@ export function SelfcampAboutPage() {
               <div className="hidden lg:flex items-center justify-between w-full">
                 <div className="flex items-center space-x-2 bg-[#84994F]/10 text-[#84994F] px-3 py-1.5 rounded-full text-sm font-medium">
                   <div className="w-2 h-2 bg-[#84994F] rounded-full animate-pulse"></div>
-                  <span>24H/24 - 7J/7</span>
+                  <span>{t.header.availability}</span>
                 </div>
-                <Link
-                  href="/contact"
-                  className="text-[#84994F] text-sm font-bold tracking-wide uppercase hover:text-[#84994F]/80 transition-colors duration-300"
-                >
-                  CONTACTEZ-NOUS
-                </Link>
+                <div className="flex items-center gap-4">
+                  <Link
+                    href="/contact"
+                    className="text-[#84994F] text-sm font-bold tracking-wide uppercase hover:text-[#84994F]/80 transition-colors duration-300"
+                  >
+                    {t.header.contact}
+                  </Link>
+                  <div className="border-l border-gray-200 pl-4">
+                    <SelfcampLanguageSelector variant="compact" />
+                  </div>
+                </div>
               </div>
 
               {/* Mobile header */}
               <div className="flex lg:hidden items-center justify-between w-full">
                 <div className="flex items-center space-x-1.5 bg-[#84994F]/10 text-[#84994F] px-2.5 py-1 rounded-full text-xs font-medium">
                   <div className="w-1.5 h-1.5 bg-[#84994F] rounded-full animate-pulse"></div>
-                  <span>24H/24 - 7J/7</span>
+                  <span>{t.header.availability}</span>
                 </div>
                 <Link
                   href="/"
                   className="group flex items-center space-x-2 text-gray-600 hover:text-[#84994F] transition-all duration-300"
                 >
                   <ArrowLeft className="h-4 w-4 group-hover:-translate-x-1 transition-transform duration-300" />
-                  <span className="text-sm">Accueil</span>
+                  <span className="text-sm">{t.about.backHome}</span>
                 </Link>
-                <Link
-                  href="/contact"
-                  className="text-[#84994F] text-xs font-bold tracking-wide uppercase hover:text-[#84994F]/80 transition-colors duration-300"
-                >
-                  CONTACT
-                </Link>
+                <div className="flex items-center gap-2">
+                  <Link
+                    href="/contact"
+                    className="text-[#84994F] text-xs font-bold tracking-wide uppercase hover:text-[#84994F]/80 transition-colors duration-300"
+                  >
+                    {t.header.contactShort}
+                  </Link>
+                  <SelfcampLanguageSelector variant="minimal" />
+                </div>
               </div>
             </div>
           </div>
@@ -722,7 +574,7 @@ export function SelfcampAboutPage() {
               className="inline-flex items-center space-x-2 bg-[#84994F]/10 text-[#84994F] px-4 py-2 md:px-6 md:py-3 rounded-full text-xs md:text-sm font-medium mb-6 md:mb-8"
             >
               <span>🏛️</span>
-              <span>Solution pour communes suisses</span>
+              <span>{t.about.badge}</span>
             </motion.div>
 
             {/* Titre principal */}
@@ -732,7 +584,8 @@ export function SelfcampAboutPage() {
               transition={{ duration: 0.8, delay: 0.2 }}
               className="text-3xl md:text-5xl lg:text-7xl font-bold text-gray-900 mb-4 md:mb-8 leading-tight px-2"
             >
-              À propos de <span className="text-[#84994F]">SelfCamp</span>
+              {t.about.title}{" "}
+              <span className="text-[#84994F]">{t.about.titleHighlight}</span>
             </motion.h1>
 
             {/* Sous-titre */}
@@ -742,8 +595,7 @@ export function SelfcampAboutPage() {
               transition={{ duration: 0.8, delay: 0.4 }}
               className="text-base md:text-xl lg:text-2xl text-gray-600 mb-10 md:mb-16 max-w-4xl mx-auto leading-relaxed px-2"
             >
-              Une solution complète pour créer des aires de camping-car qui
-              bénéficient aux communes, aux régions et aux vanlifer
+              {t.about.subtitle}
             </motion.p>
 
             {/* Stats cards */}
@@ -758,7 +610,7 @@ export function SelfcampAboutPage() {
                   100%
                 </div>
                 <div className="text-gray-700 font-medium text-sm md:text-base">
-                  Conforme à la loi
+                  {t.about.stats.legal}
                 </div>
               </div>
               <div className="bg-white border border-[#84994F]/30 rounded-xl md:rounded-2xl p-5 md:p-6 hover:border-[#84994F]/50 transition-all duration-300">
@@ -766,7 +618,7 @@ export function SelfcampAboutPage() {
                   24/7
                 </div>
                 <div className="text-gray-700 font-medium text-sm md:text-base">
-                  Accès autonome
+                  {t.about.stats.access}
                 </div>
               </div>
               <div className="bg-white border border-[#84994F]/30 rounded-xl md:rounded-2xl p-5 md:p-6 hover:border-[#84994F]/50 transition-all duration-300">
@@ -774,7 +626,7 @@ export function SelfcampAboutPage() {
                   0
                 </div>
                 <div className="text-gray-700 font-medium text-sm md:text-base">
-                  Installation Informatique
+                  {t.about.stats.installation}
                 </div>
               </div>
             </motion.div>
@@ -791,11 +643,13 @@ export function SelfcampAboutPage() {
               className="text-center mb-10 md:mb-16"
             >
               <h2 className="text-3xl md:text-5xl lg:text-6xl font-bold text-gray-900 mb-4 md:mb-6 leading-tight px-2">
-                Notre <span className="text-[#84994F]">mission</span>
+                {t.mission.title}{" "}
+                <span className="text-[#84994F]">
+                  {t.mission.titleHighlight}
+                </span>
               </h2>
               <p className="text-lg md:text-xl lg:text-2xl text-gray-600 max-w-4xl mx-auto leading-relaxed px-2">
-                Transformer le camping sauvage en opportunité économique pour
-                les communes fribourgeoises
+                {t.mission.subtitle}
               </p>
               <div className="mt-6 md:mt-8 text-center">
                 <div className="relative h-16 md:h-20 flex items-center justify-center overflow-hidden cursor-grab active:cursor-grabbing">
@@ -809,21 +663,25 @@ export function SelfcampAboutPage() {
 
                       if (swipe < -swipeConfidenceThreshold) {
                         // Swipe vers la gauche - citation suivante
-                        setCurrentQuote((prev) => (prev + 1) % quotes.length);
+                        setCurrentQuote(
+                          (prev) => (prev + 1) % t.mission.quotes.length
+                        );
                       } else if (swipe > swipeConfidenceThreshold) {
                         // Swipe vers la droite - citation précédente
                         setCurrentQuote(
-                          (prev) => (prev - 1 + quotes.length) % quotes.length
+                          (prev) =>
+                            (prev - 1 + t.mission.quotes.length) %
+                            t.mission.quotes.length
                         );
                       }
                     }}
                     className="absolute inline-block text-base md:text-lg font-medium text-[#84994F] italic px-4"
                   >
-                    &ldquo;{quotes[currentQuote]}&rdquo;
+                    &ldquo;{t.mission.quotes[currentQuote]}&rdquo;
                   </motion.div>
                 </div>
                 <div className="flex justify-center mt-4 space-x-2">
-                  {quotes.map((_, index) => (
+                  {t.mission.quotes.map((_, index: number) => (
                     <button
                       key={index}
                       onClick={() => setCurrentQuote(index)}
@@ -860,11 +718,10 @@ export function SelfcampAboutPage() {
                     </div>
                     <div className="space-y-3">
                       <h3 className="text-xl font-bold text-gray-900 leading-tight">
-                        Nous sommes à disposition pour plus de détails
+                        {t.finalCta.title}
                       </h3>
                       <p className="text-gray-600 text-[14px] leading-relaxed">
-                        Découvrez comment SelfCamp peut vous aider à créer des
-                        aires de camping-car conformes et autonomes.
+                        {t.finalCta.description}
                       </p>
                     </div>
                     <div className="flex flex-col gap-3 pt-2">
@@ -875,7 +732,7 @@ export function SelfcampAboutPage() {
                         }
                         className="bg-[#84994F] text-white px-8 py-4 rounded-xl hover:bg-[#84994F]/90 transition-all duration-300 font-semibold text-[15px] shadow-md hover:shadow-lg active:scale-95"
                       >
-                        Nous contacter
+                        {t.finalCta.contactButton}
                       </Link>
                       <Link
                         href="/map"
@@ -884,7 +741,7 @@ export function SelfcampAboutPage() {
                         }
                         className="bg-white border-2 border-[#84994F]/30 text-[#84994F] px-8 py-4 rounded-xl hover:border-[#84994F] hover:bg-[#84994F]/5 transition-all duration-300 font-semibold text-[15px] active:scale-95"
                       >
-                        Voir les aires existantes
+                        {t.finalCta.mapButton}
                       </Link>
                     </div>
                   </div>
@@ -899,11 +756,10 @@ export function SelfcampAboutPage() {
                       <VanIcon size="lg" showRoad={false} />
                     </div>
                     <h3 className="text-3xl md:text-4xl font-bold text-gray-900">
-                      Nous sommes à disposition pour plus de détails
+                      {t.finalCta.title}
                     </h3>
                     <p className="text-gray-600 text-lg leading-relaxed max-w-2xl mx-auto">
-                      Découvrez comment SelfCamp peut vous aider à créer des
-                      aires de camping-car conformes et autonomes.
+                      {t.finalCta.description}
                     </p>
                     <div className="flex flex-col sm:flex-row gap-4 justify-center pt-4">
                       <Link
@@ -913,7 +769,7 @@ export function SelfcampAboutPage() {
                         }
                         className="bg-[#84994F] text-white px-10 py-4 rounded-xl hover:bg-[#84994F]/90 transition-all duration-300 font-semibold text-lg shadow-lg hover:shadow-xl hover:scale-105"
                       >
-                        Contactez-nous
+                        {t.finalCta.contactButton}
                       </Link>
                       <Link
                         href="/map"
@@ -922,7 +778,7 @@ export function SelfcampAboutPage() {
                         }
                         className="border-2 border-[#84994F] text-[#84994F] px-10 py-4 rounded-xl hover:bg-[#84994F] hover:text-white transition-all duration-300 font-semibold text-lg"
                       >
-                        Voir les aires existantes
+                        {t.finalCta.mapButton}
                       </Link>
                     </div>
                   </div>

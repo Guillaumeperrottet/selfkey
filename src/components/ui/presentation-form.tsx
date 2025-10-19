@@ -4,11 +4,11 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Checkbox } from "@/components/ui/checkbox";
 import { ImageUpload } from "@/components/ui/image-upload";
 import { PdfUpload } from "@/components/ui/pdf-upload";
+import { MultilingualInput } from "@/components/ui/multilingual-input";
 import {
   MapPin,
   Search,
@@ -32,7 +32,11 @@ import Image from "next/image";
 interface PresentationData {
   // Localisation
   address: string;
+  address_en?: string;
+  address_de?: string;
   city: string;
+  city_en?: string;
+  city_de?: string;
   postalCode: string;
   country: string;
   latitude: number;
@@ -40,28 +44,44 @@ interface PresentationData {
 
   // Affichage carte
   mapTitle?: string;
+  mapTitle_en?: string;
+  mapTitle_de?: string;
   mapDescription?: string;
+  mapDescription_en?: string;
+  mapDescription_de?: string;
   mapImage?: string;
   showOnMap?: boolean;
 
   // Présentation publique
   presentationImages?: string[];
   presentationDescription?: string;
+  presentationDescription_en?: string;
+  presentationDescription_de?: string;
   presentationAttributes?: Record<string, boolean>;
   presentationWebsite?: string;
   presentationEmail?: string;
   presentationPhone?: string;
   presentationDocuments?: Array<{
     name: string;
+    name_en?: string;
+    name_de?: string;
     url: string;
     type: string;
     description?: string;
+    description_en?: string;
+    description_de?: string;
   }>;
   presentationNearbyBusinesses?: Array<{
     name: string;
+    name_en?: string;
+    name_de?: string;
     type: string;
+    type_en?: string;
+    type_de?: string;
     distance: string;
     description?: string;
+    description_en?: string;
+    description_de?: string;
     website?: string;
     mapsUrl?: string;
     image?: string;
@@ -78,12 +98,20 @@ interface PresentationData {
   checkInEndTime?: string;
   checkOutTime?: string;
   accessRestrictions?: string;
+  accessRestrictions_en?: string;
+  accessRestrictions_de?: string;
 
   // Impact local
   showLocalImpact?: boolean;
   localImpactTitle?: string;
+  localImpactTitle_en?: string;
+  localImpactTitle_de?: string;
   localImpactDescription?: string;
+  localImpactDescription_en?: string;
+  localImpactDescription_de?: string;
   touristTaxImpactMessage?: string;
+  touristTaxImpactMessage_en?: string;
+  touristTaxImpactMessage_de?: string;
 }
 
 interface PresentationFormProps {
@@ -118,7 +146,11 @@ export function PresentationForm({
   const [formData, setFormData] = useState({
     // Localisation
     address: initialData?.address || "",
+    address_en: initialData?.address_en || "",
+    address_de: initialData?.address_de || "",
     city: initialData?.city || "",
+    city_en: initialData?.city_en || "",
+    city_de: initialData?.city_de || "",
     postalCode: initialData?.postalCode || "",
     country: initialData?.country || "Switzerland",
     latitude: initialData?.latitude || "",
@@ -126,13 +158,19 @@ export function PresentationForm({
 
     // Carte
     mapTitle: initialData?.mapTitle || "",
+    mapTitle_en: initialData?.mapTitle_en || "",
+    mapTitle_de: initialData?.mapTitle_de || "",
     mapDescription: initialData?.mapDescription || "",
+    mapDescription_en: initialData?.mapDescription_en || "",
+    mapDescription_de: initialData?.mapDescription_de || "",
     mapImage: initialData?.mapImage || "",
     showOnMap: initialData?.showOnMap ?? true,
 
     // Présentation
     presentationImages: initialData?.presentationImages || [],
     presentationDescription: initialData?.presentationDescription || "",
+    presentationDescription_en: initialData?.presentationDescription_en || "",
+    presentationDescription_de: initialData?.presentationDescription_de || "",
     presentationAttributes: initialData?.presentationAttributes || {},
     presentationWebsite: initialData?.presentationWebsite || "",
     presentationEmail: initialData?.presentationEmail || "",
@@ -148,13 +186,21 @@ export function PresentationForm({
     checkInEndTime: initialData?.checkInEndTime || "",
     checkOutTime: initialData?.checkOutTime || "",
     accessRestrictions: initialData?.accessRestrictions || "",
+    accessRestrictions_en: initialData?.accessRestrictions_en || "",
+    accessRestrictions_de: initialData?.accessRestrictions_de || "",
 
     // Impact local
     showLocalImpact: initialData?.showLocalImpact ?? false,
     localImpactTitle:
       initialData?.localImpactTitle || "L'impact de votre séjour",
+    localImpactTitle_en: initialData?.localImpactTitle_en || "",
+    localImpactTitle_de: initialData?.localImpactTitle_de || "",
     localImpactDescription: initialData?.localImpactDescription || "",
+    localImpactDescription_en: initialData?.localImpactDescription_en || "",
+    localImpactDescription_de: initialData?.localImpactDescription_de || "",
     touristTaxImpactMessage: initialData?.touristTaxImpactMessage || "",
+    touristTaxImpactMessage_en: initialData?.touristTaxImpactMessage_en || "",
+    touristTaxImpactMessage_de: initialData?.touristTaxImpactMessage_de || "",
   });
 
   const [isGeocoding, setIsGeocoding] = useState(false);
@@ -233,17 +279,29 @@ export function PresentationForm({
           },
           body: JSON.stringify({
             address: formData.address,
+            address_en: formData.address_en || null,
+            address_de: formData.address_de || null,
             city: formData.city,
+            city_en: formData.city_en || null,
+            city_de: formData.city_de || null,
             postalCode: formData.postalCode,
             country: formData.country,
             latitude: parseFloat(formData.latitude.toString()),
             longitude: parseFloat(formData.longitude.toString()),
             mapTitle: formData.mapTitle || null,
+            mapTitle_en: formData.mapTitle_en || null,
+            mapTitle_de: formData.mapTitle_de || null,
             mapDescription: formData.mapDescription || null,
+            mapDescription_en: formData.mapDescription_en || null,
+            mapDescription_de: formData.mapDescription_de || null,
             mapImage: formData.mapImage || null,
             showOnMap: formData.showOnMap,
             presentationImages: formData.presentationImages,
             presentationDescription: formData.presentationDescription || null,
+            presentationDescription_en:
+              formData.presentationDescription_en || null,
+            presentationDescription_de:
+              formData.presentationDescription_de || null,
             presentationAttributes: formData.presentationAttributes,
             presentationWebsite: formData.presentationWebsite || null,
             presentationEmail: formData.presentationEmail || null,
@@ -256,10 +314,22 @@ export function PresentationForm({
             checkInEndTime: formData.checkInEndTime || null,
             checkOutTime: formData.checkOutTime || null,
             accessRestrictions: formData.accessRestrictions || null,
+            accessRestrictions_en: formData.accessRestrictions_en || null,
+            accessRestrictions_de: formData.accessRestrictions_de || null,
             showLocalImpact: formData.showLocalImpact,
             localImpactTitle: formData.localImpactTitle || null,
+            localImpactTitle_en: formData.localImpactTitle_en || null,
+            localImpactTitle_de: formData.localImpactTitle_de || null,
             localImpactDescription: formData.localImpactDescription || null,
+            localImpactDescription_en:
+              formData.localImpactDescription_en || null,
+            localImpactDescription_de:
+              formData.localImpactDescription_de || null,
             touristTaxImpactMessage: formData.touristTaxImpactMessage || null,
+            touristTaxImpactMessage_en:
+              formData.touristTaxImpactMessage_en || null,
+            touristTaxImpactMessage_de:
+              formData.touristTaxImpactMessage_de || null,
           }),
         }
       );
@@ -421,21 +491,31 @@ export function PresentationForm({
             {/* Adresse */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
-                <Label htmlFor="address">Adresse</Label>
-                <Input
-                  id="address"
-                  value={formData.address}
-                  onChange={(e) => handleInputChange("address", e.target.value)}
-                  placeholder="123 Rue de la Paix"
+                <MultilingualInput
+                  label="Adresse"
+                  name="address"
+                  value_fr={formData.address}
+                  value_en={formData.address_en}
+                  value_de={formData.address_de}
+                  onChange={handleInputChange}
+                  placeholder_fr="123 Rue de la Paix"
+                  placeholder_en="123 Peace Street"
+                  placeholder_de="123 Friedensstraße"
+                  required
                 />
               </div>
               <div>
-                <Label htmlFor="city">Ville</Label>
-                <Input
-                  id="city"
-                  value={formData.city}
-                  onChange={(e) => handleInputChange("city", e.target.value)}
-                  placeholder="Fribourg"
+                <MultilingualInput
+                  label="Ville"
+                  name="city"
+                  value_fr={formData.city}
+                  value_en={formData.city_en}
+                  value_de={formData.city_de}
+                  onChange={handleInputChange}
+                  placeholder_fr="Fribourg"
+                  placeholder_en="Fribourg"
+                  placeholder_de="Freiburg"
+                  required
                 />
               </div>
               <div>
@@ -513,30 +593,28 @@ export function PresentationForm({
                 </h3>
 
                 <div className="space-y-4">
-                  <div>
-                    <Label htmlFor="mapTitle">Titre affiché</Label>
-                    <Input
-                      id="mapTitle"
-                      value={formData.mapTitle}
-                      onChange={(e) =>
-                        handleInputChange("mapTitle", e.target.value)
-                      }
-                      placeholder="Laissez vide pour utiliser le nom de l'établissement"
-                    />
-                  </div>
+                  <MultilingualInput
+                    label="Titre affiché"
+                    name="mapTitle"
+                    value_fr={formData.mapTitle}
+                    value_en={formData.mapTitle_en}
+                    value_de={formData.mapTitle_de}
+                    onChange={handleInputChange}
+                    placeholder_fr="Laissez vide pour utiliser le nom de l'établissement"
+                    description="Ce titre sera affiché sur la carte publique"
+                  />
 
-                  <div>
-                    <Label htmlFor="mapDescription">Description brève</Label>
-                    <Textarea
-                      id="mapDescription"
-                      value={formData.mapDescription}
-                      onChange={(e) =>
-                        handleInputChange("mapDescription", e.target.value)
-                      }
-                      placeholder="Description courte qui sera affichée sur la carte"
-                      rows={3}
-                    />
-                  </div>
+                  <MultilingualInput
+                    label="Description brève"
+                    name="mapDescription"
+                    type="textarea"
+                    value_fr={formData.mapDescription}
+                    value_en={formData.mapDescription_en}
+                    value_de={formData.mapDescription_de}
+                    onChange={handleInputChange}
+                    placeholder_fr="Description courte qui sera affichée sur la carte"
+                    description="Description publique visible sur la carte"
+                  />
 
                   <div>
                     <Label>Image pour la carte</Label>
@@ -693,25 +771,19 @@ export function PresentationForm({
               )}
 
               {/* Champ texte libre pour restrictions (toujours visible) */}
-              <div className="space-y-2">
-                <Label htmlFor="accessRestrictions">
-                  Restrictions d&apos;accès (optionnel)
-                </Label>
-                <Textarea
-                  id="accessRestrictions"
-                  value={formData.accessRestrictions}
-                  onChange={(e) =>
-                    handleInputChange("accessRestrictions", e.target.value)
-                  }
-                  placeholder="Ex: Fermé le mercredi, Barrière fermée de 22h à 8h, etc."
-                  rows={3}
-                  className="resize-none"
-                />
-                <p className="text-xs text-gray-500">
-                  Informations supplémentaires sur les restrictions d&apos;accès
-                  ou fermetures spécifiques
-                </p>
-              </div>
+              <MultilingualInput
+                label="Restrictions d'accès (optionnel)"
+                name="accessRestrictions"
+                type="textarea"
+                value_fr={formData.accessRestrictions}
+                value_en={formData.accessRestrictions_en}
+                value_de={formData.accessRestrictions_de}
+                onChange={handleInputChange}
+                placeholder_fr="Ex: Fermé le mercredi, Barrière fermée de 22h à 8h, etc."
+                placeholder_en="Ex: Closed on Wednesday, Barrier closed from 10 PM to 8 AM, etc."
+                placeholder_de="Z.B.: Mittwochs geschlossen, Schranke von 22 bis 8 Uhr geschlossen, etc."
+                description="Informations supplémentaires sur les restrictions d'accès ou fermetures spécifiques"
+              />
             </CardContent>
           </Card>
 
@@ -760,17 +832,18 @@ export function PresentationForm({
                   </CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <Textarea
-                    value={formData.presentationDescription}
-                    onChange={(e) =>
-                      handleInputChange(
-                        "presentationDescription",
-                        e.target.value
-                      )
-                    }
-                    placeholder="Décrivez votre établissement, ses atouts, son emplacement..."
-                    rows={8}
-                    className="w-full"
+                  <MultilingualInput
+                    label="Description complète"
+                    name="presentationDescription"
+                    type="textarea"
+                    value_fr={formData.presentationDescription}
+                    value_en={formData.presentationDescription_en}
+                    value_de={formData.presentationDescription_de}
+                    onChange={handleInputChange}
+                    placeholder_fr="Décrivez votre établissement, ses atouts, son emplacement..."
+                    placeholder_en="Describe your establishment, its advantages, location..."
+                    placeholder_de="Beschreiben Sie Ihre Einrichtung, ihre Vorteile, ihren Standort..."
+                    description="Description détaillée visible sur la page publique"
                   />
                 </CardContent>
               </Card>
@@ -893,16 +966,20 @@ export function PresentationForm({
                         </Button>
                       </div>
 
-                      <div>
-                        <Label>Nom du document</Label>
-                        <Input
-                          placeholder="Ex: Règlement intérieur, Tarifs..."
-                          value={doc.name}
-                          onChange={(e) =>
-                            updateDocument(index, "name", e.target.value)
-                          }
-                        />
-                      </div>
+                      <MultilingualInput
+                        label="Nom du document"
+                        name={`presentationDocuments[${index}].name`}
+                        value_fr={doc.name}
+                        value_en={doc.name_en}
+                        value_de={doc.name_de}
+                        onChange={(field, value) => {
+                          const fieldName = field.split(".").pop() || "name";
+                          updateDocument(index, fieldName, value);
+                        }}
+                        placeholder_fr="Ex: Règlement intérieur, Tarifs..."
+                        placeholder_en="Ex: House rules, Prices..."
+                        placeholder_de="Z.B.: Hausordnung, Preise..."
+                      />
 
                       <div>
                         <Label>Fichier PDF</Label>
@@ -916,16 +993,21 @@ export function PresentationForm({
                         />
                       </div>
 
-                      <div>
-                        <Label>Description (optionnel)</Label>
-                        <Input
-                          placeholder="Description du document"
-                          value={doc.description}
-                          onChange={(e) =>
-                            updateDocument(index, "description", e.target.value)
-                          }
-                        />
-                      </div>
+                      <MultilingualInput
+                        label="Description (optionnel)"
+                        name={`presentationDocuments[${index}].description`}
+                        value_fr={doc.description}
+                        value_en={doc.description_en}
+                        value_de={doc.description_de}
+                        onChange={(field, value) => {
+                          const fieldName =
+                            field.split(".").pop() || "description";
+                          updateDocument(index, fieldName, value);
+                        }}
+                        placeholder_fr="Description du document"
+                        placeholder_en="Document description"
+                        placeholder_de="Dokumentbeschreibung"
+                      />
                     </div>
                   ))}
                   <Button
@@ -964,35 +1046,67 @@ export function PresentationForm({
                             <Trash2 className="h-4 w-4 text-red-500" />
                           </Button>
                         </div>
-                        <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-                          <Input
-                            placeholder="Nom"
-                            value={business.name}
-                            onChange={(e) =>
-                              updateBusiness(index, "name", e.target.value)
-                            }
+                        <MultilingualInput
+                          label="Nom du commerce"
+                          name={`presentationNearbyBusinesses[${index}].name`}
+                          value_fr={business.name}
+                          value_en={business.name_en}
+                          value_de={business.name_de}
+                          onChange={(field, value) => {
+                            const fieldName = field.split(".").pop() || "name";
+                            updateBusiness(index, fieldName, value);
+                          }}
+                          placeholder_fr="Ex: Boulangerie du Village"
+                          placeholder_en="Ex: Village Bakery"
+                          placeholder_de="Z.B.: Dorfbäckerei"
+                        />
+
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                          <MultilingualInput
+                            label="Type de commerce"
+                            name={`presentationNearbyBusinesses[${index}].type`}
+                            value_fr={business.type}
+                            value_en={business.type_en}
+                            value_de={business.type_de}
+                            onChange={(field, value) => {
+                              const fieldName =
+                                field.split(".").pop() || "type";
+                              updateBusiness(index, fieldName, value);
+                            }}
+                            placeholder_fr="Ex: Restaurant, Boulangerie..."
+                            placeholder_en="Ex: Restaurant, Bakery..."
+                            placeholder_de="Z.B.: Restaurant, Bäckerei..."
                           />
-                          <Input
-                            placeholder="Type (restaurant, magasin...)"
-                            value={business.type}
-                            onChange={(e) =>
-                              updateBusiness(index, "type", e.target.value)
-                            }
-                          />
-                          <Input
-                            placeholder="Distance (ex: 500m)"
-                            value={business.distance}
-                            onChange={(e) =>
-                              updateBusiness(index, "distance", e.target.value)
-                            }
-                          />
+                          <div>
+                            <Label>Distance</Label>
+                            <Input
+                              placeholder="Ex: 500m, 2km..."
+                              value={business.distance}
+                              onChange={(e) =>
+                                updateBusiness(
+                                  index,
+                                  "distance",
+                                  e.target.value
+                                )
+                              }
+                            />
+                          </div>
                         </div>
-                        <Input
-                          placeholder="Description (optionnel)"
-                          value={business.description}
-                          onChange={(e) =>
-                            updateBusiness(index, "description", e.target.value)
-                          }
+
+                        <MultilingualInput
+                          label="Description (optionnel)"
+                          name={`presentationNearbyBusinesses[${index}].description`}
+                          value_fr={business.description}
+                          value_en={business.description_en}
+                          value_de={business.description_de}
+                          onChange={(field, value) => {
+                            const fieldName =
+                              field.split(".").pop() || "description";
+                            updateBusiness(index, fieldName, value);
+                          }}
+                          placeholder_fr="Description du commerce"
+                          placeholder_en="Business description"
+                          placeholder_de="Geschäftsbeschreibung"
                         />
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                           <div>
@@ -1149,73 +1263,48 @@ export function PresentationForm({
 
                   {formData.showLocalImpact && (
                     <div className="space-y-4 pl-4 border-l-4 border-green-200">
-                      <div>
-                        <Label htmlFor="localImpactTitle">
-                          Titre de l&apos;encart
-                        </Label>
-                        <Input
-                          id="localImpactTitle"
-                          placeholder="L'impact de votre séjour"
-                          value={formData.localImpactTitle}
-                          onChange={(e) =>
-                            handleInputChange(
-                              "localImpactTitle",
-                              e.target.value
-                            )
-                          }
-                        />
-                        <p className="text-xs text-gray-500 mt-1">
-                          Par défaut : &quot;L&apos;impact de votre séjour&quot;
-                        </p>
-                      </div>
+                      <MultilingualInput
+                        label="Titre de l'encart"
+                        name="localImpactTitle"
+                        value_fr={formData.localImpactTitle}
+                        value_en={formData.localImpactTitle_en}
+                        value_de={formData.localImpactTitle_de}
+                        onChange={handleInputChange}
+                        placeholder_fr="L'impact de votre séjour"
+                        placeholder_en="The impact of your stay"
+                        placeholder_de="Die Auswirkung Ihres Aufenthalts"
+                        description="Par défaut : 'L'impact de votre séjour'"
+                      />
 
-                      <div>
-                        <Label htmlFor="touristTaxImpactMessage">
-                          Message sur la taxe de séjour{" "}
-                          <span className="text-red-500">*</span>
-                        </Label>
-                        <Textarea
-                          id="touristTaxImpactMessage"
-                          placeholder="Exemple : Votre taxe de séjour de 2.50 CHF soutient l'économie locale et vous donne accès à des avantages exclusifs."
-                          value={formData.touristTaxImpactMessage}
-                          onChange={(e) =>
-                            handleInputChange(
-                              "touristTaxImpactMessage",
-                              e.target.value
-                            )
-                          }
-                          rows={3}
-                          className="resize-none"
-                        />
-                        <p className="text-xs text-gray-500 mt-1">
-                          Expliquez brièvement l&apos;utilisation de la taxe de
-                          séjour
-                        </p>
-                      </div>
+                      <MultilingualInput
+                        label="Message sur la taxe de séjour"
+                        name="touristTaxImpactMessage"
+                        type="textarea"
+                        value_fr={formData.touristTaxImpactMessage}
+                        value_en={formData.touristTaxImpactMessage_en}
+                        value_de={formData.touristTaxImpactMessage_de}
+                        onChange={handleInputChange}
+                        placeholder_fr="Exemple : Votre taxe de séjour de 2.50 CHF soutient l'économie locale et vous donne accès à des avantages exclusifs."
+                        placeholder_en="Example: Your tourist tax of 2.50 CHF supports the local economy and gives you access to exclusive benefits."
+                        placeholder_de="Beispiel: Ihre Kurtaxe von 2,50 CHF unterstützt die lokale Wirtschaft und gibt Ihnen Zugang zu exklusiven Vorteilen."
+                        description="Expliquez brièvement l'utilisation de la taxe de séjour"
+                        required
+                      />
 
-                      <div>
-                        <Label htmlFor="localImpactDescription">
-                          Liste des avantages{" "}
-                          <span className="text-red-500">*</span>
-                        </Label>
-                        <Textarea
-                          id="localImpactDescription"
-                          placeholder={`Exemple :\n✓ -10% chez Boulangerie du Village\n✓ Café offert au Restaurant du Lac\n✓ Accès gratuit à la piscine publique\n✓ Guide touristique numérique gratuit`}
-                          value={formData.localImpactDescription}
-                          onChange={(e) =>
-                            handleInputChange(
-                              "localImpactDescription",
-                              e.target.value
-                            )
-                          }
-                          rows={6}
-                          className="resize-none font-mono text-sm"
-                        />
-                        <p className="text-xs text-gray-500 mt-1">
-                          Listez les avantages concrets. Utilisez ✓ ou • pour
-                          les puces
-                        </p>
-                      </div>
+                      <MultilingualInput
+                        label="Liste des avantages"
+                        name="localImpactDescription"
+                        type="textarea"
+                        value_fr={formData.localImpactDescription}
+                        value_en={formData.localImpactDescription_en}
+                        value_de={formData.localImpactDescription_de}
+                        onChange={handleInputChange}
+                        placeholder_fr="Exemple :\n✓ -10% chez Boulangerie du Village\n✓ Café offert au Restaurant du Lac"
+                        placeholder_en="Example:\n✓ -10% at Village Bakery\n✓ Free coffee at Lake Restaurant"
+                        placeholder_de="Beispiel:\n✓ -10% bei Dorfbäckerei\n✓ Kostenloser Kaffee im Seerestaurant"
+                        description="Listez les avantages concrets. Utilisez ✓ ou • pour les puces"
+                        required
+                      />
 
                       <div className="bg-blue-50 border border-blue-100 rounded-lg p-4">
                         <h4 className="font-semibold text-sm text-blue-900 mb-2">

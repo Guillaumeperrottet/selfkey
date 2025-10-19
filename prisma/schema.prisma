@@ -88,6 +88,8 @@ model Establishment {
   id                                  String                  @id @default(cuid())
   slug                                String                  @unique
   name                                String
+  name_en                             String?
+  name_de                             String?
   stripeAccountId                     String?
   stripeOnboarded                     Boolean                 @default(false)
   commissionRate                      Float                   @default(0)
@@ -136,17 +138,27 @@ model Establishment {
   enableEmailCopyOnConfirmation       Boolean                 @default(false)
   emailCopyAddresses                  String[]
   address                             String?
+  address_en                          String?
+  address_de                          String?
   city                                String?
+  city_en                             String?
+  city_de                             String?
   country                             String?                 @default("Switzerland")
   latitude                            Float?
   longitude                           Float?
   postalCode                          String?
   mapDescription                      String?
+  mapDescription_en                   String?
+  mapDescription_de                   String?
   mapImage                            String?
   mapTitle                            String?
+  mapTitle_en                         String?
+  mapTitle_de                         String?
   showOnMap                           Boolean                 @default(true)
   presentationImages                  String[]
   presentationDescription             String?
+  presentationDescription_en          String?
+  presentationDescription_de          String?
   presentationAttributes              Json?
   presentationWebsite                 String?
   presentationEmail                   String?
@@ -159,10 +171,18 @@ model Establishment {
   checkInEndTime                      String?                 // Heure de fin d'arrivée (ex: "22:00")
   checkOutTime                        String?                 // Heure de départ (ex: "12:00")
   accessRestrictions                  String?                 // Notes sur les restrictions (ex: "Fermé le mercredi")
+  accessRestrictions_en               String?
+  accessRestrictions_de               String?
   showLocalImpact                     Boolean                 @default(false) // Afficher l'encart "Impact de votre séjour"
   localImpactTitle                    String?                 @default("L'impact de votre séjour")
+  localImpactTitle_en                 String?
+  localImpactTitle_de                 String?
   localImpactDescription              String?                 // Description personnalisée de l'impact local
+  localImpactDescription_en           String?
+  localImpactDescription_de           String?
   touristTaxImpactMessage             String?                 // Message sur l'utilisation de la taxe de séjour
+  touristTaxImpactMessage_en          String?
+  touristTaxImpactMessage_de          String?
   // Templates d'emails en français (par défaut)
   confirmationEmailTemplateWithDog    String?
   confirmationEmailTemplateWithoutDog String?
