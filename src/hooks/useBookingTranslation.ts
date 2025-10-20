@@ -18,7 +18,7 @@ function getInitialLocale(): Locale {
 
 /**
  * Hook pour gérer les traductions du système de réservatio
- * Persiste la langue choisie dans le localStorage
+ * Persiste la langue choisie dans le localStorag
  */
 export function useBookingTranslation() {
   const [locale, setLocaleState] = useState<Locale>(getInitialLocale);
