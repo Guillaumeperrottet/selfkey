@@ -296,7 +296,7 @@ export const selfcampTranslations: Record<
       recentSearches: "Recherches récentes",
     },
     loading: {
-      message: "Chargement de votre carte SelfCamp...",
+      message: "Chargement de votre carte Selfcamp...",
       subtitle: "Préparation des meilleurs spots de camping-car",
     },
     map: {
@@ -396,7 +396,7 @@ export const selfcampTranslations: Record<
     },
     benefits: {
       title: "Pourquoi choisir",
-      titleHighlight: "SelfCamp",
+      titleHighlight: "Selfcamp",
       access247: {
         title: "Accès 24h/24 et 7j/7",
         description:
@@ -415,7 +415,7 @@ export const selfcampTranslations: Record<
     },
     cta: {
       title: "Intéressés par",
-      titleHighlight: "SelfCamp",
+      titleHighlight: "Selfcamp",
       description:
         "Si vous êtes propriétaire d'un parking ou d'un espace pouvant accueillir des vans, découvrez comment devenir prestataire vous aussi.",
       learnMore: "En savoir plus",
@@ -423,7 +423,7 @@ export const selfcampTranslations: Record<
     about: {
       badge: "Solution pour communes suisses",
       title: "À propos de",
-      titleHighlight: "SelfCamp",
+      titleHighlight: "Selfcamp",
       subtitle:
         "Une solution complète pour créer des aires de camping-car qui bénéficient aux communes, aux régions et aux vanlifer",
       stats: {
@@ -464,7 +464,7 @@ export const selfcampTranslations: Record<
           description: "Retombées économiques directes pour la région",
         },
         desktopIntro1:
-          "Le camping sauvage favorise les visites des régions moins touristiques. En créant des aires SelfCamp, nous organisons ces nuitées et faisons découvrir des villages hors des grands axes.",
+          "Le camping sauvage favorise les visites des régions moins touristiques. En créant des aires Selfcamp, nous organisons ces nuitées et faisons découvrir des villages hors des grands axes.",
         desktopIntro2:
           "Les artisans locaux profitent des touristes grâce au système de partenariat",
       },
@@ -534,7 +534,7 @@ export const selfcampTranslations: Record<
     finalCta: {
       title: "Nous sommes à disposition pour plus de détails",
       description:
-        "Découvrez comment SelfCamp peut vous aider à créer des aires de camping-car conformes et autonomes.",
+        "Découvrez comment Selfcamp peut vous aider à créer des aires de camping-car conformes et autonomes.",
       contactButton: "Nous contacter",
       mapButton: "Voir les aires existantes",
     },
@@ -548,9 +548,9 @@ export const selfcampTranslations: Record<
         title: "Navigation",
         home: "Accueil",
         map: "Carte des aires",
-        about: "A propos de SelfCamp",
+        about: "A propos de Selfcamp",
         contact: "Contactez-nous",
-        selfkeySystem: "Système SelfKey",
+        selfkeySystem: "Système Selfkey",
       },
       legal: {
         title: "Informations légales",
@@ -558,7 +558,7 @@ export const selfcampTranslations: Record<
         termsConditions: "CGV & Droit de rétractation",
         privacy: "Politique de confidentialité",
       },
-      copyright: "© 2025 SelfCamp. Tous droits réservés. Développé par",
+      copyright: "© 2025 Selfcamp. Tous droits réservés. Développé par",
       developedBy: "Webbing.ch",
       payments:
         "Paiements sécurisés par Stripe • Cartes bancaires et TWINT acceptés",
@@ -584,7 +584,7 @@ export const selfcampTranslations: Record<
       recentSearches: "Recent searches",
     },
     loading: {
-      message: "Loading your SelfCamp map...",
+      message: "Loading your Selfcamp map...",
       subtitle: "Preparing the best motorhome spots",
     },
     map: {
@@ -684,7 +684,7 @@ export const selfcampTranslations: Record<
     },
     benefits: {
       title: "Why choose",
-      titleHighlight: "SelfCamp",
+      titleHighlight: "Selfcamp",
       access247: {
         title: "24/7 Access",
         description:
@@ -702,7 +702,7 @@ export const selfcampTranslations: Record<
     },
     cta: {
       title: "Interested in",
-      titleHighlight: "SelfCamp",
+      titleHighlight: "Selfcamp",
       description:
         "If you own a parking lot or space that can accommodate vans, discover how to become a provider too.",
       learnMore: "Learn more",
@@ -710,7 +710,7 @@ export const selfcampTranslations: Record<
     about: {
       badge: "Solution for Swiss municipalities",
       title: "About",
-      titleHighlight: "SelfCamp",
+      titleHighlight: "Selfcamp",
       subtitle:
         "A complete solution to create motorhome areas that benefit municipalities, regions and vanlifers",
       stats: {
@@ -750,7 +750,7 @@ export const selfcampTranslations: Record<
           description: "Direct economic benefits for the region",
         },
         desktopIntro1:
-          "Wild camping promotes visits to less touristy regions. By creating SelfCamp areas, we organize these overnight stays and showcase villages off the main routes.",
+          "Wild camping promotes visits to less touristy regions. By creating Selfcamp areas, we organize these overnight stays and showcase villages off the main routes.",
         desktopIntro2:
           "Local artisans benefit from tourists through the partnership system",
       },
@@ -820,7 +820,7 @@ export const selfcampTranslations: Record<
     finalCta: {
       title: "We are available for more details",
       description:
-        "Discover how SelfCamp can help you create compliant and autonomous motorhome areas.",
+        "Discover how Selfcamp can help you create compliant and autonomous motorhome areas.",
       contactButton: "Contact us",
       mapButton: "See existing areas",
     },
@@ -834,7 +834,7 @@ export const selfcampTranslations: Record<
         title: "Navigation",
         home: "Home",
         map: "Area Map",
-        about: "About SelfCamp",
+        about: "About Selfcamp",
         contact: "Contact Us",
         selfkeySystem: "SelfKey System",
       },
@@ -844,7 +844,7 @@ export const selfcampTranslations: Record<
         termsConditions: "Terms & Right of Withdrawal",
         privacy: "Privacy Policy",
       },
-      copyright: "© 2025 SelfCamp. All rights reserved. Developed by",
+      copyright: "© 2025 Selfcamp. All rights reserved. Developed by",
       developedBy: "Webbing.ch",
       payments: "Secure payments by Stripe • Credit cards and TWINT accepted",
     },
@@ -869,7 +869,7 @@ export const selfcampTranslations: Record<
       recentSearches: "Letzte Suchanfragen",
     },
     loading: {
-      message: "Ihre SelfCamp-Karte wird geladen...",
+      message: "Ihre Selfcamp-Karte wird geladen...",
       subtitle: "Vorbereitung der besten Wohnmobilstellplätze",
     },
     map: {
@@ -969,7 +969,7 @@ export const selfcampTranslations: Record<
     },
     benefits: {
       title: "Warum",
-      titleHighlight: "SelfCamp",
+      titleHighlight: "Selfcamp",
       access247: {
         title: "24/7 Zugang",
         description:
@@ -988,7 +988,7 @@ export const selfcampTranslations: Record<
     },
     cta: {
       title: "Interessiert an",
-      titleHighlight: "SelfCamp",
+      titleHighlight: "Selfcamp",
       description:
         "Wenn Sie einen Parkplatz oder einen Raum besitzen, der Wohnmobile aufnehmen kann, erfahren Sie, wie auch Sie Anbieter werden können.",
       learnMore: "Mehr erfahren",
@@ -996,7 +996,7 @@ export const selfcampTranslations: Record<
     about: {
       badge: "Lösung für Schweizer Gemeinden",
       title: "Über",
-      titleHighlight: "SelfCamp",
+      titleHighlight: "Selfcamp",
       subtitle:
         "Eine komplette Lösung zur Schaffung von Wohnmobilstellplätzen, die Gemeinden, Regionen und Vanlifern zugutekommen",
       stats: {
@@ -1108,7 +1108,7 @@ export const selfcampTranslations: Record<
     finalCta: {
       title: "Wir stehen für weitere Details zur Verfügung",
       description:
-        "Entdecken Sie, wie SelfCamp Ihnen helfen kann, konforme und autonome Wohnmobilstellplätze zu schaffen.",
+        "Entdecken Sie, wie Selfcamp Ihnen helfen kann, konforme und autonome Wohnmobilstellplätze zu schaffen.",
       contactButton: "Kontaktieren Sie uns",
       mapButton: "Bestehende Bereiche ansehen",
     },
@@ -1122,7 +1122,7 @@ export const selfcampTranslations: Record<
         title: "Navigation",
         home: "Startseite",
         map: "Bereichskarte",
-        about: "Über SelfCamp",
+        about: "Über Selfcamp",
         contact: "Kontaktieren Sie uns",
         selfkeySystem: "SelfKey-System",
       },
@@ -1132,7 +1132,7 @@ export const selfcampTranslations: Record<
         termsConditions: "AGB & Widerrufsrecht",
         privacy: "Datenschutz",
       },
-      copyright: "© 2025 SelfCamp. Alle Rechte vorbehalten. Entwickelt von",
+      copyright: "© 2025 Selfcamp. Alle Rechte vorbehalten. Entwickelt von",
       developedBy: "Webbing.ch",
       payments:
         "Sichere Zahlungen durch Stripe • Kreditkarten und TWINT akzeptiert",
