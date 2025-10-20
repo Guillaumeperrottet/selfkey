@@ -3,6 +3,7 @@
 import dynamic from "next/dynamic";
 import { useState, useEffect } from "react";
 import { VanLoading } from "@/components/ui/van-loading";
+import { useSelfcampTranslation } from "@/hooks/useSelfcampTranslation";
 
 interface Establishment {
   id: string;
@@ -45,7 +46,7 @@ const DirectMap = dynamic(() => import("@/components/ui/direct-map"), {
   ssr: false,
   loading: () => (
     <div className="w-full h-full bg-gray-50 flex items-center justify-center rounded-lg">
-      <VanLoading message="Chargement de la carte..." size="md" />
+      <VanLoading size="md" />
     </div>
   ),
 });
@@ -62,6 +63,7 @@ export default function InteractiveMap({
   disableAutoGeolocation = false,
   selectedEstablishmentId = null,
 }: InteractiveMapProps) {
+  const { t } = useSelfcampTranslation();
   const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
@@ -83,7 +85,7 @@ export default function InteractiveMap({
       <div
         className={`w-full ${fullHeight ? "h-screen" : "h-96"} bg-gray-50 flex items-center justify-center rounded-lg`}
       >
-        <VanLoading message="Préparation de votre carte..." size="md" />
+        <VanLoading message={t.map.loadingMapFallback} size="md" />
       </div>
     );
   }
@@ -92,7 +94,7 @@ export default function InteractiveMap({
     <div className="w-full h-full">
       {showTitle && (
         <h2 className="text-2xl font-bold text-center mb-6 text-[#9EA173]">
-          Emplacements disponibles
+          {t.map.availableLocations}
         </h2>
       )}
       <div

@@ -62,6 +62,7 @@ export interface SelfcampTranslations {
     infoNotAvailable: string; // "Information non disponible"
     full: string; // "Complet"
     fullAvailableOn: (date: string) => string; // "Complet - Libre le {date}"
+    availableLocations: string; // "Emplacements disponibles"
   };
 
   // Establishment Page
@@ -246,6 +247,50 @@ export interface SelfcampTranslations {
     mapButton: string;
   };
 
+  // Contact Page
+  contactPage: {
+    // Header
+    availability: string; // "24H/24 - 7J/7"
+    contactButton: string; // "CONTACTEZ-NOUS"
+    contactShort: string; // "CONTACT"
+    backHome: string; // "Accueil"
+
+    // Hero
+    badge: string; // "Parlons de votre projet"
+    title: string; // "Contactez"
+    titleBrand: string; // "SelfCamp"
+    subtitle: string; // "Une question ? Besoin d'informations ? Nous sommes à votre écoute"
+
+    // Direct Contact Section
+    directContactTitle: string; // "Contactez-nous directement"
+    email: string; // "Email"
+    phone: string; // "Téléphone"
+    location: string; // "Localisation"
+
+    // Form Section
+    formTitle: string; // "Ou écrivez-nous"
+    formSubtitle: string; // "Décrivez votre projet, nous vous répondrons rapidement"
+
+    // Form Fields
+    nameLabel: string; // "Nom et prénom *"
+    namePlaceholder: string; // "Jean Dupont"
+    emailLabel: string; // "Email *"
+    emailPlaceholder: string; // "jean.dupont@websud.ch"
+    companyLabel: string; // "Commune / parking / emplacement *"
+    companyPlaceholder: string; // "Nom"
+    projectLabel: string; // "Votre projet"
+    projectPlaceholder: string; // "Décrivez votre situation : camping sauvage actuel, objectifs, contraintes..."
+
+    // Form Actions
+    sendButton: string; // "Envoyer le message"
+    sending: string; // "Envoi en cours..."
+
+    // Status Messages
+    successMessage: string; // "Message envoyé avec succès ! Nous vous recontacterons rapidement."
+    errorMessage: string; // "Une erreur est survenue"
+    connectionError: string; // "Erreur de connexion. Veuillez réessayer."
+  };
+
   // Footer
   footer: {
     description: string;
@@ -326,6 +371,7 @@ export const selfcampTranslations: Record<
       infoNotAvailable: "Information non disponible",
       full: "Complet",
       fullAvailableOn: (date: string) => `Complet - Libre le ${date}`,
+      availableLocations: "Emplacements disponibles",
     },
     establishment: {
       backToMap: "Retour à la carte",
@@ -563,6 +609,39 @@ export const selfcampTranslations: Record<
       payments:
         "Paiements sécurisés par Stripe • Cartes bancaires et TWINT acceptés",
     },
+
+    contactPage: {
+      availability: "24H/24 - 7J/7",
+      contactButton: "CONTACTEZ-NOUS",
+      contactShort: "CONTACT",
+      backHome: "Accueil",
+      badge: "Parlons de votre projet",
+      title: "Contactez",
+      titleBrand: "SelfCamp",
+      subtitle:
+        "Une question ? Besoin d'informations ? Nous sommes à votre écoute",
+      directContactTitle: "Contactez-nous directement",
+      email: "Email",
+      phone: "Téléphone",
+      location: "Localisation",
+      formTitle: "Ou écrivez-nous",
+      formSubtitle: "Décrivez votre projet, nous vous répondrons rapidement",
+      nameLabel: "Nom et prénom *",
+      namePlaceholder: "Jean Dupont",
+      emailLabel: "Email *",
+      emailPlaceholder: "jean.dupont@websud.ch",
+      companyLabel: "Commune / parking / emplacement *",
+      companyPlaceholder: "Nom",
+      projectLabel: "Votre projet",
+      projectPlaceholder:
+        "Décrivez votre situation : camping sauvage actuel, objectifs, contraintes...",
+      sendButton: "Envoyer le message",
+      sending: "Envoi en cours...",
+      successMessage:
+        "Message envoyé avec succès ! Nous vous recontacterons rapidement.",
+      errorMessage: "Une erreur est survenue",
+      connectionError: "Erreur de connexion. Veuillez réessayer.",
+    },
   },
 
   // ========== ENGLISH ==========
@@ -614,6 +693,7 @@ export const selfcampTranslations: Record<
       infoNotAvailable: "Information not available",
       full: "Full",
       fullAvailableOn: (date: string) => `Full - Available on ${date}`,
+      availableLocations: "Available locations",
     },
     establishment: {
       backToMap: "Back to map",
@@ -848,6 +928,37 @@ export const selfcampTranslations: Record<
       developedBy: "Webbing.ch",
       payments: "Secure payments by Stripe • Credit cards and TWINT accepted",
     },
+
+    contactPage: {
+      availability: "24/7 - ALWAYS OPEN",
+      contactButton: "CONTACT US",
+      contactShort: "CONTACT",
+      backHome: "Home",
+      badge: "Let's talk about your project",
+      title: "Contact",
+      titleBrand: "SelfCamp",
+      subtitle: "Have a question? Need information? We're here to listen",
+      directContactTitle: "Contact us directly",
+      email: "Email",
+      phone: "Phone",
+      location: "Location",
+      formTitle: "Or write to us",
+      formSubtitle: "Describe your project, we'll get back to you quickly",
+      nameLabel: "First and last name *",
+      namePlaceholder: "John Doe",
+      emailLabel: "Email *",
+      emailPlaceholder: "john.doe@websud.ch",
+      companyLabel: "Municipality / parking / location *",
+      companyPlaceholder: "Name",
+      projectLabel: "Your project",
+      projectPlaceholder:
+        "Describe your situation: current wild camping, objectives, constraints...",
+      sendButton: "Send message",
+      sending: "Sending...",
+      successMessage: "Message sent successfully! We will contact you shortly.",
+      errorMessage: "An error occurred",
+      connectionError: "Connection error. Please try again.",
+    },
   },
 
   // ========== DEUTSCH (ALLEMAND) ==========
@@ -899,6 +1010,7 @@ export const selfcampTranslations: Record<
       infoNotAvailable: "Informationen nicht verfügbar",
       full: "Ausgebucht",
       fullAvailableOn: (date: string) => `Ausgebucht - Verfügbar am ${date}`,
+      availableLocations: "Verfügbare Standorte",
     },
     establishment: {
       backToMap: "Zurück zur Karte",
@@ -1136,6 +1248,40 @@ export const selfcampTranslations: Record<
       developedBy: "Webbing.ch",
       payments:
         "Sichere Zahlungen durch Stripe • Kreditkarten und TWINT akzeptiert",
+    },
+
+    contactPage: {
+      availability: "24/7 - RUND UM DIE UHR",
+      contactButton: "KONTAKTIEREN SIE UNS",
+      contactShort: "KONTAKT",
+      backHome: "Startseite",
+      badge: "Lassen Sie uns über Ihr Projekt sprechen",
+      title: "Kontaktieren Sie",
+      titleBrand: "SelfCamp",
+      subtitle:
+        "Haben Sie eine Frage? Benötigen Sie Informationen? Wir hören Ihnen zu",
+      directContactTitle: "Kontaktieren Sie uns direkt",
+      email: "E-Mail",
+      phone: "Telefon",
+      location: "Standort",
+      formTitle: "Oder schreiben Sie uns",
+      formSubtitle:
+        "Beschreiben Sie Ihr Projekt, wir melden uns schnell zurück",
+      nameLabel: "Vor- und Nachname *",
+      namePlaceholder: "Max Mustermann",
+      emailLabel: "E-Mail *",
+      emailPlaceholder: "max.mustermann@websud.ch",
+      companyLabel: "Gemeinde / Parkplatz / Standort *",
+      companyPlaceholder: "Name",
+      projectLabel: "Ihr Projekt",
+      projectPlaceholder:
+        "Beschreiben Sie Ihre Situation: aktuelles Wildcamping, Ziele, Einschränkungen...",
+      sendButton: "Nachricht senden",
+      sending: "Wird gesendet...",
+      successMessage:
+        "Nachricht erfolgreich gesendet! Wir werden uns in Kürze bei Ihnen melden.",
+      errorMessage: "Ein Fehler ist aufgetreten",
+      connectionError: "Verbindungsfehler. Bitte versuchen Sie es erneut.",
     },
   },
 };

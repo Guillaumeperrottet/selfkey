@@ -8,6 +8,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { SelfcampFooter } from "@/components/public-pages/selfcamp-footer";
 import { useAnalytics } from "@/hooks/useAnalytics";
+import { useSelfcampTranslation } from "@/hooks/useSelfcampTranslation";
 
 import {
   Mail,
@@ -28,6 +29,8 @@ interface FormData {
 }
 
 export default function ContactPage() {
+  const { t } = useSelfcampTranslation();
+
   const [formData, setFormData] = useState<FormData>({
     name: "",
     email: "",
@@ -94,14 +97,14 @@ export default function ContactPage() {
         setFormStarted(false);
       } else {
         setSubmitStatus("error");
-        setErrorMessage(result.error || "Une erreur est survenue");
+        setErrorMessage(result.error || t.contactPage.errorMessage);
         // Track form error
         trackContact.formError(result.error || "submission_failed");
       }
     } catch (error) {
       console.error("Erreur lors de la soumission:", error);
       setSubmitStatus("error");
-      setErrorMessage("Erreur de connexion. Veuillez réessayer.");
+      setErrorMessage(t.contactPage.connectionError);
       // Track connection error
       trackContact.formError("connection_error");
     } finally {
@@ -119,13 +122,13 @@ export default function ContactPage() {
             <div className="hidden lg:flex items-center justify-between w-full">
               <div className="flex items-center space-x-2 bg-[#84994F]/10 text-[#84994F] px-3 py-1.5 rounded-full text-sm font-medium">
                 <div className="w-2 h-2 bg-[#84994F] rounded-full animate-pulse"></div>
-                <span>24H/24 - 7J/7</span>
+                <span>{t.contactPage.availability}</span>
               </div>
               <Link
                 href="/contact"
                 className="text-[#84994F] text-sm font-bold tracking-wide uppercase hover:text-[#84994F]/80 transition-colors duration-300"
               >
-                CONTACTEZ-NOUS
+                {t.contactPage.contactButton}
               </Link>
             </div>
 
@@ -133,20 +136,20 @@ export default function ContactPage() {
             <div className="flex lg:hidden items-center justify-between w-full">
               <div className="flex items-center space-x-1.5 bg-[#84994F]/10 text-[#84994F] px-2.5 py-1 rounded-full text-xs font-medium">
                 <div className="w-1.5 h-1.5 bg-[#84994F] rounded-full animate-pulse"></div>
-                <span>24H/24 - 7J/7</span>
+                <span>{t.contactPage.availability}</span>
               </div>
               <Link
                 href="/"
                 className="group flex items-center space-x-2 text-gray-600 hover:text-[#84994F] transition-all duration-300"
               >
                 <ArrowLeft className="h-4 w-4 group-hover:-translate-x-1 transition-transform duration-300" />
-                <span className="text-sm">Accueil</span>
+                <span className="text-sm">{t.contactPage.backHome}</span>
               </Link>
               <Link
                 href="/contact"
                 className="text-[#84994F] text-xs font-bold tracking-wide uppercase hover:text-[#84994F]/80 transition-colors duration-300"
               >
-                CONTACT
+                {t.contactPage.contactShort}
               </Link>
             </div>
           </div>
@@ -158,14 +161,14 @@ export default function ContactPage() {
         <div className="text-center mb-12 md:mb-16">
           <div className="inline-flex items-center gap-2 bg-[#84994F]/10 text-[#84994F] px-4 py-2 rounded-full text-sm font-medium mb-6">
             <span>💬</span>
-            <span>Parlons de votre projet</span>
+            <span>{t.contactPage.badge}</span>
           </div>
           <h1 className="text-3xl md:text-5xl font-bold text-gray-900 mb-4 leading-tight">
-            Contactez <span className="text-[#84994F]">SelfCamp</span>
+            {t.contactPage.title}{" "}
+            <span className="text-[#84994F]">{t.contactPage.titleBrand}</span>
           </h1>
           <p className="text-base md:text-lg text-gray-600 max-w-2xl mx-auto">
-            Une question ? Besoin d&apos;informations ? Nous sommes à votre
-            écoute
+            {t.contactPage.subtitle}
           </p>
         </div>
 
@@ -173,7 +176,7 @@ export default function ContactPage() {
         <div className="mb-10">
           <div className="text-center mb-6">
             <h2 className="text-xl md:text-2xl font-bold text-gray-900">
-              Contactez-nous directement
+              {t.contactPage.directContactTitle}
             </h2>
           </div>
 
@@ -188,7 +191,7 @@ export default function ContactPage() {
                 </div>
                 <div>
                   <div className="text-sm font-semibold text-gray-500">
-                    Email
+                    {t.contactPage.email}
                   </div>
                   <div className="text-base text-gray-900 group-hover:text-[#84994F] transition-colors">
                     perrottet.guillaume.97@gmail.com
@@ -207,7 +210,7 @@ export default function ContactPage() {
                 </div>
                 <div>
                   <div className="text-sm font-semibold text-gray-500">
-                    Téléphone
+                    {t.contactPage.phone}
                   </div>
                   <div className="text-base text-gray-900 group-hover:text-[#84994F] transition-colors">
                     +41 79 341 40 74
@@ -223,7 +226,7 @@ export default function ContactPage() {
                 </div>
                 <div>
                   <div className="text-sm font-semibold text-gray-500">
-                    Localisation
+                    {t.contactPage.location}
                   </div>
                   <div className="text-base text-gray-900">
                     Rue de Battentin 1
@@ -239,10 +242,10 @@ export default function ContactPage() {
         <div>
           <div className="text-center mb-8">
             <h2 className="text-xl md:text-2xl font-bold text-gray-900 mb-2">
-              Ou écrivez-nous
+              {t.contactPage.formTitle}
             </h2>
             <p className="text-sm md:text-base text-gray-600">
-              Décrivez votre projet, nous vous répondrons rapidement
+              {t.contactPage.formSubtitle}
             </p>
           </div>
 
@@ -253,8 +256,7 @@ export default function ContactPage() {
                 <div className="bg-green-50 border border-green-200 rounded-xl p-4 flex items-start gap-3">
                   <CheckCircle className="h-5 w-5 text-green-600 flex-shrink-0 mt-0.5" />
                   <div className="text-sm text-green-800">
-                    Message envoyé avec succès ! Nous vous recontacterons
-                    rapidement.
+                    {t.contactPage.successMessage}
                   </div>
                 </div>
               )}
@@ -272,7 +274,7 @@ export default function ContactPage() {
                     htmlFor="name"
                     className="text-sm font-medium text-gray-700"
                   >
-                    Nom et prénom *
+                    {t.contactPage.nameLabel}
                   </Label>
                   <Input
                     id="name"
@@ -281,7 +283,7 @@ export default function ContactPage() {
                     onChange={handleInputChange}
                     required
                     disabled={isSubmitting}
-                    placeholder="Jean Dupont"
+                    placeholder={t.contactPage.namePlaceholder}
                     className="border-gray-200 focus:ring-[#84994F]/20 focus:border-[#84994F] h-11"
                   />
                 </div>
@@ -290,7 +292,7 @@ export default function ContactPage() {
                     htmlFor="email"
                     className="text-sm font-medium text-gray-700"
                   >
-                    Email *
+                    {t.contactPage.emailLabel}
                   </Label>
                   <Input
                     type="email"
@@ -300,7 +302,7 @@ export default function ContactPage() {
                     onChange={handleInputChange}
                     required
                     disabled={isSubmitting}
-                    placeholder="jean.dupont@websud.ch"
+                    placeholder={t.contactPage.emailPlaceholder}
                     className="border-gray-200 focus:ring-[#84994F]/20 focus:border-[#84994F] h-11"
                   />
                 </div>
@@ -311,7 +313,7 @@ export default function ContactPage() {
                   htmlFor="company"
                   className="text-sm font-medium text-gray-700"
                 >
-                  Commune / parking / emplacement *
+                  {t.contactPage.companyLabel}
                 </Label>
                 <Input
                   id="company"
@@ -320,7 +322,7 @@ export default function ContactPage() {
                   onChange={handleInputChange}
                   required
                   disabled={isSubmitting}
-                  placeholder="Nom"
+                  placeholder={t.contactPage.companyPlaceholder}
                   className="border-gray-200 focus:ring-[#84994F]/20 focus:border-[#84994F] h-11"
                 />
               </div>
@@ -330,7 +332,7 @@ export default function ContactPage() {
                   htmlFor="project"
                   className="text-sm font-medium text-gray-700"
                 >
-                  Votre projet
+                  {t.contactPage.projectLabel}
                 </Label>
                 <Textarea
                   id="project"
@@ -339,7 +341,7 @@ export default function ContactPage() {
                   value={formData.project}
                   onChange={handleInputChange}
                   disabled={isSubmitting}
-                  placeholder="Décrivez votre situation : camping sauvage actuel, objectifs, contraintes..."
+                  placeholder={t.contactPage.projectPlaceholder}
                   className="border-gray-200 focus:ring-[#84994F]/20 focus:border-[#84994F] resize-none"
                 />
               </div>
@@ -352,12 +354,12 @@ export default function ContactPage() {
                 {isSubmitting ? (
                   <>
                     <Loader2 className="h-4 w-4 animate-spin mr-2" />
-                    Envoi en cours...
+                    {t.contactPage.sending}
                   </>
                 ) : (
                   <>
                     <Send className="h-4 w-4 mr-2" />
-                    Envoyer le message
+                    {t.contactPage.sendButton}
                   </>
                 )}
               </Button>
