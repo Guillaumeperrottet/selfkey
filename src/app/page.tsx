@@ -2,6 +2,7 @@ import { Metadata } from "next";
 import { DomainRouter } from "@/components/shared/domain-router";
 import { SelfcampHomepage } from "@/components/public-pages/selfcamp-homepage";
 import { SelfkeyHomepage } from "@/components/public-pages/selfkey-homepage";
+import { DynamicTitle } from "@/components/shared/dynamic-title";
 
 export const metadata: Metadata = {
   title:
@@ -72,9 +73,15 @@ export const metadata: Metadata = {
 
 export default function Home() {
   return (
-    <DomainRouter
-      selfcampContent={<SelfcampHomepage />}
-      selfkeyContent={<SelfkeyHomepage />}
-    />
+    <>
+      <DynamicTitle
+        selfcampTitle="Selfcamp - La liberté de camper, sans contraintes"
+        selfkeyTitle="SelfKey - Check-in automatique pour votre établissement"
+      />
+      <DomainRouter
+        selfcampContent={<SelfcampHomepage />}
+        selfkeyContent={<SelfkeyHomepage />}
+      />
+    </>
   );
 }
