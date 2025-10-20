@@ -77,69 +77,70 @@ export const viewport = {
 
 export const metadata: Metadata = {
   title: {
-    default: "SelfKey - Check-in automatique pour votre établissement",
-    template: "%s | SelfKey",
+    default: "Selfcamp - La liberté de camper, sans contraintes",
+    template: "%s | Selfcamp",
   },
   description:
-    "Solution suisse de check-in automatique 24h/24 pour hôtels, campings, et locations. Paiement sécurisé via Stripe, accès instantané par QR code.",
+    "Découvrez des aires de camping-car officielles ! Accès spontané sans app, ni compte, paiement sécurisé, emplacements de qualité.",
   keywords: [
-    "check-in automatique",
-    "hôtel",
+    "camping-car",
+    "aire de camping-car",
     "camping",
-    "location saisonnière",
-    "QR code",
+    "van life",
+    "motorhome",
+    "emplacements camping",
     "paiement en ligne",
     "Stripe",
     "accès automatique",
-    "réservation",
+    "réservation camping",
     "Suisse",
-    "selfkey",
+    "selfcamp",
   ],
-  authors: [{ name: "SelfKey" }],
-  creator: "SelfKey",
-  publisher: "SelfKey",
+  authors: [{ name: "Selfcamp" }],
+  creator: "Selfcamp",
+  publisher: "Selfcamp",
   formatDetection: {
     email: false,
     address: false,
     telephone: false,
   },
-  metadataBase: new URL("https://www.selfkey.ch"), // Votre domaine officiel
+  metadataBase: new URL("https://www.selfcamp.ch"),
   alternates: {
     canonical: "/",
   },
   openGraph: {
     type: "website",
     locale: "fr_CH",
-    url: "https://www.selfkey.ch",
-    siteName: "SelfKey",
-    title: "SelfKey - Check-in automatique pour votre établissement",
+    url: "https://www.selfcamp.ch",
+    siteName: "Selfcamp",
+    title: "Selfcamp - La liberté de camper, sans contraintes",
     description:
-      "Solution suisse de check-in automatique 24h/24 pour hôtels, campings, et locations. Paiement sécurisé via Stripe, accès instantané par QR code.",
+      "Découvrez des aires de camping-car officielles ! Accès spontané sans app, ni compte, paiement sécurisé, emplacements de qualité.",
     images: [
       {
         url: "/logo.png",
         width: 1200,
         height: 630,
-        alt: "SelfKey - Check-in automatique",
+        alt: "Selfcamp - Aires de camping-car",
       },
     ],
   },
   twitter: {
     card: "summary_large_image",
-    title: "SelfKey - Check-in automatique pour votre établissement",
+    title: "Selfcamp - La liberté de camper, sans contraintes",
     description:
-      "Solution suisse de check-in automatique 24h/24 pour hôtels, campings, et locations.",
+      "Découvrez des aires de camping-car officielles ! Accès spontané sans app, ni compte, paiement sécurisé.",
     images: ["/logo.png"],
-    creator: "@selfkey",
+    creator: "@selfcamp",
   },
   icons: {
     icon: [
       { url: "/icons/favicon.ico" },
       { url: "/icons/icon-16x16.png", sizes: "16x16", type: "image/png" },
       { url: "/icons/icon-32x32.png", sizes: "32x32", type: "image/png" },
-      { url: "/icons/icon-96.png", sizes: "96x96", type: "image/png" },
-      { url: "/icons/icon-192.png", sizes: "192x192", type: "image/png" },
-      { url: "/icons/icon-512.png", sizes: "512x512", type: "image/png" },
+      { url: "/icons/icon-96x96.png", sizes: "96x96", type: "image/png" },
+      { url: "/icons/icon-192x192.png", sizes: "192x192", type: "image/png" },
+      { url: "/icons/icon-512x512.png", sizes: "512x512", type: "image/png" },
     ],
     apple: [
       {
@@ -162,9 +163,6 @@ export const metadata: Metadata = {
       "max-snippet": -1,
     },
   },
-  verification: {
-    google: "your-google-verification-code", // À remplacer par votre code Google
-  },
 };
 
 export default function RootLayout({
@@ -181,26 +179,48 @@ export default function RootLayout({
           rel="icon"
           type="image/png"
           sizes="16x16"
-          href="/icons/icon-16.png"
+          href="/icons/icon-16x16.png"
         />
         <link
           rel="icon"
           type="image/png"
           sizes="32x32"
-          href="/icons/icon-32.png"
+          href="/icons/icon-32x32.png"
         />
         <link
           rel="icon"
           type="image/png"
           sizes="96x96"
-          href="/icons/icon-96.png"
+          href="/icons/icon-96x96.png"
         />
-        <link rel="icon" href="/icons/icon-96.png" type="image/png" />
+        <link rel="icon" href="/icons/icon-96x96.png" type="image/png" />
         <link rel="apple-touch-icon" href="/icons/apple-touch-icon.png" />
-        <meta name="theme-color" content="#000000" />
+        <meta name="theme-color" content="#84994F" />
         <meta name="mobile-web-app-capable" content="yes" />
+
+        {/* Schema.org pour Google - CRUCIAL pour afficher le logo dans les résultats de recherche */}
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify({
+              "@context": "https://schema.org",
+              "@type": "Organization",
+              name: "Selfcamp",
+              url: "https://www.selfcamp.ch",
+              logo: "https://www.selfcamp.ch/logo.png",
+              sameAs: ["https://www.instagram.com/selfcamp_ch/"],
+              description:
+                "Découvrez des aires de camping-car officielles ! Accès spontané sans app, ni compte, paiement sécurisé.",
+              contactPoint: {
+                "@type": "ContactPoint",
+                contactType: "Customer Service",
+                availableLanguage: ["French", "German"],
+              },
+            }),
+          }}
+        />
         <meta name="apple-mobile-web-app-status-bar-style" content="default" />
-        <meta name="apple-mobile-web-app-title" content="SelfKey" />
+        <meta name="apple-mobile-web-app-title" content="SelfCamp" />
         <meta
           name="google-site-verification"
           content="S70Q1gnzCl6izZqimNMwfUPcK0y1XLPaXbfikVTtdZ4"

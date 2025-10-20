@@ -5,7 +5,7 @@ import { SelfkeyHomepage } from "@/components/public-pages/selfkey-homepage";
 
 export const metadata: Metadata = {
   title:
-    "SelfCamp - La liberté de camper, sans contraintes dans le canton de Fribourg",
+    "Selfcamp - La liberté de camper, sans contraintes dans le canton de Fribourg",
   description:
     "Découvrez des aires de camping-car officielles ! Accès spontané sans app, ni compte, paiement sécurisé, emplacements de qualité.",
   keywords: [
@@ -27,7 +27,7 @@ export const metadata: Metadata = {
     "tourisme local Suisse",
   ],
   openGraph: {
-    title: "SelfCamp - Aires de Camping-Car en Suisse",
+    title: "Selfcamp - Aires de Camping-Car en Suisse",
     description:
       "Accédez à des aires de camping-car. Spontané, sécurisé, légal. Découvrez la Suisse autrement avec des emplacements créés pour vous.",
     images: [
@@ -44,7 +44,7 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    title: "SelfCamp - Aires de Camping-Car en Suisse",
+    title: "Selfcamp - Aires de Camping-Car en Suisse",
     description:
       "Accédez à des aires de camping-car. Spontané, sécurisé, légal. Découvrez la Suisse autrement avec des emplacements créés pour vous.",
     images: ["/logo_map.png"],
