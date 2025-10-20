@@ -59,6 +59,9 @@ export interface SelfcampTranslations {
     loadingMapFallback: string; // "Chargement de la carte..."
     clearSearch: string; // "Effacer"
     onRequest: string; // "Sur demande"
+    infoNotAvailable: string; // "Information non disponible"
+    full: string; // "Complet"
+    fullAvailableOn: (date: string) => string; // "Complet - Libre le {date}"
   };
 
   // Establishment Page
@@ -320,6 +323,9 @@ export const selfcampTranslations: Record<
       loadingMapFallback: "Chargement de la carte...",
       clearSearch: "Effacer",
       onRequest: "Sur demande",
+      infoNotAvailable: "Information non disponible",
+      full: "Complet",
+      fullAvailableOn: (date: string) => `Complet - Libre le ${date}`,
     },
     establishment: {
       backToMap: "Retour à la carte",
@@ -605,6 +611,9 @@ export const selfcampTranslations: Record<
       loadingMapFallback: "Loading map...",
       clearSearch: "Clear",
       onRequest: "On request",
+      infoNotAvailable: "Information not available",
+      full: "Full",
+      fullAvailableOn: (date: string) => `Full - Available on ${date}`,
     },
     establishment: {
       backToMap: "Back to map",
@@ -887,6 +896,9 @@ export const selfcampTranslations: Record<
       loadingMapFallback: "Karte wird geladen...",
       clearSearch: "Löschen",
       onRequest: "Auf Anfrage",
+      infoNotAvailable: "Informationen nicht verfügbar",
+      full: "Ausgebucht",
+      fullAvailableOn: (date: string) => `Ausgebucht - Verfügbar am ${date}`,
     },
     establishment: {
       backToMap: "Zurück zur Karte",

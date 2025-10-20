@@ -218,7 +218,7 @@ const EstablishmentMarker = ({
   const getAvailabilityInfo = () => {
     if (!availability) {
       return {
-        text: "Information non disponible",
+        text: t.map.infoNotAvailable,
         color: "text-gray-500",
         emoji: "ℹ️",
       };
@@ -229,26 +229,30 @@ const EstablishmentMarker = ({
     switch (status) {
       case "available":
         return {
-          text: `${availableRooms}/${totalRooms} places disponibles`,
+          text: `${availableRooms}/${totalRooms} ${t.map.placesAvailable}`,
           color: "text-green-600 font-medium",
           emoji: "✅",
         };
       case "limited":
         return {
-          text: `${availableRooms}/${totalRooms} places disponibles`,
+          text: `${availableRooms}/${totalRooms} ${t.map.placesAvailable}`,
           color: "text-orange-600 font-medium",
           emoji: "⚠️",
         };
       case "full":
         return nextAvailable
           ? {
-              text: `Complet - Libre le ${nextAvailable}`,
+              text: t.map.fullAvailableOn(nextAvailable),
               color: "text-red-600",
               emoji: "📅",
             }
-          : { text: "Complet", color: "text-red-600", emoji: "❌" };
+          : { text: t.map.full, color: "text-red-600", emoji: "❌" };
       default:
-        return { text: "Statut inconnu", color: "text-gray-500", emoji: "❓" };
+        return {
+          text: t.map.infoNotAvailable,
+          color: "text-gray-500",
+          emoji: "❓",
+        };
     }
   };
 
@@ -356,7 +360,7 @@ const EstablishmentMarker = ({
                   availabilityInfo.text.includes("26/26") ||
                   availabilityInfo.text.includes("28/28")
                     ? "bg-green-50 text-green-700 border border-green-200"
-                    : availabilityInfo.text.includes("Complet")
+                    : availability?.status === "full"
                       ? "bg-red-50 text-red-700 border border-red-200"
                       : "bg-[#84994F]/10 text-[#84994F] border border-[#84994F]/20"
                 }`}
