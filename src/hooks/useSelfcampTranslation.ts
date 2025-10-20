@@ -9,20 +9,27 @@ import {
 const STORAGE_KEY = "selfcamp_locale";
 const DEFAULT_LOCALE: SelfcampLocale = "fr";
 
+// Fonction pour obtenir la locale initiale depuis le localStorage
+function getInitialLocale(): SelfcampLocale {
+  if (typeof window === "undefined") return DEFAULT_LOCALE;
+
+  const savedLocale = localStorage.getItem(STORAGE_KEY) as SelfcampLocale;
+  if (savedLocale && selfcampTranslations[savedLocale]) {
+    return savedLocale;
+  }
+  return DEFAULT_LOCALE;
+}
+
 /**
  * Hook pour gérer les traductions des pages publiques SelfCamp
  * Utilise le localStorage pour persister la langue choisie
  */
 export function useSelfcampTranslation() {
-  const [locale, setLocale] = useState<SelfcampLocale>(DEFAULT_LOCALE);
+  const [locale, setLocale] = useState<SelfcampLocale>(getInitialLocale);
   const [isLoaded, setIsLoaded] = useState(false);
 
-  // Charger la langue sauvegardée au montage du composant
+  // Marquer comme chargé après le montage
   useEffect(() => {
-    const savedLocale = localStorage.getItem(STORAGE_KEY) as SelfcampLocale;
-    if (savedLocale && selfcampTranslations[savedLocale]) {
-      setLocale(savedLocale);
-    }
     setIsLoaded(true);
   }, []);
 
