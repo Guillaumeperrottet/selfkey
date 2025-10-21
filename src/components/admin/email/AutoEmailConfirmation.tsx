@@ -12,15 +12,31 @@ export function AutoEmailConfirmation({
   const [emailSent, setEmailSent] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [alreadySent, setAlreadySent] = useState(false);
 
   useEffect(() => {
     const sendConfirmationEmail = async () => {
       try {
-        console.log(
-          "🔄 Tentative d'envoi d'email de confirmation pour:",
-          bookingId
-        );
+        console.log("🔄 Vérification du statut d'envoi pour:", bookingId);
 
+        // 1. Vérifier d'abord si l'email a déjà été envoyé
+        const checkResponse = await fetch(`/api/bookings/${bookingId}`);
+        if (!checkResponse.ok) {
+          throw new Error("Impossible de vérifier le statut de la réservation");
+        }
+
+        const bookingData = await checkResponse.json();
+
+        if (bookingData.confirmationSent) {
+          console.log("ℹ️ Email de confirmation déjà envoyé précédemment");
+          setAlreadySent(true);
+          setIsLoading(false);
+          return;
+        }
+
+        console.log("📧 Envoi de l'email de confirmation pour:", bookingId);
+
+        // 2. Envoyer l'email si pas encore envoyé
         const response = await fetch(
           `/api/bookings/${bookingId}/send-confirmation`,
           {
@@ -56,14 +72,20 @@ export function AutoEmailConfirmation({
     };
 
     // Éviter les appels multiples en vérifiant les états
-    if (bookingId && !emailSent && !error && isLoading) {
+    if (bookingId && !emailSent && !error && !alreadySent && isLoading) {
       sendConfirmationEmail();
     }
-  }, [bookingId, emailSent, error, isLoading]);
+  }, [bookingId, emailSent, error, alreadySent, isLoading]);
 
   // Composant invisible, juste pour déclencher l'envoi
   if (isLoading) {
-    console.log("⏳ Envoi de l'email de confirmation en cours...");
+    console.log(
+      "⏳ Vérification et envoi de l'email de confirmation en cours..."
+    );
+  }
+
+  if (alreadySent) {
+    console.log("ℹ️ Email de confirmation déjà envoyé pour cette réservation");
   }
 
   if (error) {
