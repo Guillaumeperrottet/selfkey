@@ -15,7 +15,7 @@ export async function generateMetadata(): Promise<Metadata> {
   if (isSelfcamp) {
     return {
       title:
-        "Selfcamp - La liberté de camper, sans contraintes dans le canton de Fribourg",
+        "Selfcamp - La liberté de camper sans contrainte dans le canton de Fribourg",
       description:
         "Découvrez des aires de camping-car officielles ! Accès spontané sans app, ni compte, paiement sécurisé, emplacements de qualité.",
       keywords: [

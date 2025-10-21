@@ -330,7 +330,7 @@ export const selfcampTranslations: Record<
       contactShort: "CONTACT",
     },
     hero: {
-      tagline: "La liberté de camper, sans contraintes",
+      tagline: "La liberté de camper sans contrainte",
       findSpot: "Trouvez votre",
       findSpotHighlight: "emplacement idéal",
       searchPlaceholder: "Recherchez par ville, région ou nom de camping",

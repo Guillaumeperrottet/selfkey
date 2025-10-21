@@ -8,8 +8,8 @@ interface DynamicTitleProps {
 }
 
 export function DynamicTitle({
-  selfcampTitle = "Selfcamp - La liberté de camper, sans contraintes",
-  selfkeyTitle = "Selfkey - Automatiser l'enregistrement pour votre établissement",
+  selfcampTitle = "Selfcamp | La liberté de camper sans contrainte",
+  selfkeyTitle = "Selfkey | Automatiser l'enregistrement pour votre établissement",
 }: DynamicTitleProps) {
   useEffect(() => {
     const hostname = window.location.hostname;

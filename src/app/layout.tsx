@@ -77,7 +77,7 @@ export const viewport = {
 
 export const metadata: Metadata = {
   title: {
-    default: "Selfcamp - La liberté de camper, sans contraintes",
+    default: "Selfcamp - La liberté de camper sans contrainte",
     template: "%s | Selfcamp",
   },
   description:
@@ -113,7 +113,7 @@ export const metadata: Metadata = {
     locale: "fr_CH",
     url: "https://www.selfcamp.ch",
     siteName: "Selfcamp",
-    title: "Selfcamp - La liberté de camper, sans contraintes",
+    title: "Selfcamp - La liberté de camper sans contrainte",
     description:
       "Découvrez des aires de camping-car officielles ! Accès spontané sans app, ni compte, paiement sécurisé, emplacements de qualité.",
     images: [
@@ -127,7 +127,7 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    title: "Selfcamp - La liberté de camper, sans contraintes",
+    title: "Selfcamp - La liberté de camper sans contrainte",
     description:
       "Découvrez des aires de camping-car officielles ! Accès spontané sans app, ni compte, paiement sécurisé.",
     images: ["/logo.png"],
