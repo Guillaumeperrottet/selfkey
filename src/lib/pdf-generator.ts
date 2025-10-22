@@ -268,6 +268,27 @@ export function generatePaymentReportPDF(
 
   const transactionsToShow = data.bookings.slice(0, 100);
 
+  // Calculer les totaux
+  const totals = transactionsToShow.reduce(
+    (acc, booking) => ({
+      baseAmountHT: acc.baseAmountHT + booking.baseAmountHT,
+      pricingOptionsTotal:
+        acc.pricingOptionsTotal + booking.pricingOptionsTotal,
+      touristTax: acc.touristTax + booking.touristTax,
+      amount: acc.amount + booking.amount,
+      tva: acc.tva + booking.tva,
+      platformCommission: acc.platformCommission + booking.platformCommission,
+    }),
+    {
+      baseAmountHT: 0,
+      pricingOptionsTotal: 0,
+      touristTax: 0,
+      amount: 0,
+      tva: 0,
+      platformCommission: 0,
+    }
+  );
+
   autoTable(doc, {
     startY: yPos,
     head: [
@@ -308,6 +329,21 @@ export function generatePaymentReportPDF(
         `${booking.platformCommission.toFixed(2)}`,
       ];
     }),
+    foot: [
+      [
+        "",
+        "",
+        "TOTAUX",
+        `${totals.baseAmountHT.toFixed(2)}`,
+        totals.pricingOptionsTotal >= 0
+          ? `+${totals.pricingOptionsTotal.toFixed(2)}`
+          : `${totals.pricingOptionsTotal.toFixed(2)}`,
+        `${totals.touristTax.toFixed(2)}`,
+        `${totals.amount.toFixed(2)}`,
+        `${totals.tva.toFixed(2)}`,
+        `${totals.platformCommission.toFixed(2)}`,
+      ],
+    ],
     theme: "striped",
     headStyles: {
       fillColor: primaryColor,
@@ -318,6 +354,13 @@ export function generatePaymentReportPDF(
     },
     bodyStyles: {
       fontSize: 6.5,
+    },
+    footStyles: {
+      fillColor: primaryColor,
+      textColor: [255, 255, 255],
+      fontSize: 7,
+      fontStyle: "bold",
+      halign: "right",
     },
     columnStyles: {
       0: { cellWidth: 15, halign: "left" },
