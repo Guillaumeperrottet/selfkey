@@ -463,6 +463,27 @@ export function AdminSidebar({
           </div>
         ))}
       </nav>
+
+      {/* Actions utilisateur en bas */}
+      <div className="p-3 border-t space-y-1">
+        <Button variant="ghost" className="w-full justify-start" asChild>
+          <Link href="/profile">
+            <User className="mr-2 h-4 w-4" />
+            Mon Profil
+          </Link>
+        </Button>
+
+        <Button
+          variant="ghost"
+          className="w-full justify-start text-red-600 hover:text-red-700 hover:bg-red-50"
+          asChild
+        >
+          <Link href="/api/auth/signout">
+            <LogOut className="mr-2 h-4 w-4" />
+            Déconnexion
+          </Link>
+        </Button>
+      </div>
     </div>
   );
 
