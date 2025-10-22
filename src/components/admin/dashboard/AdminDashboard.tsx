@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
 import { AdminSidebar } from "@/components/admin/AdminSidebar";
 import { useTutorial } from "@/components/admin/settings/TutorialManager";
 import { TutorialMenu } from "@/components/shared/TutorialMenu";
@@ -124,6 +125,8 @@ export function AdminDashboard({
   dbRooms,
   finalIsStripeConfigured,
 }: AdminDashboardProps) {
+  const router = useRouter();
+
   // Détecter l'ancre pour ouvrir le bon onglet au démarrage
   const getInitialTab = () => {
     if (typeof window !== "undefined") {
@@ -747,10 +750,8 @@ export function AdminDashboard({
         );
 
       case "payment-report":
-        // Redirection vers la page dédiée
-        if (typeof window !== "undefined") {
-          window.location.href = `/admin/payment-report`;
-        }
+        // Navigation vers la page dédiée sans rechargement
+        router.push(`/admin/payment-report`);
         return (
           <div className="max-w-4xl mx-auto flex items-center justify-center h-64">
             <p className="text-gray-600">
