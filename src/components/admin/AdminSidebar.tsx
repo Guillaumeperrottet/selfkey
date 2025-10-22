@@ -23,6 +23,7 @@ import {
   Edit3,
   MapPin,
   Euro,
+  Receipt,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
@@ -95,6 +96,11 @@ const baseNavigation = [
     id: "export-excel",
     name: "Export Excel",
     icon: FileSpreadsheet,
+  },
+  {
+    id: "payment-report",
+    name: "Rapport de paiements",
+    icon: Receipt,
   },
   {
     id: "tourist-tax",

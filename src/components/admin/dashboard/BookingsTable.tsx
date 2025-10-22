@@ -1385,16 +1385,129 @@ export function BookingsTable({ bookings, establishment }: BookingsTableProps) {
                             </span>
                           </div>
 
-                          {financials.pricingOptionsTotal > 0 && (
-                            <div className="flex justify-between">
-                              <span className="text-muted-foreground">
-                                Options supplémentaires :
-                              </span>
-                              <span className="font-medium">
-                                +{formatCHF(financials.pricingOptionsTotal)}
-                              </span>
-                            </div>
-                          )}
+                          {/* Détail des options supplémentaires */}
+                          {selectedBooking.selectedPricingOptions &&
+                            Object.keys(selectedBooking.selectedPricingOptions)
+                              .length > 0 && (
+                              <div className="space-y-1 py-1 border-t">
+                                <div className="text-xs font-medium text-muted-foreground mb-1">
+                                  Options supplémentaires :
+                                </div>
+                                {(() => {
+                                  let foundOptions = 0;
+                                  const optionsDisplay = Object.entries(
+                                    selectedBooking.selectedPricingOptions
+                                  ).map(([optionId, valueIds]) => {
+                                    const option = pricingOptions.find(
+                                      (o) => o.id === optionId
+                                    );
+
+                                    if (!option) {
+                                      // Option obsolète - ne rien afficher individuellement
+                                      return null;
+                                    }
+
+                                    foundOptions++;
+
+                                    // Gérer plusieurs valeurs (array) ou une seule (string)
+                                    const valueArray = Array.isArray(valueIds)
+                                      ? valueIds
+                                      : [valueIds];
+
+                                    return valueArray.map((valueId) => {
+                                      const value = option.values.find(
+                                        (v) => v.id === valueId
+                                      );
+
+                                      if (!value) {
+                                        return null;
+                                      }
+
+                                      return (
+                                        <div
+                                          key={`${optionId}-${valueId}`}
+                                          className="flex justify-between pl-3"
+                                        >
+                                          <span className="text-muted-foreground text-xs">
+                                            • {option.name}: {value.label}
+                                          </span>
+                                          <span
+                                            className={`font-medium text-xs ${
+                                              value.priceModifier < 0
+                                                ? "text-green-600"
+                                                : ""
+                                            }`}
+                                          >
+                                            {value.priceModifier >= 0
+                                              ? "+"
+                                              : ""}
+                                            {formatCHF(value.priceModifier)}
+                                          </span>
+                                        </div>
+                                      );
+                                    });
+                                  });
+
+                                  // Si aucune option n'a été trouvée, afficher un message
+                                  if (foundOptions === 0) {
+                                    return (
+                                      <div className="pl-3 text-xs text-muted-foreground italic">
+                                        Configuration d&apos;options modifiée
+                                        depuis cette réservation
+                                      </div>
+                                    );
+                                  }
+
+                                  return optionsDisplay;
+                                })()}
+                                {/* Afficher le total si on ne peut pas décoder les options */}
+                                {financials.pricingOptionsTotal !== 0 && (
+                                  <div className="flex justify-between pt-1 border-t">
+                                    <span className="text-muted-foreground text-xs font-medium">
+                                      Total options :
+                                    </span>
+                                    <span
+                                      className={`font-medium text-xs ${
+                                        financials.pricingOptionsTotal < 0
+                                          ? "text-green-600"
+                                          : ""
+                                      }`}
+                                    >
+                                      {financials.pricingOptionsTotal >= 0
+                                        ? "+"
+                                        : ""}
+                                      {formatCHF(
+                                        financials.pricingOptionsTotal
+                                      )}
+                                    </span>
+                                  </div>
+                                )}
+                              </div>
+                            )}
+
+                          {/* Fallback: afficher juste le total si pas d'options détaillées mais qu'il y a un montant */}
+                          {(!selectedBooking.selectedPricingOptions ||
+                            Object.keys(selectedBooking.selectedPricingOptions)
+                              .length === 0) &&
+                            financials.pricingOptionsTotal !== 0 && (
+                              <div className="flex justify-between">
+                                <span className="text-muted-foreground">
+                                  Options supplémentaires :
+                                </span>
+                                <span
+                                  className={`font-medium ${
+                                    financials.pricingOptionsTotal < 0
+                                      ? "text-green-600"
+                                      : ""
+                                  }`}
+                                >
+                                  {financials.pricingOptionsTotal >= 0
+                                    ? "+"
+                                    : ""}
+                                  {formatCHF(financials.pricingOptionsTotal)}
+                                </span>
+                              </div>
+                            )}
 
                           {financials.touristTaxTotal > 0 && (
                             <div className="flex justify-between">
