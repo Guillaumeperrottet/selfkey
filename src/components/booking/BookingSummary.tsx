@@ -13,6 +13,10 @@ import { Separator } from "@/components/ui/separator";
 import { toastUtils } from "@/lib/toast-utils";
 import { useBookingTranslation } from "@/hooks/useBookingTranslation";
 import {
+  isEnrichedFormat,
+  getFlatEnrichedOptions,
+} from "@/lib/booking/pricing-options";
+import {
   Select,
   SelectContent,
   SelectItem,
@@ -988,8 +992,34 @@ export function BookingSummary({ bookingId }: BookingSummaryProps) {
                 {booking.selectedPricingOptions &&
                   Object.keys(booking.selectedPricingOptions).length > 0 && (
                     <>
-                      {Object.entries(booking.selectedPricingOptions).map(
-                        ([key, value]) => {
+                      {(() => {
+                        // Vérifier si c'est le nouveau format enrichi
+                        if (isEnrichedFormat(booking.selectedPricingOptions)) {
+                          // NOUVEAU FORMAT : Utiliser directement les données enrichies
+                          const enrichedOptions = getFlatEnrichedOptions(
+                            booking.selectedPricingOptions
+                          );
+
+                          return enrichedOptions.map((opt) => (
+                            <div
+                              key={`${opt.optionId}-${opt.valueId}`}
+                              className="flex justify-between items-center"
+                            >
+                              <span className="text-base text-gray-600">
+                                {opt.optionName}: {opt.valueLabel}
+                              </span>
+                              <span className="text-base md:text-lg font-medium">
+                                {opt.priceModifier.toFixed(2)}{" "}
+                                {booking.currency}
+                              </span>
+                            </div>
+                          ));
+                        }
+
+                        // ANCIEN FORMAT : Décoder avec les options actuelles
+                        return Object.entries(
+                          booking.selectedPricingOptions
+                        ).map(([key, value]) => {
                           // Trouver le prix de cette option
                           const option = pricingOptions.find(
                             (opt) => opt.id === key
@@ -1030,8 +1060,8 @@ export function BookingSummary({ bookingId }: BookingSummaryProps) {
                               </span>
                             </div>
                           );
-                        }
-                      )}
+                        });
+                      })()}
                     </>
                   )}
 

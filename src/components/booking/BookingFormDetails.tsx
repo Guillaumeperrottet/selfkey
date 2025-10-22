@@ -23,6 +23,7 @@ import {
   fetchPricingOptions,
   type PricingOption,
 } from "@/lib/pricing-options-calculator";
+import { enrichPricingOptions } from "@/lib/booking/pricing-options";
 import { CompactBookingCart } from "@/components/booking/CompactBookingCart";
 import { useBookingTranslation } from "@/hooks/useBookingTranslation";
 
@@ -353,7 +354,10 @@ export function BookingFormDetails({
         clientVehicleNumber: clientVehicleNumber.trim(),
         amount: totalPrice,
         currency: "CHF",
-        selectedPricingOptions: initialSelectedPricingOptions || {},
+        selectedPricingOptions: enrichPricingOptions(
+          initialSelectedPricingOptions || {},
+          pricingOptions
+        ),
         pricingOptionsTotal,
         touristTaxTotal,
         touristTaxPerPersonPerNight: touristTaxAmount,

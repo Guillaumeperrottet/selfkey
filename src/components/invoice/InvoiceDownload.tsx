@@ -7,6 +7,10 @@ import { Button } from "@/components/ui/button";
 import { FileText } from "lucide-react";
 import { calculateFees } from "@/lib/fee-calculator";
 import { calculateStayDuration } from "@/lib/availability";
+import {
+  isEnrichedFormat,
+  formatEnrichedOptionsForDisplay,
+} from "@/lib/booking/pricing-options";
 
 interface PricingOptionValue {
   id: string;
@@ -111,7 +115,26 @@ export function InvoiceDownload({
     name: string;
     price: number;
   }> => {
-    if (!booking.selectedPricingOptions || pricingOptions.length === 0) {
+    if (!booking.selectedPricingOptions) {
+      return [];
+    }
+
+    // Vérifier si c'est le nouveau format enrichi
+    if (isEnrichedFormat(booking.selectedPricingOptions)) {
+      // NOUVEAU FORMAT : Utiliser directement les données enrichies
+      const enrichedOptions = formatEnrichedOptionsForDisplay(
+        booking.selectedPricingOptions
+      );
+      return enrichedOptions
+        .filter((opt) => opt.price !== 0)
+        .map((opt) => ({
+          name: `${opt.name}: ${opt.label}`,
+          price: opt.price,
+        }));
+    }
+
+    // ANCIEN FORMAT : Décoder avec les pricingOptions actuelles
+    if (pricingOptions.length === 0) {
       return [];
     }
 
