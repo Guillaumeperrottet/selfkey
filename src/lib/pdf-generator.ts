@@ -46,9 +46,12 @@ interface PaymentReportData {
     establishmentName: string;
     roomName: string;
     amount: number;
+    baseAmountHT: number;
+    pricingOptionsTotal: number;
+    touristTax: number;
+    tva: number;
     platformCommission: number;
     ownerAmount: number;
-    touristTax: number;
     currency: string;
     bookingType: string;
     stripePaymentIntentId: string | null;
@@ -72,38 +75,39 @@ export function generatePaymentReportPDF(
   const textColor: [number, number, number] = [31, 41, 55]; // Gris foncé
 
   // En-tête du document
-  doc.setFontSize(24);
+  doc.setFontSize(20);
   doc.setTextColor(primaryColor[0], primaryColor[1], primaryColor[2]);
-  doc.text("JUSTIFICATIF DE PAIEMENTS", 105, 20, { align: "center" });
+  doc.text("JUSTIFICATIF DE PAIEMENTS", 105, 18, { align: "center" });
 
-  doc.setFontSize(12);
+  doc.setFontSize(10);
   doc.setTextColor(textColor[0], textColor[1], textColor[2]);
-  doc.text("Rapport des paiements reçus via Stripe", 105, 28, {
+  doc.text("Rapport des paiements reçus via Stripe", 105, 25, {
     align: "center",
   });
 
-  // Informations du rapport
-  doc.setFontSize(10);
+  // Informations du rapport sur une seule ligne
+  doc.setFontSize(9);
   doc.setTextColor(100, 100, 100);
   const today = format(new Date(), "dd MMMM yyyy", { locale: fr });
-  doc.text(`Date d'édition : ${today}`, 14, 40);
 
+  let infoLine = `Date d'édition : ${today}`;
   if (options.periodLabel) {
-    doc.text(`Période : ${options.periodLabel}`, 14, 46);
+    infoLine += ` • Période : ${options.periodLabel}`;
   }
-
   if (options.establishmentName) {
-    doc.text(`Établissement : ${options.establishmentName}`, 14, 52);
+    infoLine += ` • Établissement : ${options.establishmentName}`;
   }
 
-  let yPos = options.establishmentName ? 60 : options.periodLabel ? 54 : 48;
+  doc.text(infoLine, 14, 33);
+
+  let yPos = 39;
 
   // Section 1: Résumé global
-  doc.setFontSize(14);
+  doc.setFontSize(12);
   doc.setTextColor(primaryColor[0], primaryColor[1], primaryColor[2]);
   doc.text("RÉSUMÉ GLOBAL", 14, yPos);
 
-  yPos += 8;
+  yPos += 6;
 
   // Tableau résumé
   autoTable(doc, {
@@ -143,62 +147,72 @@ export function generatePaymentReportPDF(
     },
   });
 
-  // Section 2: Répartition par établissement
+  // Section 2: Répartition par établissement (seulement si plusieurs établissements)
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  yPos = (doc as any).lastAutoTable.finalY + 15;
+  yPos = (doc as any).lastAutoTable.finalY + 10;
 
-  doc.setFontSize(14);
-  doc.setTextColor(primaryColor[0], primaryColor[1], primaryColor[2]);
-  doc.text("RÉPARTITION PAR ÉTABLISSEMENT", 14, yPos);
+  // N'afficher la répartition par établissement que s'il y a plus d'un établissement
+  const showEstablishmentBreakdown = data.byEstablishment.length > 1;
 
-  yPos += 8;
+  if (showEstablishmentBreakdown) {
+    doc.setFontSize(12);
+    doc.setTextColor(primaryColor[0], primaryColor[1], primaryColor[2]);
+    doc.text("RÉPARTITION PAR ÉTABLISSEMENT", 14, yPos);
 
-  autoTable(doc, {
-    startY: yPos,
-    head: [
-      [
-        "Établissement",
-        "Réservations",
-        "Montant total",
-        "Commission",
-        "Reversé",
+    yPos += 6;
+
+    autoTable(doc, {
+      startY: yPos,
+      head: [
+        [
+          "Établissement",
+          "Réservations",
+          "Montant total",
+          "Commission",
+          "Reversé",
+        ],
       ],
-    ],
-    body: data.byEstablishment.map((est) => [
-      est.name,
-      est.bookingCount.toString(),
-      `${est.totalAmount.toFixed(2)} CHF`,
-      `${est.totalCommission.toFixed(2)} CHF`,
-      `${est.totalOwnerAmount.toFixed(2)} CHF`,
-    ]),
-    theme: "striped",
-    headStyles: {
-      fillColor: primaryColor,
-      fontSize: 9,
-      fontStyle: "bold",
-    },
-    bodyStyles: {
-      fontSize: 8,
-    },
-    columnStyles: {
-      0: { cellWidth: 60 },
-      1: { halign: "center", cellWidth: 30 },
-      2: { halign: "right", cellWidth: 35 },
-      3: { halign: "right", cellWidth: 30 },
-      4: { halign: "right", cellWidth: 30 },
-    },
-  });
+      body: data.byEstablishment.map((est) => [
+        est.name,
+        est.bookingCount.toString(),
+        `${est.totalAmount.toFixed(2)} CHF`,
+        `${est.totalCommission.toFixed(2)} CHF`,
+        `${est.totalOwnerAmount.toFixed(2)} CHF`,
+      ]),
+      theme: "striped",
+      headStyles: {
+        fillColor: primaryColor,
+        fontSize: 9,
+        fontStyle: "bold",
+      },
+      bodyStyles: {
+        fontSize: 8,
+      },
+      columnStyles: {
+        0: { cellWidth: 60 },
+        1: { halign: "center", cellWidth: 30 },
+        2: { halign: "right", cellWidth: 35 },
+        3: { halign: "right", cellWidth: 30 },
+        4: { halign: "right", cellWidth: 30 },
+      },
+    });
+  }
 
-  // Nouvelle page pour les transactions détaillées
-  doc.addPage();
+  // Section 3: Répartition mensuelle (sur la même page si possible)
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  yPos = (doc as any).lastAutoTable.finalY + 10;
 
-  // Section 3: Répartition mensuelle
-  yPos = 20;
-  doc.setFontSize(14);
+  // Nouvelle page seulement si pas assez de place
+  if (yPos > 230) {
+    doc.addPage();
+    yPos = 20;
+  }
+
+  doc.setFontSize(12);
   doc.setTextColor(primaryColor[0], primaryColor[1], primaryColor[2]);
   doc.text("RÉPARTITION MENSUELLE", 14, yPos);
 
-  yPos += 8;
+  yPos += 6;
 
   autoTable(doc, {
     startY: yPos,
@@ -226,63 +240,133 @@ export function generatePaymentReportPDF(
     },
   });
 
-  // Section 4: Détail des transactions (limité à 50 premières)
+  // Section 4: Détail des transactions avec calculs détaillés
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  yPos = (doc as any).lastAutoTable.finalY + 15;
+  yPos = (doc as any).lastAutoTable.finalY + 10;
 
-  if (yPos > 250) {
+  if (yPos > 240) {
     doc.addPage();
     yPos = 20;
   }
 
-  doc.setFontSize(14);
+  doc.setFontSize(12);
   doc.setTextColor(primaryColor[0], primaryColor[1], primaryColor[2]);
   doc.text("DÉTAIL DES TRANSACTIONS", 14, yPos);
 
-  if (data.bookings.length > 50) {
-    doc.setFontSize(9);
+  if (data.bookings.length > 100) {
+    doc.setFontSize(8);
     doc.setTextColor(200, 0, 0);
     doc.text(
-      `(Affichage limité aux 50 premières transactions sur ${data.bookings.length})`,
+      `(Affichage limité aux 100 premières transactions sur ${data.bookings.length})`,
       14,
-      yPos + 6
+      yPos + 5
     );
-    yPos += 12;
+    yPos += 10;
   } else {
-    yPos += 8;
+    yPos += 6;
   }
 
-  const transactionsToShow = data.bookings.slice(0, 50);
+  const transactionsToShow = data.bookings.slice(0, 100);
 
   autoTable(doc, {
     startY: yPos,
-    head: [["N°", "Date", "Client", "Établissement", "Montant", "Commission"]],
-    body: transactionsToShow.map((booking) => [
-      `#${booking.bookingNumber}`,
-      format(new Date(booking.bookingDate), "dd/MM/yyyy", { locale: fr }),
-      booking.clientName,
-      booking.establishmentName,
-      `${booking.amount.toFixed(2)} ${booking.currency}`,
-      `${booking.platformCommission.toFixed(2)} ${booking.currency}`,
-    ]),
+    head: [
+      [
+        "N°",
+        "Date",
+        "Client",
+        "Base HT",
+        "Options",
+        "Taxe\nséjour",
+        "Total TTC",
+        "TVA\n3.8%",
+        "Commission",
+      ],
+    ],
+    body: transactionsToShow.map((booking) => {
+      // Préparer les informations sur les options
+      let optionsText = "-";
+      if (
+        booking.pricingOptionsTotal &&
+        Math.abs(booking.pricingOptionsTotal) > 0.01
+      ) {
+        const sign = booking.pricingOptionsTotal >= 0 ? "+" : "";
+        optionsText = `${sign}${booking.pricingOptionsTotal.toFixed(2)}`;
+      }
+
+      return [
+        `#${booking.bookingNumber}`,
+        format(new Date(booking.bookingDate), "dd/MM/yy", { locale: fr }),
+        booking.clientName.length > 18
+          ? booking.clientName.substring(0, 16) + "..."
+          : booking.clientName,
+        `${booking.baseAmountHT.toFixed(2)}`,
+        optionsText,
+        booking.touristTax > 0 ? `${booking.touristTax.toFixed(2)}` : "-",
+        `${booking.amount.toFixed(2)}`,
+        `${booking.tva.toFixed(2)}`,
+        `${booking.platformCommission.toFixed(2)}`,
+      ];
+    }),
     theme: "striped",
     headStyles: {
       fillColor: primaryColor,
-      fontSize: 8,
+      fontSize: 7,
       fontStyle: "bold",
+      halign: "center",
+      valign: "middle",
     },
     bodyStyles: {
-      fontSize: 7,
+      fontSize: 6.5,
     },
     columnStyles: {
-      0: { cellWidth: 20 },
-      1: { cellWidth: 25 },
-      2: { cellWidth: 40 },
-      3: { cellWidth: 40 },
-      4: { halign: "right", cellWidth: 30 },
-      5: { halign: "right", cellWidth: 30 },
+      0: { cellWidth: 15, halign: "left" },
+      1: { cellWidth: 18, halign: "center" },
+      2: { cellWidth: 30, halign: "left" },
+      3: { halign: "right", cellWidth: 18 },
+      4: { halign: "right", cellWidth: 18 },
+      5: { halign: "right", cellWidth: 16 },
+      6: { halign: "right", cellWidth: 20, fontStyle: "bold" },
+      7: { halign: "right", cellWidth: 16 },
+      8: { halign: "right", cellWidth: 20 },
     },
   });
+
+  // Ajouter une légende explicative après le tableau
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  yPos = (doc as any).lastAutoTable.finalY + 8;
+
+  // Vérifier si on a assez de place, sinon nouvelle page
+  if (yPos > 265) {
+    doc.addPage();
+    yPos = 20;
+  }
+
+  doc.setFontSize(9);
+  doc.setTextColor(textColor[0], textColor[1], textColor[2]);
+  doc.text("CALCUL DES MONTANTS :", 14, yPos);
+  doc.setFontSize(7.5);
+  doc.setTextColor(100, 100, 100);
+  yPos += 5;
+  doc.text("• Base HT = Base du séjour hors TVA (hébergement)", 14, yPos);
+  yPos += 4;
+  doc.text(
+    "• Options = Suppléments ou réductions appliqués (parking, chien, etc.)",
+    14,
+    yPos
+  );
+  yPos += 4;
+  doc.text("• Taxe séjour = Taxe collectée (TVA 0%)", 14, yPos);
+  yPos += 4;
+  doc.text("• Total TTC = (Base HT + Options) × 1.038 + Taxe séjour", 14, yPos);
+  yPos += 4;
+  doc.text("• TVA 3.8% = Calculée sur base + options uniquement", 14, yPos);
+  yPos += 4;
+  doc.text(
+    "• Commission = Frais de plateforme prélevés sur le montant total",
+    14,
+    yPos
+  );
 
   // Pied de page avec notes légales
   const pageCount = doc.getNumberOfPages();
