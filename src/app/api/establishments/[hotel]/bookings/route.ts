@@ -10,6 +10,10 @@ import {
   getTouristTaxSettings,
   calculateTouristTax,
 } from "@/lib/fee-calculator";
+import {
+  isEnrichedFormat,
+  type EnrichedPricingOption,
+} from "@/lib/booking/pricing-options";
 
 export async function POST(
   request: NextRequest,
@@ -137,44 +141,74 @@ export async function POST(
       selectedPricingOptions &&
       Object.keys(selectedPricingOptions).length > 0
     ) {
-      // Récupérer les options de prix actives
-      const pricingOptions = await prisma.pricingOption.findMany({
-        where: {
-          establishment: {
-            slug: hotel,
+      // Vérifier si c'est le nouveau format enrichi
+      if (isEnrichedFormat(selectedPricingOptions)) {
+        // NOUVEAU FORMAT ENRICHI : Extraire les prix directement
+        console.log("🔍 Format enrichi détecté dans l'API");
+        Object.values(selectedPricingOptions).forEach((value) => {
+          if (Array.isArray(value)) {
+            // Checkbox : plusieurs valeurs enrichies
+            value.forEach((enrichedOpt: EnrichedPricingOption) => {
+              if (
+                enrichedOpt &&
+                typeof enrichedOpt === "object" &&
+                "priceModifier" in enrichedOpt
+              ) {
+                validatedPricingOptionsTotal += enrichedOpt.priceModifier;
+              }
+            });
+          } else if (
+            value &&
+            typeof value === "object" &&
+            "priceModifier" in value
+          ) {
+            // Radio/Select : une seule valeur enrichie
+            validatedPricingOptionsTotal += (value as EnrichedPricingOption)
+              .priceModifier;
+          }
+        });
+      } else {
+        // ANCIEN FORMAT (IDs seulement) : Valider avec la base de données
+        console.log("🔍 Ancien format (IDs) détecté dans l'API");
+        // Récupérer les options de prix actives
+        const pricingOptions = await prisma.pricingOption.findMany({
+          where: {
+            establishment: {
+              slug: hotel,
+            },
+            isActive: true,
           },
-          isActive: true,
-        },
-        include: {
-          values: true,
-        },
-      });
+          include: {
+            values: true,
+          },
+        });
 
-      // Valider et calculer le total des options
-      for (const option of pricingOptions) {
-        const selectedValue = selectedPricingOptions[option.id];
+        // Valider et calculer le total des options
+        for (const option of pricingOptions) {
+          const selectedValue = selectedPricingOptions[option.id];
 
-        if (selectedValue) {
-          if (Array.isArray(selectedValue)) {
-            // Pour les checkboxes
-            for (const valueId of selectedValue) {
-              const value = option.values.find((v) => v.id === valueId);
+          if (selectedValue) {
+            if (Array.isArray(selectedValue)) {
+              // Pour les checkboxes
+              for (const valueId of selectedValue) {
+                const value = option.values.find((v) => v.id === valueId);
+                if (value) {
+                  validatedPricingOptionsTotal += value.priceModifier;
+                }
+              }
+            } else {
+              // Pour select et radio
+              const value = option.values.find((v) => v.id === selectedValue);
               if (value) {
                 validatedPricingOptionsTotal += value.priceModifier;
               }
             }
-          } else {
-            // Pour select et radio
-            const value = option.values.find((v) => v.id === selectedValue);
-            if (value) {
-              validatedPricingOptionsTotal += value.priceModifier;
-            }
+          } else if (option.isRequired) {
+            return NextResponse.json(
+              { error: `L'option "${option.name}" est obligatoire` },
+              { status: 400 }
+            );
           }
-        } else if (option.isRequired) {
-          return NextResponse.json(
-            { error: `L'option "${option.name}" est obligatoire` },
-            { status: 400 }
-          );
         }
       }
     }

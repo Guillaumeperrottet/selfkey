@@ -37,6 +37,10 @@ import {
 import { calculateStayDuration } from "@/lib/availability";
 import { formatCHF, calculateFees } from "@/lib/fee-calculator";
 import { InvoiceDownload } from "@/components/invoice/InvoiceDownload";
+import {
+  isEnrichedFormat,
+  getFlatEnrichedOptions,
+} from "@/lib/booking/pricing-options";
 
 interface PricingOptionValue {
   id: string;
@@ -169,6 +173,15 @@ export function BookingsTable({ bookings, establishment }: BookingsTableProps) {
       return [];
     }
 
+    // Vérifier si c'est le nouveau format enrichi
+    if (isEnrichedFormat(selectedOptions)) {
+      const enrichedOptions = getFlatEnrichedOptions(selectedOptions);
+      return enrichedOptions.map(
+        (opt) => `${opt.optionName}: ${opt.valueLabel}`
+      );
+    }
+
+    // ANCIEN FORMAT : Décoder avec les options actuelles
     const optionNames: string[] = [];
 
     Object.entries(selectedOptions).forEach(([optionId, valueId]) => {
@@ -586,6 +599,28 @@ export function BookingsTable({ bookings, establishment }: BookingsTableProps) {
                   booking.selectedPricingOptions &&
                   Object.keys(booking.selectedPricingOptions).length > 0
                     ? (() => {
+                        // Vérifier si c'est le nouveau format enrichi
+                        if (isEnrichedFormat(booking.selectedPricingOptions)) {
+                          // NOUVEAU FORMAT : Utiliser les données enrichies
+                          const enrichedOptions = getFlatEnrichedOptions(
+                            booking.selectedPricingOptions
+                          );
+
+                          return enrichedOptions
+                            .map(
+                              (opt) => `
+                <tr style="border-bottom: 1px solid #f1f5f9;">
+                  <td style="padding: 4px; color: #374151;">${opt.optionName}: ${opt.valueLabel}</td>
+                  <td style="padding: 4px; text-align: center; color: #374151;">1</td>
+                  <td style="padding: 4px; text-align: right; color: #374151;">${opt.priceModifier.toFixed(2)} ${booking.currency || "CHF"}</td>
+                  <td style="padding: 4px; text-align: right; font-weight: 600; color: #374151;">${opt.priceModifier.toFixed(2)} ${booking.currency || "CHF"}</td>
+                </tr>
+                              `
+                            )
+                            .join("");
+                        }
+
+                        // ANCIEN FORMAT : Décoder avec les options actuelles
                         const optionNames = getOptionDisplayName(
                           booking.selectedPricingOptions
                         );
@@ -1394,6 +1429,41 @@ export function BookingsTable({ bookings, establishment }: BookingsTableProps) {
                                   Options supplémentaires :
                                 </div>
                                 {(() => {
+                                  // Vérifier si c'est le nouveau format enrichi
+                                  if (
+                                    isEnrichedFormat(
+                                      selectedBooking.selectedPricingOptions
+                                    )
+                                  ) {
+                                    // NOUVEAU FORMAT : Utiliser directement les données enrichies
+                                    const enrichedOptions =
+                                      getFlatEnrichedOptions(
+                                        selectedBooking.selectedPricingOptions
+                                      );
+
+                                    return enrichedOptions.map((opt) => (
+                                      <div
+                                        key={`${opt.optionId}-${opt.valueId}`}
+                                        className="flex justify-between pl-3"
+                                      >
+                                        <span className="text-muted-foreground text-xs">
+                                          • {opt.optionName}: {opt.valueLabel}
+                                        </span>
+                                        <span
+                                          className={`font-medium text-xs ${
+                                            opt.priceModifier < 0
+                                              ? "text-green-600"
+                                              : ""
+                                          }`}
+                                        >
+                                          {opt.priceModifier >= 0 ? "+" : ""}
+                                          {formatCHF(opt.priceModifier)}
+                                        </span>
+                                      </div>
+                                    ));
+                                  }
+
+                                  // ANCIEN FORMAT : Essayer de décoder avec les options actuelles
                                   let foundOptions = 0;
                                   const optionsDisplay = Object.entries(
                                     selectedBooking.selectedPricingOptions

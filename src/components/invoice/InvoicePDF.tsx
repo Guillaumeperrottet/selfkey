@@ -365,8 +365,8 @@ export function InvoicePDF({ data }: InvoicePDFProps) {
                   </Text>
                 </View>
               ))
-            : // Fallback : afficher la ligne globale si pas de détails
-              data.pricingOptionsTotal > 0 && (
+            : // Fallback : afficher la ligne globale si pas de détails ET si le total n'est pas 0
+              data.pricingOptionsTotal !== 0 && (
                 <View style={styles.tableRow}>
                   <Text style={[styles.tableCell, { flex: 3 }]}>
                     Options supplémentaires
