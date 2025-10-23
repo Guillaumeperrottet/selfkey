@@ -3,6 +3,7 @@
 import { useState, useEffect, useRef } from "react";
 import Link from "next/link";
 import Image from "next/image";
+import { signOut } from "@/lib/auth-client";
 import {
   BarChart3,
   Bed,
@@ -476,12 +477,48 @@ export function AdminSidebar({
         <Button
           variant="ghost"
           className="w-full justify-start text-red-600 hover:text-red-700 hover:bg-red-50"
-          asChild
+          onClick={async () => {
+            try {
+              // Essayer d'abord avec signOut()
+              const result = await signOut();
+              console.log("Déconnexion réussie:", result);
+              window.location.href = "/";
+            } catch (error) {
+              console.error(
+                "Erreur avec signOut(), tentative manuelle:",
+                error
+              );
+
+              // Fallback : requête directe à l'API
+              try {
+                const response = await fetch("/api/auth/sign-out", {
+                  method: "POST",
+                  headers: {
+                    "Content-Type": "application/json",
+                  },
+                  credentials: "include",
+                });
+
+                if (response.ok) {
+                  console.log("Déconnexion manuelle réussie");
+                  window.location.href = "/";
+                } else {
+                  throw new Error(`HTTP ${response.status}`);
+                }
+              } catch (manualError) {
+                console.error("Erreur déconnexion manuelle:", manualError);
+                // Fallback final : effacer les cookies et rediriger
+                document.cookie =
+                  "better-auth.session_token=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
+                document.cookie =
+                  "__Secure-better-auth.session_token=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
+                window.location.href = "/";
+              }
+            }
+          }}
         >
-          <Link href="/api/auth/signout">
-            <LogOut className="mr-2 h-4 w-4" />
-            Déconnexion
-          </Link>
+          <LogOut className="mr-2 h-4 w-4" />
+          Déconnexion
         </Button>
       </div>
     </div>
