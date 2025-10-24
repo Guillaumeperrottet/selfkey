@@ -214,6 +214,7 @@ model Establishment {
   rooms                               Room[]
   apiKeys                             ApiKey[]
   webhooks                            Webhook[]
+  dashboardPreferences                DashboardPreferences[]
 
   @@map("establishments")
 }
@@ -467,4 +468,19 @@ model WebhookLog {
   @@index([webhookId, createdAt])
   @@index([bookingId])
   @@map("webhook_logs")
+}
+
+model DashboardPreferences {
+  id                String        @id @default(cuid())
+  establishmentSlug String
+  dashboardType     String        @default("admin") // "admin" ou "public"
+  visibleStats      Json          @default("{}") // { "financialPerformance": ["avgRevenuePerBooking", "revenuePerNight", ...], "clientBehavior": [...] }
+  sectionOrder      Json?         // ["existingStats", "customStats", "charts", "recentBookings"]
+  hiddenSections    Json?         // ["recentBookings"]
+  createdAt         DateTime      @default(now())
+  updatedAt         DateTime      @updatedAt
+  establishment     Establishment @relation(fields: [establishmentSlug], references: [slug], onDelete: Cascade)
+
+  @@unique([establishmentSlug, dashboardType])
+  @@map("dashboard_preferences")
 }
