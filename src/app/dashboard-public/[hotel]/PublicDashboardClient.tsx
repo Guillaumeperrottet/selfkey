@@ -1,10 +1,25 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useMemo, useEffect } from "react";
+import { useSearchParams, useRouter } from "next/navigation";
 import { DashboardCharts } from "@/components/admin/dashboard/DashboardCharts";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Shield, BarChart3, Eye, Users, Building } from "lucide-react";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import {
+  Shield,
+  BarChart3,
+  Users,
+  Building,
+  Calendar,
+  Filter,
+} from "lucide-react";
 
 interface Room {
   id: string;
@@ -50,6 +65,23 @@ export function PublicDashboardClient({
   rooms,
   bookings,
 }: PublicDashboardClientProps) {
+  const searchParams = useSearchParams();
+  const router = useRouter();
+
+  // Initialiser le filtre depuis l'URL ou utiliser "all" par défaut
+  const initialPeriod =
+    (searchParams.get("period") as
+      | "today"
+      | "week"
+      | "month"
+      | "quarter"
+      | "year"
+      | "all") || "all";
+
+  const [periodFilter, setPeriodFilter] = useState<
+    "today" | "week" | "month" | "quarter" | "year" | "all"
+  >(initialPeriod);
+
   const [chartColors] = useState({
     chart1: "#3b82f6",
     chart2: "#10b981",
@@ -58,61 +90,155 @@ export function PublicDashboardClient({
     chart5: "#8b5cf6",
   });
 
+  // Mettre à jour l'URL quand le filtre change
+  useEffect(() => {
+    const params = new URLSearchParams(searchParams.toString());
+    params.set("period", periodFilter);
+    router.replace(`?${params.toString()}`, { scroll: false });
+  }, [periodFilter, router, searchParams]);
+
+  // Fonction pour obtenir la plage de dates selon la période
+  const getDateRange = (
+    period: "today" | "week" | "month" | "quarter" | "year" | "all"
+  ) => {
+    const now = new Date();
+    const startOfDay = new Date(now);
+    startOfDay.setHours(0, 0, 0, 0);
+    const endOfDay = new Date(now);
+    endOfDay.setHours(23, 59, 59, 999);
+
+    switch (period) {
+      case "today":
+        return { start: startOfDay, end: endOfDay };
+      case "week":
+        const startOfWeek = new Date(now);
+        startOfWeek.setDate(now.getDate() - now.getDay());
+        startOfWeek.setHours(0, 0, 0, 0);
+        const endOfWeek = new Date(startOfWeek);
+        endOfWeek.setDate(startOfWeek.getDate() + 6);
+        endOfWeek.setHours(23, 59, 59, 999);
+        return { start: startOfWeek, end: endOfWeek };
+      case "month":
+        const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+        const endOfMonth = new Date(
+          now.getFullYear(),
+          now.getMonth() + 1,
+          0,
+          23,
+          59,
+          59,
+          999
+        );
+        return { start: startOfMonth, end: endOfMonth };
+      case "quarter":
+        const currentQuarter = Math.floor(now.getMonth() / 3);
+        const startOfQuarter = new Date(
+          now.getFullYear(),
+          currentQuarter * 3,
+          1
+        );
+        const endOfQuarter = new Date(
+          now.getFullYear(),
+          currentQuarter * 3 + 3,
+          0,
+          23,
+          59,
+          59,
+          999
+        );
+        return { start: startOfQuarter, end: endOfQuarter };
+      case "year":
+        const startOfYear = new Date(now.getFullYear(), 0, 1);
+        const endOfYear = new Date(now.getFullYear(), 11, 31, 23, 59, 59, 999);
+        return { start: startOfYear, end: endOfYear };
+      case "all":
+        return { start: new Date(2020, 0, 1), end: now };
+      default:
+        return { start: startOfDay, end: endOfDay };
+    }
+  };
+
+  // Filtrer les réservations selon la période
+  const filteredBookings = useMemo(() => {
+    const { start, end } = getDateRange(periodFilter);
+    return bookings.filter((booking) => {
+      const bookingDate = new Date(booking.bookingDate);
+      return bookingDate >= start && bookingDate <= end;
+    });
+  }, [bookings, periodFilter]);
+
   // Transformer les données pour correspondre au format attendu par DashboardCharts
   const roomsWithInventory = rooms.map((room) => ({
     ...room,
     inventory: 1, // Inventaire par défaut pour la compatibilité
   }));
 
-  // Transformer les bookings pour correspondre au format attendu
-  const dashboardBookings = bookings.map((booking) => ({
-    id: booking.id,
-    clientFirstName: "Anonyme", // Données anonymisées
-    clientLastName: "Client",
-    clientEmail: "anonyme@exemple.com",
-    amount: booking.amount,
-    guests: booking.guests,
-    checkInDate: booking.checkInDate,
-    checkOutDate: booking.checkOutDate,
-    bookingDate: booking.bookingDate,
-    touristTaxTotal: booking.touristTaxTotal,
-    room: booking.room,
-  }));
+  // Transformer les bookings filtrés pour correspondre au format attendu
+  const dashboardBookings = useMemo(
+    () =>
+      filteredBookings.map((booking) => ({
+        id: booking.id,
+        clientFirstName: "Anonyme", // Données anonymisées
+        clientLastName: "Client",
+        clientEmail: "anonyme@exemple.com",
+        amount: booking.amount,
+        guests: booking.guests,
+        checkInDate: booking.checkInDate,
+        checkOutDate: booking.checkOutDate,
+        bookingDate: booking.bookingDate,
+        touristTaxTotal: booking.touristTaxTotal,
+        room: booking.room,
+      })),
+    [filteredBookings]
+  );
 
-  // Calculer les statistiques de base
+  // Calculer les statistiques de base sur les réservations filtrées
   const totalRooms = rooms.length;
   const activeRooms = rooms.filter((room) => room.isActive).length;
-  const totalBookings = bookings.length;
-  const totalRevenue = bookings.reduce(
+  const totalBookings = filteredBookings.length;
+  const totalRevenue = filteredBookings.reduce(
     (sum, booking) => sum + booking.amount,
     0
   );
+
+  // Calculer le taux d'occupation en fonction de la période
+  const getDaysInPeriod = () => {
+    const { start, end } = getDateRange(periodFilter);
+    const diffTime = Math.abs(end.getTime() - start.getTime());
+    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+    return diffDays || 1;
+  };
+
+  const daysInPeriod = getDaysInPeriod();
   const occupancyRate =
-    totalRooms > 0 ? Math.round((totalBookings / (totalRooms * 30)) * 100) : 0; // Approximation sur 30 jours
+    totalRooms > 0 && daysInPeriod > 0
+      ? Math.round((totalBookings / (totalRooms * daysInPeriod)) * 100)
+      : 0;
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      {/* Header avec indication que c'est une version publique */}
-      <div className="bg-white border-b">
-        <div className="container mx-auto px-4 py-6">
-          <div className="flex items-center justify-between">
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50">
+      {/* Header moderne et épuré */}
+      <div className="bg-white border-b shadow-sm">
+        <div className="container mx-auto px-4 py-8">
+          <div className="flex items-center justify-between flex-wrap gap-4">
             <div>
-              <h1 className="text-3xl font-bold text-gray-900 flex items-center gap-3">
-                <Building className="h-8 w-8 text-blue-600" />
+              <h1 className="text-4xl font-bold text-gray-900 flex items-center gap-3">
+                <div className="bg-blue-600 p-2 rounded-lg">
+                  <Building className="h-8 w-8 text-white" />
+                </div>
                 {establishment.name}
               </h1>
-              <p className="text-gray-600 mt-1">
-                Tableau de bord public - Données anonymisées
+              <p className="text-gray-600 mt-2 text-lg">
+                Statistiques et performances
               </p>
             </div>
-            <div className="flex items-center gap-3">
-              <Badge variant="outline" className="flex items-center gap-2">
-                <Shield className="h-4 w-4 text-green-600" />
-                Version publique sécurisée
-              </Badge>
-              <Badge variant="secondary" className="flex items-center gap-2">
-                <Eye className="h-4 w-4" />
-                Lecture seule
+            <div className="flex items-center gap-2">
+              <Badge
+                variant="outline"
+                className="flex items-center gap-2 text-sm px-3 py-1"
+              >
+                <Calendar className="h-4 w-4" />
+                Mis à jour en temps réel
               </Badge>
             </div>
           </div>
@@ -121,42 +247,77 @@ export function PublicDashboardClient({
 
       {/* Contenu principal */}
       <div className="container mx-auto px-4 py-8">
-        {/* Informations importantes */}
-        <div className="mb-8">
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Shield className="h-5 w-5 text-blue-600" />
-                Confidentialité et sécurité
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="grid md:grid-cols-2 gap-4 text-sm">
-                <div className="space-y-2">
-                  <h4 className="font-medium text-green-800">
-                    ✅ Données visibles :
-                  </h4>
-                  <ul className="space-y-1 text-green-700">
-                    <li>• Statistiques générales</li>
-                    <li>• Graphiques de performance</li>
-                    <li>• Taux d&apos;occupation</li>
-                    <li>• Revenus globaux</li>
-                  </ul>
-                </div>
-                <div className="space-y-2">
-                  <h4 className="font-medium text-red-800">
-                    🔒 Données protégées :
-                  </h4>
-                  <ul className="space-y-1 text-red-700">
-                    <li>• Informations personnelles des clients</li>
-                    <li>• Coordonnées et adresses</li>
-                    <li>• Numéros de téléphone et emails</li>
-                    <li>• Données de paiement</li>
-                  </ul>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
+        {/* Sélecteur de période */}
+        <div className="flex items-center justify-between mb-6">
+          <div>
+            <h2 className="text-xl font-semibold text-gray-900">
+              Statistiques de l&apos;établissement
+            </h2>
+            <p className="text-gray-600 text-sm">
+              {periodFilter === "today"
+                ? "Données d'aujourd'hui"
+                : periodFilter === "week"
+                  ? "Données de cette semaine"
+                  : periodFilter === "month"
+                    ? "Données de ce mois"
+                    : periodFilter === "quarter"
+                      ? "Données de ce trimestre"
+                      : periodFilter === "year"
+                        ? "Données de cette année"
+                        : "Toutes les données"}
+            </p>
+          </div>
+          <div className="flex items-center gap-2">
+            <Filter className="h-4 w-4 text-gray-500" />
+            <Select
+              value={periodFilter}
+              onValueChange={(
+                value: "today" | "week" | "month" | "quarter" | "year" | "all"
+              ) => setPeriodFilter(value)}
+            >
+              <SelectTrigger className="w-56">
+                <SelectValue placeholder="Sélectionner une période" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="today">
+                  <div className="flex items-center gap-2">
+                    <Calendar className="h-4 w-4" />
+                    Aujourd&apos;hui
+                  </div>
+                </SelectItem>
+                <SelectItem value="week">
+                  <div className="flex items-center gap-2">
+                    <Calendar className="h-4 w-4" />
+                    Cette semaine
+                  </div>
+                </SelectItem>
+                <SelectItem value="month">
+                  <div className="flex items-center gap-2">
+                    <Calendar className="h-4 w-4" />
+                    Ce mois
+                  </div>
+                </SelectItem>
+                <SelectItem value="quarter">
+                  <div className="flex items-center gap-2">
+                    <Calendar className="h-4 w-4" />
+                    Ce trimestre
+                  </div>
+                </SelectItem>
+                <SelectItem value="year">
+                  <div className="flex items-center gap-2">
+                    <Calendar className="h-4 w-4" />
+                    Cette année
+                  </div>
+                </SelectItem>
+                <SelectItem value="all">
+                  <div className="flex items-center gap-2">
+                    <Calendar className="h-4 w-4" />
+                    Depuis le début
+                  </div>
+                </SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
         </div>
 
         {/* Statistiques rapides */}
@@ -179,14 +340,24 @@ export function PublicDashboardClient({
           <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <CardTitle className="text-sm font-medium">
-                Réservations totales
+                Réservations
               </CardTitle>
               <Users className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
               <div className="text-2xl font-bold">{totalBookings}</div>
               <p className="text-xs text-muted-foreground">
-                Toutes périodes confondues
+                {periodFilter === "today"
+                  ? "Aujourd'hui"
+                  : periodFilter === "week"
+                    ? "Cette semaine"
+                    : periodFilter === "month"
+                      ? "Ce mois"
+                      : periodFilter === "quarter"
+                        ? "Ce trimestre"
+                        : periodFilter === "year"
+                          ? "Cette année"
+                          : "Depuis le début"}
               </p>
             </CardContent>
           </Card>
@@ -194,7 +365,7 @@ export function PublicDashboardClient({
           <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <CardTitle className="text-sm font-medium">
-                Revenus nets totaux
+                Revenus nets
               </CardTitle>
               <BarChart3 className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
@@ -202,7 +373,19 @@ export function PublicDashboardClient({
               <div className="text-2xl font-bold">
                 {totalRevenue.toFixed(2)} CHF
               </div>
-              <p className="text-xs text-muted-foreground">Après commissions</p>
+              <p className="text-xs text-muted-foreground">
+                {periodFilter === "today"
+                  ? "Aujourd'hui"
+                  : periodFilter === "week"
+                    ? "Cette semaine"
+                    : periodFilter === "month"
+                      ? "Ce mois"
+                      : periodFilter === "quarter"
+                        ? "Ce trimestre"
+                        : periodFilter === "year"
+                          ? "Cette année"
+                          : "Depuis le début"}
+              </p>
             </CardContent>
           </Card>
 
@@ -216,14 +399,24 @@ export function PublicDashboardClient({
             <CardContent>
               <div className="text-2xl font-bold">{occupancyRate}%</div>
               <p className="text-xs text-muted-foreground">
-                Estimation mensuelle
+                {periodFilter === "today"
+                  ? "Aujourd'hui"
+                  : periodFilter === "week"
+                    ? "Cette semaine"
+                    : periodFilter === "month"
+                      ? "Ce mois"
+                      : periodFilter === "quarter"
+                        ? "Ce trimestre"
+                        : periodFilter === "year"
+                          ? "Cette année"
+                          : "Depuis le début"}
               </p>
             </CardContent>
           </Card>
         </div>
 
         {/* Graphiques et analyses */}
-        {bookings.length > 0 ? (
+        {filteredBookings.length > 0 ? (
           <div className="space-y-6">
             <div className="flex items-center justify-between">
               <div>
@@ -256,8 +449,19 @@ export function PublicDashboardClient({
                 <div className="space-y-2">
                   <h3 className="font-semibold">Aucune donnée disponible</h3>
                   <p className="text-sm text-muted-foreground max-w-md mx-auto">
-                    Les analyses et statistiques s&apos;afficheront quand
-                    l&apos;établissement aura des réservations confirmées.
+                    {periodFilter === "all"
+                      ? "Les analyses et statistiques s'afficheront quand l'établissement aura des réservations confirmées."
+                      : `Aucune réservation pour ${
+                          periodFilter === "today"
+                            ? "aujourd'hui"
+                            : periodFilter === "week"
+                              ? "cette semaine"
+                              : periodFilter === "month"
+                                ? "ce mois"
+                                : periodFilter === "quarter"
+                                  ? "ce trimestre"
+                                  : "cette année"
+                        }. Essayez de sélectionner une autre période.`}
                   </p>
                 </div>
               </div>
@@ -266,17 +470,21 @@ export function PublicDashboardClient({
         )}
       </div>
 
-      {/* Footer */}
+      {/* Footer épuré */}
       <div className="bg-white border-t mt-12">
         <div className="container mx-auto px-4 py-6">
-          <div className="flex items-center justify-between text-sm text-gray-500">
-            <div>
-              Tableau de bord public généré le{" "}
-              {new Date().toLocaleDateString("fr-FR")}
-            </div>
+          <div className="flex items-center justify-between text-sm text-gray-500 flex-wrap gap-4">
             <div className="flex items-center gap-2">
-              <Shield className="h-4 w-4" />
-              Données protégées et anonymisées
+              <Shield className="h-4 w-4 text-green-600" />
+              <span>Données confidentielles protégées</span>
+            </div>
+            <div>
+              Dernière mise à jour :{" "}
+              {new Date().toLocaleDateString("fr-FR", {
+                day: "numeric",
+                month: "long",
+                year: "numeric",
+              })}
             </div>
           </div>
         </div>

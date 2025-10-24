@@ -16,7 +16,7 @@ async function getEstablishmentData(hotelSlug: string) {
       },
       bookings: {
         where: {
-          paymentStatus: "paid",
+          paymentStatus: "succeeded",
         },
         orderBy: { bookingDate: "desc" },
         include: {
