@@ -19,6 +19,13 @@ import {
   Building,
   Calendar,
   Filter,
+  TrendingUp,
+  TrendingDown,
+  Minus,
+  Clock,
+  Moon,
+  DollarSign,
+  Award,
 } from "lucide-react";
 
 interface Room {
@@ -214,6 +221,93 @@ export function PublicDashboardClient({
     totalRooms > 0 && daysInPeriod > 0
       ? Math.round((totalBookings / (totalRooms * daysInPeriod)) * 100)
       : 0;
+
+  // ========== NOUVELLES STATISTIQUES TOP 5 ==========
+
+  // 1. Revenu moyen par réservation
+  const averageRevenuePerBooking =
+    totalBookings > 0 ? totalRevenue / totalBookings : 0;
+
+  // 2. Durée moyenne de séjour
+  const averageStayDuration = useMemo(() => {
+    if (filteredBookings.length === 0) return 0;
+    const totalNights = filteredBookings.reduce((sum, booking) => {
+      const checkIn = new Date(booking.checkInDate);
+      const checkOut = new Date(booking.checkOutDate);
+      const nights = Math.ceil(
+        (checkOut.getTime() - checkIn.getTime()) / (1000 * 60 * 60 * 24)
+      );
+      return sum + nights;
+    }, 0);
+    return totalNights / filteredBookings.length;
+  }, [filteredBookings]);
+
+  // 3. Comparaison avec la période précédente
+  const previousPeriodComparison = useMemo(() => {
+    const { start, end } = getDateRange(periodFilter);
+    const periodDuration = end.getTime() - start.getTime();
+    const previousStart = new Date(start.getTime() - periodDuration);
+    const previousEnd = new Date(start);
+
+    const previousBookings = bookings.filter((booking) => {
+      const bookingDate = new Date(booking.bookingDate);
+      return bookingDate >= previousStart && bookingDate < previousEnd;
+    });
+
+    const previousRevenue = previousBookings.reduce(
+      (sum, b) => sum + b.amount,
+      0
+    );
+    const currentRevenue = totalRevenue;
+
+    if (previousRevenue === 0) return { percentage: 0, trend: "neutral" };
+
+    const percentageChange =
+      ((currentRevenue - previousRevenue) / previousRevenue) * 100;
+
+    return {
+      percentage: Math.abs(percentageChange),
+      trend:
+        percentageChange > 0 ? "up" : percentageChange < 0 ? "down" : "neutral",
+      previousRevenue,
+      currentRevenue,
+    };
+  }, [bookings, periodFilter, totalRevenue]);
+
+  // 4. Top 3 des chambres/places les plus réservées
+  const topRooms = useMemo(() => {
+    const roomStats = rooms.map((room) => {
+      const bookingCount = filteredBookings.filter(
+        (b) => b.room?.id === room.id
+      ).length;
+      const revenue = filteredBookings
+        .filter((b) => b.room?.id === room.id)
+        .reduce((sum, b) => sum + b.amount, 0);
+      return {
+        ...room,
+        bookingCount,
+        revenue,
+      };
+    });
+
+    return roomStats
+      .sort((a, b) => b.bookingCount - a.bookingCount)
+      .slice(0, 3);
+  }, [rooms, filteredBookings]);
+
+  // 5. Délai moyen de réservation (jours à l'avance)
+  const averageBookingLeadTime = useMemo(() => {
+    if (filteredBookings.length === 0) return 0;
+    const totalLeadTime = filteredBookings.reduce((sum, booking) => {
+      const bookingDate = new Date(booking.bookingDate);
+      const checkInDate = new Date(booking.checkInDate);
+      const leadTime = Math.ceil(
+        (checkInDate.getTime() - bookingDate.getTime()) / (1000 * 60 * 60 * 24)
+      );
+      return sum + Math.max(0, leadTime);
+    }, 0);
+    return totalLeadTime / filteredBookings.length;
+  }, [filteredBookings]);
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50">
@@ -415,6 +509,164 @@ export function PublicDashboardClient({
           </Card>
         </div>
 
+        {/* ========== NOUVELLES STATISTIQUES AVANCÉES ========== */}
+        {filteredBookings.length > 0 && (
+          <div className="mb-8">
+            <h2 className="text-xl font-semibold text-gray-900 mb-4">
+              📊 Statistiques avancées
+            </h2>
+            <div className="grid gap-4 grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
+              {/* 1. Revenu moyen par réservation */}
+              <Card className="border-l-4 border-l-blue-500">
+                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                  <CardTitle className="text-sm font-medium">
+                    Revenu moyen / réservation
+                  </CardTitle>
+                  <DollarSign className="h-4 w-4 text-blue-500" />
+                </CardHeader>
+                <CardContent>
+                  <div className="text-2xl font-bold text-blue-600">
+                    {averageRevenuePerBooking.toFixed(2)} CHF
+                  </div>
+                  <p className="text-xs text-muted-foreground mt-1">
+                    Valeur moyenne par booking
+                  </p>
+                </CardContent>
+              </Card>
+
+              {/* 2. Durée moyenne de séjour */}
+              <Card className="border-l-4 border-l-purple-500">
+                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                  <CardTitle className="text-sm font-medium">
+                    Durée moyenne de séjour
+                  </CardTitle>
+                  <Moon className="h-4 w-4 text-purple-500" />
+                </CardHeader>
+                <CardContent>
+                  <div className="text-2xl font-bold text-purple-600">
+                    {averageStayDuration.toFixed(1)}{" "}
+                    {averageStayDuration === 1 ? "nuit" : "nuits"}
+                  </div>
+                  <p className="text-xs text-muted-foreground mt-1">
+                    Nombre moyen de nuits par séjour
+                  </p>
+                </CardContent>
+              </Card>
+
+              {/* 3. Comparaison période précédente */}
+              <Card className="border-l-4 border-l-green-500">
+                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                  <CardTitle className="text-sm font-medium">
+                    Évolution vs période précédente
+                  </CardTitle>
+                  {previousPeriodComparison.trend === "up" ? (
+                    <TrendingUp className="h-4 w-4 text-green-500" />
+                  ) : previousPeriodComparison.trend === "down" ? (
+                    <TrendingDown className="h-4 w-4 text-red-500" />
+                  ) : (
+                    <Minus className="h-4 w-4 text-gray-400" />
+                  )}
+                </CardHeader>
+                <CardContent>
+                  <div
+                    className={`text-2xl font-bold ${
+                      previousPeriodComparison.trend === "up"
+                        ? "text-green-600"
+                        : previousPeriodComparison.trend === "down"
+                          ? "text-red-600"
+                          : "text-gray-600"
+                    }`}
+                  >
+                    {previousPeriodComparison.trend === "up" && "+"}
+                    {previousPeriodComparison.trend === "down" && "-"}
+                    {previousPeriodComparison.percentage.toFixed(1)}%
+                  </div>
+                  <p className="text-xs text-muted-foreground mt-1">
+                    {previousPeriodComparison.trend === "up"
+                      ? "Augmentation des revenus"
+                      : previousPeriodComparison.trend === "down"
+                        ? "Diminution des revenus"
+                        : "Stabilité des revenus"}
+                  </p>
+                </CardContent>
+              </Card>
+
+              {/* 4. Délai moyen de réservation */}
+              <Card className="border-l-4 border-l-orange-500">
+                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                  <CardTitle className="text-sm font-medium">
+                    Délai moyen de réservation
+                  </CardTitle>
+                  <Clock className="h-4 w-4 text-orange-500" />
+                </CardHeader>
+                <CardContent>
+                  <div className="text-2xl font-bold text-orange-600">
+                    {averageBookingLeadTime.toFixed(0)}{" "}
+                    {averageBookingLeadTime === 1 ? "jour" : "jours"}
+                  </div>
+                  <p className="text-xs text-muted-foreground mt-1">
+                    Réservé à l&apos;avance en moyenne
+                  </p>
+                </CardContent>
+              </Card>
+
+              {/* 5. Top 3 des chambres */}
+              <Card className="border-l-4 border-l-amber-500 md:col-span-2">
+                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                  <CardTitle className="text-sm font-medium">
+                    🏆 Top 3 des places les plus réservées
+                  </CardTitle>
+                  <Award className="h-4 w-4 text-amber-500" />
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-3">
+                    {topRooms.map((room, index) => (
+                      <div
+                        key={room.id}
+                        className="flex items-center justify-between p-2 bg-gray-50 rounded-lg"
+                      >
+                        <div className="flex items-center gap-3">
+                          <div
+                            className={`flex items-center justify-center w-8 h-8 rounded-full ${
+                              index === 0
+                                ? "bg-amber-100 text-amber-700"
+                                : index === 1
+                                  ? "bg-gray-200 text-gray-700"
+                                  : "bg-orange-100 text-orange-700"
+                            } font-bold text-sm`}
+                          >
+                            #{index + 1}
+                          </div>
+                          <div>
+                            <p className="font-medium text-sm">{room.name}</p>
+                            <p className="text-xs text-muted-foreground">
+                              {room.bookingCount} réservation
+                              {room.bookingCount > 1 ? "s" : ""}
+                            </p>
+                          </div>
+                        </div>
+                        <div className="text-right">
+                          <p className="font-semibold text-sm">
+                            {room.revenue.toFixed(2)} CHF
+                          </p>
+                          <p className="text-xs text-muted-foreground">
+                            revenus
+                          </p>
+                        </div>
+                      </div>
+                    ))}
+                    {topRooms.length === 0 && (
+                      <p className="text-sm text-muted-foreground text-center py-4">
+                        Aucune donnée disponible
+                      </p>
+                    )}
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+          </div>
+        )}
+
         {/* Graphiques et analyses */}
         {filteredBookings.length > 0 ? (
           <div className="space-y-6">
@@ -424,8 +676,7 @@ export function PublicDashboardClient({
                   Analyses et statistiques
                 </h2>
                 <p className="text-muted-foreground">
-                  Visualisez les performances de l&apos;établissement (données
-                  anonymisées)
+                  Visualisez les performances de l&apos;établissement
                 </p>
               </div>
             </div>
