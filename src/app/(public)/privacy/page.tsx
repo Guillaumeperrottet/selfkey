@@ -23,7 +23,7 @@ export default function PrivacyPage() {
           </h2>
           <div className="bg-gray-50 p-4 rounded">
             <p>
-              <strong>Campings Potentille SA</strong>
+              <strong>Résidences Potentille SA</strong>
             </p>
             <p>L'Etrey 81, 1643 Gumefens, Suisse</p>
             <p>IDE: CHE-217.3.535.254-7</p>

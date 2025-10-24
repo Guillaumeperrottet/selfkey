@@ -18,7 +18,7 @@ export default function LegalPage() {
         <h2 className="text-2xl font-semibold mb-4">Informations légales</h2>
         <div className="bg-gray-50 p-6 rounded-lg space-y-2">
           <p>
-            <strong>Raison sociale :</strong> Campings Potentille SA
+            <strong>Raison sociale :</strong> Résidences Potentille SA
           </p>
           <p>
             <strong>Forme juridique :</strong> Société Anonyme (SA)
