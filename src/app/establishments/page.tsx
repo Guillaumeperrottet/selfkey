@@ -39,6 +39,7 @@ import {
   Trash2,
   Edit,
   UserPlus,
+  Loader2,
 } from "lucide-react";
 import Image from "next/image";
 import { toastUtils } from "@/lib/toast-utils";
@@ -67,6 +68,7 @@ export default function EstablishmentsPage() {
   const [user, setUser] = useState<User | null>(null);
   const [establishments, setEstablishments] = useState<Establishment[]>([]);
   const [loading, setLoading] = useState(true);
+  const [navigatingToSlug, setNavigatingToSlug] = useState<string | null>(null);
   const [showCreateForm, setShowCreateForm] = useState(false);
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const [showEditDialog, setShowEditDialog] = useState(false);
@@ -1077,20 +1079,28 @@ export default function EstablishmentsPage() {
                   <div className="space-y-2">
                     <div className="flex space-x-3">
                       <Button
-                        asChild
                         className="flex-1"
                         size="sm"
+                        onClick={() => {
+                          setNavigatingToSlug(establishment.slug);
+                          router.push(`/admin/${establishment.slug}`);
+                        }}
+                        disabled={navigatingToSlug === establishment.slug}
                         data-tutorial={
                           index === 0 ? "manage-button" : undefined
                         }
                       >
-                        <Link
-                          href={`/admin/${establishment.slug}`}
-                          className="flex items-center gap-2"
-                        >
-                          <Settings className="h-4 w-4" />
-                          Gérer
-                        </Link>
+                        {navigatingToSlug === establishment.slug ? (
+                          <>
+                            <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                            Chargement...
+                          </>
+                        ) : (
+                          <>
+                            <Settings className="h-4 w-4" />
+                            Gérer
+                          </>
+                        )}
                       </Button>
                       <Button
                         asChild
