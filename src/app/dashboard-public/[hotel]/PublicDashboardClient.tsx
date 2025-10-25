@@ -1,10 +1,10 @@
 "use client";
 
-import { useState, useMemo, useEffect } from "react";
-import { useSearchParams, useRouter } from "next/navigation";
+import { useState, useMemo, useEffect, useCallback } from "react";
 import { DashboardCharts } from "@/components/admin/dashboard/DashboardCharts";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import {
   Select,
   SelectContent,
@@ -19,14 +19,20 @@ import {
   Building,
   Calendar,
   Filter,
-  TrendingUp,
-  TrendingDown,
-  Minus,
-  Clock,
-  Moon,
-  DollarSign,
-  Award,
+  LayoutGrid,
+  Sliders,
 } from "lucide-react";
+import { StatsConfigDialog } from "@/components/admin/dashboard/StatsConfigDialog";
+import { DashboardLayoutEditor } from "@/components/admin/dashboard/DashboardLayoutEditor";
+import { StatCard } from "@/components/admin/dashboard/StatCard";
+import { useDashboardStats } from "@/hooks/useDashboardStats";
+import {
+  DEFAULT_VISIBLE_STATS,
+  CATEGORY_LABELS,
+  type DashboardPreferences,
+  type StatCategory,
+} from "@/types/dashboard-stats";
+import { toast } from "sonner";
 
 interface Room {
   id: string;
@@ -72,22 +78,28 @@ export function PublicDashboardClient({
   rooms,
   bookings,
 }: PublicDashboardClientProps) {
-  const searchParams = useSearchParams();
-  const router = useRouter();
-
-  // Initialiser le filtre depuis l'URL ou utiliser "all" par défaut
-  const initialPeriod =
-    (searchParams.get("period") as
-      | "today"
-      | "week"
-      | "month"
-      | "quarter"
-      | "year"
-      | "all") || "all";
-
+  // Initialiser le filtre depuis localStorage ou utiliser "all" par défaut
   const [periodFilter, setPeriodFilter] = useState<
     "today" | "week" | "month" | "quarter" | "year" | "all"
-  >(initialPeriod);
+  >(() => {
+    if (typeof window !== "undefined") {
+      const saved = localStorage.getItem(`periodFilter_${establishment.slug}`);
+      if (
+        saved &&
+        ["today", "week", "month", "quarter", "year", "all"].includes(saved)
+      ) {
+        return saved as "today" | "week" | "month" | "quarter" | "year" | "all";
+      }
+    }
+    return "all";
+  });
+
+  // Sauvegarder le filtre dans localStorage quand il change
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      localStorage.setItem(`periodFilter_${establishment.slug}`, periodFilter);
+    }
+  }, [periodFilter, establishment.slug]);
 
   const [chartColors] = useState({
     chart1: "#3b82f6",
@@ -97,12 +109,82 @@ export function PublicDashboardClient({
     chart5: "#8b5cf6",
   });
 
-  // Mettre à jour l'URL quand le filtre change
+  // États pour les statistiques personnalisables
+  const [isConfigOpen, setIsConfigOpen] = useState(false);
+  const [isLayoutEditorOpen, setIsLayoutEditorOpen] = useState(false);
+  const [dashboardPreferences, setDashboardPreferences] =
+    useState<DashboardPreferences>(DEFAULT_VISIBLE_STATS);
+  const [isLoadingPreferences, setIsLoadingPreferences] = useState(true);
+
+  // Charger les préférences au montage
   useEffect(() => {
-    const params = new URLSearchParams(searchParams.toString());
-    params.set("period", periodFilter);
-    router.replace(`?${params.toString()}`, { scroll: false });
-  }, [periodFilter, router, searchParams]);
+    const loadPreferences = async () => {
+      try {
+        const response = await fetch(
+          `/api/dashboard-preferences/${establishment.slug}?type=public`
+        );
+        if (response.ok) {
+          const data = await response.json();
+          setDashboardPreferences(data);
+        }
+      } catch (error) {
+        console.error("Error loading preferences:", error);
+      } finally {
+        setIsLoadingPreferences(false);
+      }
+    };
+
+    loadPreferences();
+  }, [establishment.slug]);
+
+  // Sauvegarder les préférences
+  const handleSavePreferences = useCallback(
+    async (newPreferences: DashboardPreferences) => {
+      try {
+        const response = await fetch(
+          `/api/dashboard-preferences/${establishment.slug}?type=public`,
+          {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(newPreferences),
+          }
+        );
+
+        if (!response.ok) throw new Error("Failed to save preferences");
+
+        const data = await response.json();
+        setDashboardPreferences(data);
+        toast.success("Préférences sauvegardées !");
+      } catch (error) {
+        console.error("Error saving preferences:", error);
+        toast.error("Erreur lors de la sauvegarde");
+        throw error;
+      }
+    },
+    [establishment.slug]
+  );
+
+  // Helper function pour les libellés de période au génitif
+  const getPeriodLabelGenitive = (
+    period: "today" | "week" | "month" | "quarter" | "year" | "all"
+  ) => {
+    switch (period) {
+      case "today":
+        return "d'aujourd'hui";
+      case "week":
+        return "de cette semaine";
+      case "month":
+        return "de ce mois";
+      case "quarter":
+        return "de ce trimestre";
+      case "year":
+        return "de cette année";
+      case "all":
+        return "depuis le début";
+      default:
+        return "d'aujourd'hui";
+    }
+  };
 
   // Fonction pour obtenir la plage de dates selon la période
   const getDateRange = (
@@ -222,92 +304,15 @@ export function PublicDashboardClient({
       ? Math.round((totalBookings / (totalRooms * daysInPeriod)) * 100)
       : 0;
 
-  // ========== NOUVELLES STATISTIQUES TOP 5 ==========
-
-  // 1. Revenu moyen par réservation
-  const averageRevenuePerBooking =
-    totalBookings > 0 ? totalRevenue / totalBookings : 0;
-
-  // 2. Durée moyenne de séjour
-  const averageStayDuration = useMemo(() => {
-    if (filteredBookings.length === 0) return 0;
-    const totalNights = filteredBookings.reduce((sum, booking) => {
-      const checkIn = new Date(booking.checkInDate);
-      const checkOut = new Date(booking.checkOutDate);
-      const nights = Math.ceil(
-        (checkOut.getTime() - checkIn.getTime()) / (1000 * 60 * 60 * 24)
-      );
-      return sum + nights;
-    }, 0);
-    return totalNights / filteredBookings.length;
-  }, [filteredBookings]);
-
-  // 3. Comparaison avec la période précédente
-  const previousPeriodComparison = useMemo(() => {
-    const { start, end } = getDateRange(periodFilter);
-    const periodDuration = end.getTime() - start.getTime();
-    const previousStart = new Date(start.getTime() - periodDuration);
-    const previousEnd = new Date(start);
-
-    const previousBookings = bookings.filter((booking) => {
-      const bookingDate = new Date(booking.bookingDate);
-      return bookingDate >= previousStart && bookingDate < previousEnd;
-    });
-
-    const previousRevenue = previousBookings.reduce(
-      (sum, b) => sum + b.amount,
-      0
-    );
-    const currentRevenue = totalRevenue;
-
-    if (previousRevenue === 0) return { percentage: 0, trend: "neutral" };
-
-    const percentageChange =
-      ((currentRevenue - previousRevenue) / previousRevenue) * 100;
-
-    return {
-      percentage: Math.abs(percentageChange),
-      trend:
-        percentageChange > 0 ? "up" : percentageChange < 0 ? "down" : "neutral",
-      previousRevenue,
-      currentRevenue,
-    };
-  }, [bookings, periodFilter, totalRevenue]);
-
-  // 4. Top 3 des chambres/places les plus réservées
-  const topRooms = useMemo(() => {
-    const roomStats = rooms.map((room) => {
-      const bookingCount = filteredBookings.filter(
-        (b) => b.room?.id === room.id
-      ).length;
-      const revenue = filteredBookings
-        .filter((b) => b.room?.id === room.id)
-        .reduce((sum, b) => sum + b.amount, 0);
-      return {
-        ...room,
-        bookingCount,
-        revenue,
-      };
-    });
-
-    return roomStats
-      .sort((a, b) => b.bookingCount - a.bookingCount)
-      .slice(0, 3);
-  }, [rooms, filteredBookings]);
-
-  // 5. Délai moyen de réservation (jours à l'avance)
-  const averageBookingLeadTime = useMemo(() => {
-    if (filteredBookings.length === 0) return 0;
-    const totalLeadTime = filteredBookings.reduce((sum, booking) => {
-      const bookingDate = new Date(booking.bookingDate);
-      const checkInDate = new Date(booking.checkInDate);
-      const leadTime = Math.ceil(
-        (checkInDate.getTime() - bookingDate.getTime()) / (1000 * 60 * 60 * 24)
-      );
-      return sum + Math.max(0, leadTime);
-    }, 0);
-    return totalLeadTime / filteredBookings.length;
-  }, [filteredBookings]);
+  // Calculer toutes les statistiques avec le hook
+  const computedStats = useDashboardStats(
+    filteredBookings,
+    bookings,
+    rooms,
+    establishment,
+    periodFilter,
+    getDateRange
+  );
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50">
@@ -341,27 +346,35 @@ export function PublicDashboardClient({
 
       {/* Contenu principal */}
       <div className="container mx-auto px-4 py-8">
-        {/* Sélecteur de période */}
-        <div className="flex items-center justify-between mb-6">
+        {/* Sélecteur de période et configuration */}
+        <div className="flex items-center justify-between mb-6 flex-wrap gap-4">
           <div>
             <h2 className="text-xl font-semibold text-gray-900">
               Statistiques de l&apos;établissement
             </h2>
             <p className="text-gray-600 text-sm">
-              {periodFilter === "today"
-                ? "Données d'aujourd'hui"
-                : periodFilter === "week"
-                  ? "Données de cette semaine"
-                  : periodFilter === "month"
-                    ? "Données de ce mois"
-                    : periodFilter === "quarter"
-                      ? "Données de ce trimestre"
-                      : periodFilter === "year"
-                        ? "Données de cette année"
-                        : "Toutes les données"}
+              Données {getPeriodLabelGenitive(periodFilter)}
             </p>
           </div>
           <div className="flex items-center gap-2">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setIsLayoutEditorOpen(true)}
+              className="gap-2"
+            >
+              <LayoutGrid className="h-4 w-4" />
+              Organiser
+            </Button>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setIsConfigOpen(true)}
+              className="gap-2"
+            >
+              <Sliders className="h-4 w-4" />
+              Statistiques
+            </Button>
             <Filter className="h-4 w-4 text-gray-500" />
             <Select
               value={periodFilter}
@@ -413,6 +426,14 @@ export function PublicDashboardClient({
             </Select>
           </div>
         </div>
+
+        {/* Modal de configuration */}
+        <StatsConfigDialog
+          open={isConfigOpen}
+          onOpenChange={setIsConfigOpen}
+          currentPreferences={dashboardPreferences}
+          onSave={handleSavePreferences}
+        />
 
         {/* Statistiques rapides */}
         <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 mb-8">
@@ -509,161 +530,33 @@ export function PublicDashboardClient({
           </Card>
         </div>
 
-        {/* ========== NOUVELLES STATISTIQUES AVANCÉES ========== */}
-        {filteredBookings.length > 0 && (
-          <div className="mb-8">
-            <h2 className="text-xl font-semibold text-gray-900 mb-4">
-              📊 Statistiques avancées
-            </h2>
-            <div className="grid gap-4 grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
-              {/* 1. Revenu moyen par réservation */}
-              <Card className="border-l-4 border-l-blue-500">
-                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                  <CardTitle className="text-sm font-medium">
-                    Revenu moyen / réservation
-                  </CardTitle>
-                  <DollarSign className="h-4 w-4 text-blue-500" />
-                </CardHeader>
-                <CardContent>
-                  <div className="text-2xl font-bold text-blue-600">
-                    {averageRevenuePerBooking.toFixed(2)} CHF
-                  </div>
-                  <p className="text-xs text-muted-foreground mt-1">
-                    Valeur moyenne par booking
-                  </p>
-                </CardContent>
-              </Card>
+        {/* ========== STATISTIQUES PERSONNALISABLES ========== */}
+        {filteredBookings.length > 0 && !isLoadingPreferences && (
+          <div className="mb-8 space-y-6">
+            {(
+              Object.keys(dashboardPreferences.visibleStats) as StatCategory[]
+            ).map((category) => {
+              const visibleStats =
+                dashboardPreferences.visibleStats[category] || [];
+              if (visibleStats.length === 0) return null;
 
-              {/* 2. Durée moyenne de séjour */}
-              <Card className="border-l-4 border-l-purple-500">
-                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                  <CardTitle className="text-sm font-medium">
-                    Durée moyenne de séjour
-                  </CardTitle>
-                  <Moon className="h-4 w-4 text-purple-500" />
-                </CardHeader>
-                <CardContent>
-                  <div className="text-2xl font-bold text-purple-600">
-                    {averageStayDuration.toFixed(1)}{" "}
-                    {averageStayDuration === 1 ? "nuit" : "nuits"}
-                  </div>
-                  <p className="text-xs text-muted-foreground mt-1">
-                    Nombre moyen de nuits par séjour
-                  </p>
-                </CardContent>
-              </Card>
-
-              {/* 3. Comparaison période précédente */}
-              <Card className="border-l-4 border-l-green-500">
-                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                  <CardTitle className="text-sm font-medium">
-                    Évolution vs période précédente
-                  </CardTitle>
-                  {previousPeriodComparison.trend === "up" ? (
-                    <TrendingUp className="h-4 w-4 text-green-500" />
-                  ) : previousPeriodComparison.trend === "down" ? (
-                    <TrendingDown className="h-4 w-4 text-red-500" />
-                  ) : (
-                    <Minus className="h-4 w-4 text-gray-400" />
-                  )}
-                </CardHeader>
-                <CardContent>
-                  <div
-                    className={`text-2xl font-bold ${
-                      previousPeriodComparison.trend === "up"
-                        ? "text-green-600"
-                        : previousPeriodComparison.trend === "down"
-                          ? "text-red-600"
-                          : "text-gray-600"
-                    }`}
-                  >
-                    {previousPeriodComparison.trend === "up" && "+"}
-                    {previousPeriodComparison.trend === "down" && "-"}
-                    {previousPeriodComparison.percentage.toFixed(1)}%
-                  </div>
-                  <p className="text-xs text-muted-foreground mt-1">
-                    {previousPeriodComparison.trend === "up"
-                      ? "Augmentation des revenus"
-                      : previousPeriodComparison.trend === "down"
-                        ? "Diminution des revenus"
-                        : "Stabilité des revenus"}
-                  </p>
-                </CardContent>
-              </Card>
-
-              {/* 4. Délai moyen de réservation */}
-              <Card className="border-l-4 border-l-orange-500">
-                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                  <CardTitle className="text-sm font-medium">
-                    Délai moyen de réservation
-                  </CardTitle>
-                  <Clock className="h-4 w-4 text-orange-500" />
-                </CardHeader>
-                <CardContent>
-                  <div className="text-2xl font-bold text-orange-600">
-                    {averageBookingLeadTime.toFixed(0)}{" "}
-                    {averageBookingLeadTime === 1 ? "jour" : "jours"}
-                  </div>
-                  <p className="text-xs text-muted-foreground mt-1">
-                    Réservé à l&apos;avance en moyenne
-                  </p>
-                </CardContent>
-              </Card>
-
-              {/* 5. Top 3 des chambres */}
-              <Card className="border-l-4 border-l-amber-500 md:col-span-2">
-                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                  <CardTitle className="text-sm font-medium">
-                    🏆 Top 3 des places les plus réservées
-                  </CardTitle>
-                  <Award className="h-4 w-4 text-amber-500" />
-                </CardHeader>
-                <CardContent>
-                  <div className="space-y-3">
-                    {topRooms.map((room, index) => (
-                      <div
-                        key={room.id}
-                        className="flex items-center justify-between p-2 bg-gray-50 rounded-lg"
-                      >
-                        <div className="flex items-center gap-3">
-                          <div
-                            className={`flex items-center justify-center w-8 h-8 rounded-full ${
-                              index === 0
-                                ? "bg-amber-100 text-amber-700"
-                                : index === 1
-                                  ? "bg-gray-200 text-gray-700"
-                                  : "bg-orange-100 text-orange-700"
-                            } font-bold text-sm`}
-                          >
-                            #{index + 1}
-                          </div>
-                          <div>
-                            <p className="font-medium text-sm">{room.name}</p>
-                            <p className="text-xs text-muted-foreground">
-                              {room.bookingCount} réservation
-                              {room.bookingCount > 1 ? "s" : ""}
-                            </p>
-                          </div>
-                        </div>
-                        <div className="text-right">
-                          <p className="font-semibold text-sm">
-                            {room.revenue.toFixed(2)} CHF
-                          </p>
-                          <p className="text-xs text-muted-foreground">
-                            revenus
-                          </p>
-                        </div>
-                      </div>
+              return (
+                <div key={category}>
+                  <h2 className="text-xl font-semibold text-gray-900 mb-4">
+                    {CATEGORY_LABELS[category]}
+                  </h2>
+                  <div className="grid gap-4 grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
+                    {visibleStats.map((statId) => (
+                      <StatCard
+                        key={statId}
+                        statId={statId}
+                        stats={computedStats}
+                      />
                     ))}
-                    {topRooms.length === 0 && (
-                      <p className="text-sm text-muted-foreground text-center py-4">
-                        Aucune donnée disponible
-                      </p>
-                    )}
                   </div>
-                </CardContent>
-              </Card>
-            </div>
+                </div>
+              );
+            })}
           </div>
         )}
 
@@ -702,17 +595,7 @@ export function PublicDashboardClient({
                   <p className="text-sm text-muted-foreground max-w-md mx-auto">
                     {periodFilter === "all"
                       ? "Les analyses et statistiques s'afficheront quand l'établissement aura des réservations confirmées."
-                      : `Aucune réservation pour ${
-                          periodFilter === "today"
-                            ? "aujourd'hui"
-                            : periodFilter === "week"
-                              ? "cette semaine"
-                              : periodFilter === "month"
-                                ? "ce mois"
-                                : periodFilter === "quarter"
-                                  ? "ce trimestre"
-                                  : "cette année"
-                        }. Essayez de sélectionner une autre période.`}
+                      : `Aucune réservation ${getPeriodLabelGenitive(periodFilter)}. Essayez de sélectionner une autre période.`}
                   </p>
                 </div>
               </div>
@@ -740,6 +623,21 @@ export function PublicDashboardClient({
           </div>
         </div>
       </div>
+
+      {/* Dialogs */}
+      <StatsConfigDialog
+        open={isConfigOpen}
+        onOpenChange={setIsConfigOpen}
+        currentPreferences={dashboardPreferences}
+        onSave={handleSavePreferences}
+      />
+
+      <DashboardLayoutEditor
+        open={isLayoutEditorOpen}
+        onOpenChange={setIsLayoutEditorOpen}
+        currentPreferences={dashboardPreferences}
+        onSave={handleSavePreferences}
+      />
     </div>
   );
 }
