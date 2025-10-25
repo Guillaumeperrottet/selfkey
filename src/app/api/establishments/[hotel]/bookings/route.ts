@@ -12,6 +12,7 @@ import {
 } from "@/lib/fee-calculator";
 import {
   isEnrichedFormat,
+  compressPricingOptions,
   type EnrichedPricingOption,
 } from "@/lib/booking/pricing-options";
 
@@ -315,6 +316,23 @@ export async function POST(
     // Le ownerAmount est basé sur le prix sans frais de plateforme
     const ownerAmount = calculatedPrice - platformCommission;
 
+    // Compresser les options pour Stripe metadata (limite 500 caractères)
+    // On garde seulement les IDs, on pourra ré-enrichir depuis la DB au webhook
+    let compressedOptions = selectedPricingOptions || {};
+    let enrichedOptionsForDescription = "";
+
+    if (isEnrichedFormat(selectedPricingOptions)) {
+      // Compresser pour les metadata (optionId => valueId seulement)
+      compressedOptions = compressPricingOptions(
+        selectedPricingOptions as Record<
+          string,
+          EnrichedPricingOption | EnrichedPricingOption[]
+        >
+      );
+      // Garder le format enrichi complet pour la description du PaymentIntent
+      enrichedOptionsForDescription = JSON.stringify(selectedPricingOptions);
+    }
+
     // Créer le Payment Intent Stripe AVANT la réservation (pour éviter les réservations fantômes)
     // Le client paie le prix final (incluant les frais de plateforme)
     // Stocker toutes les données dans les metadata pour création après paiement
@@ -351,11 +369,15 @@ export async function POST(
         amount: finalPrice.toString(),
         platform_commission: platformCommission.toString(),
         owner_amount: ownerAmount.toString(),
-        selected_pricing_options: JSON.stringify(selectedPricingOptions || {}),
+        selected_pricing_options: JSON.stringify(compressedOptions),
         pricing_options_total: validatedPricingOptionsTotal.toString(),
         tourist_tax_total: touristTaxCalculation.totalTax.toString(),
         has_dog: hasDog ? "true" : "false", // Si le client a un chien
         booking_locale: bookingLocale || "fr", // Langue choisie
+        // Stocker le format enrichi complet dans un champ séparé si disponible
+        ...(enrichedOptionsForDescription && {
+          enriched_options: enrichedOptionsForDescription,
+        }),
       }
     );
 

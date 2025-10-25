@@ -22,6 +22,43 @@ export interface EnrichedPricingOption {
 }
 
 /**
+ * Interface pour le format compressé (pour metadata Stripe, limite 500 caractères)
+ * On stocke seulement optionId => valueId, car on peut recréer l'enrichissement
+ * depuis la base de données au moment du webhook
+ */
+export interface CompressedPricingOptions {
+  [optionId: string]: string | string[];
+}
+
+/**
+ * Compresse le format enrichi en format minimal pour Stripe metadata
+ * Stripe limite les metadata à 500 caractères par valeur, donc on ne garde que les IDs
+ *
+ * @param enrichedOptions - Options enrichies complètes
+ * @returns Format compressé avec seulement optionId => valueId
+ */
+export function compressPricingOptions(
+  enrichedOptions: Record<
+    string,
+    EnrichedPricingOption | EnrichedPricingOption[]
+  >
+): CompressedPricingOptions {
+  const compressed: CompressedPricingOptions = {};
+
+  Object.entries(enrichedOptions).forEach(([optionId, value]) => {
+    if (Array.isArray(value)) {
+      // Checkbox: array de valueIds
+      compressed[optionId] = value.map((v) => v.valueId);
+    } else {
+      // Radio/Select: un seul valueId
+      compressed[optionId] = value.valueId;
+    }
+  });
+
+  return compressed;
+}
+
+/**
  * Enrichit les options sélectionnées avec toutes leurs informations
  * pour créer un snapshot complet au moment de la réservation
  *
