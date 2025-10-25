@@ -395,63 +395,66 @@ async function createClassicBookingFromMetadata(
 
     console.log("✅ Room found:", room.name);
 
-    // Récupérer les options de pricing - priorité au format enrichi
+    // Ré-enrichir les options depuis la DB (format compressé dans metadata)
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     let selectedPricingOptions: Record<string, any> = {};
     try {
-      if (metadata.enriched_options) {
-        // Format enrichi complet disponible
-        console.log("✅ Format enrichi trouvé dans enriched_options");
-        selectedPricingOptions = JSON.parse(metadata.enriched_options);
-      } else {
-        // Format compressé (IDs seulement) - besoin de ré-enrichir depuis la DB
-        console.log(
-          "⚠️ Format compressé uniquement, ré-enrichissement depuis la DB..."
-        );
-        const compressedOptions = JSON.parse(metadata.selected_pricing_options);
+      console.log("🔄 Ré-enrichissement des options depuis la DB...");
+      const compressedOptions = JSON.parse(metadata.selected_pricing_options);
 
-        // Charger les options de prix depuis la DB pour ré-enrichir
-        const pricingOptions = await prisma.pricingOption.findMany({
-          where: {
-            establishment: { slug: metadata.hotel_slug },
-            isActive: true,
-          },
-          include: { values: true },
-        });
+      // Charger les options de prix depuis la DB pour ré-enrichir
+      const pricingOptions = await prisma.pricingOption.findMany({
+        where: {
+          establishment: { slug: metadata.hotel_slug },
+          isActive: true,
+        },
+        include: { values: true },
+      });
 
-        // Ré-enrichir les options
-        for (const [optionId, valueIds] of Object.entries(compressedOptions)) {
-          const option = pricingOptions.find((o) => o.id === optionId);
-          if (!option) continue;
-
-          const valueArray = Array.isArray(valueIds) ? valueIds : [valueIds];
-          const enrichedValues = valueArray
-            .map((valueId) => {
-              const value = option.values.find(
-                (v) => v.id === (valueId as string)
-              );
-              if (!value) return null;
-
-              return {
-                optionId: option.id,
-                optionName: option.name,
-                optionType: option.type,
-                valueId: value.id,
-                valueLabel: value.label,
-                priceModifier: value.priceModifier,
-                selectedAt: new Date().toISOString(),
-              };
-            })
-            .filter((v) => v !== null);
-
-          selectedPricingOptions[optionId] =
-            option.type === "checkbox" ? enrichedValues : enrichedValues[0];
+      // Ré-enrichir les options
+      for (const [optionId, valueIds] of Object.entries(compressedOptions)) {
+        const option = pricingOptions.find((o) => o.id === optionId);
+        if (!option) {
+          console.warn(`⚠️ Option ${optionId} non trouvée dans la DB`);
+          continue;
         }
 
-        console.log("✅ Options ré-enrichies depuis la DB");
+        const valueArray = Array.isArray(valueIds) ? valueIds : [valueIds];
+        const enrichedValues = valueArray
+          .map((valueId) => {
+            const value = option.values.find(
+              (v) => v.id === (valueId as string)
+            );
+            if (!value) {
+              console.warn(
+                `⚠️ Valeur ${valueId} non trouvée pour option ${option.name}`
+              );
+              return null;
+            }
+
+            return {
+              optionId: option.id,
+              optionName: option.name,
+              optionType: option.type,
+              valueId: value.id,
+              valueLabel: value.label,
+              priceModifier: value.priceModifier,
+              selectedAt: new Date().toISOString(),
+            };
+          })
+          .filter((v) => v !== null);
+
+        selectedPricingOptions[optionId] =
+          option.type === "checkbox" ? enrichedValues : enrichedValues[0];
       }
+
+      console.log("✅ Options ré-enrichies depuis la DB");
+      console.log(
+        `📦 ${Object.keys(selectedPricingOptions).length} option(s) enrichie(s)`
+      );
     } catch (error) {
-      console.error("❌ Erreur parsing options:", error);
+      console.error("❌ Erreur ré-enrichissement options:", error);
+      // Fallback: utiliser le format brut
       selectedPricingOptions = JSON.parse(metadata.selected_pricing_options);
     }
 

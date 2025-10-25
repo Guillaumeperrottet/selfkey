@@ -317,9 +317,8 @@ export async function POST(
     const ownerAmount = calculatedPrice - platformCommission;
 
     // Compresser les options pour Stripe metadata (limite 500 caractères)
-    // On garde seulement les IDs, on pourra ré-enrichir depuis la DB au webhook
+    // On garde seulement les IDs, on ré-enrichira depuis la DB au webhook
     let compressedOptions = selectedPricingOptions || {};
-    let enrichedOptionsForDescription = "";
 
     if (isEnrichedFormat(selectedPricingOptions)) {
       // Compresser pour les metadata (optionId => valueId seulement)
@@ -329,8 +328,13 @@ export async function POST(
           EnrichedPricingOption | EnrichedPricingOption[]
         >
       );
-      // Garder le format enrichi complet pour la description du PaymentIntent
-      enrichedOptionsForDescription = JSON.stringify(selectedPricingOptions);
+      console.log(
+        "📦 Options compressées pour Stripe:",
+        JSON.stringify(compressedOptions)
+      );
+      console.log(
+        `📏 Taille: ${JSON.stringify(compressedOptions).length} caractères`
+      );
     }
 
     // Créer le Payment Intent Stripe AVANT la réservation (pour éviter les réservations fantômes)
@@ -374,10 +378,6 @@ export async function POST(
         tourist_tax_total: touristTaxCalculation.totalTax.toString(),
         has_dog: hasDog ? "true" : "false", // Si le client a un chien
         booking_locale: bookingLocale || "fr", // Langue choisie
-        // Stocker le format enrichi complet dans un champ séparé si disponible
-        ...(enrichedOptionsForDescription && {
-          enriched_options: enrichedOptionsForDescription,
-        }),
       }
     );
 
