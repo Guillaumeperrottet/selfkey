@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Geist_Mono } from "next/font/google";
 import { Toaster } from "sonner";
 import { Analytics } from "@vercel/analytics/next";
+import { GoogleAnalytics } from "@next/third-parties/google";
 import "./globals.css";
 import localFont from "next/font/local";
 
@@ -215,9 +216,7 @@ export default function RootLayout({
                 height: 4500,
               },
               image: "https://www.selfcamp.ch/logo.png",
-              sameAs: [
-                "https://www.instagram.com/selfcamp_ch/",
-              ],
+              sameAs: ["https://www.instagram.com/selfcamp_ch/"],
               description:
                 "Découvrez des aires de camping-car officielles ! Accès spontané sans app, ni compte, paiement sécurisé.",
               contactPoint: {
@@ -252,6 +251,9 @@ export default function RootLayout({
           duration={4000}
         />
         <Analytics />
+        {process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID && (
+          <GoogleAnalytics gaId={process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID} />
+        )}
       </body>
     </html>
   );
