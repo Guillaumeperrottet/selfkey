@@ -206,15 +206,29 @@ export default function RootLayout({
               "@context": "https://schema.org",
               "@type": "Organization",
               name: "Selfcamp",
+              alternateName: "SelfCamp",
               url: "https://www.selfcamp.ch",
-              logo: "https://www.selfcamp.ch/logo.png",
-              sameAs: ["https://www.instagram.com/selfcamp_ch/"],
+              logo: {
+                "@type": "ImageObject",
+                url: "https://www.selfcamp.ch/logo.png",
+                width: 4500,
+                height: 4500,
+              },
+              image: "https://www.selfcamp.ch/logo.png",
+              sameAs: [
+                "https://www.instagram.com/selfcamp_ch/",
+              ],
               description:
                 "Découvrez des aires de camping-car officielles ! Accès spontané sans app, ni compte, paiement sécurisé.",
               contactPoint: {
                 "@type": "ContactPoint",
                 contactType: "Customer Service",
-                availableLanguage: ["French", "German"],
+                availableLanguage: ["French", "German", "English"],
+              },
+              address: {
+                "@type": "PostalAddress",
+                addressCountry: "CH",
+                addressRegion: "Fribourg",
               },
             }),
           }}
