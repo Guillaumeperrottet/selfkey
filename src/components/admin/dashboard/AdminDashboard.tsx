@@ -205,10 +205,12 @@ export function AdminDashboard({
         return { start: startOfDay, end: endOfDay };
       case "week":
         const startOfWeek = new Date(now);
-        startOfWeek.setDate(now.getDate() - now.getDay() + 1); // Lundi
+        const dayOfWeek = now.getDay();
+        const diff = dayOfWeek === 0 ? -6 : 1 - dayOfWeek; // Si dimanche, reculer de 6 jours
+        startOfWeek.setDate(now.getDate() + diff); // Lundi de la semaine en cours
         startOfWeek.setHours(0, 0, 0, 0);
         const endOfWeek = new Date(startOfWeek);
-        endOfWeek.setDate(startOfWeek.getDate() + 6); // Dimanche
+        endOfWeek.setDate(startOfWeek.getDate() + 6); // Dimanche de la semaine en cours
         endOfWeek.setHours(23, 59, 59, 999);
         return { start: startOfWeek, end: endOfWeek };
       case "month":
@@ -253,10 +255,31 @@ export function AdminDashboard({
 
   const getFilteredBookings = () => {
     const { start, end } = getDateRange(periodFilter);
-    return allBookings.filter((booking) => {
-      const bookingDate = new Date(booking.bookingDate);
-      return bookingDate >= start && bookingDate <= end;
+    console.log("📅 Période filtrée:", {
+      period: periodFilter,
+      start: start.toISOString(),
+      end: end.toISOString(),
     });
+
+    const filtered = allBookings.filter((booking) => {
+      const bookingDate = new Date(booking.bookingDate);
+      const isInRange = bookingDate >= start && bookingDate <= end;
+
+      if (periodFilter === "week") {
+        console.log("🔍 Réservation:", {
+          id: booking.id.slice(0, 8),
+          bookingDate: bookingDate.toISOString(),
+          isInRange,
+        });
+      }
+
+      return isInRange;
+    });
+
+    console.log(
+      `✅ ${filtered.length} réservations filtrées sur ${allBookings.length} total`
+    );
+    return filtered;
   };
 
   const filteredBookings = getFilteredBookings();

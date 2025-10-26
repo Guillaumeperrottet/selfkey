@@ -201,10 +201,12 @@ export function PublicDashboardClient({
         return { start: startOfDay, end: endOfDay };
       case "week":
         const startOfWeek = new Date(now);
-        startOfWeek.setDate(now.getDate() - now.getDay());
+        const dayOfWeek = now.getDay();
+        const diff = dayOfWeek === 0 ? -6 : 1 - dayOfWeek; // Si dimanche, reculer de 6 jours
+        startOfWeek.setDate(now.getDate() + diff); // Lundi de la semaine en cours
         startOfWeek.setHours(0, 0, 0, 0);
         const endOfWeek = new Date(startOfWeek);
-        endOfWeek.setDate(startOfWeek.getDate() + 6);
+        endOfWeek.setDate(startOfWeek.getDate() + 6); // Dimanche de la semaine en cours
         endOfWeek.setHours(23, 59, 59, 999);
         return { start: startOfWeek, end: endOfWeek };
       case "month":
