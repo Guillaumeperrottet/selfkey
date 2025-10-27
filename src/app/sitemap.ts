@@ -1,7 +1,7 @@
 import { MetadataRoute } from "next";
 
 export default function sitemap(): MetadataRoute.Sitemap {
-  const baseUrl = "https://selfcamp.ch"; // Domain for SelfCamp
+  const baseUrl = "https://www.selfcamp.ch"; // Domain for SelfCamp
 
   return [
     {

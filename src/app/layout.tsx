@@ -84,18 +84,21 @@ export const metadata: Metadata = {
   description:
     "Découvrez des aires de camping-car officielles ! Accès spontané sans app, ni compte, paiement sécurisé, emplacements de qualité.",
   keywords: [
+    "selfcamp",
+    "selfcamp suisse",
+    "selfcamp.ch",
     "camping-car",
     "aire de camping-car",
     "camping",
     "van life",
     "motorhome",
+    "wohnmobil",
     "emplacements camping",
-    "paiement en ligne",
-    "Stripe",
-    "accès automatique",
+    "camping-car suisse",
+    "aire camping-car suisse",
     "réservation camping",
     "Suisse",
-    "selfcamp",
+    "Fribourg",
   ],
   authors: [{ name: "Selfcamp" }],
   creator: "Selfcamp",
@@ -116,7 +119,7 @@ export const metadata: Metadata = {
     siteName: "Selfcamp",
     title: "Selfcamp - La liberté de camper sans contrainte",
     description:
-      "Découvrez des aires de camping-car officielles ! Accès spontané sans app, ni compte, paiement sécurisé, emplacements de qualité.",
+      "Découvrez des aires de camping-car et vanlife officielles ! Accès spontané sans app, ni compte, paiement sécurisé, emplacements de qualité.",
     images: [
       {
         url: "/logo.png",
@@ -130,7 +133,7 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     title: "Selfcamp - La liberté de camper sans contrainte",
     description:
-      "Découvrez des aires de camping-car officielles ! Accès spontané sans app, ni compte, paiement sécurisé.",
+      "Découvrez des aires de camping-car et vanlife officielles ! Accès spontané sans app, ni compte, paiement sécurisé.",
     images: ["/logo.png"],
     creator: "@selfcamp",
   },
@@ -207,7 +210,7 @@ export default function RootLayout({
               "@context": "https://schema.org",
               "@type": "Organization",
               name: "Selfcamp",
-              alternateName: "SelfCamp",
+              alternateName: ["self camp", "Self camp Suisse"],
               url: "https://www.selfcamp.ch",
               logo: {
                 "@type": "ImageObject",
@@ -218,7 +221,17 @@ export default function RootLayout({
               image: "https://www.selfcamp.ch/logo.png",
               sameAs: ["https://www.instagram.com/selfcamp_ch/"],
               description:
-                "Découvrez des aires de camping-car officielles ! Accès spontané sans app, ni compte, paiement sécurisé.",
+                "Découvrez des aires de camping-car et vanlife officielles ! Accès spontané sans app, ni compte, paiement sécurisé, emplacements de qualité.",
+              slogan: "La liberté de camper sans contrainte",
+              founder: {
+                "@type": "Person",
+                name: "Selfcamp Team",
+              },
+              foundingDate: "2025",
+              areaServed: {
+                "@type": "Country",
+                name: "Switzerland",
+              },
               contactPoint: {
                 "@type": "ContactPoint",
                 contactType: "Customer Service",
@@ -228,6 +241,29 @@ export default function RootLayout({
                 "@type": "PostalAddress",
                 addressCountry: "CH",
                 addressRegion: "Fribourg",
+              },
+              priceRange: "$$",
+              keywords:
+                "camping-car, aire de camping-car, motorhome, wohnmobil, camping Suisse, van life, stationnement camping-car",
+            }),
+          }}
+        />
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify({
+              "@context": "https://schema.org",
+              "@type": "WebSite",
+              name: "Selfcamp",
+              url: "https://www.selfcamp.ch",
+              potentialAction: {
+                "@type": "SearchAction",
+                target: {
+                  "@type": "EntryPoint",
+                  urlTemplate:
+                    "https://www.selfcamp.ch/establishments?search={search_term_string}",
+                },
+                "query-input": "required name=search_term_string",
               },
             }),
           }}

@@ -31,6 +31,22 @@ const nextConfig: NextConfig = {
   },
 
   // Configuration pour gérer les domaines multiples et permettre la communication
+  async redirects() {
+    return [
+      {
+        source: '/:path*',
+        has: [
+          {
+            type: 'host',
+            value: 'selfcamp.ch',
+          },
+        ],
+        destination: 'https://www.selfcamp.ch/:path*',
+        permanent: true,
+      },
+    ];
+  },
+
   async headers() {
     return [
       {

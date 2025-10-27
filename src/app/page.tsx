@@ -19,6 +19,9 @@ export async function generateMetadata(): Promise<Metadata> {
       description:
         "Découvrez des aires de camping-car officielles ! Accès spontané sans app, ni compte, paiement sécurisé, emplacements de qualité.",
       keywords: [
+        "selfcamp",
+        "selfcamp suisse",
+        "selfcamp.ch",
         "camping-car Suisse",
         "aires camping-car",
         "stationnement camping-car",
@@ -28,36 +31,39 @@ export async function generateMetadata(): Promise<Metadata> {
         "emplacements camping-car qualité",
         "camping sans réservation",
         "paiement camping numérique",
-        "selfcamp",
         "motorhome parking Switzerland",
+        "wohnmobil stellplatz schweiz",
         "aires camping-car 24h",
         "camping-car montagne",
         "vignobles camping-car",
         "fermes camping-car",
         "tourisme local Suisse",
+        "canton de Fribourg",
       ],
       openGraph: {
-        title: "Selfcamp - Aires de Camping-Car en Suisse",
+        title: "Selfcamp - Aires de vanlife en Suisse",
         description:
-          "Accédez à des aires de camping-car. Spontané, sécurisé, légal. Découvrez la Suisse autrement avec des emplacements créés pour vous.",
+          "Accédez à des aires de vanlife. Spontané, sécurisé, légal. Découvrez la Suisse autrement avec des emplacements créés pour vous.",
         images: [
           {
             url: "/logo_map.png",
             width: 1200,
             height: 630,
-            alt: "Selfcamp - Aires de camping-car en Suisse",
+            alt: "Selfcamp - Aires de vanlife en Suisse",
           },
         ],
         siteName: "Selfcamp",
         type: "website",
         locale: "fr_CH",
+        url: "https://www.selfcamp.ch",
       },
       twitter: {
         card: "summary_large_image",
-        title: "Selfcamp - Aires de Camping-Car en Suisse",
+        title: "Selfcamp - Aires de vanlife en Suisse",
         description:
-          "Accédez à des aires de camping-car. Spontané, sécurisé, légal. Découvrez la Suisse autrement avec des emplacements créés pour vous.",
+          "Accédez à des aires de vanlife. Spontané, sécurisé, légal. Découvrez la Suisse autrement avec des emplacements créés pour vous.",
         images: ["/logo_map.png"],
+        creator: "@selfcamp_ch",
       },
       robots: {
         index: true,
@@ -71,17 +77,17 @@ export async function generateMetadata(): Promise<Metadata> {
         },
       },
       alternates: {
-        canonical: "https://selfcamp.ch",
+        canonical: "https://www.selfcamp.ch",
         languages: {
-          "fr-CH": "https://selfcamp.ch",
-          "de-CH": "https://selfcamp.ch/de",
-          "en-CH": "https://selfcamp.ch/en",
+          "fr-CH": "https://www.selfcamp.ch",
+          "de-CH": "https://www.selfcamp.ch/de",
+          "en-CH": "https://www.selfcamp.ch/en",
         },
       },
     };
   }
 
-  // Métadonnées pour SelfKey (domaine par défaut)
+  // Métadonnées pour SelfKey (domaine par défaut) - NOINDEX pour éviter confusion SEO avec Selfcamp
   return {
     title: "Selfkey - Check-in automatique pour votre établissement",
     description:
@@ -92,12 +98,9 @@ export async function generateMetadata(): Promise<Metadata> {
       "camping",
       "location saisonnière",
       "QR code",
-      "paiement en ligne",
-      "Stripe",
       "accès automatique",
       "réservation",
       "Suisse",
-      "selfkey",
     ],
     openGraph: {
       title: "Selfkey - Check-in automatique pour votre établissement",
@@ -123,14 +126,11 @@ export async function generateMetadata(): Promise<Metadata> {
       images: ["/logo.png"],
     },
     robots: {
-      index: true,
-      follow: true,
+      index: false, // Désindexer Selfkey pour focus SEO sur Selfcamp uniquement
+      follow: false,
       googleBot: {
-        index: true,
-        follow: true,
-        "max-video-preview": -1,
-        "max-image-preview": "large",
-        "max-snippet": -1,
+        index: false,
+        follow: false,
       },
     },
     alternates: {
