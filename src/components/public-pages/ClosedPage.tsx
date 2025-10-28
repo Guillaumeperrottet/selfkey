@@ -13,7 +13,6 @@ interface ClosedPageProps {
 export function ClosedPage({
   establishmentName,
   cutoffTime,
-  reopenTime,
   nextAvailableTime,
 }: ClosedPageProps) {
   return (
@@ -28,14 +27,14 @@ export function ClosedPage({
               {establishmentName}
             </h1>
             <h2 className="text-xl font-semibold text-red-600">
-              Réservations fermées
+              Réservations fermées / Reservierungen geschlossen / Bookings
+              Closed
             </h2>
           </div>
 
           <Alert className="mb-6 border-red-200 bg-red-50">
             <AlertDescription className="text-red-800">
               Les réservations sont fermées depuis {cutoffTime}
-              et rouvriront à {reopenTime}.
             </AlertDescription>
           </Alert>
 
