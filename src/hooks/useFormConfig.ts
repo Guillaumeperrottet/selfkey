@@ -43,7 +43,7 @@ export function useFormConfig(hotelSlug: string) {
 
   const isFieldRequired = (fieldId: string): boolean => {
     // Les champs obligatoires le restent toujours, incluant ceux requis par Stripe
-    const requiredFields = [
+    const alwaysRequiredFields = [
       "adults",
       "clientFirstName",
       "clientLastName",
@@ -55,7 +55,14 @@ export function useFormConfig(hotelSlug: string) {
       "clientCity",
       "clientCountry",
     ];
-    return requiredFields.includes(fieldId);
+
+    // Vérifier d'abord si le champ est toujours obligatoire
+    if (alwaysRequiredFields.includes(fieldId)) {
+      return true;
+    }
+
+    // Sinon, vérifier la configuration dynamique depuis la base de données
+    return formConfig[fieldId]?.required ?? false;
   };
 
   return {
