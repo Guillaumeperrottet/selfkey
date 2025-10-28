@@ -428,7 +428,7 @@ export function BookingFormDetails({
                   htmlFor="adults"
                   className="text-sm font-medium text-gray-700"
                 >
-                  {t.form.adults} *
+                  {t.form.adults} <span className="text-red-500">*</span>
                 </Label>
                 <Select
                   value={adults.toString()}
@@ -505,7 +505,7 @@ export function BookingFormDetails({
                     htmlFor="clientLastName"
                     className="text-sm font-medium text-gray-700"
                   >
-                    {t.form.lastName} *
+                    {t.form.lastName} <span className="text-red-500">*</span>
                   </Label>
                   <Input
                     id="clientLastName"
@@ -522,7 +522,7 @@ export function BookingFormDetails({
                     htmlFor="clientFirstName"
                     className="text-sm font-medium text-gray-700"
                   >
-                    {t.form.firstName} *
+                    {t.form.firstName} <span className="text-red-500">*</span>
                   </Label>
                   <Input
                     id="clientFirstName"
@@ -543,7 +543,7 @@ export function BookingFormDetails({
                     htmlFor="clientEmail"
                     className="text-sm font-medium text-gray-700"
                   >
-                    {t.form.email} *
+                    {t.form.email} <span className="text-red-500">*</span>
                   </Label>
                   <Input
                     id="clientEmail"
@@ -560,7 +560,7 @@ export function BookingFormDetails({
                     htmlFor="clientPhone"
                     className="text-sm font-medium text-gray-700"
                   >
-                    {t.form.phone} *
+                    {t.form.phone} <span className="text-red-500">*</span>
                   </Label>
                   <Input
                     id="clientPhone"
@@ -585,7 +585,7 @@ export function BookingFormDetails({
                         className="text-sm font-medium text-gray-700"
                       >
                         {t.form.birthDate}{" "}
-                        {isFieldRequired("clientBirthDate") ? "*" : ""}
+                        <span className="text-red-500">*</span>
                       </Label>
                       <DatePicker
                         date={clientBirthDate}
@@ -742,7 +742,7 @@ export function BookingFormDetails({
                           className="text-sm font-medium text-gray-700"
                         >
                           {t.form.idType}{" "}
-                          {isFieldRequired("clientIdNumber") ? "*" : ""}
+                          <span className="text-red-500">*</span>
                         </Label>
                         <Select
                           value={clientIdType}
@@ -770,7 +770,7 @@ export function BookingFormDetails({
                           className="text-sm font-medium text-gray-700"
                         >
                           {t.form.idNumber}{" "}
-                          {isFieldRequired("clientIdNumber") ? "*" : ""}
+                          <span className="text-red-500">*</span>
                         </Label>
                         <Input
                           id="clientIdNumber"
@@ -791,7 +791,7 @@ export function BookingFormDetails({
                         className="text-sm font-medium text-gray-700"
                       >
                         {t.form.vehicleNumber}{" "}
-                        {isFieldRequired("clientVehicleNumber") ? "*" : ""}
+                        <span className="text-red-500">*</span>
                       </Label>
                       <Input
                         id="clientVehicleNumber"

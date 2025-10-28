@@ -21,6 +21,7 @@ export function useFormConfig(hotelSlug: string) {
         );
         if (response.ok) {
           const data = await response.json();
+          console.log("📋 Form config loaded:", data.formConfig);
           setFormConfig(data.formConfig || {});
         }
       } catch (error) {
@@ -62,7 +63,13 @@ export function useFormConfig(hotelSlug: string) {
     }
 
     // Sinon, vérifier la configuration dynamique depuis la base de données
-    return formConfig[fieldId]?.required ?? false;
+    const isRequired = formConfig[fieldId]?.required ?? false;
+    console.log(
+      `🔍 Field ${fieldId} required:`,
+      isRequired,
+      formConfig[fieldId]
+    );
+    return isRequired;
   };
 
   return {
