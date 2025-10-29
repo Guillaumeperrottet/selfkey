@@ -37,91 +37,133 @@ export function SelfcampHomepage() {
           background-color: #2d3d1f;
         }
       `}</style>
-      <div className="min-h-screen bg-white">
-        {/* Hero Section avec dégradé */}
-        <section className="relative bg-gradient-to-b from-[#84994F]/8 via-white to-white">
-          {/* Header intégré */}
-          <header className="container mx-auto px-4 py-4 border-b border-gray-100">
-            <div className="flex items-center justify-between">
-              {/* Desktop header */}
-              <div className="hidden lg:flex items-center justify-between w-full">
-                <div className="flex items-center space-x-2 bg-[#84994F]/10 text-[#84994F] px-3 py-1.5 rounded-full text-sm font-medium">
-                  <div className="w-2 h-2 bg-[#84994F] rounded-full animate-pulse"></div>
-                  <span>{t.header.availability}</span>
+      <div className="min-h-screen" style={{ backgroundColor: "#EEEAE2" }}>
+        {/* Hero Section avec image de fond */}
+        <section className="relative">
+          {/* Image de fond positionnée pour que le bas soit au milieu de la search bar */}
+          <div
+            className="absolute inset-0 overflow-hidden"
+            style={{ height: "calc(100vh - 120px)" }}
+          >
+            <Image
+              src="/images/background_gruyere.jpg"
+              alt="Gruyère Background"
+              fill
+              className="object-cover"
+              style={{
+                objectPosition: "center 70%",
+              }}
+              priority
+              quality={90}
+            />
+            {/* Overlay blanc pour transparence comme sur Canva */}
+            <div className="absolute inset-0 bg-white/18"></div>
+          </div>
+
+          {/* Contenu par-dessus l'image */}
+          <div className="relative z-10">
+            {/* Header intégré */}
+            <header className="container mx-auto px-4 pt-0 pb-0">
+              <div className="flex items-start justify-between">
+                {/* Desktop header */}
+                <div className="hidden lg:flex items-start justify-between w-full">
+                  {/* Logo à gauche */}
+                  <div className="flex items-center -ml-4 -mt-10">
+                    <Image
+                      src="/selfcamp_logo_fribourg.png"
+                      alt="SelfCamp Logo"
+                      width={360}
+                      height={180}
+                      className="drop-shadow-2xl"
+                    />
+                  </div>
+
+                  {/* Navigation à droite */}
+                  <div className="flex items-center gap-6 mt-8">
+                    <Link
+                      href="/map"
+                      className="text-white font-medium text-base hover:text-white/80 transition-colors drop-shadow-lg"
+                    >
+                      Map
+                    </Link>
+                    <Link
+                      href="/about"
+                      className="text-white font-medium text-base hover:text-white/80 transition-colors drop-shadow-lg"
+                    >
+                      À propos
+                    </Link>
+                    <Link
+                      href="/contact"
+                      onClick={() => trackHomepage.contactClicked()}
+                      className="text-white font-medium text-base hover:text-white/80 transition-colors drop-shadow-lg"
+                    >
+                      Contactez-nous
+                    </Link>
+                    <div className="border-l border-white/30 pl-4">
+                      <SelfcampLanguageSelector variant="compact" />
+                    </div>
+                  </div>
                 </div>
-                <div className="flex items-center gap-4">
-                  <Link
-                    href="/contact"
-                    onClick={() => trackHomepage.contactClicked()}
-                    className="text-[#84994F] font-bold uppercase tracking-wide text-sm lg:text-lg hover:text-[#84994F]/80 transition-colors cursor-pointer"
-                  >
-                    {t.header.contact}
-                  </Link>
-                  <div className="border-l border-gray-200 pl-4">
-                    <SelfcampLanguageSelector variant="compact" />
+
+                {/* Mobile header */}
+                <div className="flex lg:hidden items-center justify-between w-full">
+                  {/* Logo mobile */}
+                  <div className="flex items-center">
+                    <Image
+                      src="/selfcamp_logo_fribourg.png"
+                      alt="SelfCamp Logo"
+                      width={200}
+                      height={100}
+                      className="drop-shadow-2xl"
+                    />
+                  </div>
+
+                  <div className="flex items-center gap-2">
+                    <Link
+                      href="/contact"
+                      onClick={() => trackHomepage.contactClicked()}
+                      className="text-white font-bold uppercase tracking-wide text-xs hover:text-white/80 transition-colors drop-shadow-lg"
+                    >
+                      {t.header.contactShort}
+                    </Link>
+                    <SelfcampLanguageSelector variant="minimal" />
                   </div>
                 </div>
               </div>
+            </header>
 
-              {/* Mobile header */}
-              <div className="flex lg:hidden items-center justify-between w-full">
-                <div className="flex items-center space-x-1.5 bg-[#84994F]/10 text-[#84994F] px-2.5 py-1 rounded-full text-xs font-medium">
-                  <div className="w-1.5 h-1.5 bg-[#84994F] rounded-full animate-pulse"></div>
-                  <span>{t.header.availability}</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <Link
-                    href="/contact"
-                    onClick={() => trackHomepage.contactClicked()}
-                    className="text-[#84994F] font-bold uppercase tracking-wide text-xs hover:text-[#84994F]/80 transition-colors"
-                  >
-                    {t.header.contactShort}
-                  </Link>
-                  <SelfcampLanguageSelector variant="minimal" />
-                </div>
-              </div>
-            </div>
-          </header>
-
-          {/* Contenu Hero avec Search intégré */}
-          <div className="text-center py-8 md:py-12 px-4 pb-16 md:pb-20">
-            <div className="container mx-auto max-w-4xl">
-              <div className="flex flex-col items-center justify-center space-y-8 md:space-y-10">
-                {/* Logo */}
-                <div className="mt-4 md:mt-6 relative">
-                  <Image
-                    src="/selfcamp_logo_black.png"
-                    alt="SelfCamp Logo"
-                    width={400}
-                    height={200}
-                    className="mx-auto"
-                  />
+            {/* Contenu Hero avec Search intégré */}
+            <div className="text-center px-4">
+              <div className="container mx-auto max-w-4xl">
+                {/* Tagline positionné plus haut */}
+                <div style={{ paddingTop: "calc(12vh - 60px)" }}>
+                  <h3 className="text-2xl md:text-4xl font-bold text-white drop-shadow-lg">
+                    {t.hero.tagline}
+                  </h3>
                 </div>
 
-                <h3 className="text-lg md:text-xl font-bold text-gray-900">
-                  {t.hero.tagline}
-                </h3>
-
-                {/* Search Bar intégrée avec accent vert */}
-                <div className="w-full max-w-2xl mt-6 md:mt-10">
-                  <div className="mb-4 md:mb-6">
-                    <h2 className="text-base md:text-2xl font-semibold text-gray-800 text-center">
-                      {t.hero.findSpot}{" "}
-                      <span className="text-[#84994F]">
-                        {t.hero.findSpotHighlight}
-                      </span>
-                    </h2>
-                    <p className="hidden md:block text-base text-gray-500 text-center mt-2">
-                      {t.hero.searchPlaceholder}
-                    </p>
-                  </div>
-                  <SearchBar />
-
-                  {/* Phrase de motivation pour les utilisateurs */}
-                  <div className="text-center mt-6 md:mt-8 max-w-2xl mx-auto space-y-3">
-                    {/* <p className="text-base md:text-lg text-gray-600 leading-relaxed">
-                      <span className="text-[#84994F] font-semibold">et</span>
-                    </p> */}
+                {/* Search Bar positionnée plus bas */}
+                <div
+                  className="flex flex-col items-center justify-center space-y-6 md:space-y-8"
+                  style={{
+                    paddingTop: "calc(32vh - 5px)",
+                    paddingBottom: "150px",
+                  }}
+                >
+                  {/* Search Bar intégrée */}
+                  <div className="w-full max-w-2xl">
+                    <div className="mb-4 md:mb-6">
+                      <h2 className="text-lg md:text-2xl font-semibold text-white text-center drop-shadow-lg">
+                        {t.hero.findSpot}{" "}
+                        <span className="text-white">
+                          {t.hero.findSpotHighlight}
+                        </span>
+                      </h2>
+                      <p className="hidden md:block text-base text-white/90 text-center mt-2 drop-shadow-md">
+                        {t.hero.searchPlaceholder}
+                      </p>
+                    </div>
+                    <SearchBar />
                   </div>
                 </div>
               </div>
@@ -130,7 +172,10 @@ export function SelfcampHomepage() {
         </section>
 
         {/* Section avantages pour les voyageurs - Style discret */}
-        <section className="py-12 md:py-20 px-4 bg-gray-50/30">
+        <section
+          className="py-12 md:py-20 px-4"
+          style={{ backgroundColor: "#EEEAE2" }}
+        >
           <div className="container mx-auto max-w-4xl">
             <div className="text-center mb-10 md:mb-14">
               <h2 className="text-2xl md:text-3xl font-bold text-gray-900">
@@ -189,9 +234,12 @@ export function SelfcampHomepage() {
         </section>
 
         {/* Section CTA vers About */}
-        <section className="py-16 md:py-24 px-4 bg-gray-50/30">
+        <section
+          className="py-16 md:py-24 px-4"
+          style={{ backgroundColor: "#EEEAE2" }}
+        >
           <div className="container mx-auto max-w-2xl">
-            <div className="bg-[#84994F]/8 p-8 md:p-10 rounded-3xl border border-gray-100 shadow-sm">
+            <div className="p-8 md:p-10">
               <div className="flex flex-col items-center text-center space-y-6">
                 <h2 className="text-2xl md:text-3xl font-bold text-gray-900">
                   {t.cta.title}{" "}
