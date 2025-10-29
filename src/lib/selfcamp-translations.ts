@@ -360,7 +360,7 @@ export const selfcampTranslations: Record<
       reserve: "Réserver",
       menu: "Menu",
       home: "Accueil",
-      about: "À propos",
+      about: "A propos",
       contact: "Contact",
       tagline: "Trouvez votre spot sans stress.",
       followUs: "Suivez-nous",
@@ -394,7 +394,7 @@ export const selfcampTranslations: Record<
         directions: "Itinéraire",
       },
       about: {
-        title: "À propos",
+        title: "A propos",
       },
       cta: {
         bookNow: "Réserver maintenant",
@@ -468,7 +468,7 @@ export const selfcampTranslations: Record<
     },
     about: {
       badge: "Solution pour communes suisses",
-      title: "À propos de",
+      title: "A propos de",
       titleHighlight: "Selfcamp",
       subtitle:
         "Une solution complète pour créer des aires de camping-car qui bénéficient aux communes, aux régions et aux vanlifer",
@@ -588,7 +588,7 @@ export const selfcampTranslations: Record<
       description: "L'accès de stationnement pour vanlife en Suisse.",
       contact: {
         title: "Contact",
-        location: "Canton de Fribourg, Suisse",
+        location: "Nous contacter",
       },
       navigation: {
         title: "Navigation",
@@ -908,7 +908,7 @@ export const selfcampTranslations: Record<
       description: "Parking access for vanlife in Switzerland.",
       contact: {
         title: "Contact",
-        location: "Canton of Fribourg, Switzerland",
+        location: "Contact us",
       },
       navigation: {
         title: "Navigation",
@@ -1228,7 +1228,7 @@ export const selfcampTranslations: Record<
       description: "Parkplatzzugang für Vanlife in der Schweiz.",
       contact: {
         title: "Kontakt",
-        location: "Kanton Freiburg, Schweiz",
+        location: "Kontaktieren Sie uns",
       },
       navigation: {
         title: "Navigation",

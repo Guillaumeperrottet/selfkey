@@ -1,70 +1,39 @@
 import type { Metadata } from "next";
-import { Geist_Mono } from "next/font/google";
 import { Toaster } from "sonner";
 import { Analytics } from "@vercel/analytics/next";
 import { GoogleAnalytics } from "@next/third-parties/google";
 import "./globals.css";
 import localFont from "next/font/local";
 
-// Neue Montreal pour le corps de texte
-const neueMontreal = localFont({
+// Manjari pour le texte, navigation, boutons
+const manjari = localFont({
   src: [
     {
-      path: "../../public/fonts/NeueMontreal-Light.woff2",
-      weight: "300",
-      style: "normal",
-    },
-    {
-      path: "../../public/fonts/NeueMontreal-Regular.woff2",
+      path: "../../public/fonts/Manjari-Regular.woff2",
       weight: "400",
       style: "normal",
     },
     {
-      path: "../../public/fonts/NeueMontreal-Medium.woff2",
-      weight: "500",
-      style: "normal",
-    },
-    {
-      path: "../../public/fonts/NeueMontreal-Bold.woff2",
+      path: "../../public/fonts/Manjari-Bold.woff2",
       weight: "700",
       style: "normal",
     },
   ],
-  variable: "--font-neue-montreal",
+  variable: "--font-manjari",
   display: "swap",
 });
 
-// SF Pro Display pour les titres
-const sfProDisplay = localFont({
+// Poppins pour les titres
+const poppins = localFont({
   src: [
     {
-      path: "../../public/fonts/SF-Pro-Display-Regular.woff2",
-      weight: "400",
-      style: "normal",
-    },
-    {
-      path: "../../public/fonts/SF-Pro-Display-Medium.woff2",
-      weight: "500",
-      style: "normal",
-    },
-    {
-      path: "../../public/fonts/SF-Pro-Display-Bold.woff2",
-      weight: "700",
-      style: "normal",
-    },
-    {
-      path: "../../public/fonts/SF-Pro-Display-Black.woff2",
-      weight: "900",
+      path: "../../public/fonts/Poppins-SemiBold.woff2",
+      weight: "600",
       style: "normal",
     },
   ],
-  variable: "--font-sf-pro-display",
+  variable: "--font-poppins",
   display: "swap",
-});
-
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
-  subsets: ["latin"],
 });
 
 // Configuration viewport séparée (Next.js 14+)
@@ -275,9 +244,7 @@ export default function RootLayout({
           content="S70Q1gnzCl6izZqimNMwfUPcK0y1XLPaXbfikVTtdZ4"
         />
       </head>
-      <body
-        className={`${neueMontreal.variable} ${sfProDisplay.variable} ${geistMono.variable} antialiased`}
-      >
+      <body className={`${manjari.variable} ${poppins.variable} antialiased`}>
         {children}
         <Toaster
           position="top-center"

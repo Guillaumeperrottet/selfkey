@@ -147,33 +147,24 @@ function MapPageContent() {
       setSelectedEstablishmentId(null);
       setHoveredEstablishment(null);
     } else {
-      // Sinon, fermer l'ancien et ouvrir le nouveau
-      setSelectedEstablishmentId(null); // Fermer d'abord l'ancien
+      // Fermer l'ancien popup d'abord
+      setSelectedEstablishmentId(null);
       setHoveredEstablishment(null);
 
-      // Centrer la carte sur l'établissement
-      setMapCenter({
-        lat: establishment.latitude,
-        lng: establishment.longitude,
-      });
-      setMapZoom(15);
+      // Ouvrir le nouveau popup immédiatement
+      // Leaflet gèrera automatiquement le centrage avec autoPan
+      setTimeout(() => {
+        setSelectedEstablishmentId(establishmentId);
+        setHoveredEstablishment(establishmentId);
 
-      // Attendre que le centrage soit effectif avant d'ouvrir le popup
-      // Utiliser requestAnimationFrame + setTimeout pour s'assurer du rendu
-      requestAnimationFrame(() => {
+        // Scroller vers la carte dans la sidebar
+        scrollToEstablishment(establishmentId);
+
+        // Réinitialiser la surbrillance après 2 secondes
         setTimeout(() => {
-          setSelectedEstablishmentId(establishmentId);
-          setHoveredEstablishment(establishmentId);
-
-          // Scroller vers la carte dans la sidebar
-          scrollToEstablishment(establishmentId);
-
-          // Réinitialiser la surbrillance après 2 secondes
-          setTimeout(() => {
-            setHoveredEstablishment(null);
-          }, 2000);
-        }, 300);
-      });
+          setHoveredEstablishment(null);
+        }, 2000);
+      }, 100);
     }
   };
 

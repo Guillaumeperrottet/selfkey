@@ -233,17 +233,42 @@ const EstablishmentMarker = ({
     if (!markerRef.current) return;
 
     if (isSelected) {
-      // Ouvrir le popup quand l'établissement est sélectionné
-      // Petit délai pour laisser le temps à la carte de se centrer
+      // Attendre que React ait complètement rendu le contenu du popup
       setTimeout(() => {
-        markerRef.current?.openPopup();
-      }, 300);
+        const marker = markerRef.current;
+        if (marker) {
+          // Ouvrir le popup avec opacité 0 pour éviter le flash
+          const popup = marker.getPopup();
+          if (popup) {
+            const popupElement = popup.getElement();
+            if (popupElement) {
+              popupElement.style.opacity = "0";
+            }
+          }
+
+          marker.openPopup();
+
+          // Attendre que le popup soit positionné, puis le rendre visible
+          setTimeout(() => {
+            const popup = marker.getPopup();
+            if (popup && popup.isOpen()) {
+              popup.update();
+
+              // Faire apparaître le popup avec une transition douce
+              const popupElement = popup.getElement();
+              if (popupElement) {
+                popupElement.style.transition = "opacity 0.2s ease-in-out";
+                popupElement.style.opacity = "1";
+              }
+            }
+          }, 100);
+        }
+      }, 150);
     } else {
       // Fermer le popup quand l'établissement n'est plus sélectionné
       markerRef.current?.closePopup();
     }
   }, [isSelected]);
-
   const handleClick = () => {
     if (onMarkerClick) {
       onMarkerClick(establishment.id);
@@ -328,6 +353,7 @@ const EstablishmentMarker = ({
         closeButton={false}
         autoClose={false}
         autoPan={true}
+        autoPanPadding={[80, 80]}
         // Configuration mobile-friendly pour les popups
         maxWidth={mobile ? 320 : 300}
         minWidth={mobile ? 300 : 200}

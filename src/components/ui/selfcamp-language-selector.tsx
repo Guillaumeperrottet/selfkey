@@ -19,10 +19,12 @@ const languages: LanguageOption[] = [
 
 interface SelfcampLanguageSelectorProps {
   variant?: "default" | "compact" | "minimal";
+  theme?: "light" | "dark";
 }
 
 export function SelfcampLanguageSelector({
   variant = "default",
+  theme = "light",
 }: SelfcampLanguageSelectorProps) {
   const { locale, changeLocale } = useSelfcampTranslation();
   const [isOpen, setIsOpen] = useState(false);
@@ -52,14 +54,20 @@ export function SelfcampLanguageSelector({
 
   // Version minimale pour mobile - dropdown compact
   if (variant === "minimal") {
+    const textColor =
+      theme === "dark"
+        ? "text-gray-900 hover:text-gray-700"
+        : "text-white hover:text-white/80";
+    const dropShadow = theme === "dark" ? "" : "drop-shadow-lg";
+
     return (
       <div className="relative" ref={dropdownRef}>
         <button
           onClick={() => setIsOpen(!isOpen)}
-          className="flex items-center gap-1 px-2 py-1 rounded-md text-xs font-medium text-gray-600 hover:text-gray-900 hover:bg-gray-50 transition-all duration-200"
+          className={`flex items-center gap-1 px-2 py-1 rounded-md text-xs font-bold uppercase tracking-wide ${textColor} transition-colors ${dropShadow}`}
           aria-label="Changer la langue"
         >
-          <span>{currentLanguage?.code.toUpperCase()}</span>
+          <span>{currentLanguage?.code}</span>
           <ChevronDown
             className={`w-3 h-3 transition-transform duration-200 ${
               isOpen ? "rotate-180" : ""
@@ -94,34 +102,40 @@ export function SelfcampLanguageSelector({
 
   // Version compacte pour desktop - dropdown élégant
   if (variant === "compact") {
+    const textColor =
+      theme === "dark"
+        ? "text-gray-900 hover:text-gray-700"
+        : "text-white hover:text-white/80";
+    const dropShadow = theme === "dark" ? "" : "drop-shadow-lg";
+
     return (
       <div className="relative" ref={dropdownRef}>
         <button
           onClick={() => setIsOpen(!isOpen)}
-          className="flex items-center gap-1.5 px-3 py-1.5 rounded-md text-sm font-medium text-gray-600 hover:text-gray-900 hover:bg-gray-50 transition-all duration-200"
+          className={`flex items-center gap-2 px-4 py-2 rounded-md text-base font-bold ${textColor} transition-all duration-200 ${dropShadow}`}
           aria-label="Changer la langue"
         >
-          <span className="text-xs">{currentLanguage?.code.toUpperCase()}</span>
+          <span className="text-sm">{currentLanguage?.code.toUpperCase()}</span>
           <ChevronDown
-            className={`w-4 h-4 transition-transform duration-200 ${
+            className={`w-5 h-5 transition-transform duration-200 ${
               isOpen ? "rotate-180" : ""
             }`}
           />
         </button>
 
         {isOpen && (
-          <div className="absolute right-0 mt-2 w-36 bg-white rounded-lg shadow-lg border border-gray-100 py-1 z-50">
+          <div className="absolute right-0 mt-2 w-40 bg-white rounded-lg shadow-lg border border-gray-100 py-1 z-50">
             {languages.map((lang) => (
               <button
                 key={lang.code}
                 onClick={() => handleLanguageChange(lang.code)}
                 className={`
-                  w-full flex items-center justify-center px-4 py-2.5 text-sm text-center
+                  w-full flex items-center justify-center px-4 py-3 text-base text-center
                   transition-colors duration-150
                   ${
                     locale === lang.code
-                      ? "bg-[#84994F]/10 text-[#84994F] font-medium"
-                      : "text-gray-700 hover:bg-gray-50"
+                      ? "bg-[#84994F]/10 text-[#84994F] font-bold"
+                      : "text-gray-700 hover:bg-gray-50 font-bold"
                   }
                 `}
               >

@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { ArrowLeft } from "lucide-react";
+import Image from "next/image";
 import { motion } from "framer-motion";
 import { StructuredData } from "@/components/shared/structured-data";
 import { Timeline } from "@/components/ui/timeline";
@@ -514,57 +514,104 @@ export function SelfcampAboutPage() {
         }
       `}</style>
       <div className="min-h-screen bg-white">
-        {/* Header harmonisé */}
-        <header className="bg-white/95 backdrop-blur-sm sticky top-0 z-50 border-b border-gray-100/50">
-          <div className="container mx-auto px-4 py-3">
-            <div className="flex items-center justify-between">
-              {/* Desktop header */}
-              <div className="hidden lg:flex items-center justify-between w-full">
-                <div className="flex items-center space-x-2 bg-[#84994F]/10 text-[#84994F] px-3 py-1.5 rounded-full text-sm font-medium">
-                  <div className="w-2 h-2 bg-[#84994F] rounded-full animate-pulse"></div>
-                  <span>{t.header.availability}</span>
-                </div>
-                <div className="flex items-center gap-4">
-                  <Link
-                    href="/contact"
-                    className="text-[#84994F] text-sm font-bold tracking-wide uppercase hover:text-[#84994F]/80 transition-colors duration-300"
-                  >
-                    {t.header.contact}
-                  </Link>
-                  <div className="border-l border-gray-200 pl-4">
-                    <SelfcampLanguageSelector variant="compact" />
-                  </div>
-                </div>
-              </div>
-
-              {/* Mobile header */}
-              <div className="flex lg:hidden items-center justify-between w-full">
-                <div className="flex items-center space-x-1.5 bg-[#84994F]/10 text-[#84994F] px-2.5 py-1 rounded-full text-xs font-medium">
-                  <div className="w-1.5 h-1.5 bg-[#84994F] rounded-full animate-pulse"></div>
-                  <span>{t.header.availability}</span>
-                </div>
+        {/* Header avec logo noir compact */}
+        <header className="container mx-auto px-4 py-2">
+          <div className="flex items-center justify-between">
+            {/* Desktop header */}
+            <div className="hidden lg:flex items-center justify-between w-full">
+              {/* Logo à gauche */}
+              <div className="flex items-center">
                 <Link
                   href="/"
-                  className="group flex items-center space-x-2 text-gray-600 hover:text-[#84994F] transition-all duration-300"
+                  onClick={() => trackAbout.mapCtaClicked("logo_desktop")}
                 >
-                  <ArrowLeft className="h-4 w-4 group-hover:-translate-x-1 transition-transform duration-300" />
-                  <span className="text-sm">{t.about.backHome}</span>
+                  <Image
+                    src="/logo.png"
+                    alt="SelfCamp Logo"
+                    width={140}
+                    height={70}
+                    className="hover:opacity-80 transition-opacity"
+                  />
                 </Link>
-                <div className="flex items-center gap-2">
-                  <Link
-                    href="/contact"
-                    className="text-[#84994F] text-xs font-bold tracking-wide uppercase hover:text-[#84994F]/80 transition-colors duration-300"
-                  >
-                    {t.header.contactShort}
-                  </Link>
-                  <SelfcampLanguageSelector variant="minimal" />
+              </div>
+
+              {/* Navigation à droite */}
+              <div className="flex items-center gap-6">
+                <Link
+                  href="/"
+                  onClick={() => trackAbout.mapCtaClicked("home_menu_desktop")}
+                  className="text-gray-900 font-bold text-base hover:text-gray-700 transition-colors"
+                >
+                  {t.map.home}
+                </Link>
+                <Link
+                  href="/map"
+                  className="text-gray-900 font-bold text-base hover:text-gray-700 transition-colors"
+                >
+                  Map
+                </Link>
+                <Link
+                  href="/contact"
+                  onClick={() => trackAbout.contactCtaClicked("header")}
+                  className="text-gray-900 font-bold text-base hover:text-gray-700 transition-colors"
+                >
+                  {t.map.contact}
+                </Link>
+                <div className="border-l border-gray-300 pl-4">
+                  <SelfcampLanguageSelector variant="compact" theme="dark" />
+                </div>
+              </div>
+            </div>
+
+            {/* Mobile header */}
+            <div className="flex lg:hidden items-center justify-between w-full">
+              {/* Logo à gauche */}
+              <div className="flex items-center">
+                <Link
+                  href="/"
+                  onClick={() => trackAbout.mapCtaClicked("logo_mobile")}
+                >
+                  <Image
+                    src="/selfcamp_logo_black.png"
+                    alt="SelfCamp Logo"
+                    width={90}
+                    height={45}
+                    className="hover:opacity-80 transition-opacity"
+                  />
+                </Link>
+              </div>
+
+              {/* Navigation à droite */}
+              <div className="flex items-center gap-2">
+                <Link
+                  href="/"
+                  onClick={() => trackAbout.mapCtaClicked("home_menu_mobile")}
+                  className="text-gray-900 font-bold uppercase tracking-wide text-[10px] hover:text-gray-700 transition-colors"
+                >
+                  {t.map.home}
+                </Link>
+                <Link
+                  href="/map"
+                  className="text-gray-900 font-bold uppercase tracking-wide text-[10px] hover:text-gray-700 transition-colors"
+                >
+                  Map
+                </Link>
+                <Link
+                  href="/contact"
+                  onClick={() => trackAbout.contactCtaClicked("header_mobile")}
+                  className="text-gray-900 font-bold uppercase tracking-wide text-[10px] hover:text-gray-700 transition-colors"
+                >
+                  Contact
+                </Link>
+                <div className="border-l border-gray-300 pl-2">
+                  <SelfcampLanguageSelector variant="minimal" theme="dark" />
                 </div>
               </div>
             </div>
           </div>
         </header>
         {/* Hero Section épuré */}
-        <section className="bg-white py-12 md:py-20 px-4">
+        <section className="bg-white py-8 md:py-12 px-4">
           <div className="container mx-auto max-w-5xl text-center">
             {/* Badge */}
             <motion.div
@@ -711,7 +758,7 @@ export function SelfcampAboutPage() {
             >
               {/* Mobile: Simple CTA */}
               <div className="md:hidden">
-                <div className="bg-gradient-to-br from-[#84994F]/8 via-white to-[#84994F]/5 rounded-3xl p-8 border border-[#84994F]/15 shadow-lg">
+                <div className="bg-white rounded-3xl p-8 border border-[#84994F]/20 shadow-lg">
                   <div className="text-center space-y-6">
                     <div className="flex items-center justify-center opacity-80">
                       <VanIcon size="md" showRoad={false} />
@@ -750,7 +797,7 @@ export function SelfcampAboutPage() {
 
               {/* Desktop: Card CTA avec fond */}
               <div className="hidden md:block">
-                <div className="bg-gradient-to-br from-[#84994F]/10 via-white to-[#84994F]/5 rounded-3xl p-12 border border-[#84994F]/20 shadow-xl max-w-5xl mx-auto">
+                <div className="bg-white rounded-3xl p-12 border border-[#84994F]/20 shadow-xl max-w-5xl mx-auto">
                   <div className="text-center space-y-6">
                     <div className="flex items-center justify-center opacity-80 mb-4">
                       <VanIcon size="lg" showRoad={false} />
