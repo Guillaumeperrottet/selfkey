@@ -209,51 +209,6 @@ export default function ContactPage() {
               </div>
             </div>
           </div>
-
-          {/* Mobile header */}
-          <div className="flex lg:hidden items-center justify-between w-full">
-            {/* Logo à gauche */}
-            <div className="flex items-center">
-              <Link
-                href="/"
-                onClick={() => trackContact.formError("logo_mobile_click")}
-              >
-                <Image
-                  src="/selfcamp_logo_black.png"
-                  alt="SelfCamp Logo"
-                  width={90}
-                  height={45}
-                  className="hover:opacity-80 transition-opacity"
-                />
-              </Link>
-            </div>
-
-            {/* Navigation à droite */}
-            <div className="flex items-center gap-2">
-              <Link
-                href="/"
-                onClick={() => trackContact.formError("home_menu_mobile_click")}
-                className="text-gray-900 font-bold uppercase tracking-wide text-[10px] hover:text-gray-700 transition-colors"
-              >
-                {t.map.home}
-              </Link>
-              <Link
-                href="/map"
-                className="text-gray-900 font-bold uppercase tracking-wide text-[10px] hover:text-gray-700 transition-colors"
-              >
-                Map
-              </Link>
-              <Link
-                href="/contact"
-                className="text-gray-900 font-bold uppercase tracking-wide text-[10px] hover:text-gray-700 transition-colors"
-              >
-                Contact
-              </Link>
-              <div className="border-l border-gray-300 pl-2">
-                <SelfcampLanguageSelector variant="minimal" theme="dark" />
-              </div>
-            </div>
-          </div>
         </div>
       </header>
 
