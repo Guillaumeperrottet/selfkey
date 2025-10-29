@@ -572,7 +572,7 @@ export function SelfcampAboutPage() {
                   onClick={() => trackAbout.mapCtaClicked("logo_mobile")}
                 >
                   <Image
-                    src="/selfcamp_logo_black.png"
+                    src="/logo.png"
                     alt="SelfCamp Logo"
                     width={90}
                     height={45}
