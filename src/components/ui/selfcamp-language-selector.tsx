@@ -56,10 +56,10 @@ export function SelfcampLanguageSelector({
       <div className="relative" ref={dropdownRef}>
         <button
           onClick={() => setIsOpen(!isOpen)}
-          className="flex items-center gap-1 px-2 py-1 rounded-md text-xs font-medium text-gray-600 hover:text-gray-900 hover:bg-gray-50 transition-all duration-200"
+          className="flex items-center gap-1 px-2 py-1 rounded-md text-xs font-bold uppercase tracking-wide text-white hover:text-white/80 transition-colors drop-shadow-lg"
           aria-label="Changer la langue"
         >
-          <span>{currentLanguage?.code.toUpperCase()}</span>
+          <span>{currentLanguage?.code}</span>
           <ChevronDown
             className={`w-3 h-3 transition-transform duration-200 ${
               isOpen ? "rotate-180" : ""

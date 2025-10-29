@@ -234,10 +234,21 @@ const EstablishmentMarker = ({
 
     if (isSelected) {
       // Ouvrir le popup quand l'établissement est sélectionné
-      // Petit délai pour laisser le temps à la carte de se centrer
       setTimeout(() => {
-        markerRef.current?.openPopup();
-      }, 300);
+        const marker = markerRef.current;
+        if (marker) {
+          marker.openPopup();
+
+          // Forcer le recalcul de la position après que le popup soit complètement rendu
+          setTimeout(() => {
+            const popup = marker.getPopup();
+            if (popup && popup.isOpen()) {
+              // Mettre à jour le popup pour recalculer sa position
+              popup.update();
+            }
+          }, 150);
+        }
+      }, 50);
     } else {
       // Fermer le popup quand l'établissement n'est plus sélectionné
       markerRef.current?.closePopup();
@@ -328,6 +339,7 @@ const EstablishmentMarker = ({
         closeButton={false}
         autoClose={false}
         autoPan={true}
+        autoPanPadding={[80, 80]}
         // Configuration mobile-friendly pour les popups
         maxWidth={mobile ? 320 : 300}
         minWidth={mobile ? 300 : 200}
