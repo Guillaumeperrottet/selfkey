@@ -98,30 +98,30 @@ export function SelfcampLanguageSelector({
       <div className="relative" ref={dropdownRef}>
         <button
           onClick={() => setIsOpen(!isOpen)}
-          className="flex items-center gap-1.5 px-3 py-1.5 rounded-md text-sm font-medium text-gray-600 hover:text-gray-900 hover:bg-gray-50 transition-all duration-200"
+          className="flex items-center gap-2 px-4 py-2 rounded-md text-base font-bold text-white hover:text-white/80 transition-all duration-200 drop-shadow-lg"
           aria-label="Changer la langue"
         >
-          <span className="text-xs">{currentLanguage?.code.toUpperCase()}</span>
+          <span className="text-sm">{currentLanguage?.code.toUpperCase()}</span>
           <ChevronDown
-            className={`w-4 h-4 transition-transform duration-200 ${
+            className={`w-5 h-5 transition-transform duration-200 ${
               isOpen ? "rotate-180" : ""
             }`}
           />
         </button>
 
         {isOpen && (
-          <div className="absolute right-0 mt-2 w-36 bg-white rounded-lg shadow-lg border border-gray-100 py-1 z-50">
+          <div className="absolute right-0 mt-2 w-40 bg-white rounded-lg shadow-lg border border-gray-100 py-1 z-50">
             {languages.map((lang) => (
               <button
                 key={lang.code}
                 onClick={() => handleLanguageChange(lang.code)}
                 className={`
-                  w-full flex items-center justify-center px-4 py-2.5 text-sm text-center
+                  w-full flex items-center justify-center px-4 py-3 text-base text-center
                   transition-colors duration-150
                   ${
                     locale === lang.code
-                      ? "bg-[#84994F]/10 text-[#84994F] font-medium"
-                      : "text-gray-700 hover:bg-gray-50"
+                      ? "bg-[#84994F]/10 text-[#84994F] font-bold"
+                      : "text-gray-700 hover:bg-gray-50 font-bold"
                   }
                 `}
               >

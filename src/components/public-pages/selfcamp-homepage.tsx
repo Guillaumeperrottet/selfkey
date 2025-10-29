@@ -79,27 +79,27 @@ export function SelfcampHomepage() {
                   </div>
 
                   {/* Navigation à droite */}
-                  <div className="flex items-center gap-6 mt-8">
+                  <div className="flex items-center gap-8 mt-8">
                     <Link
                       href="/map"
-                      className="text-white font-medium text-base hover:text-white/80 transition-colors drop-shadow-lg"
+                      className="text-white font-bold text-lg hover:text-white/80 transition-colors drop-shadow-lg"
                     >
                       Map
                     </Link>
                     <Link
                       href="/about"
-                      className="text-white font-medium text-base hover:text-white/80 transition-colors drop-shadow-lg"
+                      className="text-white font-bold text-lg hover:text-white/80 transition-colors drop-shadow-lg"
                     >
-                      À propos
+                      {t.map.about}
                     </Link>
                     <Link
                       href="/contact"
                       onClick={() => trackHomepage.contactClicked()}
-                      className="text-white font-medium text-base hover:text-white/80 transition-colors drop-shadow-lg"
+                      className="text-white font-bold text-lg hover:text-white/80 transition-colors drop-shadow-lg"
                     >
-                      Contactez-nous
+                      {t.map.contact}
                     </Link>
-                    <div className="border-l border-white/30 pl-4">
+                    <div className="border-l border-white/30 pl-6">
                       <SelfcampLanguageSelector variant="compact" />
                     </div>
                   </div>
@@ -137,7 +137,7 @@ export function SelfcampHomepage() {
               <div className="container mx-auto max-w-4xl">
                 {/* Tagline positionné plus haut */}
                 <div style={{ paddingTop: "calc(12vh - 60px)" }}>
-                  <h3 className="text-2xl md:text-4xl font-bold text-white drop-shadow-lg">
+                  <h3 className="text-xl md:text-3xl font-bold text-white drop-shadow-lg">
                     {t.hero.tagline}
                   </h3>
                 </div>
@@ -146,22 +146,16 @@ export function SelfcampHomepage() {
                 <div
                   className="flex flex-col items-center justify-center space-y-6 md:space-y-8"
                   style={{
-                    paddingTop: "calc(32vh - 5px)",
+                    paddingTop: "calc(36vh - 5px)",
                     paddingBottom: "150px",
                   }}
                 >
                   {/* Search Bar intégrée */}
                   <div className="w-full max-w-2xl">
                     <div className="mb-4 md:mb-6">
-                      <h2 className="text-lg md:text-2xl font-semibold text-white text-center drop-shadow-lg">
-                        {t.hero.findSpot}{" "}
-                        <span className="text-white">
-                          {t.hero.findSpotHighlight}
-                        </span>
+                      <h2 className="text-lg md:text-2xl font-bold text-white text-center drop-shadow-lg">
+                        {t.hero.findSpot} {t.hero.findSpotHighlight}
                       </h2>
-                      <p className="hidden md:block text-base text-white/90 text-center mt-2 drop-shadow-md">
-                        {t.hero.searchPlaceholder}
-                      </p>
                     </div>
                     <SearchBar />
                   </div>
