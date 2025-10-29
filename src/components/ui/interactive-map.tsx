@@ -39,6 +39,7 @@ interface InteractiveMapProps {
   >;
   disableAutoGeolocation?: boolean;
   selectedEstablishmentId?: string | null; // Nouvel prop pour ouvrir le popup
+  onClosePopup?: () => void; // Callback pour fermer le popup
 }
 
 // Composant Map dynamique pour éviter les problèmes SSR
@@ -62,6 +63,7 @@ export default function InteractiveMap({
   availabilityData,
   disableAutoGeolocation = false,
   selectedEstablishmentId = null,
+  onClosePopup,
 }: InteractiveMapProps) {
   const { t } = useSelfcampTranslation();
   const [mounted, setMounted] = useState(false);
@@ -109,6 +111,7 @@ export default function InteractiveMap({
           availabilityData={availabilityData}
           disableAutoGeolocation={disableAutoGeolocation}
           selectedEstablishmentId={selectedEstablishmentId}
+          onClosePopup={onClosePopup}
         />
       </div>
     </div>

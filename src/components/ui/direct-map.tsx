@@ -139,7 +139,43 @@ interface DirectMapProps {
   >;
   disableAutoGeolocation?: boolean;
   selectedEstablishmentId?: string | null; // Nouvel prop pour ouvrir le popup
+  onClosePopup?: () => void; // Callback pour fermer le popup
 }
+
+// Composant pour gérer les événements de fermeture du popup
+const MapEventHandler = ({ onClosePopup }: { onClosePopup?: () => void }) => {
+  const map = useMap();
+
+  useEffect(() => {
+    if (!onClosePopup) return;
+
+    // Fermer le popup lors du clic sur la carte (hors marqueurs)
+    const handleMapClick = (e: L.LeafletMouseEvent) => {
+      // Vérifier si le clic est sur un marqueur
+      const target = e.originalEvent.target as HTMLElement;
+      const isMarkerClick = target.closest(".leaflet-marker-icon") !== null;
+
+      if (!isMarkerClick) {
+        onClosePopup();
+      }
+    };
+
+    // Fermer le popup lors du déplacement de la carte
+    const handleMapMove = () => {
+      onClosePopup();
+    };
+
+    map.on("click", handleMapClick);
+    map.on("movestart", handleMapMove);
+
+    return () => {
+      map.off("click", handleMapClick);
+      map.off("movestart", handleMapMove);
+    };
+  }, [map, onClosePopup]);
+
+  return null;
+};
 
 // Composant pour mettre à jour la carte quand les props changent
 const MapUpdater = ({
@@ -192,13 +228,19 @@ const EstablishmentMarker = ({
   const markerRef = useRef<L.Marker | null>(null);
   const { t } = useSelfcampTranslation();
 
-  // Ouvrir le popup quand l'établissement est sélectionné
+  // Gérer l'ouverture et la fermeture du popup selon l'état de sélection
   useEffect(() => {
-    if (isSelected && markerRef.current) {
+    if (!markerRef.current) return;
+
+    if (isSelected) {
+      // Ouvrir le popup quand l'établissement est sélectionné
       // Petit délai pour laisser le temps à la carte de se centrer
       setTimeout(() => {
         markerRef.current?.openPopup();
       }, 300);
+    } else {
+      // Fermer le popup quand l'établissement n'est plus sélectionné
+      markerRef.current?.closePopup();
     }
   }, [isSelected]);
 
@@ -596,6 +638,7 @@ export default function DirectMap({
   availabilityData,
   disableAutoGeolocation = false,
   selectedEstablishmentId,
+  onClosePopup,
 }: DirectMapProps) {
   const [mounted, setMounted] = useState(false);
 
@@ -656,6 +699,7 @@ export default function DirectMap({
       })}
     >
       <MapUpdater center={center} zoom={zoom} />
+      <MapEventHandler onClosePopup={onClosePopup} />
       <MobileLocationComponent disabled={disableAutoGeolocation} />
       <TileLayer
         attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'

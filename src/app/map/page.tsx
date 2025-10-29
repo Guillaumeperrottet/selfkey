@@ -133,6 +133,50 @@ function MapPageContent() {
     }
   };
 
+  // Fonction pour gérer le clic sur un marqueur (toggle du popup)
+  const handleMarkerClick = (establishmentId: string) => {
+    // Trouver l'établissement correspondant
+    const establishment = establishments.find(
+      (est) => est.id === establishmentId
+    );
+
+    if (!establishment) return;
+
+    // Si le popup est déjà ouvert sur cet établissement, le fermer
+    if (selectedEstablishmentId === establishmentId) {
+      setSelectedEstablishmentId(null);
+      setHoveredEstablishment(null);
+    } else {
+      // Sinon, fermer l'ancien et ouvrir le nouveau
+      setSelectedEstablishmentId(null); // Fermer d'abord l'ancien
+      setHoveredEstablishment(null);
+
+      // Centrer la carte sur l'établissement
+      setMapCenter({
+        lat: establishment.latitude,
+        lng: establishment.longitude,
+      });
+      setMapZoom(15);
+
+      // Attendre que le centrage soit effectif avant d'ouvrir le popup
+      // Utiliser requestAnimationFrame + setTimeout pour s'assurer du rendu
+      requestAnimationFrame(() => {
+        setTimeout(() => {
+          setSelectedEstablishmentId(establishmentId);
+          setHoveredEstablishment(establishmentId);
+
+          // Scroller vers la carte dans la sidebar
+          scrollToEstablishment(establishmentId);
+
+          // Réinitialiser la surbrillance après 2 secondes
+          setTimeout(() => {
+            setHoveredEstablishment(null);
+          }, 2000);
+        }, 300);
+      });
+    }
+  };
+
   // Fonction pour ouvrir Google Maps avec les coordonnées
   const openGoogleMaps = (
     latitude: number,
@@ -158,19 +202,39 @@ function MapPageContent() {
       establishment.latitude,
       establishment.longitude
     );
+
+    // 1. Fermer le popup actuel en réinitialisant l'état
+    setSelectedEstablishmentId(null);
+    setHoveredEstablishment(null);
+
+    // 2. Centrer la carte et zoomer
     setMapCenter({ lat: establishment.latitude, lng: establishment.longitude });
     setMapZoom(15); // Zoom plus proche pour voir l'établissement
 
-    // Mettre en surbrillance temporaire l'établissement
-    setHoveredEstablishment(establishment.id);
-    setTimeout(() => setHoveredEstablishment(null), 2000);
+    // 3. Sur desktop, scroller vers la carte dans la sidebar pour la garder visible
+    if (!isMobile) {
+      const element = document.getElementById(
+        `establishment-card-${establishment.id}`
+      );
+      if (element) {
+        element.scrollIntoView({
+          behavior: "smooth",
+          block: "center",
+        });
+      }
+    }
 
-    // Définir l'établissement sélectionné pour ouvrir son popup
-    setSelectedEstablishmentId(establishment.id);
-    // Réinitialiser après un court délai pour permettre une nouvelle sélection
-    setTimeout(() => setSelectedEstablishmentId(null), 500);
+    // 4. Attendre que la carte se centre, puis ouvrir le popup
+    setTimeout(() => {
+      setSelectedEstablishmentId(establishment.id);
+      setHoveredEstablishment(establishment.id);
+
+      // Réinitialiser la surbrillance après 2 secondes
+      setTimeout(() => {
+        setHoveredEstablishment(null);
+      }, 2000);
+    }, 200);
   };
-
   useEffect(() => {
     fetchEstablishments();
 
@@ -788,12 +852,16 @@ function MapPageContent() {
             fullHeight
             showTitle={false}
             hoveredEstablishmentId={hoveredEstablishment}
-            onMarkerClick={scrollToEstablishment}
+            onMarkerClick={handleMarkerClick}
             center={mapCenter}
             zoom={mapZoom}
             availabilityData={availabilityData}
             disableAutoGeolocation={!!mapCenter && !isUserGeolocation}
             selectedEstablishmentId={selectedEstablishmentId}
+            onClosePopup={() => {
+              setSelectedEstablishmentId(null);
+              setHoveredEstablishment(null);
+            }}
           />
 
           {/* Barre de recherche fixe au centre - style Park4night */}
