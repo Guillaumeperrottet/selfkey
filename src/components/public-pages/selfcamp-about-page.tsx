@@ -611,28 +611,17 @@ export function SelfcampAboutPage() {
           </div>
         </header>
         {/* Hero Section épuré */}
-        <section className="bg-white py-8 md:py-12 px-4">
+        <section className="bg-white pt-16 pb-8 md:py-12 px-4">
           <div className="container mx-auto max-w-5xl text-center">
-            {/* Badge */}
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6 }}
-              className="inline-flex items-center space-x-2 bg-[#84994F]/10 text-[#84994F] px-4 py-2 md:px-6 md:py-3 rounded-full text-xs md:text-sm font-medium mb-6 md:mb-8"
-            >
-              <span>🏛️</span>
-              <span>{t.about.badge}</span>
-            </motion.div>
-
             {/* Titre principal */}
             <motion.h1
               initial={{ opacity: 0, y: 30 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.8, delay: 0.2 }}
-              className="text-3xl md:text-5xl lg:text-7xl font-bold text-gray-900 mb-4 md:mb-8 leading-tight px-2"
+              className="font-display text-3xl md:text-5xl lg:text-7xl mb-4 md:mb-8 leading-tight px-2"
+              style={{ fontWeight: 700 }}
             >
-              {t.about.title}{" "}
-              <span className="text-[#84994F]">{t.about.titleHighlight}</span>
+              <span className="text-[#84994F]">Selfcamp</span>
             </motion.h1>
 
             {/* Sous-titre */}
