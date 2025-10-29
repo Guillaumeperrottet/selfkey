@@ -19,10 +19,12 @@ const languages: LanguageOption[] = [
 
 interface SelfcampLanguageSelectorProps {
   variant?: "default" | "compact" | "minimal";
+  theme?: "light" | "dark";
 }
 
 export function SelfcampLanguageSelector({
   variant = "default",
+  theme = "light",
 }: SelfcampLanguageSelectorProps) {
   const { locale, changeLocale } = useSelfcampTranslation();
   const [isOpen, setIsOpen] = useState(false);
@@ -52,11 +54,17 @@ export function SelfcampLanguageSelector({
 
   // Version minimale pour mobile - dropdown compact
   if (variant === "minimal") {
+    const textColor =
+      theme === "dark"
+        ? "text-gray-900 hover:text-gray-700"
+        : "text-white hover:text-white/80";
+    const dropShadow = theme === "dark" ? "" : "drop-shadow-lg";
+
     return (
       <div className="relative" ref={dropdownRef}>
         <button
           onClick={() => setIsOpen(!isOpen)}
-          className="flex items-center gap-1 px-2 py-1 rounded-md text-xs font-bold uppercase tracking-wide text-white hover:text-white/80 transition-colors drop-shadow-lg"
+          className={`flex items-center gap-1 px-2 py-1 rounded-md text-xs font-bold uppercase tracking-wide ${textColor} transition-colors ${dropShadow}`}
           aria-label="Changer la langue"
         >
           <span>{currentLanguage?.code}</span>
@@ -94,11 +102,17 @@ export function SelfcampLanguageSelector({
 
   // Version compacte pour desktop - dropdown élégant
   if (variant === "compact") {
+    const textColor =
+      theme === "dark"
+        ? "text-gray-900 hover:text-gray-700"
+        : "text-white hover:text-white/80";
+    const dropShadow = theme === "dark" ? "" : "drop-shadow-lg";
+
     return (
       <div className="relative" ref={dropdownRef}>
         <button
           onClick={() => setIsOpen(!isOpen)}
-          className="flex items-center gap-2 px-4 py-2 rounded-md text-base font-bold text-white hover:text-white/80 transition-all duration-200 drop-shadow-lg"
+          className={`flex items-center gap-2 px-4 py-2 rounded-md text-base font-bold ${textColor} transition-all duration-200 ${dropShadow}`}
           aria-label="Changer la langue"
         >
           <span className="text-sm">{currentLanguage?.code.toUpperCase()}</span>

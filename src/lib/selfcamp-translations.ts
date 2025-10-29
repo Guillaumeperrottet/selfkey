@@ -588,7 +588,7 @@ export const selfcampTranslations: Record<
       description: "L'accès de stationnement pour vanlife en Suisse.",
       contact: {
         title: "Contact",
-        location: "Canton de Fribourg, Suisse",
+        location: "Nous contacter",
       },
       navigation: {
         title: "Navigation",
@@ -908,7 +908,7 @@ export const selfcampTranslations: Record<
       description: "Parking access for vanlife in Switzerland.",
       contact: {
         title: "Contact",
-        location: "Canton of Fribourg, Switzerland",
+        location: "Contact us",
       },
       navigation: {
         title: "Navigation",
@@ -1228,7 +1228,7 @@ export const selfcampTranslations: Record<
       description: "Parkplatzzugang für Vanlife in der Schweiz.",
       contact: {
         title: "Kontakt",
-        location: "Kanton Freiburg, Schweiz",
+        location: "Kontaktieren Sie uns",
       },
       navigation: {
         title: "Navigation",

@@ -2,11 +2,13 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { SelfcampFooter } from "@/components/public-pages/selfcamp-footer";
+import { SelfcampLanguageSelector } from "@/components/ui/selfcamp-language-selector";
 import { useAnalytics } from "@/hooks/useAnalytics";
 import { useSelfcampTranslation } from "@/hooks/useSelfcampTranslation";
 
@@ -18,7 +20,6 @@ import {
   CheckCircle,
   AlertCircle,
   Loader2,
-  ArrowLeft,
 } from "lucide-react";
 
 interface FormData {
@@ -114,43 +115,143 @@ export default function ContactPage() {
 
   return (
     <div className="min-h-screen bg-white">
-      {/* Header harmonisé */}
-      <header className="bg-white/95 backdrop-blur-sm sticky top-0 z-50 border-b border-gray-100/50">
-        <div className="container mx-auto px-4 py-3">
-          <div className="flex items-center justify-between">
-            {/* Desktop header */}
-            <div className="hidden lg:flex items-center justify-between w-full">
-              <div className="flex items-center space-x-2 bg-[#84994F]/10 text-[#84994F] px-3 py-1.5 rounded-full text-sm font-medium">
-                <div className="w-2 h-2 bg-[#84994F] rounded-full animate-pulse"></div>
-                <span>{t.contactPage.availability}</span>
-              </div>
+      {/* Header avec logo noir compact - identique à About */}
+      <header className="container mx-auto px-4 py-2">
+        <div className="flex items-center justify-between">
+          {/* Desktop header */}
+          <div className="hidden lg:flex items-center justify-between w-full">
+            {/* Logo à gauche */}
+            <div className="flex items-center">
               <Link
-                href="/contact"
-                className="text-[#84994F] text-sm font-bold tracking-wide uppercase hover:text-[#84994F]/80 transition-colors duration-300"
+                href="/"
+                onClick={() => trackContact.formError("logo_desktop_click")}
               >
-                {t.contactPage.contactButton}
+                <Image
+                  src="/logo.png"
+                  alt="SelfCamp Logo"
+                  width={140}
+                  height={70}
+                  className="hover:opacity-80 transition-opacity"
+                />
               </Link>
             </div>
 
-            {/* Mobile header */}
-            <div className="flex lg:hidden items-center justify-between w-full">
-              <div className="flex items-center space-x-1.5 bg-[#84994F]/10 text-[#84994F] px-2.5 py-1 rounded-full text-xs font-medium">
-                <div className="w-1.5 h-1.5 bg-[#84994F] rounded-full animate-pulse"></div>
-                <span>{t.contactPage.availability}</span>
-              </div>
+            {/* Navigation à droite */}
+            <div className="flex items-center gap-6">
               <Link
                 href="/"
-                className="group flex items-center space-x-2 text-gray-600 hover:text-[#84994F] transition-all duration-300"
+                onClick={() =>
+                  trackContact.formError("home_menu_desktop_click")
+                }
+                className="text-gray-900 font-bold text-base hover:text-gray-700 transition-colors"
               >
-                <ArrowLeft className="h-4 w-4 group-hover:-translate-x-1 transition-transform duration-300" />
-                <span className="text-sm">{t.contactPage.backHome}</span>
+                {t.map.home}
+              </Link>
+              <Link
+                href="/map"
+                className="text-gray-900 font-bold text-base hover:text-gray-700 transition-colors"
+              >
+                Map
+              </Link>
+              <Link
+                href="/about"
+                className="text-gray-900 font-bold text-base hover:text-gray-700 transition-colors"
+              >
+                {t.map.about}
+              </Link>
+              <div className="border-l border-gray-300 pl-4">
+                <SelfcampLanguageSelector variant="compact" theme="dark" />
+              </div>
+            </div>
+          </div>
+
+          {/* Mobile header */}
+          <div className="flex lg:hidden items-center justify-between w-full">
+            {/* Logo à gauche */}
+            <div className="flex items-center">
+              <Link
+                href="/"
+                onClick={() => trackContact.formError("logo_mobile_click")}
+              >
+                <Image
+                  src="/selfcamp_logo_black.png"
+                  alt="SelfCamp Logo"
+                  width={90}
+                  height={45}
+                  className="hover:opacity-80 transition-opacity"
+                />
+              </Link>
+            </div>
+
+            {/* Navigation à droite */}
+            <div className="flex items-center gap-2">
+              <Link
+                href="/"
+                onClick={() => trackContact.formError("home_menu_mobile_click")}
+                className="text-gray-900 font-bold uppercase tracking-wide text-[10px] hover:text-gray-700 transition-colors"
+              >
+                {t.map.home}
+              </Link>
+              <Link
+                href="/map"
+                className="text-gray-900 font-bold uppercase tracking-wide text-[10px] hover:text-gray-700 transition-colors"
+              >
+                Map
+              </Link>
+              <Link
+                href="/about"
+                className="text-gray-900 font-bold uppercase tracking-wide text-[10px] hover:text-gray-700 transition-colors"
+              >
+                About
+              </Link>
+              <div className="border-l border-gray-300 pl-2">
+                <SelfcampLanguageSelector variant="minimal" theme="dark" />
+              </div>
+            </div>
+          </div>
+
+          {/* Mobile header */}
+          <div className="flex lg:hidden items-center justify-between w-full">
+            {/* Logo à gauche */}
+            <div className="flex items-center">
+              <Link
+                href="/"
+                onClick={() => trackContact.formError("logo_mobile_click")}
+              >
+                <Image
+                  src="/selfcamp_logo_black.png"
+                  alt="SelfCamp Logo"
+                  width={90}
+                  height={45}
+                  className="hover:opacity-80 transition-opacity"
+                />
+              </Link>
+            </div>
+
+            {/* Navigation à droite */}
+            <div className="flex items-center gap-2">
+              <Link
+                href="/"
+                onClick={() => trackContact.formError("home_menu_mobile_click")}
+                className="text-gray-900 font-bold uppercase tracking-wide text-[10px] hover:text-gray-700 transition-colors"
+              >
+                {t.map.home}
+              </Link>
+              <Link
+                href="/map"
+                className="text-gray-900 font-bold uppercase tracking-wide text-[10px] hover:text-gray-700 transition-colors"
+              >
+                Map
               </Link>
               <Link
                 href="/contact"
-                className="text-[#84994F] text-xs font-bold tracking-wide uppercase hover:text-[#84994F]/80 transition-colors duration-300"
+                className="text-gray-900 font-bold uppercase tracking-wide text-[10px] hover:text-gray-700 transition-colors"
               >
-                {t.contactPage.contactShort}
+                Contact
               </Link>
+              <div className="border-l border-gray-300 pl-2">
+                <SelfcampLanguageSelector variant="minimal" theme="dark" />
+              </div>
             </div>
           </div>
         </div>

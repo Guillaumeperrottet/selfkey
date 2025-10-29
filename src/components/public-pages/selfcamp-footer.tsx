@@ -49,9 +49,12 @@ export function SelfcampFooter() {
                     {t.footer.contact.title}
                   </h4>
                   <div className="space-y-1.5 md:space-y-2 text-gray-300/90 text-xs md:text-sm">
-                    <p className="leading-relaxed">
+                    <Link
+                      href="/contact"
+                      className="text-gray-300/90 hover:text-white transition-colors duration-200 block"
+                    >
                       {t.footer.contact.location}
-                    </p>
+                    </Link>
                     <a
                       href="mailto:gp@webbing.ch"
                       className="text-gray-300/90 hover:text-white transition-colors duration-200 block"
@@ -91,14 +94,7 @@ export function SelfcampFooter() {
                         {t.footer.navigation.about}
                       </Link>
                     </div>
-                    <div>
-                      <Link
-                        href="/contact"
-                        className="hover:text-white transition-colors duration-200"
-                      >
-                        {t.footer.navigation.contact}
-                      </Link>
-                    </div>
+
                     <div>
                       <a
                         href={DOMAINS.SELFKEY}

@@ -233,28 +233,42 @@ const EstablishmentMarker = ({
     if (!markerRef.current) return;
 
     if (isSelected) {
-      // Ouvrir le popup quand l'établissement est sélectionné
+      // Attendre que React ait complètement rendu le contenu du popup
       setTimeout(() => {
         const marker = markerRef.current;
         if (marker) {
+          // Ouvrir le popup avec opacité 0 pour éviter le flash
+          const popup = marker.getPopup();
+          if (popup) {
+            const popupElement = popup.getElement();
+            if (popupElement) {
+              popupElement.style.opacity = "0";
+            }
+          }
+
           marker.openPopup();
 
-          // Forcer le recalcul de la position après que le popup soit complètement rendu
+          // Attendre que le popup soit positionné, puis le rendre visible
           setTimeout(() => {
             const popup = marker.getPopup();
             if (popup && popup.isOpen()) {
-              // Mettre à jour le popup pour recalculer sa position
               popup.update();
+
+              // Faire apparaître le popup avec une transition douce
+              const popupElement = popup.getElement();
+              if (popupElement) {
+                popupElement.style.transition = "opacity 0.2s ease-in-out";
+                popupElement.style.opacity = "1";
+              }
             }
-          }, 150);
+          }, 100);
         }
-      }, 50);
+      }, 150);
     } else {
       // Fermer le popup quand l'établissement n'est plus sélectionné
       markerRef.current?.closePopup();
     }
   }, [isSelected]);
-
   const handleClick = () => {
     if (onMarkerClick) {
       onMarkerClick(establishment.id);
