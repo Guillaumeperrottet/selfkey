@@ -5,7 +5,7 @@ import {
   checkRoomAvailability,
   calculateStayDuration,
 } from "@/lib/availability";
-import { createPaymentIntentWithCommission } from "@/lib/stripe-connect";
+import { createDirectChargePaymentIntent } from "@/lib/stripe-connect";
 import {
   getTouristTaxSettings,
   calculateTouristTax,
@@ -340,12 +340,12 @@ export async function POST(
     // Créer le Payment Intent Stripe AVANT la réservation (pour éviter les réservations fantômes)
     // Le client paie le prix final (incluant les frais de plateforme)
     // Stocker toutes les données dans les metadata pour création après paiement
-    const paymentIntent = await createPaymentIntentWithCommission(
-      finalPrice, // Le client paie le prix final
+
+    // ⭐ MODE DIRECT CHARGE : Tout l'argent arrive sur votre compte principal
+    // Vous ferez les transfers manuellement plus tard via Stripe Dashboard
+    const paymentIntent = await createDirectChargePaymentIntent(
+      finalPrice, // Le client paie le prix final - TOUT arrive sur votre compte
       "chf", // Devise par défaut
-      establishment.stripeAccountId,
-      establishment.commissionRate,
-      establishment.fixedFee,
       {
         // Distinguer du parking jour avec "classic_booking"
         booking_type: "classic_booking",
@@ -378,6 +378,8 @@ export async function POST(
         tourist_tax_total: touristTaxCalculation.totalTax.toString(),
         has_dog: hasDog ? "true" : "false", // Si le client a un chien
         booking_locale: bookingLocale || "fr", // Langue choisie
+        // Garder l'ID du compte connecté pour référence (pour transfers futurs)
+        connected_account_id: establishment.stripeAccountId || "",
       }
     );
 

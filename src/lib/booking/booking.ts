@@ -1,6 +1,6 @@
 import { prisma } from "@/lib/database/prisma";
 import { BookingData } from "@/types/hotel";
-import { createPaymentIntentWithCommission } from "@/lib/payment/connect";
+import { createDirectChargePaymentIntent } from "@/lib/payment/connect";
 
 export async function createBooking(
   hotelSlug: string,
@@ -165,12 +165,28 @@ export async function createPaymentIntentForBooking(bookingId: string) {
   const fixedFee =
     booking.bookingType === "day" ? 0 : booking.establishment.fixedFee;
 
-  const paymentIntent = await createPaymentIntentWithCommission(
+  // ⭐ MODE DIRECT CHARGE : Tout l'argent arrive sur votre compte principal
+  const paymentIntent = await createDirectChargePaymentIntent(
     booking.amount,
     booking.currency,
-    booking.establishment.stripeAccountId,
-    commissionRate,
-    fixedFee
+    {
+      booking_id: booking.id,
+      booking_type: booking.bookingType || "classic_booking",
+      hotel_slug: booking.hotelSlug,
+      client_first_name: booking.clientFirstName || "",
+      client_last_name: booking.clientLastName || "",
+      client_email: booking.clientEmail,
+      client_phone: booking.clientPhone || "",
+      connected_account_id: booking.establishment.stripeAccountId || "",
+      platform_commission: (
+        (booking.amount * commissionRate) / 100 +
+        fixedFee
+      ).toString(),
+      owner_amount: (
+        booking.amount -
+        ((booking.amount * commissionRate) / 100 + fixedFee)
+      ).toString(),
+    }
   );
 
   return paymentIntent;

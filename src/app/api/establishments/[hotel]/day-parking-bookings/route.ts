@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
-import { createPaymentIntentWithCommission } from "@/lib/stripe-connect";
+import { createDirectChargePaymentIntent } from "@/lib/stripe-connect";
 import { sendDayParkingConfirmation } from "@/lib/email";
 
 interface Props {
@@ -230,37 +230,42 @@ export async function POST(request: NextRequest, { params }: Props) {
     }
 
     // Mode production : créer un vrai PaymentIntent
-    const paymentIntent = await createPaymentIntentWithCommission(
-      amount,
-      "CHF",
-      establishment.stripeAccountId!,
-      establishment.dayParkingCommissionRate || 5,
-      0, // Pas de frais fixes pour parking jour
-      {
-        // Stocker les données de réservation pour création après paiement
-        booking_type: "day_parking",
-        establishment_id: establishment.id,
-        client_first_name: clientFirstName,
-        client_last_name: clientLastName,
-        client_email: clientEmail,
-        client_phone: clientPhone,
-        client_vehicle_number: clientVehicleNumber || "",
-        day_parking_duration: dayParkingDuration,
-        day_parking_start_time: dayParkingStartTime,
-        day_parking_end_time: dayParkingEndTime,
-        amount: amount.toString(),
-        adults: adults?.toString() || "1",
-        children: children?.toString() || "0",
-        client_birth_date: clientBirthDate || "",
-        client_address: clientAddress || "",
-        client_postal_code: clientPostalCode || "",
-        client_city: clientCity || "",
-        client_country: clientCountry || "",
-        client_id_number: clientIdNumber || "",
-        client_id_type: clientIdType || "Carte d'identité",
-        email_confirmation: emailConfirmation ? "true" : "false",
-      }
-    );
+    // ⭐ MODE DIRECT CHARGE : Tout l'argent arrive sur votre compte principal
+    const paymentIntent = await createDirectChargePaymentIntent(amount, "CHF", {
+      // Stocker les données de réservation pour création après paiement
+      booking_type: "day_parking",
+      establishment_id: establishment.id,
+      client_first_name: clientFirstName,
+      client_last_name: clientLastName,
+      client_email: clientEmail,
+      client_phone: clientPhone,
+      client_vehicle_number: clientVehicleNumber || "",
+      day_parking_duration: dayParkingDuration,
+      day_parking_start_time: dayParkingStartTime,
+      day_parking_end_time: dayParkingEndTime,
+      amount: amount.toString(),
+      adults: adults?.toString() || "1",
+      children: children?.toString() || "0",
+      client_birth_date: clientBirthDate || "",
+      client_address: clientAddress || "",
+      client_postal_code: clientPostalCode || "",
+      client_city: clientCity || "",
+      client_country: clientCountry || "",
+      client_id_number: clientIdNumber || "",
+      client_id_type: clientIdType || "Carte d'identité",
+      email_confirmation: emailConfirmation ? "true" : "false",
+      // Garder l'ID du compte connecté pour référence (pour transfers futurs)
+      connected_account_id: establishment.stripeAccountId || "",
+      // Calculer la commission pour référence
+      platform_commission: (
+        (amount * (establishment.dayParkingCommissionRate || 5)) /
+        100
+      ).toString(),
+      owner_amount: (
+        amount -
+        (amount * (establishment.dayParkingCommissionRate || 5)) / 100
+      ).toString(),
+    });
 
     // Retourner seulement le PaymentIntent - la réservation sera créée au webhook
     return NextResponse.json({
