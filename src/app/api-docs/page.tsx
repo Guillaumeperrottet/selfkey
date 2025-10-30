@@ -777,57 +777,6 @@ les dates, les montants, et les relations (chambre, établissement).
                 <strong>&quot;Try it out&quot;</strong> sur les endpoints
               </li>
             </ol>
-            <div className="bg-white dark:bg-gray-900 p-4 rounded border border-amber-200 dark:border-amber-800">
-              <p className="text-sm font-semibold mb-2">
-                💡 Astuce : Mode Test
-              </p>
-              <p className="text-sm mb-2">
-                Pour créer une clé API de test, allez sur :
-              </p>
-              <code className="text-sm bg-gray-100 dark:bg-gray-800 px-3 py-2 rounded block">
-                /super-admin/api-management
-              </code>
-            </div>
-          </div>
-
-          <div className="bg-blue-50 dark:bg-blue-950 border border-blue-200 dark:border-blue-800 p-6 rounded-lg">
-            <h2 className="text-xl font-semibold mb-4 flex items-center gap-2">
-              ℹ️ À propos des erreurs 401 et 403
-            </h2>
-            <p className="mb-4">
-              Les codes d&apos;erreur <strong>401</strong> et{" "}
-              <strong>403</strong> que vous voyez ci-dessus sont des{" "}
-              <strong>exemples de documentation</strong>, pas de vraies erreurs
-              !
-            </p>
-            <div className="bg-white dark:bg-gray-900 p-4 rounded border border-blue-200 dark:border-blue-800 space-y-3">
-              <div>
-                <p className="text-sm font-semibold mb-1">
-                  ❌ <strong>401 - Clé API invalide</strong>
-                </p>
-                <p className="text-sm text-gray-600 dark:text-gray-400">
-                  Vous verrez cette erreur seulement si vous testez sans avoir
-                  cliqué sur &quot;Authorize&quot; ou si votre clé API est
-                  incorrecte.
-                </p>
-              </div>
-              <div>
-                <p className="text-sm font-semibold mb-1">
-                  🚫 <strong>403 - Accès refusé</strong>
-                </p>
-                <p className="text-sm text-gray-600 dark:text-gray-400">
-                  Vous verrez cette erreur seulement si votre clé API est
-                  limitée à un établissement et que vous essayez d&apos;accéder
-                  à un autre.
-                </p>
-              </div>
-              <div className="mt-3 pt-3 border-t border-blue-200 dark:border-blue-700">
-                <p className="text-sm font-semibold text-green-600 dark:text-green-400">
-                  ✅ Si vous êtes authentifié correctement, tout fonctionnera
-                  normalement !
-                </p>
-              </div>
-            </div>
           </div>
 
           <div className="bg-blue-50 dark:bg-blue-950 p-6 rounded-lg">
