@@ -233,37 +233,55 @@ const EstablishmentMarker = ({
     if (!markerRef.current) return;
 
     if (isSelected) {
-      // Attendre que React ait complètement rendu le contenu du popup
-      setTimeout(() => {
-        const marker = markerRef.current;
-        if (marker) {
-          // Ouvrir le popup avec opacité 0 pour éviter le flash
+      const marker = markerRef.current;
+      if (marker) {
+        // Ouvrir le popup immédiatement mais masqué
+        const popup = marker.getPopup();
+        if (popup) {
+          const popupElement = popup.getElement();
+          if (popupElement) {
+            popupElement.style.opacity = "0";
+          }
+        }
+
+        marker.openPopup();
+
+        // Attendre que les images soient chargées avant de positionner correctement
+        const checkImagesLoaded = () => {
           const popup = marker.getPopup();
-          if (popup) {
+          if (popup && popup.isOpen()) {
             const popupElement = popup.getElement();
             if (popupElement) {
-              popupElement.style.opacity = "0";
+              const images = popupElement.querySelectorAll("img");
+              const imagePromises = Array.from(images).map((img) => {
+                if (img.complete) {
+                  return Promise.resolve();
+                }
+                return new Promise((resolve) => {
+                  img.onload = () => resolve(undefined);
+                  img.onerror = () => resolve(undefined);
+                  // Timeout de sécurité
+                  setTimeout(() => resolve(undefined), 1000);
+                });
+              });
+
+              Promise.all(imagePromises).then(() => {
+                // Mettre à jour la position du popup après le chargement des images
+                popup.update();
+
+                // Faire apparaître le popup avec une transition douce
+                if (popupElement) {
+                  popupElement.style.transition = "opacity 0.2s ease-in-out";
+                  popupElement.style.opacity = "1";
+                }
+              });
             }
           }
+        };
 
-          marker.openPopup();
-
-          // Attendre que le popup soit positionné, puis le rendre visible
-          setTimeout(() => {
-            const popup = marker.getPopup();
-            if (popup && popup.isOpen()) {
-              popup.update();
-
-              // Faire apparaître le popup avec une transition douce
-              const popupElement = popup.getElement();
-              if (popupElement) {
-                popupElement.style.transition = "opacity 0.2s ease-in-out";
-                popupElement.style.opacity = "1";
-              }
-            }
-          }, 100);
-        }
-      }, 150);
+        // Petit délai pour laisser React rendre le contenu
+        setTimeout(checkImagesLoaded, 50);
+      }
     } else {
       // Fermer le popup quand l'établissement n'est plus sélectionné
       markerRef.current?.closePopup();
