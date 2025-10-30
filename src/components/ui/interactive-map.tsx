@@ -33,7 +33,7 @@ interface InteractiveMapProps {
     {
       availableRooms: number;
       totalRooms: number;
-      status: "available" | "limited" | "full";
+      status: "available" | "limited" | "full" | "closed";
       nextAvailable?: string | null;
     }
   >;

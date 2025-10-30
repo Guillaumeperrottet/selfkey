@@ -63,6 +63,7 @@ export interface SelfcampTranslations {
     full: string; // "Complet"
     fullAvailableOn: (date: string) => string; // "Complet - Libre le {date}"
     availableLocations: string; // "Emplacements disponibles"
+    closed: string; // "Fermé"
   };
 
   // Establishment Page
@@ -372,6 +373,7 @@ export const selfcampTranslations: Record<
       full: "Complet",
       fullAvailableOn: (date: string) => `Complet - Libre le ${date}`,
       availableLocations: "Emplacements disponibles",
+      closed: "Fermé",
     },
     establishment: {
       backToMap: "Retour à la carte",
@@ -694,6 +696,7 @@ export const selfcampTranslations: Record<
       full: "Full",
       fullAvailableOn: (date: string) => `Full - Available on ${date}`,
       availableLocations: "Available locations",
+      closed: "Closed",
     },
     establishment: {
       backToMap: "Back to map",
@@ -1011,6 +1014,7 @@ export const selfcampTranslations: Record<
       full: "Ausgebucht",
       fullAvailableOn: (date: string) => `Ausgebucht - Verfügbar am ${date}`,
       availableLocations: "Verfügbare Standorte",
+      closed: "Geschlossen",
     },
     establishment: {
       backToMap: "Zurück zur Karte",

@@ -51,6 +51,7 @@ export default async function LocationPage({
       mapDescription_de: true,
       mapImage: true,
       showOnMap: true,
+      isClosed: true,
       presentationImages: true,
       presentationDescription: true,
       presentationDescription_en: true,
@@ -115,6 +116,7 @@ export default async function LocationPage({
               mapDescription_de: establishment.mapDescription_de || "",
               mapImage: establishment.mapImage || "",
               showOnMap: establishment.showOnMap,
+              isClosed: establishment.isClosed,
               presentationImages: establishment.presentationImages || [],
               presentationDescription:
                 establishment.presentationDescription || "",

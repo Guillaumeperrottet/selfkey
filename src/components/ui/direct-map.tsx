@@ -133,7 +133,7 @@ interface DirectMapProps {
     {
       availableRooms: number;
       totalRooms: number;
-      status: "available" | "limited" | "full";
+      status: "available" | "limited" | "full" | "closed";
       nextAvailable?: string | null;
     }
   >;
@@ -219,7 +219,7 @@ const EstablishmentMarker = ({
     {
       availableRooms: number;
       totalRooms: number;
-      status: "available" | "limited" | "full";
+      status: "available" | "limited" | "full" | "closed";
       nextAvailable?: string | null;
     }
   >;
@@ -294,6 +294,12 @@ const EstablishmentMarker = ({
     const { availableRooms, totalRooms, status, nextAvailable } = availability;
 
     switch (status) {
+      case "closed":
+        return {
+          text: t.map.closed,
+          color: "text-gray-600 font-medium",
+          emoji: "🚫",
+        };
       case "available":
         return {
           text: `${availableRooms}/${totalRooms} ${t.map.placesAvailable}`,
@@ -425,12 +431,14 @@ const EstablishmentMarker = ({
             >
               <div
                 className={`inline-flex items-center ${mobile ? "gap-1 px-2 py-1 text-xs" : "gap-2 px-3 py-1.5 text-sm"} rounded-lg font-medium ${
-                  availabilityInfo.text.includes("26/26") ||
-                  availabilityInfo.text.includes("28/28")
-                    ? "bg-green-50 text-green-700 border border-green-200"
-                    : availability?.status === "full"
-                      ? "bg-red-50 text-red-700 border border-red-200"
-                      : "bg-[#84994F]/10 text-[#84994F] border border-[#84994F]/20"
+                  availability?.status === "closed"
+                    ? "bg-gray-100 text-gray-700 border border-gray-300"
+                    : availabilityInfo.text.includes("26/26") ||
+                        availabilityInfo.text.includes("28/28")
+                      ? "bg-green-50 text-green-700 border border-green-200"
+                      : availability?.status === "full"
+                        ? "bg-red-50 text-red-700 border border-red-200"
+                        : "bg-[#84994F]/10 text-[#84994F] border border-[#84994F]/20"
                 }`}
               >
                 <span
@@ -453,17 +461,6 @@ const EstablishmentMarker = ({
               {establishment.description}
             </p>
 
-            {/* Note sur la réservation */}
-            <div
-              className={`${mobile ? "text-xs mb-3 px-2 py-1.5 gap-1.5" : "text-sm mb-4 px-3 py-2 gap-2"} flex items-center text-[#84994F] bg-[#84994F]/5 rounded-lg`}
-            >
-              <div
-                className={`${mobile ? "w-3 h-3 text-[10px]" : "w-4 h-4 text-xs"} rounded-full bg-[#84994F]/20 flex items-center justify-center`}
-              >
-                <span>ℹ️</span>
-              </div>
-              <span>{t.map.onlineBooking}</span>
-            </div>
             {/* Boutons d'action - design moderne et simple */}
             <div className={`flex ${mobile ? "gap-2.5" : "gap-3"} w-full`}>
               {/* Bouton GPS */}

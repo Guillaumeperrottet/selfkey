@@ -7,7 +7,7 @@ import { useSelfcampTranslation } from "@/hooks/useSelfcampTranslation";
 interface AvailabilityBadgeProps {
   availableRooms: number;
   totalRooms: number;
-  status: "available" | "limited" | "full";
+  status: "available" | "limited" | "full" | "closed";
   nextAvailable?: string | null;
   loading?: boolean;
   className?: string;
@@ -37,6 +37,8 @@ export function AvailabilityBadge({
 
   const getStatusColor = () => {
     switch (status) {
+      case "closed":
+        return "bg-gray-500 text-white hover:bg-gray-600";
       case "available":
         return "bg-green-500 text-white hover:bg-green-600";
       case "limited":
@@ -49,6 +51,9 @@ export function AvailabilityBadge({
   };
 
   const getStatusText = () => {
+    if (status === "closed") {
+      return t.map.closed;
+    }
     if (status === "full") {
       return nextAvailable ? `Libre le ${nextAvailable}` : "Complet";
     }
@@ -56,6 +61,9 @@ export function AvailabilityBadge({
   };
 
   const getIcon = () => {
+    if (status === "closed") {
+      return <Clock className="w-3 h-3" />;
+    }
     if (status === "full") {
       return nextAvailable ? (
         <Calendar className="w-3 h-3" />

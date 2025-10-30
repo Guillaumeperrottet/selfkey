@@ -12,7 +12,8 @@ export async function GET(request: NextRequest, { params }: Params) {
     // Récupérer l'établissement avec ses chambres
     const establishment = await prisma.establishment.findUnique({
       where: { slug },
-      include: {
+      select: {
+        isClosed: true,
         rooms: {
           select: {
             id: true,
@@ -28,6 +29,20 @@ export async function GET(request: NextRequest, { params }: Params) {
         { error: "Établissement non trouvé" },
         { status: 404 }
       );
+    }
+
+    // Si l'établissement est fermé, retourner immédiatement le statut "closed"
+    if (establishment.isClosed) {
+      return NextResponse.json({
+        establishmentSlug: slug,
+        totalRooms: 0,
+        availableRooms: 0,
+        occupiedRooms: 0,
+        availabilityPercentage: 0,
+        status: "closed",
+        nextAvailable: null,
+        lastUpdated: new Date().toISOString(),
+      });
     }
 
     // Compter les chambres actives
@@ -80,7 +95,7 @@ export async function GET(request: NextRequest, { params }: Params) {
       totalRooms > 0 ? (availableRooms / totalRooms) * 100 : 0;
 
     // Déterminer le statut
-    let status: "available" | "limited" | "full";
+    let status: "available" | "limited" | "full" | "closed";
     if (availableRooms === 0) {
       status = "full";
     } else if (availabilityPercentage <= 25) {

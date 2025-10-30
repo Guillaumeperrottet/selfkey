@@ -6,7 +6,7 @@ interface AvailabilityData {
   availableRooms: number;
   occupiedRooms: number;
   availabilityPercentage: number;
-  status: "available" | "limited" | "full";
+  status: "available" | "limited" | "full" | "closed";
   nextAvailable?: string | null;
   lastUpdated: string;
 }

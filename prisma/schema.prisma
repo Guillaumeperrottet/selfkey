@@ -155,6 +155,7 @@ model Establishment {
   mapTitle_en                         String?
   mapTitle_de                         String?
   showOnMap                           Boolean                 @default(true)
+  isClosed                            Boolean                 @default(false) // Établissement temporairement fermé
   presentationImages                  String[]
   presentationDescription             String?
   presentationDescription_en          String?

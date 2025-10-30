@@ -64,6 +64,7 @@ export async function PATCH(
       touristTaxImpactMessage,
       touristTaxImpactMessage_en,
       touristTaxImpactMessage_de,
+      isClosed,
     } = await request.json();
 
     // Vérifier que l'utilisateur est propriétaire de l'établissement
@@ -135,6 +136,7 @@ export async function PATCH(
         touristTaxImpactMessage,
         touristTaxImpactMessage_en,
         touristTaxImpactMessage_de,
+        isClosed,
       },
     });
 

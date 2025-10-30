@@ -51,6 +51,7 @@ interface PresentationData {
   mapDescription_de?: string;
   mapImage?: string;
   showOnMap?: boolean;
+  isClosed?: boolean;
 
   // Présentation publique
   presentationImages?: string[];
@@ -165,6 +166,7 @@ export function PresentationForm({
     mapDescription_de: initialData?.mapDescription_de || "",
     mapImage: initialData?.mapImage || "",
     showOnMap: initialData?.showOnMap ?? true,
+    isClosed: initialData?.isClosed ?? false,
 
     // Présentation
     presentationImages: initialData?.presentationImages || [],
@@ -296,6 +298,7 @@ export function PresentationForm({
             mapDescription_de: formData.mapDescription_de || null,
             mapImage: formData.mapImage || null,
             showOnMap: formData.showOnMap,
+            isClosed: formData.isClosed,
             presentationImages: formData.presentationImages,
             presentationDescription: formData.presentationDescription || null,
             presentationDescription_en:
@@ -485,6 +488,30 @@ export function PresentationForm({
               <p className="text-xs text-gray-600 mt-1 ml-6">
                 Décochez cette option si vous ne souhaitez pas que votre
                 établissement apparaisse sur la carte publique de Selfcamp.ch
+              </p>
+            </div>
+
+            {/* Établissement fermé */}
+            <div className="p-4 bg-orange-50 rounded-lg border border-orange-200">
+              <div className="flex items-center space-x-2">
+                <Checkbox
+                  id="isClosed"
+                  checked={formData.isClosed}
+                  onCheckedChange={(checked) =>
+                    handleInputChange("isClosed", checked === true)
+                  }
+                />
+                <Label
+                  htmlFor="isClosed"
+                  className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                >
+                  Établissement temporairement fermé
+                </Label>
+              </div>
+              <p className="text-xs text-gray-600 mt-1 ml-6">
+                Cochez cette option pour indiquer que votre établissement est
+                temporairement fermé. Le statut &quot;Fermé&quot; sera affiché
+                sur la carte publique au lieu des places disponibles.
               </p>
             </div>
 
