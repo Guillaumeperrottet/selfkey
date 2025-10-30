@@ -73,6 +73,123 @@ function getCountryCode(countryName?: string): string {
   return countryMap[countryName] || countryName.toUpperCase().substring(0, 2);
 }
 
+/**
+ * Créer un PaymentIntent directement sur votre compte principal
+ * (sans transfer automatique vers le compte connecté)
+ *
+ * L'argent arrive sur VOTRE compte Stripe principal
+ * Vous ferez les transfers manuellement plus tard via Stripe Dashboard
+ *
+ * @param amount - Montant total en CHF (sera converti en centimes)
+ * @param currency - Devise (ex: "chf")
+ * @param metadata - Métadonnées pour tracker la réservation
+ * @returns PaymentIntent Stripe
+ */
+export async function createDirectChargePaymentIntent(
+  amount: number,
+  currency: string,
+  metadata?: Record<string, string>
+) {
+  try {
+    const amountRappen = Math.round(amount * 100);
+
+    console.log(
+      "💰 Création PaymentIntent DIRECT (pas de transfer automatique):",
+      {
+        amount: amountRappen,
+        amountCHF: amount,
+        currency: currency.toLowerCase(),
+        metadata,
+      }
+    );
+
+    // Construction du nom complet pour le Customer Stripe
+    const clientName =
+      metadata?.client_first_name && metadata?.client_last_name
+        ? `${metadata.client_first_name} ${metadata.client_last_name}`
+        : metadata?.client_name;
+
+    console.log("🔍 Vérification métadonnées client:", {
+      client_email: metadata?.client_email,
+      client_name: clientName,
+      client_phone: metadata?.client_phone,
+    });
+
+    // Créer ou récupérer un Customer Stripe si on a les données
+    let customerId = undefined;
+    if (metadata?.client_email && clientName) {
+      try {
+        // Vérifier d'abord si un customer existe déjà avec cet email
+        const existingCustomers = await stripe.customers.list({
+          email: metadata.client_email,
+          limit: 1,
+        });
+
+        if (existingCustomers.data.length > 0) {
+          customerId = existingCustomers.data[0].id;
+          console.log("✅ Customer Stripe existant trouvé:", customerId);
+        } else {
+          console.log("🔄 Création nouveau Customer Stripe...");
+          const customer = await stripe.customers.create({
+            name: clientName,
+            email: metadata.client_email,
+            phone: metadata.client_phone,
+            address: {
+              line1: metadata.client_address,
+              city: metadata.client_city,
+              postal_code: metadata.client_postal_code,
+              country: getCountryCode(metadata.client_country),
+            },
+            metadata: {
+              booking_id: metadata.booking_id,
+              hotel_slug: metadata.hotel_slug,
+            },
+          });
+          customerId = customer.id;
+          console.log("✅ Customer Stripe créé:", {
+            id: customerId,
+            email: customer.email,
+            name: customer.name,
+          });
+        }
+      } catch (customerError) {
+        console.error("❌ Erreur création customer:", customerError);
+      }
+    } else {
+      console.warn(
+        "⚠️ Métadonnées client manquantes pour la création du Customer Stripe"
+      );
+    }
+
+    // ⭐ PaymentIntent DIRECT - Tout arrive sur votre compte principal
+    // Pas de transfer_data, pas d'on_behalf_of, pas d'application_fee
+    const paymentIntent = await stripe.paymentIntents.create({
+      amount: amountRappen,
+      currency: currency.toLowerCase(),
+      customer: customerId,
+      payment_method_types: ["card", "twint"], // Méthodes de paiement disponibles
+      capture_method: "automatic_async",
+      metadata: {
+        integration_type: "direct_charge", // Type d'intégration
+        platform: "selfkey_hotels",
+        ...(metadata || {}),
+      },
+    });
+
+    console.log("✅ PaymentIntent DIRECT créé:", {
+      id: paymentIntent.id,
+      status: paymentIntent.status,
+      amount: paymentIntent.amount / 100,
+      supportedMethods: paymentIntent.payment_method_types,
+    });
+
+    return paymentIntent;
+  } catch (error) {
+    console.error("❌ Erreur création PaymentIntent direct:", error);
+    throw error;
+  }
+}
+
 export async function createPaymentIntentWithCommission(
   amount: number,
   currency: string,
@@ -323,6 +440,58 @@ export async function checkStripeConnectSetup() {
       error: error instanceof Error ? error.message : "Erreur inconnue",
       connectEnabled: false,
     };
+  }
+}
+
+/**
+ * Transférer de l'argent de votre compte principal vers un compte connecté
+ * À utiliser pour payer les hôteliers manuellement
+ * Peut être appelé depuis Stripe Dashboard ou via une API custom
+ *
+ * @param amount - Montant à transférer en CHF
+ * @param currency - Devise (ex: "chf")
+ * @param connectedAccountId - ID du compte Stripe Connect de l'hôtelier
+ * @param metadata - Métadonnées pour tracker le transfer
+ * @returns Transfer Stripe
+ */
+export async function transferToConnectedAccount(
+  amount: number,
+  currency: string,
+  connectedAccountId: string,
+  metadata?: Record<string, string>
+) {
+  try {
+    const amountRappen = Math.round(amount * 100);
+
+    console.log("💸 Création Transfer vers compte connecté:", {
+      amount: amountRappen,
+      amountCHF: amount,
+      currency: currency.toLowerCase(),
+      destination: connectedAccountId,
+      metadata,
+    });
+
+    const transfer = await stripe.transfers.create({
+      amount: amountRappen,
+      currency: currency.toLowerCase(),
+      destination: connectedAccountId,
+      metadata: {
+        platform: "selfkey_hotels",
+        ...(metadata || {}),
+      },
+    });
+
+    console.log("✅ Transfer créé:", {
+      id: transfer.id,
+      amount: transfer.amount / 100,
+      destination: transfer.destination,
+      created: new Date(transfer.created * 1000).toISOString(),
+    });
+
+    return transfer;
+  } catch (error) {
+    console.error("❌ Erreur création transfer:", error);
+    throw error;
   }
 }
 
