@@ -335,8 +335,8 @@ export default function SearchBar() {
       {/* Search Input */}
       <form onSubmit={handleSubmit}>
         <div className="relative">
-          <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-            <Search className="h-5 w-5 text-gray-400" />
+          <div className="absolute inset-y-0 left-0 pl-3 md:pl-4 flex items-center pointer-events-none">
+            <Search className="h-4 w-4 md:h-5 md:w-5 text-gray-400" />
           </div>
           <input
             type="text"
@@ -345,7 +345,7 @@ export default function SearchBar() {
             onFocus={handleFocus}
             onBlur={handleBlur}
             placeholder={t.hero.searchPlaceholder}
-            className="w-full pl-12 pr-12 py-4 text-lg border-2 border-gray-300 rounded-xl focus:outline-none focus:border-[#84994F] transition-colors shadow-lg bg-white"
+            className="w-full pl-10 pr-10 py-3 md:pl-12 md:pr-12 md:py-4 text-base md:text-lg border-2 border-gray-300 rounded-xl focus:outline-none focus:border-[#84994F] transition-colors shadow-lg bg-white"
           />
 
           {/* Clear button */}
@@ -353,14 +353,14 @@ export default function SearchBar() {
             <button
               type="button"
               onClick={clearSearch}
-              className="absolute inset-y-0 right-0 pr-4 flex items-center hover:bg-gray-100 hover:rounded-r-xl transition-colors"
+              className="absolute inset-y-0 right-0 pr-3 md:pr-4 flex items-center hover:bg-gray-100 hover:rounded-r-xl transition-colors"
             >
-              <X className="h-5 w-5 text-gray-400 hover:text-gray-600" />
+              <X className="h-4 w-4 md:h-5 md:w-5 text-gray-400 hover:text-gray-600" />
             </button>
           )}
 
           {isLoading && (
-            <div className="absolute inset-y-0 right-0 pr-4 flex items-center pointer-events-none">
+            <div className="absolute inset-y-0 right-0 pr-3 md:pr-4 flex items-center pointer-events-none">
               <div className="animate-spin h-4 w-4 border-2 border-[#84994F] border-t-transparent rounded-full"></div>
             </div>
           )}

@@ -376,7 +376,7 @@ export const translations: Record<Locale, BookingTranslations> = {
       phonePlaceholder: "+41 79 123 45 67",
       birthPlacePlaceholder: "Ville, Pays",
       vehicleNumberPlaceholder: "FR 123456",
-      idNumberPlaceholder: "FR 123456",
+      idNumberPlaceholder: "XE0edc3",
     },
 
     validation: {
@@ -616,7 +616,7 @@ export const translations: Record<Locale, BookingTranslations> = {
       phonePlaceholder: "+41 79 123 45 67",
       birthPlacePlaceholder: "City, Country",
       vehicleNumberPlaceholder: "FR 123456",
-      idNumberPlaceholder: "FR 123456",
+      idNumberPlaceholder: "XE0edc3",
     },
 
     validation: {
@@ -857,7 +857,7 @@ export const translations: Record<Locale, BookingTranslations> = {
       phonePlaceholder: "+41 79 123 45 67",
       birthPlacePlaceholder: "Stadt, Land",
       vehicleNumberPlaceholder: "FR 123456",
-      idNumberPlaceholder: "FR 123456",
+      idNumberPlaceholder: "XE0edc3",
     },
 
     validation: {

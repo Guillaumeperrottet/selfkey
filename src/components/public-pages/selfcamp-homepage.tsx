@@ -42,13 +42,10 @@ export function SelfcampHomepage() {
         }}
       />
       <div className="min-h-screen" style={{ backgroundColor: "#EEEAE2" }}>
-        {/* Hero Section avec image de fond */}
-        <section className="relative">
-          {/* Image de fond positionnée pour que le bas soit au milieu de la search bar */}
-          <div
-            className="absolute inset-0 overflow-hidden"
-            style={{ height: "calc(100vh - 120px)" }}
-          >
+        {/* Hero Section avec image de fond pleine hauteur */}
+        <section className="relative min-h-screen">
+          {/* Image de fond qui remplit toute la première page */}
+          <div className="absolute inset-0 h-screen">
             {/* Image desktop - cachée sur mobile */}
             <Image
               src="/images/background_gruyere.jpg"
@@ -73,12 +70,12 @@ export function SelfcampHomepage() {
               priority
               quality={85}
             />
-            {/* Overlay blanc pour transparence comme sur Canva */}
+            {/* Overlay blanc pour transparence */}
             <div className="absolute inset-0 bg-white/18"></div>
           </div>
 
           {/* Contenu par-dessus l'image */}
-          <div className="relative z-10">
+          <div className="relative z-10 min-h-screen flex flex-col">
             {/* Header intégré */}
             <header className="container mx-auto px-4 pt-0 pb-0">
               <div className="flex items-start justify-between">
@@ -160,41 +157,28 @@ export function SelfcampHomepage() {
                       className="drop-shadow-2xl"
                     />
                   </div>
-
-                  {/* Slogan sous le logo */}
-                  <div className="text-center">
-                    <h3 className="text-base font-bold text-white drop-shadow-lg px-4 leading-tight">
-                      La liberté de camper sans contrainte
-                    </h3>
-                  </div>
                 </div>
               </div>
             </header>
 
-            {/* Contenu Hero avec Search intégré */}
-            <div className="text-center px-4">
+            {/* Contenu Hero - disposition verticale avec titre centré et recherche en bas */}
+            <div className="flex-1 flex flex-col justify-center text-center px-4 pt-24 lg:pt-0">
               <div className="container mx-auto max-w-4xl">
-                {/* Tagline positionné plus haut - visible sur desktop uniquement */}
-                <div
-                  className="hidden md:block"
-                  style={{ paddingTop: "calc(12vh - 60px)" }}
-                >
-                  <h3 className="text-3xl font-bold text-white drop-shadow-lg">
+                {/* Tagline principal - au centre vertical de la page */}
+                <div className="mb-25 md:mb-45">
+                  <h1 className="text-2xl md:text-4xl lg:text-4xl font-bold text-white drop-shadow-lg">
                     La liberté de camper sans contrainte
-                  </h3>
+                  </h1>
                 </div>
 
-                {/* Search Bar positionnée */}
-                <div className="flex flex-col items-center justify-center space-y-4 md:space-y-8 pt-[68vh] md:pt-[calc(36vh-5px)] pb-[150px]">
-                  {/* Search Bar intégrée */}
-                  <div className="w-full max-w-2xl px-2">
-                    <div className="mb-4 md:mb-6">
-                      <h2 className="text-lg md:text-2xl font-bold text-white text-center drop-shadow-lg leading-tight">
-                        {t.hero.findSpot} {t.hero.findSpotHighlight}
-                      </h2>
-                    </div>
-                    <SearchBar />
+                {/* Search Bar - plus bas et plus étroite en mobile */}
+                <div className="w-full max-w-sm md:max-w-2xl mx-auto px-2">
+                  <div className="mb-3 md:mb-6">
+                    <h2 className="text-base md:text-2xl font-bold text-white text-center drop-shadow-lg leading-tight">
+                      {t.hero.findSpot} {t.hero.findSpotHighlight}
+                    </h2>
                   </div>
+                  <SearchBar />
                 </div>
               </div>
             </div>
@@ -210,7 +194,10 @@ export function SelfcampHomepage() {
             <div className="text-center mb-8 md:mb-14">
               <h2 className="text-xl md:text-3xl font-bold text-gray-900 px-4">
                 {t.benefits.title}{" "}
-                <span className="text-[#84994F]">
+                <span
+                  className="text-[#84994F]"
+                  style={{ fontFamily: "Poppins, sans-serif", fontWeight: 700 }}
+                >
                   {t.benefits.titleHighlight}
                 </span>{" "}
                 ?
@@ -273,7 +260,15 @@ export function SelfcampHomepage() {
               <div className="flex flex-col items-center text-center space-y-5 md:space-y-6">
                 <h2 className="text-xl md:text-3xl font-bold text-gray-900 px-2">
                   {t.cta.title}{" "}
-                  <span className="text-[#84994F]">{t.cta.titleHighlight}</span>{" "}
+                  <span
+                    className="text-[#84994F]"
+                    style={{
+                      fontFamily: "Poppins, sans-serif",
+                      fontWeight: 700,
+                    }}
+                  >
+                    {t.cta.titleHighlight}
+                  </span>{" "}
                   ?
                 </h2>
                 <p className="text-sm md:text-base text-gray-600 leading-relaxed max-w-xl px-2">

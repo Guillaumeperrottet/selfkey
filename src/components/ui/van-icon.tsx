@@ -115,19 +115,23 @@ export function VanIcon({ size = "sm", showRoad = true }: VanIconProps) {
         </svg>
       </motion.div>
 
-      {/* Route avec animation - identique à van-loading */}
+      {/* Route avec animation - couleur assortie au background */}
       {showRoad && (
         <div className="relative flex items-center">
-          {/* Route simple */}
+          {/* Route simple avec couleur du background */}
           <div
-            className={`${roadSizeClasses[size]} bg-gray-100 rounded-full relative overflow-hidden`}
+            className={`${roadSizeClasses[size]} rounded-full relative overflow-hidden`}
+            style={{ backgroundColor: "#EEEAE2" }}
           >
             {/* Lignes de route animées */}
             <motion.div
-              className="absolute top-1/2 left-0 w-full h-0.5 bg-gray-300"
-              style={{ transform: "translateY(-50%)" }}
+              className="absolute top-1/2 left-0 w-full h-0.5"
+              style={{
+                transform: "translateY(-50%)",
+                backgroundColor: "#d9d5cd",
+              }}
             >
-              {/* Petites lignes blanches qui défilent en boucle continue */}
+              {/* Petites lignes légèrement plus foncées qui défilent en boucle continue */}
               <motion.div
                 key="road-animation"
                 className="flex items-center"
@@ -146,7 +150,8 @@ export function VanIcon({ size = "sm", showRoad = true }: VanIconProps) {
                 {[...Array(16)].map((_, i) => (
                   <div
                     key={i}
-                    className="w-3 h-0.5 bg-white mx-2 rounded-full flex-shrink-0"
+                    className="w-3 h-0.5 mx-2 rounded-full flex-shrink-0"
+                    style={{ backgroundColor: "#c9c5bd" }}
                   />
                 ))}
               </motion.div>
