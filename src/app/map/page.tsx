@@ -587,23 +587,13 @@ function MapPageContent() {
             <div className="flex justify-center">
               <Image
                 src="/logo.png"
-                alt="SelfCamp"
+                alt="Selfcamp"
                 width={50}
                 height={50}
                 className="opacity-30"
               />
             </div>
           </nav>
-
-          {/* Footer avec badge couleur */}
-          <div className="p-6 border-t border-gray-200">
-            <div className="bg-[#84994F]/10 text-[#84994F] px-4 py-2.5 rounded-lg text-center">
-              <div className="flex items-center justify-center space-x-2">
-                <div className="w-2 h-2 bg-[#84994F] rounded-full animate-pulse"></div>
-                <p className="text-sm font-medium">{t.map.availability}</p>
-              </div>
-            </div>
-          </div>
         </div>
       </div>
 
@@ -632,7 +622,7 @@ function MapPageContent() {
             <div className="flex items-center justify-center mb-4">
               <Link href="/" className="hover:opacity-80 transition-opacity">
                 <h1 className="text-2xl font-bold text-[#9EA173] cursor-pointer">
-                  SelfCamp
+                  Selfcamp
                 </h1>
               </Link>
             </div>

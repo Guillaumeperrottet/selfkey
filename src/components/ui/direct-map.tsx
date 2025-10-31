@@ -167,17 +167,12 @@ const MapEventHandler = ({ onClosePopup }: { onClosePopup?: () => void }) => {
       }
     };
 
-    // Fermer le popup lors du déplacement de la carte
-    const handleMapMove = () => {
-      onClosePopup();
-    };
-
+    // Ne plus fermer le popup lors du déplacement de la carte
+    // pour permettre à l'utilisateur de naviguer tout en gardant le popup ouvert
     map.on("click", handleMapClick);
-    map.on("movestart", handleMapMove);
 
     return () => {
       map.off("click", handleMapClick);
-      map.off("movestart", handleMapMove);
     };
   }, [map, onClosePopup]);
 
@@ -234,36 +229,103 @@ const EstablishmentMarker = ({
 }) => {
   const markerRef = useRef<L.Marker | null>(null);
   const { t } = useSelfcampTranslation();
+  const map = useMap(); // Accéder à la carte pour écouter les événements
+
+  // Fonction appelée quand l'image Next.js est chargée
+  const handleImageLoad = () => {
+    console.log(`🖼️ [POPUP DEBUG] Image chargée pour ${establishment.name}`);
+
+    if (!markerRef.current) return;
+
+    const popup = markerRef.current.getPopup();
+    if (!popup || !popup.isOpen()) return;
+
+    console.log(`✅ [POPUP DEBUG] Affichage du popup après chargement image`);
+
+    // Attendre que le DOM soit complètement mis à jour
+    requestAnimationFrame(() => {
+      popup.update();
+
+      const element = popup.getElement();
+      if (element) {
+        // Afficher le popup maintenant qu'il a les bonnes dimensions
+        element.style.visibility = "visible";
+        element.style.opacity = "1";
+        console.log(`👁️ [POPUP DEBUG] Popup visible`);
+      }
+    });
+  };
 
   // Gérer l'ouverture et la fermeture du popup selon l'état de sélection
   useEffect(() => {
-    if (!markerRef.current) return;
+    if (!markerRef.current || !map) return;
+
+    const marker = markerRef.current;
 
     if (isSelected) {
-      // Ouvrir le popup immédiatement
-      const marker = markerRef.current;
-      if (marker) {
-        // Forcer la fermeture d'abord si déjà ouvert pour éviter les conflits
-        if (marker.isPopupOpen()) {
-          marker.closePopup();
+      console.log(
+        `🎯 [POPUP DEBUG] Établissement sélectionné: ${establishment.name}`
+      );
+
+      // Ne rien faire si le popup est déjà ouvert
+      if (marker.isPopupOpen()) {
+        console.log(`⚠️ [POPUP DEBUG] Popup déjà ouvert, aucune action`);
+        return;
+      }
+
+      // Ouvrir le popup immédiatement mais caché
+      console.log(`✅ [POPUP DEBUG] Ouverture du popup (caché)...`);
+      marker.openPopup();
+
+      const popup = marker.getPopup();
+      if (popup) {
+        const popupElement = popup.getElement();
+        if (popupElement) {
+          // CACHER COMPLÈTEMENT LE POPUP avec visibility au lieu de opacity
+          // Cela empêche tout affichage même temporaire
+          popupElement.style.visibility = "hidden";
+          popupElement.style.opacity = "0";
+          popupElement.style.transition = "opacity 0.15s ease-in";
+
+          console.log(`📦 [POPUP DEBUG] Popup complètement caché`);
         }
 
-        // Ouvrir immédiatement
-        marker.openPopup();
+        // Si pas d'image, afficher après un court délai pour que le DOM se stabilise
+        if (!establishment.image) {
+          setTimeout(() => {
+            const element = popup.getElement();
+            if (element && popup.isOpen()) {
+              popup.update();
+              element.style.visibility = "visible";
+              element.style.opacity = "1";
+              console.log(`✅ [POPUP DEBUG] Popup affiché (pas d'image)`);
+            }
+          }, 50);
+        } else {
+          // Timeout de sécurité pour les images en cache
+          const fallbackTimer = setTimeout(() => {
+            const element = popup.getElement();
+            if (element && popup.isOpen() && element.style.opacity === "0") {
+              console.log(`⏰ [POPUP DEBUG] Timeout - affichage forcé`);
+              popup.update();
+              element.style.visibility = "visible";
+              element.style.opacity = "1";
+            }
+          }, 400);
 
-        // Mise à jour du positionnement
-        requestAnimationFrame(() => {
-          const popup = marker.getPopup();
-          if (popup && popup.isOpen()) {
-            popup.update();
-          }
-        });
+          return () => clearTimeout(fallbackTimer);
+        }
       }
     } else {
-      // Fermer le popup quand l'établissement n'est plus sélectionné
-      markerRef.current?.closePopup();
+      // Fermer le popup
+      if (marker.isPopupOpen()) {
+        console.log(
+          `🔴 [POPUP DEBUG] Fermeture du popup pour ${establishment.name}`
+        );
+        marker.closePopup();
+      }
     }
-  }, [isSelected]);
+  }, [isSelected, map, establishment.name, establishment.image]);
 
   const handleClick = (e: L.LeafletMouseEvent) => {
     // Empêcher la propagation du clic vers la carte
@@ -357,7 +419,8 @@ const EstablishmentMarker = ({
       <Popup
         closeButton={false}
         autoClose={false}
-        autoPan={true}
+        autoPan={false}
+        keepInView={true} // Garde le popup visible dans la vue
         autoPanPadding={[80, 80]}
         // Configuration mobile-friendly pour les popups
         maxWidth={mobile ? 320 : 300}
@@ -367,7 +430,10 @@ const EstablishmentMarker = ({
         <div className={`${mobile ? "overflow-hidden" : "p-3"}`}>
           {/* Image de l'établissement - cliquable si page publique disponible */}
           {establishment.image && (
-            <div className={`${mobile ? "mb-3 -mx-3 -mt-3" : "mb-3"}`}>
+            <div
+              className={`${mobile ? "mb-3 -mx-3 -mt-3" : "mb-3"}`}
+              style={{ minHeight: mobile ? "100px" : "96px" }} // Force la hauteur pour Leaflet
+            >
               {establishment.isPubliclyVisible ? (
                 <a
                   href={`/establishment/${establishment.slug}`}
@@ -381,6 +447,8 @@ const EstablishmentMarker = ({
                     alt={establishment.name}
                     width={320}
                     height={mobile ? 100 : 96}
+                    priority={isSelected} // Charger en priorité si sélectionné
+                    onLoad={handleImageLoad} // Mettre à jour le popup quand l'image est chargée
                     className={`w-full ${mobile ? "h-[100px]" : "h-24 rounded-lg"} object-cover hover:opacity-90 transition-opacity cursor-pointer`}
                     onError={(e) => {
                       // Image de fallback si l'image principale ne charge pas
@@ -394,6 +462,8 @@ const EstablishmentMarker = ({
                   alt={establishment.name}
                   width={320}
                   height={mobile ? 100 : 96}
+                  priority={isSelected} // Charger en priorité si sélectionné
+                  onLoad={handleImageLoad} // Mettre à jour le popup quand l'image est chargée
                   className={`w-full ${mobile ? "h-[100px]" : "h-24 rounded-lg"} object-cover`}
                   onError={(e) => {
                     // Image de fallback si l'image principale ne charge pas
