@@ -82,10 +82,17 @@ const createAnimatedIcon = (isHovered: boolean) => {
         }
         
         @keyframes pinBounce {
-          0%, 100% { transform: translateY(0) scale(1); }
-          25% { transform: translateY(-3px) scale(1.02); }
-          50% { transform: translateY(-5px) scale(1.05); }
-          75% { transform: translateY(-2px) scale(1.02); }
+          0% { transform: translateY(0) scale(1); }
+          10% { transform: translateY(-2px) scale(1.01); }
+          20% { transform: translateY(-4px) scale(1.03); }
+          30% { transform: translateY(-5px) scale(1.04); }
+          40% { transform: translateY(-4px) scale(1.03); }
+          50% { transform: translateY(-2px) scale(1.01); }
+          60% { transform: translateY(-1px) scale(1.005); }
+          70% { transform: translateY(0) scale(1); }
+          80% { transform: translateY(0) scale(1); }
+          90% { transform: translateY(0) scale(1); }
+          100% { transform: translateY(0) scale(1); }
         }
       </style>
     `,
