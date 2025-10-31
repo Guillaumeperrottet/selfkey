@@ -1,16 +1,19 @@
 import { Metadata } from "next";
 import { headers } from "next/headers";
-import { DomainRouter } from "@/components/shared/domain-router";
 import { SelfcampHomepage } from "@/components/public-pages/selfcamp-homepage";
 import { SelfkeyHomepage } from "@/components/public-pages/selfkey-homepage";
+
+// Fonction helper pour détecter si on est sur selfcamp
+function isSelfcampDomain(host: string): boolean {
+  return host.includes("selfcamp.ch") || host.includes("selfcamp.vercel.app");
+}
 
 // Fonction pour générer les métadonnées dynamiquement selon le domaine
 export async function generateMetadata(): Promise<Metadata> {
   const headersList = await headers();
   const host = headersList.get("host") || "";
 
-  const isSelfcamp =
-    host.includes("selfcamp.ch") || host.includes("selfcamp.vercel.app");
+  const isSelfcamp = isSelfcampDomain(host);
 
   if (isSelfcamp) {
     return {
@@ -139,11 +142,18 @@ export async function generateMetadata(): Promise<Metadata> {
   };
 }
 
-export default function Home() {
-  return (
-    <DomainRouter
-      selfcampContent={<SelfcampHomepage />}
-      selfkeyContent={<SelfkeyHomepage />}
-    />
-  );
+// Page principale - rendu côté serveur selon le domaine
+export default async function Home() {
+  const headersList = await headers();
+  const host = headersList.get("host") || "";
+
+  // Détection du domaine côté serveur pour un rendu instantané
+  const isSelfcamp = isSelfcampDomain(host);
+
+  // Rendu direct du bon contenu sans client-side routing
+  if (isSelfcamp) {
+    return <SelfcampHomepage />;
+  }
+
+  return <SelfkeyHomepage />;
 }
