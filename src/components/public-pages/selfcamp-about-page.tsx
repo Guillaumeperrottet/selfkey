@@ -514,11 +514,11 @@ export function SelfcampAboutPage() {
         }
       `}</style>
       <div className="min-h-screen bg-white">
-        {/* Header avec logo noir compact */}
-        <header className="container mx-auto px-4 py-2">
-          <div className="flex items-center justify-between">
+        {/* Header avec logo noir - style similaire à homepage */}
+        <header className="container mx-auto px-4 pt-0 pb-0">
+          <div className="flex items-start justify-between">
             {/* Desktop header */}
-            <div className="hidden lg:flex items-center justify-between w-full">
+            <div className="hidden lg:flex items-start justify-between w-full">
               {/* Logo à gauche */}
               <div className="flex items-center">
                 <Link
@@ -536,28 +536,28 @@ export function SelfcampAboutPage() {
               </div>
 
               {/* Navigation à droite */}
-              <div className="flex items-center gap-6">
+              <div className="flex items-center gap-8 mt-8">
                 <Link
                   href="/"
                   onClick={() => trackAbout.mapCtaClicked("home_menu_desktop")}
-                  className="text-gray-900 font-bold text-base hover:text-gray-700 transition-colors"
+                  className="text-gray-900 font-bold text-lg hover:text-gray-700 transition-colors"
                 >
                   {t.map.home}
                 </Link>
                 <Link
                   href="/map"
-                  className="text-gray-900 font-bold text-base hover:text-gray-700 transition-colors"
+                  className="text-gray-900 font-bold text-lg hover:text-gray-700 transition-colors"
                 >
                   Map
                 </Link>
                 <Link
                   href="/contact"
                   onClick={() => trackAbout.contactCtaClicked("header")}
-                  className="text-gray-900 font-bold text-base hover:text-gray-700 transition-colors"
+                  className="text-gray-900 font-bold text-lg hover:text-gray-700 transition-colors"
                 >
                   {t.map.contact}
                 </Link>
-                <div className="border-l border-gray-300 pl-4">
+                <div className="border-l border-gray-300 pl-6">
                   <SelfcampLanguageSelector variant="compact" theme="dark" />
                 </div>
               </div>
@@ -574,36 +574,36 @@ export function SelfcampAboutPage() {
                   <Image
                     src="/logo.png"
                     alt="SelfCamp Logo"
-                    width={90}
-                    height={45}
+                    width={110}
+                    height={55}
                     className="hover:opacity-80 transition-opacity"
                   />
                 </Link>
               </div>
 
               {/* Navigation à droite */}
-              <div className="flex items-center gap-2">
-                <Link
-                  href="/"
-                  onClick={() => trackAbout.mapCtaClicked("home_menu_mobile")}
-                  className="text-gray-900 font-bold uppercase tracking-wide text-[10px] hover:text-gray-700 transition-colors"
-                >
-                  {t.map.home}
-                </Link>
+              <div className="flex items-center gap-3">
                 <Link
                   href="/map"
-                  className="text-gray-900 font-bold uppercase tracking-wide text-[10px] hover:text-gray-700 transition-colors"
+                  className="text-gray-900 font-bold uppercase tracking-wide text-xs hover:text-gray-700 transition-colors"
                 >
                   Map
                 </Link>
                 <Link
+                  href="/"
+                  onClick={() => trackAbout.mapCtaClicked("home_menu_mobile")}
+                  className="text-gray-900 font-bold uppercase tracking-wide text-xs hover:text-gray-700 transition-colors"
+                >
+                  {t.map.home}
+                </Link>
+                <Link
                   href="/contact"
                   onClick={() => trackAbout.contactCtaClicked("header_mobile")}
-                  className="text-gray-900 font-bold uppercase tracking-wide text-[10px] hover:text-gray-700 transition-colors"
+                  className="text-gray-900 font-bold uppercase tracking-wide text-xs hover:text-gray-700 transition-colors"
                 >
-                  Contact
+                  {t.map.contact}
                 </Link>
-                <div className="border-l border-gray-300 pl-2">
+                <div className="border-l border-gray-300 pl-3">
                   <SelfcampLanguageSelector variant="minimal" theme="dark" />
                 </div>
               </div>

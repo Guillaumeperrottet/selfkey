@@ -373,16 +373,18 @@ export default function SearchBar() {
           {/* Use the map suggestion */}
           <Link
             href="/map"
-            className="flex items-center gap-4 p-4 hover:bg-gray-50 hover:shadow-sm transition-all duration-200 ease-in-out border-b border-gray-200 cursor-pointer group"
+            className="flex items-center gap-3 md:gap-4 p-3 md:p-4 hover:bg-gray-50 hover:shadow-sm transition-all duration-200 ease-in-out border-b border-gray-200 cursor-pointer group"
           >
-            <div className="w-10 h-10 bg-[#84994F]/10 rounded-lg flex items-center justify-center group-hover:bg-[#84994F]/20 transition-colors duration-200">
-              <Map className="w-5 h-5 text-[#84994F]" />
+            <div className="w-8 h-8 md:w-10 md:h-10 bg-[#84994F]/10 rounded-lg flex items-center justify-center group-hover:bg-[#84994F]/20 transition-colors duration-200 flex-shrink-0">
+              <Map className="w-4 h-4 md:w-5 md:h-5 text-[#84994F]" />
             </div>
             <div>
-              <div className="font-medium text-gray-900 group-hover:text-[#84994F] transition-colors duration-200">
+              <div className="text-sm md:text-base font-medium text-gray-900 group-hover:text-[#84994F] transition-colors duration-200">
                 {t.search.seeMap}
               </div>
-              <div className="text-sm text-gray-600">{t.search.exploreAll}</div>
+              <div className="text-xs md:text-sm text-gray-600">
+                {t.search.exploreAll}
+              </div>
             </div>
           </Link>
 
@@ -390,12 +392,12 @@ export default function SearchBar() {
           {suggestions.length > 0 && (
             <>
               {!searchValue.trim() && recentSearches.length > 0 && (
-                <div className="px-4 py-3 text-sm font-medium text-gray-500 bg-gray-50">
+                <div className="px-3 md:px-4 py-2 md:py-3 text-xs md:text-sm font-medium text-gray-500 bg-gray-50">
                   {t.search.recentSearches}
                 </div>
               )}
               {searchValue.trim() && (
-                <div className="px-4 py-3 text-sm font-medium text-gray-500 bg-gray-50">
+                <div className="px-3 md:px-4 py-2 md:py-3 text-xs md:text-sm font-medium text-gray-500 bg-gray-50">
                   Résultats de recherche
                 </div>
               )}
@@ -403,21 +405,21 @@ export default function SearchBar() {
               {suggestions.map((suggestion) => (
                 <div
                   key={suggestion.id}
-                  className="w-full flex items-center gap-4 p-4 hover:bg-gray-50 hover:shadow-sm transition-all duration-200 ease-in-out group"
+                  className="w-full flex items-center gap-3 md:gap-4 p-3 md:p-4 hover:bg-gray-50 hover:shadow-sm transition-all duration-200 ease-in-out group"
                 >
                   <button
-                    className="flex items-center gap-4 flex-1 text-left cursor-pointer transform hover:translate-x-1 transition-transform duration-200"
+                    className="flex items-center gap-3 md:gap-4 flex-1 text-left cursor-pointer transform hover:translate-x-1 transition-transform duration-200"
                     onClick={() => handleSuggestionClick(suggestion)}
                   >
-                    <div className="w-10 h-10 bg-gray-100 rounded-lg flex items-center justify-center group-hover:bg-[#84994F]/20 group-hover:scale-105 transition-all duration-200">
+                    <div className="w-8 h-8 md:w-10 md:h-10 bg-gray-100 rounded-lg flex items-center justify-center group-hover:bg-[#84994F]/20 group-hover:scale-105 transition-all duration-200 flex-shrink-0">
                       {getIcon(suggestion.icon, suggestion.type)}
                     </div>
-                    <div className="flex-1">
-                      <div className="font-medium text-gray-900 group-hover:text-[#84994F] transition-colors duration-200">
+                    <div className="flex-1 min-w-0">
+                      <div className="text-sm md:text-base font-medium text-gray-900 group-hover:text-[#84994F] transition-colors duration-200 truncate">
                         {suggestion.title}
                       </div>
                       {suggestion.subtitle && (
-                        <div className="text-sm text-gray-600 group-hover:text-gray-700 transition-colors duration-200">
+                        <div className="text-xs md:text-sm text-gray-600 group-hover:text-gray-700 transition-colors duration-200 truncate">
                           {suggestion.subtitle}
                         </div>
                       )}
@@ -436,10 +438,10 @@ export default function SearchBar() {
                           removeRecentSearch(recentSearch);
                         }
                       }}
-                      className="opacity-0 group-hover:opacity-100 p-1 hover:bg-red-100 rounded-full transition-all duration-200"
+                      className="opacity-0 group-hover:opacity-100 p-1 hover:bg-red-100 rounded-full transition-all duration-200 flex-shrink-0"
                       title="Supprimer de l'historique"
                     >
-                      <X className="h-4 w-4 text-gray-400 hover:text-red-500" />
+                      <X className="h-3 w-3 md:h-4 md:w-4 text-gray-400 hover:text-red-500" />
                     </button>
                   )}
                 </div>
@@ -449,7 +451,7 @@ export default function SearchBar() {
 
           {/* No results */}
           {searchValue.trim() && suggestions.length === 0 && !isLoading && (
-            <div className="p-4 text-center text-gray-500">
+            <div className="p-3 md:p-4 text-center text-gray-500 text-sm md:text-base">
               Aucun résultat trouvé pour &ldquo;{searchValue}&rdquo;
             </div>
           )}

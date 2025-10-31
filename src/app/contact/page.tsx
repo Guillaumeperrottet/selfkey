@@ -115,11 +115,11 @@ export default function ContactPage() {
 
   return (
     <div className="min-h-screen bg-white">
-      {/* Header avec logo noir compact - identique à About */}
-      <header className="container mx-auto px-4 py-2">
-        <div className="flex items-center justify-between">
+      {/* Header avec logo noir - style similaire à homepage */}
+      <header className="container mx-auto px-4 pt-0 pb-0">
+        <div className="flex items-start justify-between">
           {/* Desktop header */}
-          <div className="hidden lg:flex items-center justify-between w-full">
+          <div className="hidden lg:flex items-start justify-between w-full">
             {/* Logo à gauche */}
             <div className="flex items-center">
               <Link
@@ -137,29 +137,29 @@ export default function ContactPage() {
             </div>
 
             {/* Navigation à droite */}
-            <div className="flex items-center gap-6">
-              <Link
-                href="/"
-                onClick={() =>
-                  trackContact.formError("home_menu_desktop_click")
-                }
-                className="text-gray-900 font-bold text-base hover:text-gray-700 transition-colors"
-              >
-                {t.map.home}
-              </Link>
+            <div className="flex items-center gap-8 mt-8">
               <Link
                 href="/map"
-                className="text-gray-900 font-bold text-base hover:text-gray-700 transition-colors"
+                className="text-gray-900 font-bold text-lg hover:text-gray-700 transition-colors"
               >
                 Map
               </Link>
               <Link
                 href="/about"
-                className="text-gray-900 font-bold text-base hover:text-gray-700 transition-colors"
+                className="text-gray-900 font-bold text-lg hover:text-gray-700 transition-colors"
               >
                 {t.map.about}
               </Link>
-              <div className="border-l border-gray-300 pl-4">
+              <Link
+                href="/"
+                onClick={() =>
+                  trackContact.formError("home_menu_desktop_click")
+                }
+                className="text-gray-900 font-bold text-lg hover:text-gray-700 transition-colors"
+              >
+                {t.map.home}
+              </Link>
+              <div className="border-l border-gray-300 pl-6">
                 <SelfcampLanguageSelector variant="compact" theme="dark" />
               </div>
             </div>
@@ -176,35 +176,35 @@ export default function ContactPage() {
                 <Image
                   src="/logo.png"
                   alt="SelfCamp Logo"
-                  width={90}
-                  height={45}
+                  width={110}
+                  height={55}
                   className="hover:opacity-80 transition-opacity"
                 />
               </Link>
             </div>
 
             {/* Navigation à droite */}
-            <div className="flex items-center gap-2">
-              <Link
-                href="/"
-                onClick={() => trackContact.formError("home_menu_mobile_click")}
-                className="text-gray-900 font-bold uppercase tracking-wide text-[10px] hover:text-gray-700 transition-colors"
-              >
-                {t.map.home}
-              </Link>
+            <div className="flex items-center gap-3">
               <Link
                 href="/map"
-                className="text-gray-900 font-bold uppercase tracking-wide text-[10px] hover:text-gray-700 transition-colors"
+                className="text-gray-900 font-bold uppercase tracking-wide text-xs hover:text-gray-700 transition-colors"
               >
                 Map
               </Link>
               <Link
                 href="/about"
-                className="text-gray-900 font-bold uppercase tracking-wide text-[10px] hover:text-gray-700 transition-colors"
+                className="text-gray-900 font-bold uppercase tracking-wide text-xs hover:text-gray-700 transition-colors"
               >
-                About
+                {t.map.about}
               </Link>
-              <div className="border-l border-gray-300 pl-2">
+              <Link
+                href="/"
+                onClick={() => trackContact.formError("home_menu_mobile_click")}
+                className="text-gray-900 font-bold uppercase tracking-wide text-xs hover:text-gray-700 transition-colors"
+              >
+                {t.map.home}
+              </Link>
+              <div className="border-l border-gray-300 pl-3">
                 <SelfcampLanguageSelector variant="minimal" theme="dark" />
               </div>
             </div>
@@ -221,7 +221,12 @@ export default function ContactPage() {
           </div>
           <h1 className="text-3xl md:text-5xl font-bold text-gray-900 mb-4 leading-tight">
             {t.contactPage.title}{" "}
-            <span className="text-[#84994F]">{t.contactPage.titleBrand}</span>
+            <span
+              className="text-[#84994F]"
+              style={{ fontFamily: "Poppins, sans-serif", fontWeight: 700 }}
+            >
+              {t.contactPage.titleBrand}
+            </span>
           </h1>
           <p className="text-base md:text-lg text-gray-600 max-w-2xl mx-auto">
             {t.contactPage.subtitle}
@@ -239,7 +244,7 @@ export default function ContactPage() {
           <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 max-w-4xl mx-auto">
             <div className="flex flex-col md:flex-row items-start md:items-center justify-around gap-6 md:gap-8">
               <a
-                href="mailto:perrottet.guillaume.97@gmail.com"
+                href="mailto:gp@webbing.ch"
                 className="flex items-center gap-3 group w-full md:w-auto"
               >
                 <div className="w-12 h-12 rounded-full bg-[#84994F]/10 flex items-center justify-center group-hover:bg-[#84994F] transition-colors flex-shrink-0">
@@ -250,7 +255,7 @@ export default function ContactPage() {
                     {t.contactPage.email}
                   </div>
                   <div className="text-base text-gray-900 group-hover:text-[#84994F] transition-colors">
-                    perrottet.guillaume.97@gmail.com
+                    gp@webbing.ch
                   </div>
                 </div>
               </a>
