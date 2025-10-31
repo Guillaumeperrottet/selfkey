@@ -18,7 +18,6 @@ import {
   Mail,
   Phone,
   FileText,
-  ArrowLeft,
   Download,
   CheckCircle2,
   Navigation,
@@ -205,70 +204,101 @@ export default function EstablishmentPage() {
       <div className="min-h-screen bg-white overflow-x-hidden">
         {/* Hero Section avec dégradé comme homepage */}
         <div className="relative bg-gradient-to-b from-[#84994F]/8 via-white to-white">
-          {/* Header comme Selfcamp homepage */}
-          <header className="container mx-auto px-4 py-4 border-b border-gray-100">
-            <div className="flex items-center justify-between">
+          {/* Header unifié avec About et Contact */}
+          <header className="container mx-auto px-4 pt-0 pb-0">
+            <div className="flex items-start justify-between">
               {/* Desktop header */}
-              <div className="hidden md:flex items-center justify-between w-full">
-                <Link
-                  href="/map"
-                  className="flex items-center gap-2 text-gray-600 hover:text-[#84994F] transition-colors"
-                >
-                  <ArrowLeft className="h-5 w-5" />
-                  <span className="font-medium">
-                    {t.establishment.backToMap}
-                  </span>
-                </Link>
+              <div className="hidden lg:flex items-start justify-between w-full">
+                {/* Logo à gauche */}
+                <div className="flex items-center">
+                  <Link href="/">
+                    <Image
+                      src="/logo.png"
+                      alt="SelfCamp Logo"
+                      width={140}
+                      height={70}
+                      className="hover:opacity-80 transition-opacity"
+                    />
+                  </Link>
+                </div>
 
-                <Link
-                  href="/"
-                  className="text-[#84994F] font-bold uppercase tracking-wide text-lg hover:text-[#6d7d3f] transition-colors"
-                >
-                  Selfcamp
-                </Link>
-
-                <div className="flex items-center gap-4">
+                {/* Navigation à droite */}
+                <div className="flex items-center gap-8 mt-8">
+                  <Link
+                    href="/"
+                    className="text-gray-900 font-bold text-lg hover:text-gray-700 transition-colors"
+                  >
+                    {t.map.home}
+                  </Link>
+                  <Link
+                    href="/map"
+                    className="text-gray-900 font-bold text-lg hover:text-gray-700 transition-colors"
+                  >
+                    Map
+                  </Link>
+                  <Link
+                    href="/about"
+                    className="text-gray-900 font-bold text-lg hover:text-gray-700 transition-colors"
+                  >
+                    {t.map.about}
+                  </Link>
                   <Link
                     href="/contact"
-                    className="text-[#84994F] font-bold uppercase tracking-wide text-sm hover:text-[#6d7d3f] transition-colors"
+                    className="text-gray-900 font-bold text-lg hover:text-gray-700 transition-colors"
                   >
-                    {t.establishment.contactUs}
+                    {t.map.contact}
                   </Link>
-                  <SelfcampLanguageSelector variant="compact" />
+                  <div className="border-l border-gray-300 pl-6">
+                    <SelfcampLanguageSelector variant="compact" theme="dark" />
+                  </div>
                 </div>
               </div>
 
               {/* Mobile header */}
-              <div className="flex md:hidden items-center justify-between w-full">
-                <Link
-                  href="/map"
-                  className="flex items-center text-gray-600 hover:text-[#84994F] transition-colors"
-                >
-                  <ArrowLeft className="h-5 w-5" />
-                </Link>
+              <div className="flex lg:hidden items-center justify-between w-full">
+                {/* Logo à gauche */}
+                <div className="flex items-center">
+                  <Link href="/">
+                    <Image
+                      src="/logo.png"
+                      alt="SelfCamp Logo"
+                      width={110}
+                      height={55}
+                      className="hover:opacity-80 transition-opacity"
+                    />
+                  </Link>
+                </div>
 
-                <Link
-                  href="/"
-                  className="text-[#84994F] font-bold uppercase tracking-wide text-base hover:text-[#6d7d3f] transition-colors"
-                >
-                  Selfcamp
-                </Link>
-
+                {/* Navigation à droite - réduite pour mobile */}
                 <div className="flex items-center gap-2">
                   <Link
-                    href="/contact"
-                    className="text-[#84994F] font-bold uppercase tracking-wide text-xs hover:text-[#84994F]/80 transition-colors"
+                    href="/"
+                    className="text-gray-900 font-bold uppercase tracking-wide text-xs hover:text-gray-700 transition-colors"
                   >
-                    {t.establishment.contactShort}
+                    {t.map.home}
                   </Link>
-                  <SelfcampLanguageSelector variant="minimal" />
+                  <Link
+                    href="/map"
+                    className="text-gray-900 font-bold uppercase tracking-wide text-xs hover:text-gray-700 transition-colors"
+                  >
+                    Map
+                  </Link>
+                  <Link
+                    href="/contact"
+                    className="text-gray-900 font-bold uppercase tracking-wide text-xs hover:text-gray-700 transition-colors"
+                  >
+                    {t.map.contact}
+                  </Link>
+                  <div className="border-l border-gray-300 pl-2">
+                    <SelfcampLanguageSelector variant="minimal" theme="dark" />
+                  </div>
                 </div>
               </div>
             </div>
           </header>
 
           {/* Contenu principal */}
-          <main className="container mx-auto px-4 py-8 md:py-12 max-w-6xl">
+          <main className="container mx-auto px-4 py-8 md:py-12 max-w-6xl pt-16 md:pt-8">
             {/* Titre et localisation */}
             <div className="mb-8 md:mb-12">
               <h1 className="text-3xl md:text-5xl font-bold text-gray-900 mb-4">
@@ -331,33 +361,43 @@ export default function EstablishmentPage() {
               {(establishment.website ||
                 establishment.email ||
                 establishment.phone) && (
-                <div className="flex flex-wrap items-center gap-4 text-sm">
+                <div className="flex flex-wrap items-center gap-3 md:gap-4 text-xs md:text-sm">
                   {establishment.website && (
-                    <a
-                      href={establishment.website}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="flex items-center gap-1.5 text-gray-600 hover:text-[#84994F] transition-colors group"
-                    >
-                      <Globe className="h-4 w-4" />
-                      <span className="group-hover:underline">
-                        {t.establishment.info.website}
-                      </span>
-                    </a>
+                    <>
+                      <a
+                        href={establishment.website}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="flex items-center gap-1 md:gap-1.5 text-gray-600 hover:text-[#84994F] transition-colors group"
+                      >
+                        <Globe className="h-3 w-3 md:h-4 md:w-4" />
+                        <span className="group-hover:underline">
+                          {t.establishment.info.website}
+                        </span>
+                      </a>
+                      {(establishment.email || establishment.phone) && (
+                        <div className="h-4 w-px bg-gray-300" />
+                      )}
+                    </>
                   )}
                   {establishment.email && (
-                    <a
-                      href={`mailto:${establishment.email}`}
-                      onClick={() =>
-                        trackEstablishment.contactClicked(slug, "email")
-                      }
-                      className="flex items-center gap-1.5 text-gray-600 hover:text-[#84994F] transition-colors group"
-                    >
-                      <Mail className="h-4 w-4" />
-                      <span className="group-hover:underline">
-                        {establishment.email}
-                      </span>
-                    </a>
+                    <>
+                      <a
+                        href={`mailto:${establishment.email}`}
+                        onClick={() =>
+                          trackEstablishment.contactClicked(slug, "email")
+                        }
+                        className="flex items-center gap-1 md:gap-1.5 text-gray-600 hover:text-[#84994F] transition-colors group"
+                      >
+                        <Mail className="h-3 w-3 md:h-4 md:w-4" />
+                        <span className="group-hover:underline">
+                          {establishment.email}
+                        </span>
+                      </a>
+                      {establishment.phone && (
+                        <div className="h-4 w-px bg-gray-300" />
+                      )}
+                    </>
                   )}
                   {establishment.phone && (
                     <a
@@ -365,9 +405,9 @@ export default function EstablishmentPage() {
                       onClick={() =>
                         trackEstablishment.contactClicked(slug, "phone")
                       }
-                      className="flex items-center gap-1.5 text-gray-600 hover:text-[#84994F] transition-colors group"
+                      className="flex items-center gap-1 md:gap-1.5 text-gray-600 hover:text-[#84994F] transition-colors group"
                     >
-                      <Phone className="h-4 w-4" />
+                      <Phone className="h-3 w-3 md:h-4 md:w-4" />
                       <span className="group-hover:underline">
                         {establishment.phone}
                       </span>
