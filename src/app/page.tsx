@@ -2,11 +2,7 @@ import { Metadata } from "next";
 import { headers } from "next/headers";
 import { SelfcampHomepage } from "@/components/public-pages/selfcamp-homepage";
 import { SelfkeyHomepage } from "@/components/public-pages/selfkey-homepage";
-
-// Fonction helper pour détecter si on est sur selfcamp
-function isSelfcampDomain(host: string): boolean {
-  return host.includes("selfcamp.ch") || host.includes("selfcamp.vercel.app");
-}
+import { isSelfcampDomain } from "@/lib/domain-utils";
 
 // Fonction pour générer les métadonnées dynamiquement selon le domaine
 export async function generateMetadata(): Promise<Metadata> {
