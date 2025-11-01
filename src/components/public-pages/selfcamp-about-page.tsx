@@ -59,9 +59,6 @@ export function SelfcampAboutPage() {
               {/* Avantages cards */}
               <div className="space-y-4 pt-2">
                 <div className="flex items-start gap-3.5">
-                  <div className="w-10 h-10 rounded-full bg-[#84994F]/10 flex items-center justify-center flex-shrink-0">
-                    <span className="text-xl">🏪</span>
-                  </div>
                   <div className="pt-1">
                     <h4 className="text-[15px] font-semibold text-gray-900 mb-1">
                       {t.timeline.regionalSupport.localCommerce.title}
@@ -73,9 +70,6 @@ export function SelfcampAboutPage() {
                 </div>
 
                 <div className="flex items-start gap-3.5">
-                  <div className="w-10 h-10 rounded-full bg-[#84994F]/10 flex items-center justify-center flex-shrink-0">
-                    <span className="text-xl">🗺️</span>
-                  </div>
                   <div className="pt-1">
                     <h4 className="text-[15px] font-semibold text-gray-900 mb-1">
                       {t.timeline.regionalSupport.regionalDiscovery.title}
@@ -87,9 +81,6 @@ export function SelfcampAboutPage() {
                 </div>
 
                 <div className="flex items-start gap-3.5">
-                  <div className="w-10 h-10 rounded-full bg-[#84994F]/10 flex items-center justify-center flex-shrink-0">
-                    <span className="text-xl">💰</span>
-                  </div>
                   <div className="pt-1">
                     <h4 className="text-[15px] font-semibold text-gray-900 mb-1">
                       {t.timeline.regionalSupport.circularEconomy.title}
@@ -118,9 +109,6 @@ export function SelfcampAboutPage() {
 
               <div className="grid grid-cols-3 gap-12 mt-10">
                 <div className="text-center group">
-                  <div className="w-16 h-16 bg-[#84994F] rounded-full flex items-center justify-center mx-auto mb-5 group-hover:scale-110 transition-transform duration-300">
-                    <span className="text-2xl">🏪</span>
-                  </div>
                   <h4 className="text-lg font-semibold text-[#84994F] mb-3">
                     {t.timeline.regionalSupport.localCommerce.title}
                   </h4>
@@ -130,9 +118,6 @@ export function SelfcampAboutPage() {
                 </div>
 
                 <div className="text-center group">
-                  <div className="w-16 h-16 bg-[#84994F] rounded-full flex items-center justify-center mx-auto mb-5 group-hover:scale-110 transition-transform duration-300">
-                    <span className="text-2xl">🗺️</span>
-                  </div>
                   <h4 className="text-lg font-semibold text-[#84994F] mb-3">
                     {t.timeline.regionalSupport.regionalDiscovery.title}
                   </h4>
@@ -142,9 +127,6 @@ export function SelfcampAboutPage() {
                 </div>
 
                 <div className="text-center group">
-                  <div className="w-16 h-16 bg-[#84994F] rounded-full flex items-center justify-center mx-auto mb-5 group-hover:scale-110 transition-transform duration-300">
-                    <span className="text-2xl">💰</span>
-                  </div>
                   <h4 className="text-lg font-semibold text-[#84994F] mb-3">
                     {t.timeline.regionalSupport.circularEconomy.title}
                   </h4>
@@ -264,8 +246,7 @@ export function SelfcampAboutPage() {
             <div className="md:hidden space-y-6">
               {/* Conformité Réglementaire */}
               <div className="bg-white rounded-2xl p-5 border border-gray-100">
-                <div className="flex items-center gap-2.5 mb-4">
-                  <span className="text-xl">✓</span>
+                <div className="mb-4">
                   <h4 className="text-[15px] font-bold text-gray-900">
                     {t.timeline.providerBenefits.regulatory.title}
                   </h4>
@@ -286,8 +267,7 @@ export function SelfcampAboutPage() {
 
               {/* Revenus Garantis */}
               <div className="bg-white rounded-2xl p-5 border border-gray-100">
-                <div className="flex items-center gap-2.5 mb-4">
-                  <span className="text-xl">💰</span>
+                <div className="mb-4">
                   <h4 className="text-[15px] font-bold text-gray-900">
                     {t.timeline.providerBenefits.revenue.title}
                   </h4>
@@ -308,8 +288,7 @@ export function SelfcampAboutPage() {
 
               {/* Partenariat Tout-en-un */}
               <div className="bg-white rounded-2xl p-5 border border-gray-100">
-                <div className="flex items-center gap-2.5 mb-4">
-                  <span className="text-xl">🤝</span>
+                <div className="mb-4">
                   <h4 className="text-[15px] font-bold text-gray-900">
                     {t.timeline.providerBenefits.partnership.title}
                   </h4>
@@ -330,8 +309,7 @@ export function SelfcampAboutPage() {
 
               {/* Données Stratégiques */}
               <div className="bg-white rounded-2xl p-5 border border-gray-100">
-                <div className="flex items-center gap-2.5 mb-4">
-                  <span className="text-xl">📊</span>
+                <div className="mb-4">
                   <h4 className="text-[15px] font-bold text-gray-900">
                     {t.timeline.providerBenefits.data.title}
                   </h4>
