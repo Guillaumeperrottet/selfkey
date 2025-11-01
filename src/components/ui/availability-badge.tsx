@@ -26,8 +26,7 @@ export function AvailabilityBadge({
   if (loading) {
     return (
       <Badge
-        variant="outline"
-        className={`flex items-center gap-1 ${className}`}
+        className={`flex items-center gap-1 bg-gray-400 text-white hover:bg-gray-500 text-xs font-medium ${className}`}
       >
         <Clock className="w-3 h-3 animate-spin" />
         <span className="text-xs">{t.loading.message}</span>
