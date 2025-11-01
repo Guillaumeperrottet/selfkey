@@ -579,13 +579,232 @@ Votre app n'utilise **aucune fonctionnalité exotique** :
 
 ---
 
+## � Quel Produit Commander chez Infomaniak ?
+
+### ⚠️ IMPORTANT : PostgreSQL chez Infomaniak
+
+**Attention :** L'hébergement web classique d'Infomaniak (5,75€/mois) inclut **MySQL/MariaDB uniquement**, PAS PostgreSQL !
+
+Pour PostgreSQL, vous avez **2 options** :
+
+---
+
+#### ✅ **Option 1 : Serveur Cloud Managé** (Recommandé)
+
+**Produit :** [Serveur Cloud Managé](https://www.infomaniak.com/fr/hebergement/serveur-cloud-manage)
+
+**Prix :** À partir de **24,92 €/mois** (~27 CHF/mois)
+
+**Ce qui est inclus :**
+
+- ✅ PostgreSQL 16 installable en 1 clic
+- ✅ 2 vCPU + 4 GB RAM minimum
+- ✅ 40 GB SSD NVMe
+- ✅ Backups automatiques
+- ✅ Gestion simplifiée (managé = Infomaniak gère les mises à jour)
+- ✅ Accès SSH complet
+- ✅ Support 7/7
+
+**Avantages :**
+
+- 🚀 Ressources garanties (pas de partage)
+- 🔧 Contrôle total sur PostgreSQL
+- 📈 Évolutif (upgrade facile)
+- 🇨🇭 100% hébergé en Suisse
+
+**Comment commander :**
+
+1. Aller sur : https://shop.infomaniak.com/order/vps_only?vps_type=managed&lang=fr
+2. Choisir : **Cloud M** (2 vCPU, 4 GB RAM) à **24,92 €/mois**
+3. Une fois le serveur prêt :
+   - Se connecter via SSH
+   - Installer PostgreSQL 16 : `apt install postgresql-16`
+   - Configurer l'accès externe
+   - Obtenir l'URL de connexion
+
+---
+
+#### ⚠️ **Option 2 : PostgreSQL via Service Externe + Hébergement Suisse**
+
+Si le prix du Serveur Cloud Managé est trop élevé, vous pouvez combiner :
+
+**Base de données :** Utiliser un service PostgreSQL hébergé en Suisse
+
+- **Aiven PostgreSQL Suisse** : ~15-25 €/mois (hébergé à Zurich/Genève)
+  - URL : https://aiven.io/postgresql
+  - Datacenter : Sélectionner "Switzerland" lors de la création
+  - Avantage : Géré, backups automatiques, monitoring inclus
+
+**Hébergement Next.js :** Rester sur Vercel (global) ou migrer vers :
+
+- **Render.com** (Europe) : Compatible Next.js, ~7-25$/mois
+- **Railway.app** (Europe) : Compatible Next.js, ~5-20$/mois
+
+❌ **Pourquoi pas Infomaniak pour Next.js ?**
+
+- Infomaniak hébergement web = Apache/PHP (optimisé WordPress)
+- Next.js nécessite Node.js + environnement serverless
+- Vercel reste le meilleur pour Next.js
+
+---
+
+#### 🤔 **Option 3 : Rester sur Neon mais Demander Région Europe**
+
+**Bonne nouvelle :** Neon propose maintenant des régions **EU (Frankfurt)** !
+
+**Comment faire :**
+
+1. Contacter Neon Support : https://neon.tech/docs/introduction/support
+2. Demander migration vers région **AWS eu-central-1 (Frankfurt)**
+3. Migration gratuite (peut prendre quelques heures)
+
+**Avantages :**
+
+- 🇪🇺 Données en Europe (RGPD)
+- 💰 Moins cher que Infomaniak Cloud Managé
+- ⚡ Latence réduite depuis Vercel Europe
+- 🔧 Aucun changement de code
+
+**Inconvénients :**
+
+- ❌ Toujours USA (Neon Inc.) même si serveurs en Europe
+- ❌ Pas "Swiss Made Data"
+
+---
+
+## 🎯 Ma Recommandation
+
+### Pour Votre Cas (SelfKey - Plateforme SaaS professionnelle)
+
+**Je recommande : Option 1 - Serveur Cloud Managé Infomaniak**
+
+**Pourquoi :**
+
+1. ✅ **Vraie souveraineté suisse** (argument marketing fort)
+2. ✅ **Performance garantie** (ressources dédiées)
+3. ✅ **Évolutif facilement** (upgrade en 2 clics)
+4. ✅ **Support en français** (crucial pour dépannage rapide)
+5. ✅ **Cohérent avec votre positionnement** (administrations suisses)
+
+**Le coût supplémentaire (~15€/mois vs Neon Free) est justifié par :**
+
+- 🏛️ Crédibilité auprès des communes/cantons suisses
+- 🔒 Conformité LPD renforcée
+- 🇨🇭 Vrai "Swiss Made Data" (pas juste Europe)
+- 📈 Infrastructure professionnelle stable
+
+---
+
+## 📋 Checklist de Commande
+
+### Étape 1 : Commander le Serveur Cloud Managé
+
+1. ✅ Aller sur : https://shop.infomaniak.com/order/vps_only?vps_type=managed&lang=fr
+2. ✅ Sélectionner : **Cloud M** (2 vCPU, 4 GB RAM, 40 GB SSD)
+3. ✅ Prix : **24,92 €/mois** (facture annuelle ou mensuelle)
+4. ✅ Options recommandées :
+   - ✅ Backup automatique (déjà inclus)
+   - ✅ Monitoring (déjà inclus)
+   - ❌ IPv6 optionnel (pas nécessaire)
+
+### Étape 2 : Configuration Post-Installation (15 minutes)
+
+Une fois le serveur provisionné (1-2 heures), vous recevrez :
+
+- 📧 Email avec IP du serveur
+- 🔑 Accès SSH root
+- 🌐 Panneau de contrôle Infomaniak
+
+**Installer PostgreSQL 16 :**
+
+```bash
+# Se connecter en SSH
+ssh root@votre-ip-infomaniak
+
+# Mettre à jour le système
+apt update && apt upgrade -y
+
+# Installer PostgreSQL 16
+apt install -y postgresql-16 postgresql-contrib-16
+
+# Configurer l'accès externe
+nano /etc/postgresql/16/main/postgresql.conf
+# Modifier : listen_addresses = '*'
+
+nano /etc/postgresql/16/main/pg_hba.conf
+# Ajouter : host all all 0.0.0.0/0 md5
+
+# Créer utilisateur et base de données
+sudo -u postgres psql
+CREATE USER selfkey_user WITH PASSWORD 'VotreMotDePasseSecurise123!';
+CREATE DATABASE selfkey_production OWNER selfkey_user;
+GRANT ALL PRIVILEGES ON DATABASE selfkey_production TO selfkey_user;
+\q
+
+# Redémarrer PostgreSQL
+systemctl restart postgresql
+```
+
+**Obtenir l'URL de connexion :**
+
+```bash
+# Format de l'URL
+DATABASE_URL="postgresql://selfkey_user:VotreMotDePasseSecurise123!@VOTRE-IP-INFOMANIAK:5432/selfkey_production?sslmode=require"
+```
+
+### Étape 3 : Sécuriser la Connexion
+
+**Configurer le firewall :**
+
+```bash
+# Installer UFW (firewall)
+apt install ufw
+
+# Autoriser SSH et PostgreSQL
+ufw allow 22/tcp
+ufw allow 5432/tcp
+
+# Activer le firewall
+ufw enable
+```
+
+**Option avancée : Utiliser Tailscale VPN (gratuit)**
+
+- Plus sécurisé : PostgreSQL accessible uniquement via VPN
+- Tutoriel : https://tailscale.com/kb/1017/install/
+
+---
+
+## 💰 Comparaison Coûts Réels
+
+| Solution               | Coût/mois | BDD Location  | Souveraineté   | Support           |
+| ---------------------- | --------- | ------------- | -------------- | ----------------- |
+| **Neon Free (actuel)** | 0€        | USA           | ❌ USA         | Email             |
+| **Neon Pro**           | ~19€      | USA ou EU     | ⚠️ USA/EU      | Email             |
+| **Infomaniak Cloud M** | **25€**   | 🇨🇭 **Suisse** | ✅ **100% CH** | **Téléphone 7/7** |
+| **Aiven PostgreSQL**   | ~20€      | 🇨🇭 Suisse     | ⚠️ Finlande    | Email             |
+
+**ROI de l'investissement (+25€/mois) :**
+
+- 🏛️ **1 commune cliente** (15-30€/mois) = rentabilisé
+- 📈 **Argument commercial** : "Hébergement 100% Suisse"
+- 🔒 **Conformité renforcée** : LPD + RGPD
+
+---
+
 ## 📚 Ressources
 
-### Documentation
+### Documentation Infomaniak
 
-- [Infomaniak PostgreSQL](https://www.infomaniak.com/fr/hebergement/web-et-mail/hebergement-web)
+- [Serveur Cloud Managé](https://www.infomaniak.com/fr/hebergement/serveur-cloud-manage)
+- [Guide PostgreSQL](https://www.infomaniak.com/fr/support/faq/2402/installer-postgresql-sur-un-serveur-cloud)
+- [Support Infomaniak](https://www.infomaniak.com/fr/support) (téléphone : +41 22 820 35 44)
+
+### Documentation Technique
+
 - [Prisma with PostgreSQL](https://www.prisma.io/docs/concepts/database-connectors/postgresql)
 - [Vercel Environment Variables](https://vercel.com/docs/concepts/projects/environment-variables)
+- [PostgreSQL 16 Documentation](https://www.postgresql.org/docs/16/)
 
 ### Scripts Utiles
 

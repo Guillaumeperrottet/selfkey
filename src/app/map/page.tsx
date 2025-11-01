@@ -415,10 +415,16 @@ function MapPageContent() {
     setFilteredEstablishments(filtered);
   };
 
-  if (loading) {
+  // Attendre que les établissements ET les données de disponibilité soient chargés
+  if (loading || (establishments.length > 0 && availabilityLoading)) {
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <VanLoading message={t.map.discovering} size="lg" />
+        <VanLoading
+          message={
+            loading ? t.map.discovering : "Chargement des disponibilités..."
+          }
+          size="lg"
+        />
       </div>
     );
   }
@@ -741,7 +747,7 @@ function MapPageContent() {
                           availableRooms={0}
                           totalRooms={0}
                           status="available"
-                          loading={availabilityLoading}
+                          loading={true}
                         />
                       )}
                     </div>
