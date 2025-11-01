@@ -342,7 +342,7 @@ export const selfcampTranslations: Record<
       recentSearches: "Recherches récentes",
     },
     loading: {
-      message: "Chargement de votre carte Selfcamp...",
+      message: "Chargement...",
       subtitle: "Préparation des meilleurs spots de camping-car",
     },
     map: {
@@ -665,7 +665,7 @@ export const selfcampTranslations: Record<
       recentSearches: "Recent searches",
     },
     loading: {
-      message: "Loading your Selfcamp map...",
+      message: "Loading...",
       subtitle: "Preparing the best motorhome spots",
     },
     map: {
@@ -983,7 +983,7 @@ export const selfcampTranslations: Record<
       recentSearches: "Letzte Suchanfragen",
     },
     loading: {
-      message: "Ihre Selfcamp-Karte wird geladen...",
+      message: "Beladung...",
       subtitle: "Vorbereitung der besten Wohnmobilstellplätze",
     },
     map: {
