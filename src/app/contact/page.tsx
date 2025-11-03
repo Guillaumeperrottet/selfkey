@@ -204,7 +204,6 @@ export default function ContactPage() {
               >
                 {t.map.about}
               </Link>
-
               <div className="border-l border-gray-300 pl-3">
                 <SelfcampLanguageSelector variant="minimal" theme="dark" />
               </div>
