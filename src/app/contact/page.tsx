@@ -186,6 +186,13 @@ export default function ContactPage() {
             {/* Navigation à droite */}
             <div className="flex items-center gap-3">
               <Link
+                href="/"
+                onClick={() => trackContact.formError("home_menu_mobile_click")}
+                className="text-gray-900 font-bold uppercase tracking-wide text-xs hover:text-gray-700 transition-colors"
+              >
+                {t.map.home}
+              </Link>
+              <Link
                 href="/map"
                 className="text-gray-900 font-bold uppercase tracking-wide text-xs hover:text-gray-700 transition-colors"
               >
@@ -197,13 +204,7 @@ export default function ContactPage() {
               >
                 {t.map.about}
               </Link>
-              <Link
-                href="/"
-                onClick={() => trackContact.formError("home_menu_mobile_click")}
-                className="text-gray-900 font-bold uppercase tracking-wide text-xs hover:text-gray-700 transition-colors"
-              >
-                {t.map.home}
-              </Link>
+
               <div className="border-l border-gray-300 pl-3">
                 <SelfcampLanguageSelector variant="minimal" theme="dark" />
               </div>
