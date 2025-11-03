@@ -619,7 +619,7 @@ export const selfcampTranslations: Record<
       backHome: "Accueil",
       badge: "Parlons de votre projet",
       title: "Contactez",
-      titleBrand: "SelfCamp",
+      titleBrand: "Selfcamp",
       subtitle:
         "Une question ? Besoin d'informations ? Nous sommes à votre écoute",
       directContactTitle: "Contactez-nous directement",
@@ -939,7 +939,7 @@ export const selfcampTranslations: Record<
       backHome: "Home",
       badge: "Let's talk about your project",
       title: "Contact",
-      titleBrand: "SelfCamp",
+      titleBrand: "Selfcamp",
       subtitle: "Have a question? Need information? We're here to listen",
       directContactTitle: "Contact us directly",
       email: "Email",
@@ -1261,7 +1261,7 @@ export const selfcampTranslations: Record<
       backHome: "Startseite",
       badge: "Lassen Sie uns über Ihr Projekt sprechen",
       title: "Kontaktieren Sie",
-      titleBrand: "SelfCamp",
+      titleBrand: "Selfcamp",
       subtitle:
         "Haben Sie eine Frage? Benötigen Sie Informationen? Wir hören Ihnen zu",
       directContactTitle: "Kontaktieren Sie uns direkt",
