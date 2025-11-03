@@ -35,10 +35,12 @@ import {
   Trash2,
   Search,
   Eye,
+  CheckCircle,
 } from "lucide-react";
 import { toastUtils } from "@/lib/toast-utils";
 import { useTableSortAndFilter } from "@/hooks/useTableSortAndFilter";
 import { SortableHeader } from "@/components/ui/sortable-header";
+import { InviteUserDialog } from "@/components/admin/InviteUserDialog";
 
 interface User {
   id: string;
@@ -63,6 +65,9 @@ export function SuperAdminUsers() {
   const [confirmationName, setConfirmationName] = useState("");
   const [deleteLoading, setDeleteLoading] = useState(false);
   const [diagnosticLoading, setDiagnosticLoading] = useState(false);
+  const [verifyingEmails, setVerifyingEmails] = useState<Set<string>>(
+    new Set()
+  );
 
   // Hook pour le tri et la recherche
   const {
@@ -228,6 +233,35 @@ export function SuperAdminUsers() {
     setConfirmationName("");
   };
 
+  const handleVerifyEmail = async (userId: string) => {
+    setVerifyingEmails((prev) => new Set(prev).add(userId));
+
+    try {
+      const response = await fetch(
+        `/api/super-admin/users/${userId}/verify-email`,
+        {
+          method: "POST",
+        }
+      );
+
+      if (!response.ok) {
+        throw new Error("Erreur lors de la vérification");
+      }
+
+      toastUtils.success("Email vérifié avec succès !");
+      fetchUsers(); // Recharger la liste
+    } catch (error) {
+      console.error("Erreur vérification:", error);
+      toastUtils.error("Impossible de vérifier l'email");
+    } finally {
+      setVerifyingEmails((prev) => {
+        const newSet = new Set(prev);
+        newSet.delete(userId);
+        return newSet;
+      });
+    }
+  };
+
   if (loading) {
     return (
       <Card>
@@ -252,6 +286,7 @@ export function SuperAdminUsers() {
             </CardDescription>
           </div>
           <div className="flex gap-2">
+            <InviteUserDialog />
             <Button onClick={fetchUsers} variant="outline" size="sm">
               <RefreshCw className="w-4 h-4 mr-2" />
               Actualiser
@@ -352,6 +387,25 @@ export function SuperAdminUsers() {
                       >
                         {user.emailVerified ? "Vérifié" : "Non vérifié"}
                       </Badge>
+                      {!user.emailVerified && (
+                        <Button
+                          size="sm"
+                          variant="ghost"
+                          onClick={() => handleVerifyEmail(user.id)}
+                          disabled={verifyingEmails.has(user.id)}
+                          className="ml-2 text-xs text-green-600 hover:text-green-700 hover:bg-green-50"
+                          title="Marquer comme vérifié"
+                        >
+                          {verifyingEmails.has(user.id) ? (
+                            <RefreshCw className="w-3 h-3 animate-spin" />
+                          ) : (
+                            <>
+                              <CheckCircle className="w-3 h-3 mr-1" />
+                              Vérifier
+                            </>
+                          )}
+                        </Button>
+                      )}
                     </TableCell>
 
                     <TableCell className="text-center">

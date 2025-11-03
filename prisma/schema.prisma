@@ -72,6 +72,20 @@ model Verification {
   @@map("verification")
 }
 
+model InviteToken {
+  id        String    @id @default(cuid())
+  email     String
+  token     String    @unique
+  expiresAt DateTime
+  usedAt    DateTime?
+  createdBy String
+  createdAt DateTime  @default(now())
+
+  @@index([token])
+  @@index([email])
+  @@map("invite_token")
+}
+
 model UserEstablishment {
   id              String        @id @default(cuid())
   userId          String

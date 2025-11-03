@@ -72,15 +72,6 @@ export function SelfkeyHomepage() {
       <header className="border-b border-gray-200 dark:border-gray-800">
         <div className="container mx-auto px-6 py-4 flex justify-between items-center">
           <div className="flex items-center gap-3">
-            <div className="w-8 h-8 rounded-lg flex items-center justify-center">
-              <Image
-                src="/logo.png"
-                alt="SelfKey Logo"
-                width={32}
-                height={32}
-                className="rounded-lg"
-              />
-            </div>
             <h1 className="text-xl font-semibold text-gray-900 dark:text-white">
               SelfKey
             </h1>
@@ -111,7 +102,7 @@ export function SelfkeyHomepage() {
             </div>
             <h1 className="text-4xl md:text-6xl font-bold text-gray-900 dark:text-white mb-6">
               Check-in automatique
-              <span className="block text-gray-600 dark:text-gray-400">
+              <span className="block text-gray-600 dark:text-gray-400 mt-3">
                 pour votre établissement
               </span>
             </h1>
@@ -120,11 +111,8 @@ export function SelfkeyHomepage() {
               24h/24, avec paiement sécurisé et accès instantané. Parfait pour
               les hôtels, campings, parkings et locations saisonnières.
             </p>
-            <div className="flex flex-col sm:flex-row gap-4 justify-center">
+            <div className="flex justify-center">
               <Button asChild size="lg" className="px-8">
-                <Link href="/establishments">Commencer maintenant</Link>
-              </Button>
-              <Button asChild variant="outline" size="lg" className="px-8">
                 <Link href="#features">Découvrir les fonctionnalités</Link>
               </Button>
             </div>
@@ -168,8 +156,8 @@ export function SelfkeyHomepage() {
               </CardHeader>
               <CardContent>
                 <CardDescription className="text-base">
-                  Prêt en 5 minutes ! Configuration simple via QR code, tableau
-                  de bord intuitif et export Excel automatique pour vos
+                  Prêt en 5 minutes ! Configuration simple, tableau de bord
+                  intuitif, personnalisation des mails et export Excel pour vos
                   déclarations de taxes de séjour.
                 </CardDescription>
               </CardContent>
@@ -202,9 +190,8 @@ export function SelfkeyHomepage() {
               </CardHeader>
               <CardContent>
                 <CardDescription className="text-base">
-                  Contrôle d&apos;accès automatisé pour parkings avec codes à la
-                  journée, surveillance en temps réel et prolongation
-                  simplifiée.
+                  Gestion de parkings avec réservations à l&apos;heure, à la
+                  journée ou à la semaine. Sans borne, uniquement code QR.
                 </CardDescription>
               </CardContent>
             </Card>
@@ -412,9 +399,8 @@ export function SelfkeyHomepage() {
                 </CardHeader>
                 <CardContent>
                   <CardDescription className="text-base">
-                    Solution complète pour parkings avec barrières à code :
-                    réservations à la journée, contrôle d&apos;accès automatisé,
-                    surveillance en temps réel des places occupées.
+                    Idéal pour les parkings simple : location à l&apos;heure, à
+                    la journée ou à la semaine avec paiement en ligne.
                   </CardDescription>
                 </CardContent>
               </Card>
@@ -501,7 +487,7 @@ export function SelfkeyHomepage() {
                     l&apos;accès aux places.
                   </p>
                   <Button asChild variant="outline">
-                    <Link href="/establishments">Tester gratuitement</Link>
+                    <Link href="/contact-selfkey">Contactez-nous</Link>
                   </Button>
                 </CardContent>
               </Card>

@@ -3,7 +3,7 @@
 import { Suspense } from "react";
 import { useState } from "react";
 import { useSearchParams } from "next/navigation";
-import { signIn, signUp } from "@/lib/auth-client";
+import { signIn } from "@/lib/auth-client";
 import Link from "next/link";
 import Image from "next/image";
 import { Button } from "@/components/ui/button";
@@ -22,10 +22,8 @@ import { Loader2, ArrowLeft } from "lucide-react";
 import { toastUtils } from "@/lib/toast-utils";
 
 function LoginContent() {
-  const [isLogin, setIsLogin] = useState(true);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [name, setName] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [emailError, setEmailError] = useState("");
@@ -60,10 +58,6 @@ function LoginContent() {
   const validatePassword = (password: string) => {
     if (!password) {
       setPasswordError("Le mot de passe est requis");
-      return false;
-    }
-    if (!isLogin && password.length < 8) {
-      setPasswordError("Le mot de passe doit contenir au moins 8 caractères");
       return false;
     }
     setPasswordError("");
@@ -102,141 +96,79 @@ function LoginContent() {
     }
 
     try {
-      if (isLogin) {
-        // Vérifier d'abord directement l'API auth
+      // Connexion uniquement
+      try {
+        const response = await fetch("/api/auth/sign-in/email", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            email,
+            password,
+            callbackURL: callbackUrl,
+          }),
+        });
+
+        console.log(
+          "Réponse de l'API auth:",
+          response.status,
+          response.statusText
+        );
+
+        if (response.status === 401) {
+          // Authentification échouée
+          toastUtils.error(
+            "Email ou mot de passe incorrect. Vérifiez vos identifiants."
+          );
+          setError(
+            "Email ou mot de passe incorrect. Vérifiez vos identifiants."
+          );
+          return;
+        } else if (response.status === 200) {
+          // Authentification réussie
+          toastUtils.success("Connexion réussie ! Redirection en cours...");
+          setTimeout(() => {
+            window.location.href = callbackUrl;
+          }, 1000);
+          return;
+        } else {
+          // Autre erreur
+          throw new Error(`Erreur HTTP: ${response.status}`);
+        }
+      } catch (fetchError) {
+        console.error("Erreur lors de l'appel direct à l'API:", fetchError);
+
+        // Fallback: essayer avec signIn.email
         try {
-          const response = await fetch("/api/auth/sign-in/email", {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-            },
-            body: JSON.stringify({
-              email,
-              password,
-              callbackURL: callbackUrl,
-            }),
+          await signIn.email({
+            email,
+            password,
+            callbackURL: callbackUrl,
           });
 
-          console.log(
-            "Réponse de l'API auth:",
-            response.status,
-            response.statusText
-          );
+          // Si on arrive ici, vérifier la session
+          await new Promise((resolve) => setTimeout(resolve, 500));
 
-          if (response.status === 401) {
-            // Authentification échouée
-            toastUtils.error(
-              "Email ou mot de passe incorrect. Vérifiez vos identifiants."
-            );
-            setError(
-              "Email ou mot de passe incorrect. Vérifiez vos identifiants."
-            );
-            return;
-          } else if (response.status === 200) {
-            // Authentification réussie
+          const sessionCheck = await fetch("/api/debug-session");
+          const sessionData = await sessionCheck.json();
+
+          if (sessionData.hasSession) {
             toastUtils.success("Connexion réussie ! Redirection en cours...");
             setTimeout(() => {
               window.location.href = callbackUrl;
             }, 1000);
-            return;
           } else {
-            // Autre erreur
-            throw new Error(`Erreur HTTP: ${response.status}`);
+            throw new Error("Échec de la connexion");
           }
-        } catch (fetchError) {
-          console.error("Erreur lors de l'appel direct à l'API:", fetchError);
-
-          // Fallback: essayer avec signIn.email
-          try {
-            await signIn.email({
-              email,
-              password,
-              callbackURL: callbackUrl,
-            });
-
-            // Si on arrive ici, vérifier la session
-            await new Promise((resolve) => setTimeout(resolve, 500));
-
-            const sessionCheck = await fetch("/api/debug-session");
-            const sessionData = await sessionCheck.json();
-
-            if (sessionData.hasSession) {
-              toastUtils.success("Connexion réussie ! Redirection en cours...");
-              setTimeout(() => {
-                window.location.href = callbackUrl;
-              }, 1000);
-            } else {
-              throw new Error("Échec de la connexion");
-            }
-          } catch (signInError) {
-            console.error("Erreur avec signIn.email:", signInError);
-            toastUtils.error(
-              "Email ou mot de passe incorrect. Vérifiez vos identifiants."
-            );
-            setError(
-              "Email ou mot de passe incorrect. Vérifiez vos identifiants."
-            );
-          }
-        }
-      } else {
-        try {
-          // Inscription
-          console.log("🔄 Début de l'inscription...");
-
-          const signUpResult = await signUp.email({
-            email,
-            password,
-            name,
-          });
-
-          console.log("✅ Inscription réussie:", signUpResult);
-
-          // Attendre plus longtemps avant la connexion
-          console.log("⏳ Attente avant connexion...");
-          await new Promise((resolve) => setTimeout(resolve, 2000));
-
-          console.log("🔄 Tentative de connexion automatique...");
-
-          try {
-            const signInResult = await signIn.email({
-              email,
-              password,
-              callbackURL: callbackUrl,
-            });
-
-            console.log("✅ Connexion automatique réussie:", signInResult);
-
-            // Vérifier la session
-            try {
-              const sessionCheck = await fetch("/api/debug-session");
-              const sessionData = await sessionCheck.json();
-              console.log("📊 Session data:", sessionData);
-
-              if (sessionData.hasSession) {
-                console.log("🎉 Session validée, redirection...");
-                setTimeout(() => {
-                  window.location.href = callbackUrl;
-                }, 500);
-              } else {
-                console.log(
-                  "❌ Pas de session, redirection manuelle vers login..."
-                );
-                setError("Inscription réussie ! Veuillez vous connecter.");
-                setIsLogin(true);
-              }
-            } catch (sessionError) {
-              console.error("❌ Erreur vérification session:", sessionError);
-              setError("Inscription réussie ! Veuillez vous connecter.");
-              setIsLogin(true);
-            }
-          } catch (signInError) {
-            console.error("❌ Erreur connexion automatique:", signInError);
-            setError("Inscription réussie ! Veuillez vous connecter.");
-            setIsLogin(true);
-          }
-        } catch (signUpError) {
-          console.error("❌ Erreur inscription:", signUpError);
-          throw signUpError; // Relancer l'erreur pour la gestion normale
+        } catch (signInError) {
+          console.error("Erreur avec signIn.email:", signInError);
+          toastUtils.error(
+            "Email ou mot de passe incorrect. Vérifiez vos identifiants."
+          );
+          setError(
+            "Email ou mot de passe incorrect. Vérifiez vos identifiants."
+          );
         }
       }
     } catch (err: unknown) {
@@ -251,70 +183,37 @@ function LoginContent() {
         const errorMsg = err.message.toLowerCase();
 
         // Gestion des erreurs de connexion
-        if (isLogin) {
-          if (
-            errorMsg.includes("invalid credentials") ||
-            errorMsg.includes("invalid email or password") ||
-            errorMsg.includes("unauthorized") ||
-            errorMsg.includes("401") ||
-            errorMsg.includes("incorrect") ||
-            errorMsg.includes("wrong password") ||
-            errorMsg.includes("user not found") ||
-            errorMsg.includes("invalid login") ||
-            errorMsg.includes("credential account not found") ||
-            errorMsg.includes("email ou mot de passe incorrect")
-          ) {
-            errorMessage =
-              "Email ou mot de passe incorrect. Vérifiez vos identifiants et réessayez.";
-            toastUtils.error(errorMessage);
-          } else if (
-            errorMsg.includes("user not verified") ||
-            errorMsg.includes("email not verified")
-          ) {
-            errorMessage =
-              "Votre compte n'est pas encore vérifié. Vérifiez votre email.";
-            toastUtils.warning(errorMessage);
-          } else if (
-            errorMsg.includes("account locked") ||
-            errorMsg.includes("too many attempts")
-          ) {
-            errorMessage =
-              "Trop de tentatives de connexion. Veuillez réessayer plus tard.";
-            toastUtils.warning(errorMessage);
-          } else {
-            toastUtils.error("Erreur de connexion. Veuillez réessayer.");
-          }
-        }
-        // Gestion des erreurs d'inscription
-        else {
-          if (
-            errorMsg.includes("user already exists") ||
-            errorMsg.includes("already exists") ||
-            errorMsg.includes("email already registered") ||
-            errorMsg.includes("422")
-          ) {
-            errorMessage =
-              "Cette adresse email est déjà utilisée. Essayez de vous connecter ou utilisez une autre adresse.";
-            toastUtils.warning(errorMessage);
-          } else if (
-            errorMsg.includes("password too weak") ||
-            errorMsg.includes("password requirements")
-          ) {
-            errorMessage =
-              "Le mot de passe doit contenir au moins 8 caractères.";
-            toastUtils.error(errorMessage);
-          } else if (
-            errorMsg.includes("invalid email format") ||
-            errorMsg.includes("invalid email")
-          ) {
-            errorMessage =
-              "Format d'email invalide. Vérifiez votre adresse email.";
-            toastUtils.error(errorMessage);
-          } else {
-            toastUtils.error(
-              "Erreur lors de l'inscription. Veuillez réessayer."
-            );
-          }
+        if (
+          errorMsg.includes("invalid credentials") ||
+          errorMsg.includes("invalid email or password") ||
+          errorMsg.includes("unauthorized") ||
+          errorMsg.includes("401") ||
+          errorMsg.includes("incorrect") ||
+          errorMsg.includes("wrong password") ||
+          errorMsg.includes("user not found") ||
+          errorMsg.includes("invalid login") ||
+          errorMsg.includes("credential account not found") ||
+          errorMsg.includes("email ou mot de passe incorrect")
+        ) {
+          errorMessage =
+            "Email ou mot de passe incorrect. Vérifiez vos identifiants et réessayez.";
+          toastUtils.error(errorMessage);
+        } else if (
+          errorMsg.includes("user not verified") ||
+          errorMsg.includes("email not verified")
+        ) {
+          errorMessage =
+            "Votre compte n'est pas encore vérifié. Vérifiez votre email.";
+          toastUtils.warning(errorMessage);
+        } else if (
+          errorMsg.includes("account locked") ||
+          errorMsg.includes("too many attempts")
+        ) {
+          errorMessage =
+            "Trop de tentatives de connexion. Veuillez réessayer plus tard.";
+          toastUtils.warning(errorMessage);
+        } else {
+          toastUtils.error("Erreur de connexion. Veuillez réessayer.");
         }
 
         // Erreurs génériques
@@ -392,13 +291,9 @@ function LoginContent() {
               </h1>
             </div>
             <div className="text-center">
-              <CardTitle className="text-xl">
-                {isLogin ? "Connexion" : "Inscription"}
-              </CardTitle>
+              <CardTitle className="text-xl">Connexion</CardTitle>
               <CardDescription>
-                {isLogin
-                  ? "Connectez-vous à votre espace admin"
-                  : "Créez votre compte administrateur"}
+                Connectez-vous à votre espace admin
               </CardDescription>
             </div>
           </CardHeader>
@@ -414,26 +309,17 @@ function LoginContent() {
                     {error}
                   </div>
                   {error.includes("déjà utilisée") && (
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => {
-                        setIsLogin(true);
-                        setError("");
-                        setEmail(email); // Garder l'email saisi
-                      }}
-                      className="mt-2"
-                    >
-                      Se connecter avec cet email
-                    </Button>
+                    <div className="text-sm text-red-700 dark:text-red-300 mt-2">
+                      💡 Assurez-vous que votre email et mot de passe sont
+                      corrects.
+                    </div>
                   )}
-                  {error.includes("Email ou mot de passe incorrect") &&
-                    isLogin && (
-                      <div className="text-sm text-red-700 dark:text-red-300 mt-2">
-                        💡 Assurez-vous que votre email et mot de passe sont
-                        corrects.
-                      </div>
-                    )}
+                  {error.includes("Email ou mot de passe incorrect") && (
+                    <div className="text-sm text-red-700 dark:text-red-300 mt-2">
+                      💡 Assurez-vous que votre email et mot de passe sont
+                      corrects.
+                    </div>
+                  )}
                 </AlertDescription>
               </Alert>
             )}
@@ -449,20 +335,6 @@ function LoginContent() {
               )}
 
             <form onSubmit={handleSubmit} className="space-y-4">
-              {!isLogin && (
-                <div className="space-y-2">
-                  <Label htmlFor="name">Nom complet</Label>
-                  <Input
-                    id="name"
-                    type="text"
-                    value={name}
-                    onChange={(e) => setName(e.target.value)}
-                    required={!isLogin}
-                    placeholder="Votre nom complet"
-                  />
-                </div>
-              )}
-
               <div className="space-y-2">
                 <Label htmlFor="email">Email</Label>
                 <Input
@@ -499,34 +371,23 @@ function LoginContent() {
                 {passwordError && (
                   <p className="text-sm text-red-500 mt-1">{passwordError}</p>
                 )}
-                {!isLogin && !passwordError && (
-                  <p className="text-sm text-gray-500 mt-1">
-                    Le mot de passe doit contenir au moins 8 caractères
-                  </p>
-                )}
               </div>
 
               <Button type="submit" disabled={loading} className="w-full">
                 {loading && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
-                {loading
-                  ? "Chargement..."
-                  : isLogin
-                    ? "Se connecter"
-                    : "S'inscrire"}
+                {loading ? "Chargement..." : "Se connecter"}
               </Button>
 
-              {/* Lien mot de passe oublié - affiché seulement en mode connexion */}
-              {isLogin && (
-                <div className="text-center">
-                  <Button
-                    variant="link"
-                    asChild
-                    className="text-sm text-gray-600 hover:text-gray-900"
-                  >
-                    <Link href="/forgot-password">Mot de passe oublié ?</Link>
-                  </Button>
-                </div>
-              )}
+              {/* Lien mot de passe oublié */}
+              <div className="text-center">
+                <Button
+                  variant="link"
+                  asChild
+                  className="text-sm text-gray-600 hover:text-gray-900"
+                >
+                  <Link href="/forgot-password">Mot de passe oublié ?</Link>
+                </Button>
+              </div>
             </form>
 
             <div className="space-y-4">
@@ -567,21 +428,6 @@ function LoginContent() {
             </div>
 
             <div className="text-center space-y-2">
-              <Button
-                variant="link"
-                onClick={() => {
-                  setIsLogin(!isLogin);
-                  setError("");
-                  setEmailError("");
-                  setPasswordError("");
-                }}
-                className="text-sm"
-              >
-                {isLogin
-                  ? "Pas encore de compte ? S'inscrire"
-                  : "Déjà un compte ? Se connecter"}
-              </Button>
-
               <div>
                 <Button variant="link" asChild className="text-sm">
                   <Link href="/">

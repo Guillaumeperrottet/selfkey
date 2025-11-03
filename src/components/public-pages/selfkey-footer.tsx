@@ -1,8 +1,7 @@
 "use client";
 
-import Image from "next/image";
 import Link from "next/link";
-import { MapPin, Mail } from "lucide-react";
+import { MapPin } from "lucide-react";
 
 export function SelfkeyFooter() {
   return (
@@ -18,14 +17,7 @@ export function SelfkeyFooter() {
             {/* Logo et description */}
             <div className="text-center md:text-left">
               <div className="flex items-center justify-center md:justify-start mb-4">
-                <Image
-                  src="/logo.png"
-                  alt="SelfKey"
-                  width={40}
-                  height={40}
-                  className="rounded-lg"
-                />
-                <span className="ml-3 text-xl font-semibold">SelfKey</span>
+                <span className="text-xl font-semibold">SelfKey</span>
               </div>
               <p className="text-gray-400 mb-4">
                 Solution suisse de check-in automatique 24h/24 pour hôtels,
@@ -49,31 +41,35 @@ export function SelfkeyFooter() {
                 </div>
                 <div>
                   <Link
+                    href="/contact-selfkey"
+                    className="hover:text-blue-400 transition-colors"
+                  >
+                    Contact
+                  </Link>
+                </div>
+                <div>
+                  <Link
+                    href="/help"
+                    className="hover:text-blue-400 transition-colors"
+                  >
+                    FAQ
+                  </Link>
+                </div>
+                <div>
+                  <Link
                     href="/establishments"
                     className="hover:text-blue-400 transition-colors"
                   >
                     Connexion
                   </Link>
                 </div>
-                <div>
-                  <a
-                    href={
-                      process.env.NODE_ENV === "production"
-                        ? "https://selfcamp.ch"
-                        : "http://localhost:3000?app=selfcamp"
-                    }
-                    className="text-blue-400 hover:text-blue-300 transition-colors duration-300"
-                  >
-                    SelfCamp.ch
-                  </a>
-                </div>
               </div>
             </div>
 
-            {/* Ressources & API */}
+            {/* Ressources & Solutions */}
             <div className="text-center md:text-left">
               <h4 className="font-semibold mb-4 text-lg text-white">
-                Ressources
+                Ressources & Solutions
               </h4>
               <div className="space-y-2 text-gray-400">
                 <div>
@@ -92,6 +88,18 @@ export function SelfkeyFooter() {
                     Centre d&apos;aide
                   </Link>
                 </div>
+                <div>
+                  <a
+                    href={
+                      process.env.NODE_ENV === "production"
+                        ? "https://selfcamp.ch"
+                        : "http://localhost:3000?app=selfcamp"
+                    }
+                    className="text-blue-400 hover:text-blue-300 transition-colors duration-300"
+                  >
+                    Selfcamp.ch
+                  </a>
+                </div>
               </div>
             </div>
 
@@ -104,15 +112,6 @@ export function SelfkeyFooter() {
                 <div className="flex items-center justify-center md:justify-start space-x-2">
                   <MapPin className="h-4 w-4 flex-shrink-0 text-blue-400" />
                   <span>Canton de Fribourg, Suisse</span>
-                </div>
-                <div className="flex items-center justify-center md:justify-start space-x-2">
-                  <Mail className="h-4 w-4 flex-shrink-0 text-blue-400" />
-                  <a
-                    href="mailto:gp@webbing.ch"
-                    className="text-blue-400 hover:text-blue-300 transition-colors duration-300"
-                  >
-                    Contact
-                  </a>
                 </div>
               </div>
               <div className="space-y-2 text-gray-400">
