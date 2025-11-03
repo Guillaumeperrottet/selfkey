@@ -218,7 +218,7 @@ export function SelfkeyHomepage() {
               <div className="flex justify-center">
                 <div className="relative max-w-lg">
                   <Image
-                    src="/totem.png"
+                    src="/totem-final.png"
                     alt="Totem SelfKey - Système de check-in automatique"
                     width={800}
                     height={1050}
