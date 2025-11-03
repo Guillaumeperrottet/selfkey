@@ -11,7 +11,10 @@ import "leaflet/dist/leaflet.css";
 import "@/styles/mobile-map.css";
 
 // Créer une icône personnalisée avec le logo SelfCamp (responsive mobile)
-const createAnimatedIcon = (isHovered: boolean) => {
+const createAnimatedIcon = (
+  isHovered: boolean,
+  status?: "available" | "limited" | "full" | "closed"
+) => {
   const mobile =
     typeof window !== "undefined" &&
     (window.innerWidth <= 768 || "ontouchstart" in window);
@@ -20,6 +23,12 @@ const createAnimatedIcon = (isHovered: boolean) => {
     ? [baseSize + 7, baseSize + 7]
     : [baseSize, baseSize];
   const pulseOpacity = isHovered ? "0.4" : "0.2";
+
+  // Définir la couleur en fonction du statut
+  const borderColor = status === "closed" ? "#EF4444" : "#84994F"; // Rouge si fermé, vert sinon
+  const pulseColor = status === "closed" ? "#EF4444" : "#84994F";
+  const shadowColor =
+    status === "closed" ? "rgba(239, 68, 68, 0.3)" : "rgba(132, 153, 79, 0.3)";
 
   return L.divIcon({
     html: `
@@ -39,7 +48,7 @@ const createAnimatedIcon = (isHovered: boolean) => {
           left: 50%;
           width: ${iconSize[0] + 20}px;
           height: ${iconSize[0] + 20}px;
-          border: 2px solid #84994F;
+          border: 2px solid ${pulseColor};
           border-radius: 50%;
           transform: translate(-50%, -50%);
           opacity: ${pulseOpacity};
@@ -51,9 +60,9 @@ const createAnimatedIcon = (isHovered: boolean) => {
           width: ${iconSize[0]}px;
           height: ${iconSize[1]}px;
           background: white;
-          border: 3px solid #84994F;
+          border: 3px solid ${borderColor};
           border-radius: 50%;
-          box-shadow: 0 4px 12px rgba(132, 153, 79, 0.3);
+          box-shadow: 0 4px 12px ${shadowColor};
           position: relative;
           display: flex;
           align-items: center;
@@ -411,7 +420,7 @@ const EstablishmentMarker = ({
     <Marker
       ref={markerRef}
       position={[establishment.latitude, establishment.longitude]}
-      icon={createAnimatedIcon(isHovered)}
+      icon={createAnimatedIcon(isHovered, availability?.status)}
       eventHandlers={{
         click: handleClick,
       }}

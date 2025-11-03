@@ -139,12 +139,20 @@ export async function generateMetadata(): Promise<Metadata> {
 }
 
 // Page principale - rendu côté serveur selon le domaine
-export default async function Home() {
+export default async function Home({
+  searchParams,
+}: {
+  searchParams: Promise<{ app?: string }>;
+}) {
   const headersList = await headers();
   const host = headersList.get("host") || "";
+  const params = await searchParams;
 
   // Détection du domaine côté serveur pour un rendu instantané
-  const isSelfcamp = isSelfcampDomain(host);
+  // Permettre de forcer l'affichage avec ?app=selfcamp en local
+  const isSelfcamp =
+    isSelfcampDomain(host) ||
+    (host.includes("localhost") && params.app === "selfcamp");
 
   // Rendu direct du bon contenu sans client-side routing
   if (isSelfcamp) {

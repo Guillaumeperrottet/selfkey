@@ -83,6 +83,9 @@ export function SelfkeyHomepage() {
             <Button asChild variant="ghost" size="sm" className="font-normal">
               <Link href="#benefits">Avantages</Link>
             </Button>
+            <Button asChild variant="ghost" size="sm" className="font-normal">
+              <Link href="/help">FAQ</Link>
+            </Button>
             <Button asChild variant="outline" size="sm">
               <Link href="/establishments">Connexion</Link>
             </Button>
