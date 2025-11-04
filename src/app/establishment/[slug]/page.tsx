@@ -12,6 +12,7 @@ import { AmenityIcon } from "@/components/ui/amenity-icon";
 import { SelfcampLanguageSelector } from "@/components/ui/selfcamp-language-selector";
 import { useAnalytics } from "@/hooks/useAnalytics";
 import { useSelfcampTranslation } from "@/hooks/useSelfcampTranslation";
+import { useAvailability } from "@/hooks/useAvailability";
 import {
   MapPin,
   Globe,
@@ -90,6 +91,17 @@ export default function EstablishmentPage() {
 
   // Analytics hook
   const { trackEstablishment } = useAnalytics();
+
+  // Hook pour récupérer la disponibilité en temps réel
+  const { availabilityData } = useAvailability(
+    establishment ? [establishment.slug] : []
+  );
+
+  // Récupérer le statut de disponibilité
+  const availability = establishment
+    ? availabilityData[establishment.slug]
+    : null;
+  const isClosed = availability?.status === "closed";
 
   // Fonction helper pour obtenir l'URL de téléchargement
   const getDownloadUrl = (url: string) => {
@@ -511,12 +523,25 @@ export default function EstablishmentPage() {
                 )}
 
                 {/* Bouton de réservation */}
-                <Link href={`/${establishment.slug}`}>
+                <Link
+                  href={isClosed ? "#" : `/${establishment.slug}`}
+                  onClick={(e) => {
+                    if (isClosed) {
+                      e.preventDefault();
+                    }
+                  }}
+                >
                   <Button
                     size="lg"
-                    className="w-full bg-[#84994F] hover:bg-[#6d7d3f] text-white font-semibold"
+                    disabled={isClosed}
+                    className={`w-full font-semibold ${
+                      isClosed
+                        ? "bg-gray-400 hover:bg-gray-400 text-gray-200 cursor-not-allowed"
+                        : "bg-[#84994F] hover:bg-[#6d7d3f] text-white"
+                    }`}
+                    style={isClosed ? { cursor: "not-allowed" } : undefined}
                   >
-                    {t.establishment.cta.bookNow}
+                    {isClosed ? t.map.closed : t.establishment.cta.bookNow}
                   </Button>
                 </Link>
 
@@ -771,12 +796,25 @@ export default function EstablishmentPage() {
                 <p className="text-gray-600 text-base md:text-lg max-w-2xl mx-auto leading-relaxed">
                   {t.establishment.finalCta.description}
                 </p>
-                <Link href={`/${establishment.slug}`}>
+                <Link
+                  href={isClosed ? "#" : `/${establishment.slug}`}
+                  onClick={(e) => {
+                    if (isClosed) {
+                      e.preventDefault();
+                    }
+                  }}
+                >
                   <Button
                     size="lg"
-                    className="bg-[#84994F] hover:bg-[#6d7d3f] text-white font-semibold px-10 py-6 text-lg active:scale-95 transition-all shadow-md hover:shadow-lg"
+                    disabled={isClosed}
+                    className={`font-semibold px-10 py-6 text-lg active:scale-95 transition-all ${
+                      isClosed
+                        ? "bg-gray-400 hover:bg-gray-400 text-gray-200 cursor-not-allowed shadow-none"
+                        : "bg-[#84994F] hover:bg-[#6d7d3f] text-white shadow-md hover:shadow-lg"
+                    }`}
+                    style={isClosed ? { cursor: "not-allowed" } : undefined}
                   >
-                    {t.establishment.finalCta.button}
+                    {isClosed ? t.map.closed : t.establishment.finalCta.button}
                   </Button>
                 </Link>
               </div>
