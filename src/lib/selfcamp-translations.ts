@@ -1078,9 +1078,9 @@ export const selfcampTranslations: Record<
         security: "24/7 Sicherheit",
         restaurant: "Restaurant",
         store: "Geschäft",
-        laundry: "Wäscherei",
+        laundry: "Waschküche",
         playground: "Spielplatz",
-        petFriendly: "Haustiere erlaubt",
+        petFriendly: "Haustiere erlaubt (teilweise)",
       },
     },
     benefits: {
@@ -1089,24 +1089,24 @@ export const selfcampTranslations: Record<
       access247: {
         title: "24/7 Zugang",
         description:
-          "Einfache Selbstregistrierung, keine App herunterzuladen oder Konto zu erstellen. Kommen Sie, wann Sie wollen.",
+          "Einfache Selbstregistrierung, keine App herunterladen, kein Konto einrichten. An- und abreisen, wann Sie wollen.",
       },
       discounts: {
-        title: "Rabatte bei lokalen Handwerkern",
+        title: "Rabatte bei lokalen Geschäften",
         description:
-          "Profitieren Sie von Vorteilen in Bäckereien, Lebensmittelgeschäften und Metzgereien der Region",
+          "Profitieren Sie von Vorteilen in Bäckereien, Metzgereien, Restaurants, … welche regionale Produkte anbieten.",
       },
       legal: {
         title: "Gesetzeskonforme Standorte",
         description:
-          "Schlafen Sie ruhig in Übereinstimmung mit lokalen Vorschriften",
+          "Schlafen Sie unbesorgt, in Übereinstimmung mit den lokalen Gesetzesvorschriften.",
       },
     },
     cta: {
       title: "Interessiert an",
-      titleHighlight: "Selfcamp",
+      titleHighlight: "Selfcamp?",
       description:
-        "Wenn Sie einen Parkplatz oder einen Raum besitzen, der Wohnmobile aufnehmen kann, erfahren Sie, wie auch Sie Anbieter werden können.",
+        "Besitzen Sie einen Parkplatz oder ein Grundstück, auf dem Sie Wohnmobile aufnehmen möchten? Erfahren Sie, wie auch Sie Anbieter von Stellplätzen werden können.",
       learnMore: "Mehr erfahren",
     },
     about: {
@@ -1126,7 +1126,7 @@ export const selfcampTranslations: Record<
       title: "Unsere",
       titleHighlight: "Mission",
       subtitle:
-        "Wildcamping in wirtschaftliche Chancen für Freiburger Gemeinden verwandeln",
+        "Wildcamping in wirtschaftliche Chancen für Freiburger Gemeinden umwandeln",
       quotes: [
         "Eine Brücke zwischen nachhaltigem Tourismus und territorialer Entwicklung schaffen",
         "Jede Übernachtung in eine Chance für Territorien verwandeln",
@@ -1139,11 +1139,11 @@ export const selfcampTranslations: Record<
         intro1:
           "Organisierte Campingplätze zur Förderung weniger touristischer Regionen.",
         intro2:
-          "Lokale Handwerker profitieren durch das Partnerschaftssystem von Touristen",
+          "Lokale Geschäfte profitieren durch das Partnerschaftssystem von Touristen",
         localCommerce: {
           title: "Lokaler Handel",
           description:
-            "Bäckereien, Lebensmittelgeschäfte profitieren vom Verkehr",
+            "Bäckereien, Käsereien, Metzgereien, Lebensmittelgeschäfte",
         },
         regionalDiscovery: {
           title: "Regionale Entdeckung",
@@ -1154,35 +1154,35 @@ export const selfcampTranslations: Record<
           description: "Direkte wirtschaftliche Vorteile für die Region",
         },
         desktopIntro1:
-          "Wildcamping fördert Besuche in weniger touristischen Regionen. Durch die Schaffung von SelfCamp-Bereichen organisieren wir diese Übernachtungen und präsentieren Dörfer abseits der Hauptrouten.",
+          "Wildcamping fördert Besuche in weniger touristischen Regionen. Durch die Schaffung von SelfCamp-Bereichen organisieren wir diese Übernachtungen und Orte Dörfer abseits der Hauptrouten.",
         desktopIntro2:
-          "Lokale Handwerker profitieren durch das Partnerschaftssystem von Touristen",
+          "Lokale Geschäfte profitieren durch das Partnerschaftssystem von Touristen",
       },
       services: {
-        title: "Unsere Dienstleistungen",
+        title: "Unsere Dienst­leistungen",
         intro: "Über unsere",
         introHighlight: "Registrierungslösung hinaus",
         introContinuation:
-          "begleiten wir Sie bei der optimalen Organisation Ihres Bereichs.",
-        listTitle: "Unsere Dienstleistungen umfassen:",
+          "begleiten wir Sie bei der optimalen Organisation Ihres Stellplatzes.",
+        listTitle: "Unsere Dienst­leistungen umfassen:",
         items: [
           "Zonen- und Stellplatzbegrenzung",
-          "Beschilderung Installation",
-          "Registrierungssystem-Einrichtung (Totem und QR-Code)",
+          "Beschilderung",
+          "Aufbau des Registrierungsbereichs (Totem, QR-Code)",
           "Entsorgungslösung (vor Ort oder in Partnercampingplätzen)",
           "Website-Promotion",
           "Social-Media-Promotion",
         ],
         highlight: {
-          title: "Komplette Schlüsselfertige Lösung",
+          title: "Komplette, schlüsselfertige Lösung",
           description:
             "Vom Design bis zur Promotion kümmern wir uns um alle Aspekte Ihres Wohnmobilstellplatzes, um seinen Erfolg zu garantieren.",
         },
       },
       providerBenefits: {
-        title: "Anbietervorteile",
+        title: "Anbieter­vorteile",
         regulatory: {
-          title: "Regulatorische Konformität",
+          title: "Regelkonform",
           items: [
             "Rechtsstruktur zum Verbot von Wildcamping",
             "Einhaltung der Meldepflichten",
@@ -1193,7 +1193,7 @@ export const selfcampTranslations: Record<
         revenue: {
           title: "Garantierte Einnahmen",
           items: [
-            "Automatisierte Steuererhebung ohne Verlust",
+            "Automatisierte Kurtaxenerhebung ohne Verlust",
             "Erhöhte Steuereinnahmen",
           ],
         },
@@ -1215,9 +1215,9 @@ export const selfcampTranslations: Record<
           ],
         },
         highlight: {
-          title: "Werten Sie Ihr Gebiet auf",
+          title: "Werten Sie Ihr Terrain auf",
           description:
-            "Konkrete Werkzeuge zur Verwaltung, Monetarisierung und Entwicklung Ihrer touristischen Attraktivität.",
+            "Wir bieten das konkrete Werkzeug zur Verwaltung, Monetarisierung und Entwicklung Ihrer touristischen Attraktivität an.",
         },
       },
     },
