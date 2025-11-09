@@ -626,7 +626,7 @@ export function SelfcampAboutPage() {
             >
               <div className="bg-white border border-[#84994F]/30 rounded-xl md:rounded-2xl p-5 md:p-6 hover:border-[#84994F]/50 transition-all duration-300">
                 <div className="text-3xl md:text-4xl lg:text-5xl font-bold text-[#84994F] mb-2 md:mb-3">
-                  100%
+                  100 %
                 </div>
                 <div className="text-gray-700 font-medium text-sm md:text-base">
                   {t.about.stats.legal}
