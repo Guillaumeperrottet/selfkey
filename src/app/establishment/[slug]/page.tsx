@@ -114,34 +114,60 @@ export default function EstablishmentPage() {
   const renderTextWithLinks = (text: string) => {
     if (!text) return null;
 
-    // Remplace [texte](url) par des liens HTML
-    const parts = text.split(/(\[([^\]]+)\]\(([^)]+)\))/g);
+    const elements: React.ReactNode[] = [];
+    let lastIndex = 0;
 
-    return parts.map((part, index) => {
-      // Vérifier si c'est un lien Markdown complet
-      const linkMatch = part.match(/\[([^\]]+)\]\(([^)]+)\)/);
-      if (linkMatch) {
-        const [, linkText, url] = linkMatch;
-        return (
-          <a
-            key={index}
-            href={url}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="text-[#84994F] hover:text-[#6d7d3f] underline font-medium transition-colors"
-          >
-            {linkText}
-          </a>
-        );
+    // Regex pour matcher [texte](url) - supporte tous les caractères
+    const linkRegex = /\[([^\]]+)\]\(([^)]+)\)/g;
+    let match;
+
+    while ((match = linkRegex.exec(text)) !== null) {
+      const [fullMatch, linkText, url] = match;
+      const matchIndex = match.index;
+
+      // Ajouter le texte avant le lien
+      if (matchIndex > lastIndex) {
+        const textBefore = text.substring(lastIndex, matchIndex);
+        textBefore.split("\n").forEach((line, i, arr) => {
+          elements.push(
+            <span key={`text-${lastIndex}-${i}`}>
+              {line}
+              {i < arr.length - 1 && <br />}
+            </span>
+          );
+        });
       }
-      // Sinon, retourner le texte normal avec support des sauts de ligne
-      return part.split("\n").map((line, i, arr) => (
-        <span key={`${index}-${i}`}>
-          {line}
-          {i < arr.length - 1 && <br />}
-        </span>
-      ));
-    });
+
+      // Ajouter le lien
+      elements.push(
+        <a
+          key={`link-${matchIndex}`}
+          href={url}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="text-[#84994F] hover:text-[#6d7d3f] underline font-medium transition-colors"
+        >
+          {linkText}
+        </a>
+      );
+
+      lastIndex = matchIndex + fullMatch.length;
+    }
+
+    // Ajouter le texte restant après le dernier lien
+    if (lastIndex < text.length) {
+      const textAfter = text.substring(lastIndex);
+      textAfter.split("\n").forEach((line, i, arr) => {
+        elements.push(
+          <span key={`text-end-${i}`}>
+            {line}
+            {i < arr.length - 1 && <br />}
+          </span>
+        );
+      });
+    }
+
+    return elements;
   };
 
   useEffect(() => {
