@@ -110,6 +110,40 @@ export default function EstablishmentPage() {
     return url;
   };
 
+  // Fonction pour convertir les liens Markdown en HTML
+  const renderTextWithLinks = (text: string) => {
+    if (!text) return null;
+
+    // Remplace [texte](url) par des liens HTML
+    const parts = text.split(/(\[([^\]]+)\]\(([^)]+)\))/g);
+
+    return parts.map((part, index) => {
+      // Vérifier si c'est un lien Markdown complet
+      const linkMatch = part.match(/\[([^\]]+)\]\(([^)]+)\)/);
+      if (linkMatch) {
+        const [, linkText, url] = linkMatch;
+        return (
+          <a
+            key={index}
+            href={url}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-[#84994F] hover:text-[#6d7d3f] underline font-medium transition-colors"
+          >
+            {linkText}
+          </a>
+        );
+      }
+      // Sinon, retourner le texte normal avec support des sauts de ligne
+      return part.split("\n").map((line, i, arr) => (
+        <span key={`${index}-${i}`}>
+          {line}
+          {i < arr.length - 1 && <br />}
+        </span>
+      ));
+    });
+  };
+
   useEffect(() => {
     const fetchEstablishment = async () => {
       try {
@@ -570,12 +604,16 @@ export default function EstablishmentPage() {
                     </h2>
                     {establishment.touristTaxImpactMessage && (
                       <p className="text-gray-700 text-sm md:text-base mb-4 text-center leading-relaxed">
-                        {establishment.touristTaxImpactMessage}
+                        {renderTextWithLinks(
+                          establishment.touristTaxImpactMessage
+                        )}
                       </p>
                     )}
                     {establishment.localImpactDescription && (
-                      <div className="text-gray-700 text-sm md:text-base leading-relaxed whitespace-pre-line">
-                        {establishment.localImpactDescription}
+                      <div className="text-gray-700 text-sm md:text-base leading-relaxed">
+                        {renderTextWithLinks(
+                          establishment.localImpactDescription
+                        )}
                       </div>
                     )}
                   </div>
