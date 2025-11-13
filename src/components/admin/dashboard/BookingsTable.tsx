@@ -933,10 +933,10 @@ export function BookingsTable({ bookings, establishment }: BookingsTableProps) {
               <TableHead className="w-[200px]">
                 <SortableHeader field="name">Client</SortableHeader>
               </TableHead>
-              <TableHead className="w-[200px]">
+              <TableHead className="w-[190px]">
                 <SortableHeader field="email">Email</SortableHeader>
               </TableHead>
-              <TableHead className="w-[150px]">
+              <TableHead className="w-[120px]">
                 <SortableHeader field="room">Chambre</SortableHeader>
               </TableHead>
               <TableHead className="w-[120px]">
@@ -988,10 +988,10 @@ export function BookingsTable({ bookings, establishment }: BookingsTableProps) {
                     <TableCell className="font-medium">
                       {`${booking.clientFirstName} ${booking.clientLastName}`}
                     </TableCell>
-                    <TableCell className="text-muted-foreground">
+                    <TableCell className="text-muted-foreground max-w-[180px] truncate">
                       {booking.clientEmail}
                     </TableCell>
-                    <TableCell>
+                    <TableCell className="max-w-[120px] truncate">
                       {booking.room ? booking.room.name : "Parking jour"}
                     </TableCell>
                     <TableCell>
