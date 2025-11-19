@@ -34,7 +34,7 @@ export default function GlobalError({
                 Une erreur système s&apos;est produite
               </h2>
               <p className="text-gray-600">
-                Nous sommes sincèrement désolés. Une erreur critique s&apos;est
+                Nous sommes sincèrement désolé. Une erreur critique s&apos;est
                 produite. Veuillez réessayer ou contacter notre support si le
                 problème persiste.
               </p>
