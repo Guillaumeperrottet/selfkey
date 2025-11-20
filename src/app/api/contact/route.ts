@@ -44,8 +44,8 @@ export async function POST(request: NextRequest) {
 
     // Envoi de l'email
     const { data, error } = await resend.emails.send({
-      from: "SelfCamp Contact <onboarding@resend.dev>",
-      to: ["gp@webbing.ch"],
+      from: "SelfCamp <noreply@selfcamp.ch>", // Utilisez une adresse de votre domaine vérifié
+      to: ["info@selfcamp.ch"],
       subject: `[SelfCamp] Nouvelle demande de contact - ${name}`,
       html: emailContent,
       replyTo: email,
