@@ -30,13 +30,19 @@ export async function POST(request: NextRequest) {
       <ul>
         <li><strong>Nom :</strong> ${name}</li>
         <li><strong>Email :</strong> ${email}</li>
-        <li><strong>Entreprise :</strong> ${company || "Non renseigné"}</li>
-        <li><strong>Secteur :</strong> ${sector || "Non renseigné"}</li>
-        <li><strong>Taille entreprise :</strong> ${companySize || "Non renseigné"}</li>
+        ${company ? `<li><strong>Entreprise :</strong> ${company}</li>` : ""}
+        ${sector ? `<li><strong>Secteur :</strong> ${sector}</li>` : ""}
+        ${companySize ? `<li><strong>Taille entreprise :</strong> ${companySize}</li>` : ""}
       </ul>
       
+      ${
+        project
+          ? `
       <h3>Description du projet :</h3>
-      <p>${project || "Aucune description fournie"}</p>
+      <p>${project}</p>
+      `
+          : ""
+      }
       
       <hr>
       <p><small>Envoyé depuis le formulaire de contact SelfCamp</small></p>
