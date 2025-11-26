@@ -330,7 +330,7 @@ export function SelfkeyHomepage() {
                   Basé en Suisse
                 </h3>
                 <p className="text-gray-600 dark:text-gray-400 text-sm">
-                  Conformité RGPD et sécurité des données garanties
+                  Nous sommes basés en Suisse et conformes aux réglementations
                 </p>
               </div>
 
