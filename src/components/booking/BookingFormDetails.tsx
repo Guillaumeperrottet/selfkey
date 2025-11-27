@@ -13,7 +13,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { DatePicker } from "@/components/ui/date-picker";
+import { BirthDateSelector } from "@/components/ui/birth-date-selector";
 import { toastUtils } from "@/lib/toast-utils";
 import { calculateStayDuration } from "@/lib/availability";
 import { useFormConfig } from "@/hooks/useFormConfig";
@@ -577,7 +577,7 @@ export function BookingFormDetails({
               {/* Champs conditionnels - Date et lieu de naissance */}
               {(isFieldEnabled("clientBirthDate") ||
                 isFieldEnabled("clientBirthPlace")) && (
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 gap-4">
                   {isFieldEnabled("clientBirthDate") && (
                     <div className="space-y-2">
                       <Label
@@ -587,11 +587,30 @@ export function BookingFormDetails({
                         {t.form.birthDate}{" "}
                         <span className="text-red-500">*</span>
                       </Label>
-                      <DatePicker
+                      <BirthDateSelector
                         date={clientBirthDate}
                         onDateChange={setClientBirthDate}
-                        placeholder={t.form.birthDate}
-                        className="w-full"
+                        dayPlaceholder={
+                          locale === "fr"
+                            ? "Jour"
+                            : locale === "de"
+                              ? "Tag"
+                              : "Day"
+                        }
+                        monthPlaceholder={
+                          locale === "fr"
+                            ? "Mois"
+                            : locale === "de"
+                              ? "Monat"
+                              : "Month"
+                        }
+                        yearPlaceholder={
+                          locale === "fr"
+                            ? "Année"
+                            : locale === "de"
+                              ? "Jahr"
+                              : "Year"
+                        }
                       />
                     </div>
                   )}
