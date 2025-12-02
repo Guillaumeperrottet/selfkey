@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import { MapPin } from "lucide-react";
 
 export function SelfkeyFooter() {
@@ -17,7 +18,13 @@ export function SelfkeyFooter() {
             {/* Logo et description */}
             <div className="text-center md:text-left">
               <div className="flex items-center justify-center md:justify-start mb-4">
-                <span className="text-xl font-semibold">SelfKey</span>
+                <Image
+                  src="/logo_selfkey.png"
+                  alt="SelfKey Logo"
+                  width={120}
+                  height={40}
+                  className="h-10 w-auto"
+                />
               </div>
               <p className="text-gray-400 mb-4">
                 Solution suisse de check-in automatique 24h/24 pour hôtels,

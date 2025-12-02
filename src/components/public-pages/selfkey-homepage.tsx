@@ -72,9 +72,14 @@ export function SelfkeyHomepage() {
       <header className="border-b border-gray-200 dark:border-gray-800">
         <div className="container mx-auto px-6 py-4 flex justify-between items-center">
           <div className="flex items-center gap-3">
-            <h1 className="text-xl font-semibold text-gray-900 dark:text-white">
-              SelfKey
-            </h1>
+            <Image
+              src="/logo_selfkey.png"
+              alt="SelfKey Logo"
+              width={120}
+              height={40}
+              className="h-10 w-auto"
+              priority
+            />
           </div>
           <nav className="hidden md:flex gap-2 items-center">
             <Button asChild variant="ghost" size="sm" className="font-normal">
