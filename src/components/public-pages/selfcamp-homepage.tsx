@@ -148,7 +148,7 @@ export function SelfcampHomepage() {
                   </div>
 
                   {/* Logo centré */}
-                  <div className="flex justify-center mb-4">
+                  <div className="flex justify-center mb-8">
                     <Image
                       src="/selfcamp_logo_fribourg.png"
                       alt="SelfCamp Logo"
@@ -165,7 +165,7 @@ export function SelfcampHomepage() {
             <div className="flex-1 flex flex-col justify-center text-center px-4 pt-24 lg:pt-0">
               <div className="container mx-auto max-w-4xl">
                 {/* Tagline principal - au centre vertical de la page */}
-                <div className="mb-25 md:mb-45">
+                <div className="mb-32 md:mb-45">
                   <h1 className="text-2xl md:text-4xl lg:text-4xl font-bold text-white drop-shadow-lg">
                     La liberté de camper sans contrainte
                   </h1>
