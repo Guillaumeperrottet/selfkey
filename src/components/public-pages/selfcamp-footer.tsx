@@ -23,20 +23,50 @@ export function SelfcampFooter() {
         <div className="container mx-auto max-w-7xl">
           <div className="grid grid-cols-1 md:grid-cols-[500px_1fr] gap-8 md:gap-16">
             {/* Logo et tagline à gauche */}
-            <div className="flex flex-col text-center md:text-left items-center md:items-start">
-              <div className="mb-4 md:mb-8">
-                <div className="w-[320px] h-[160px] md:w-[400px] md:h-[200px] relative">
-                  <Image
-                    src="/selfcamp_logo_fribourg.png"
-                    alt="SelfCamp Fribourg"
-                    fill
-                    className="object-contain md:object-left"
-                  />
-                </div>
+            <div className="flex flex-col md:flex-row md:gap-5 text-center md:text-left items-center md:items-start">
+              {/* GIF UFT tout à gauche - aligné avec le logo */}
+              <div className="mb-4 md:mb-0 flex-shrink-0 self-center">
+                {/* Version mobile */}
+                <Image
+                  src="/icons/UFT.gif"
+                  alt="UFT"
+                  width={40}
+                  height={40}
+                  className="drop-shadow-lg md:hidden opacity-80"
+                  unoptimized
+                />
+                {/* Version desktop */}
+                <Image
+                  src="/icons/UFT.gif"
+                  alt="UFT"
+                  width={50}
+                  height={50}
+                  className="drop-shadow-lg hidden md:block opacity-80"
+                  unoptimized
+                />
               </div>
-              <p className="text-white text-center md:text-left font-normal text-sm leading-relaxed max-w-[280px] md:max-w-full">
-                La liberté de camper sans contrainte
-              </p>
+
+              {/* Séparateur vertical */}
+              <div className="flex items-center self-stretch mb-4 md:mb-0">
+                <div className="w-[1px] bg-white/15 h-1/2"></div>
+              </div>
+
+              {/* Logo et tagline */}
+              <div className="flex flex-col items-center md:items-start">
+                <div className="mb-4 md:mb-8">
+                  <div className="w-[320px] h-[160px] md:w-[400px] md:h-[200px] relative">
+                    <Image
+                      src="/selfcamp_logo_fribourg.png"
+                      alt="SelfCamp Fribourg"
+                      fill
+                      className="object-contain md:object-left"
+                    />
+                  </div>
+                </div>
+                <p className="text-white text-center md:text-left font-normal text-sm leading-relaxed max-w-[280px] md:max-w-full">
+                  La liberté de camper sans contrainte
+                </p>
+              </div>
             </div>
 
             {/* Conteneur pour les 3 colonnes + copyright */}
