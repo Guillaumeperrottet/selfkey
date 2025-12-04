@@ -307,7 +307,7 @@ export function SelfcampHomepage() {
         <SelfcampFooter />
 
         {/* GIF animé en bas à gauche */}
-        <div className="absolute bottom-14 left-2 md:bottom-4 md:left-4 z-50">
+        <div className="absolute bottom-1 left-2 md:bottom-4 md:left-4 z-50">
           <div className="flex items-center gap-1">
             <span
               className="text-[10px] md:text-sm font-medium text-white bg-gray-800/70 px-1.5 py-0.5 md:px-2 md:py-1 rounded-md shadow-sm"
