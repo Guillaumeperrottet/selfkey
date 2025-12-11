@@ -16,6 +16,8 @@ interface Establishment {
   name: string;
   maxBookingDays: number;
   allowFutureBookings: boolean;
+  bookingWindowStartDate?: Date | string | null;
+  bookingWindowEndDate?: Date | string | null;
   enableDogOption?: boolean;
   enableCutoffTime?: boolean;
   cutoffTime?: string;

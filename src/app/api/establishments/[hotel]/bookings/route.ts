@@ -83,6 +83,8 @@ export async function POST(
         id: true,
         name: true,
         maxBookingDays: true,
+        bookingWindowStartDate: true,
+        bookingWindowEndDate: true,
         stripeAccountId: true,
         commissionRate: true,
         fixedFee: true,
@@ -102,11 +104,13 @@ export async function POST(
       return NextResponse.json({ error: "Dates invalides" }, { status: 400 });
     }
 
-    // Valider les dates
+    // Valider les dates (avec la période de réservation)
     const validation = validateBookingDates(
       checkInDateObj,
       checkOutDateObj,
-      establishment.maxBookingDays
+      establishment.maxBookingDays,
+      establishment.bookingWindowStartDate,
+      establishment.bookingWindowEndDate
     );
 
     if (!validation.isValid) {

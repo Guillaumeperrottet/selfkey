@@ -55,6 +55,9 @@ export interface BookingTranslations {
     dateValidationError: string;
     search: string;
     validating: string;
+    bookingPeriod: string;
+    bookingsAvailableFrom: string;
+    to: string;
   };
 
   // Sélection de chambre
@@ -308,6 +311,9 @@ export const translations: Record<Locale, BookingTranslations> = {
       dateValidationError: "Erreur lors de la validation des dates",
       search: "Rechercher",
       validating: "Validation en cours...",
+      bookingPeriod: "Période de réservation",
+      bookingsAvailableFrom: "Réservations du",
+      to: "au",
     },
 
     rooms: {
@@ -548,6 +554,9 @@ export const translations: Record<Locale, BookingTranslations> = {
       dateValidationError: "Error validating dates",
       search: "Search",
       validating: "Validating...",
+      bookingPeriod: "Booking Period",
+      bookingsAvailableFrom: "Bookings from",
+      to: "to",
     },
 
     rooms: {
@@ -789,6 +798,9 @@ export const translations: Record<Locale, BookingTranslations> = {
       dateValidationError: "Fehler bei der Datumsvalidierung",
       search: "Suchen",
       validating: "Wird validiert...",
+      bookingPeriod: "Buchungszeitraum",
+      bookingsAvailableFrom: "Buchungen vom",
+      to: "bis",
     },
 
     rooms: {

@@ -127,6 +127,8 @@ model Establishment {
   confirmationWhatsappFrom            String?
   confirmationWhatsappTemplate        String?
   allowFutureBookings                 Boolean                 @default(false)
+  bookingWindowStartDate              DateTime?               // Date de début de la période de réservation (optionnel)
+  bookingWindowEndDate                DateTime?               // Date de fin de la période de réservation (optionnel)
   cutoffTime                          String?                 @default("22:00")
   enableCutoffTime                    Boolean                 @default(false)
   reopenTime                          String?                 @default("00:00")

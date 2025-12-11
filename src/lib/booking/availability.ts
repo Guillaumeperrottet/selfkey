@@ -101,7 +101,9 @@ export function calculateStayDuration(
 export function validateBookingDates(
   checkInDate: Date,
   checkOutDate: Date,
-  maxBookingDays: number
+  maxBookingDays: number,
+  bookingWindowStartDate?: Date | null,
+  bookingWindowEndDate?: Date | null
 ): { isValid: boolean; error?: string } {
   const now = new Date();
   now.setHours(0, 0, 0, 0);
@@ -120,6 +122,30 @@ export function validateBookingDates(
       isValid: false,
       error: "La date de départ doit être après la date d'arrivée",
     };
+  }
+
+  // Vérifier la période de réservation si définie
+  if (bookingWindowStartDate && bookingWindowEndDate) {
+    const windowStart = new Date(bookingWindowStartDate);
+    const windowEnd = new Date(bookingWindowEndDate);
+    windowStart.setHours(0, 0, 0, 0);
+    windowEnd.setHours(23, 59, 59, 999);
+
+    // Vérifier que la date d'arrivée est dans la période
+    if (checkInDate < windowStart) {
+      return {
+        isValid: false,
+        error: `Les réservations ne sont possibles qu'à partir du ${windowStart.toLocaleDateString("fr-FR", { day: "numeric", month: "long", year: "numeric" })}`,
+      };
+    }
+
+    // Vérifier que la date de départ est dans la période
+    if (checkOutDate > windowEnd) {
+      return {
+        isValid: false,
+        error: `Les réservations ne sont possibles que jusqu'au ${windowEnd.toLocaleDateString("fr-FR", { day: "numeric", month: "long", year: "numeric" })}`,
+      };
+    }
   }
 
   // Vérifier la durée maximale

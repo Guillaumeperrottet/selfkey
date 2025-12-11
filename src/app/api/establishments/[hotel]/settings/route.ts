@@ -15,6 +15,8 @@ export async function GET(
         name: true,
         maxBookingDays: true,
         allowFutureBookings: true,
+        bookingWindowStartDate: true,
+        bookingWindowEndDate: true,
         enableCutoffTime: true,
         cutoffTime: true,
         reopenTime: true,
@@ -73,6 +75,8 @@ export async function PUT(
     const {
       maxBookingDays,
       allowFutureBookings,
+      bookingWindowStartDate,
+      bookingWindowEndDate,
       enableCutoffTime,
       cutoffTime,
       reopenTime,
@@ -183,6 +187,12 @@ export async function PUT(
       data: {
         maxBookingDays: parseInt(maxBookingDays),
         allowFutureBookings: allowFutureBookings,
+        bookingWindowStartDate: bookingWindowStartDate
+          ? new Date(bookingWindowStartDate)
+          : null,
+        bookingWindowEndDate: bookingWindowEndDate
+          ? new Date(bookingWindowEndDate)
+          : null,
         enableCutoffTime: enableCutoffTime,
         cutoffTime: enableCutoffTime && cutoffTime ? cutoffTime : null,
         reopenTime: enableCutoffTime && reopenTime ? reopenTime : null,
@@ -205,6 +215,8 @@ export async function PUT(
         name: true,
         maxBookingDays: true,
         allowFutureBookings: true,
+        bookingWindowStartDate: true,
+        bookingWindowEndDate: true,
         enableCutoffTime: true,
         cutoffTime: true,
         reopenTime: true,

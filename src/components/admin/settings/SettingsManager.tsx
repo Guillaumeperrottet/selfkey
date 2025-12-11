@@ -41,6 +41,11 @@ export function SettingsManager({ hotelSlug }: SettingsManagerProps) {
   const [maxBookingDays, setMaxBookingDays] = useState<number>(4);
   const [allowFutureBookings, setAllowFutureBookings] =
     useState<boolean>(false);
+  const [bookingWindowStartDate, setBookingWindowStartDate] =
+    useState<string>("");
+  const [bookingWindowEndDate, setBookingWindowEndDate] = useState<string>("");
+  const [enableBookingWindow, setEnableBookingWindow] =
+    useState<boolean>(false);
   const [enableCutoffTime, setEnableCutoffTime] = useState<boolean>(false);
   const [cutoffTime, setCutoffTime] = useState<string>("22:00");
   const [reopenTime, setReopenTime] = useState<string>("00:00");
@@ -88,6 +93,16 @@ export function SettingsManager({ hotelSlug }: SettingsManagerProps) {
           const data = await response.json();
           setMaxBookingDays(data.maxBookingDays || 4);
           setAllowFutureBookings(data.allowFutureBookings || false);
+          // Charger la période de réservation
+          if (data.bookingWindowStartDate) {
+            const startDate = new Date(data.bookingWindowStartDate);
+            setBookingWindowStartDate(startDate.toISOString().split("T")[0]);
+            setEnableBookingWindow(true);
+          }
+          if (data.bookingWindowEndDate) {
+            const endDate = new Date(data.bookingWindowEndDate);
+            setBookingWindowEndDate(endDate.toISOString().split("T")[0]);
+          }
           setEnableCutoffTime(data.enableCutoffTime || false);
           setCutoffTime(data.cutoffTime || "22:00");
           setReopenTime(data.reopenTime || "00:00");
@@ -141,6 +156,24 @@ export function SettingsManager({ hotelSlug }: SettingsManagerProps) {
       return;
     }
 
+    // Validation de la période de réservation
+    if (enableBookingWindow) {
+      if (!bookingWindowStartDate || !bookingWindowEndDate) {
+        toastUtils.warning(
+          "Veuillez renseigner les deux dates de la période de réservation"
+        );
+        return;
+      }
+
+      const startDate = new Date(bookingWindowStartDate);
+      const endDate = new Date(bookingWindowEndDate);
+
+      if (endDate <= startDate) {
+        toastUtils.warning("La date de fin doit être après la date de début");
+        return;
+      }
+    }
+
     const loadingToast = toastUtils.loading("Sauvegarde des paramètres...");
     setIsSaving(true);
 
@@ -155,6 +188,14 @@ export function SettingsManager({ hotelSlug }: SettingsManagerProps) {
           body: JSON.stringify({
             maxBookingDays,
             allowFutureBookings,
+            bookingWindowStartDate:
+              enableBookingWindow && bookingWindowStartDate
+                ? new Date(bookingWindowStartDate).toISOString()
+                : null,
+            bookingWindowEndDate:
+              enableBookingWindow && bookingWindowEndDate
+                ? new Date(bookingWindowEndDate).toISOString()
+                : null,
             enableCutoffTime,
             cutoffTime,
             reopenTime,
@@ -433,6 +474,120 @@ export function SettingsManager({ hotelSlug }: SettingsManagerProps) {
                     Les clients pourront réserver pour un maximum de{" "}
                     {maxBookingDays} nuit{maxBookingDays > 1 ? "s" : ""}
                   </p>
+                </div>
+              </div>
+
+              <Separator />
+
+              {/* Période de réservation */}
+              <div className="space-y-3">
+                <div className="flex items-center gap-2">
+                  <Calendar className="h-4 w-4 text-purple-500" />
+                  <Label className="font-medium">Période de réservation</Label>
+                </div>
+                <div className="space-y-3">
+                  <div className="flex items-center space-x-3">
+                    <Checkbox
+                      id="enableBookingWindow"
+                      checked={enableBookingWindow}
+                      onCheckedChange={(checked) => {
+                        setEnableBookingWindow(checked as boolean);
+                        if (!checked) {
+                          setBookingWindowStartDate("");
+                          setBookingWindowEndDate("");
+                        }
+                      }}
+                    />
+                    <Label htmlFor="enableBookingWindow" className="text-sm">
+                      Limiter les réservations à une période spécifique
+                    </Label>
+                  </div>
+
+                  {enableBookingWindow && (
+                    <div className="ml-6 space-y-3 p-3 rounded-lg bg-purple-50 border border-purple-200">
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div className="space-y-2">
+                          <Label
+                            htmlFor="bookingWindowStartDate"
+                            className="text-sm font-medium"
+                          >
+                            Date de début
+                          </Label>
+                          <Input
+                            id="bookingWindowStartDate"
+                            type="date"
+                            value={bookingWindowStartDate}
+                            onChange={(e) =>
+                              setBookingWindowStartDate(e.target.value)
+                            }
+                            className="w-full"
+                          />
+                        </div>
+                        <div className="space-y-2">
+                          <Label
+                            htmlFor="bookingWindowEndDate"
+                            className="text-sm font-medium"
+                          >
+                            Date de fin
+                          </Label>
+                          <Input
+                            id="bookingWindowEndDate"
+                            type="date"
+                            value={bookingWindowEndDate}
+                            onChange={(e) =>
+                              setBookingWindowEndDate(e.target.value)
+                            }
+                            className="w-full"
+                          />
+                        </div>
+                      </div>
+                      <p className="text-sm text-purple-800">
+                        <strong>📅 Période active :</strong> Les réservations
+                        seront possibles uniquement entre{" "}
+                        {bookingWindowStartDate ? (
+                          <span className="font-semibold">
+                            {new Date(
+                              bookingWindowStartDate
+                            ).toLocaleDateString("fr-FR", {
+                              day: "numeric",
+                              month: "long",
+                              year: "numeric",
+                            })}
+                          </span>
+                        ) : (
+                          <span className="italic">date de début</span>
+                        )}{" "}
+                        et{" "}
+                        {bookingWindowEndDate ? (
+                          <span className="font-semibold">
+                            {new Date(bookingWindowEndDate).toLocaleDateString(
+                              "fr-FR",
+                              {
+                                day: "numeric",
+                                month: "long",
+                                year: "numeric",
+                              }
+                            )}
+                          </span>
+                        ) : (
+                          <span className="italic">date de fin</span>
+                        )}
+                        .
+                      </p>
+                    </div>
+                  )}
+
+                  {!enableBookingWindow && (
+                    <div className="ml-6 p-3 rounded-lg bg-gray-50">
+                      <p className="text-sm text-gray-700">
+                        <span className="flex items-center gap-2">
+                          <CheckCircle2 className="h-4 w-4 text-gray-500" />
+                          Aucune restriction de période - Les réservations sont
+                          ouvertes toute l&apos;année
+                        </span>
+                      </p>
+                    </div>
+                  )}
                 </div>
               </div>
 

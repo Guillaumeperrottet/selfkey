@@ -53,6 +53,8 @@ interface Establishment {
   name: string;
   maxBookingDays: number;
   allowFutureBookings: boolean;
+  bookingWindowStartDate?: Date | string | null;
+  bookingWindowEndDate?: Date | string | null;
   enableDogOption?: boolean;
   enableCutoffTime?: boolean;
   cutoffTime?: string;
@@ -417,6 +419,36 @@ export function DateSelector({
           </div>
         )}
 
+        {/* Message période de réservation */}
+        {establishment.bookingWindowStartDate &&
+          establishment.bookingWindowEndDate && (
+            <div className="flex items-center gap-2 p-3 bg-gray-50 border border-gray-200 rounded-lg text-sm text-gray-600">
+              <CalendarIcon className="h-4 w-4 text-gray-500 flex-shrink-0" />
+              <span>
+                {t.dates.bookingsAvailableFrom}{" "}
+                <span className="font-medium text-gray-700">
+                  {new Date(
+                    establishment.bookingWindowStartDate
+                  ).toLocaleDateString(locale, {
+                    day: "numeric",
+                    month: "long",
+                    year: "numeric",
+                  })}
+                </span>{" "}
+                {t.dates.to}{" "}
+                <span className="font-medium text-gray-700">
+                  {new Date(
+                    establishment.bookingWindowEndDate
+                  ).toLocaleDateString(locale, {
+                    day: "numeric",
+                    month: "long",
+                    year: "numeric",
+                  })}
+                </span>
+              </span>
+            </div>
+          )}
+
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>
             <Label
@@ -437,15 +469,25 @@ export function DateSelector({
                   : ""
               }`}
               title={t.dates.selectCheckIn}
-              min={today}
-              max={
-                establishment.allowFutureBookings
-                  ? new Date(
-                      new Date().setFullYear(new Date().getFullYear() + 1)
-                    )
+              min={
+                establishment.bookingWindowStartDate
+                  ? new Date(establishment.bookingWindowStartDate)
                       .toISOString()
                       .split("T")[0]
-                  : undefined
+                  : today
+              }
+              max={
+                establishment.bookingWindowEndDate
+                  ? new Date(establishment.bookingWindowEndDate)
+                      .toISOString()
+                      .split("T")[0]
+                  : establishment.allowFutureBookings
+                    ? new Date(
+                        new Date().setFullYear(new Date().getFullYear() + 1)
+                      )
+                        .toISOString()
+                        .split("T")[0]
+                    : undefined
               }
             />
           </div>
@@ -497,6 +539,26 @@ export function DateSelector({
                     const month = String(date.getMonth() + 1).padStart(2, "0");
                     const day = String(date.getDate()).padStart(2, "0");
                     const dateStr = `${year}-${month}-${day}`;
+
+                    // Vérifier la période de réservation si définie
+                    if (
+                      establishment.bookingWindowStartDate &&
+                      establishment.bookingWindowEndDate
+                    ) {
+                      const windowStart = new Date(
+                        establishment.bookingWindowStartDate
+                      );
+                      const windowEnd = new Date(
+                        establishment.bookingWindowEndDate
+                      );
+                      windowStart.setHours(0, 0, 0, 0);
+                      windowEnd.setHours(23, 59, 59, 999);
+
+                      const checkDate = new Date(dateStr + "T00:00:00");
+
+                      // Désactiver les dates hors de la période
+                      if (checkDate > windowEnd) return true;
+                    }
 
                     // Calculer la date minimum (lendemain du check-in)
                     const checkIn = new Date(checkInDate + "T00:00:00");
