@@ -30,7 +30,7 @@ export default function Error({
             Oups !
           </h1>
           <h2 className="text-2xl font-semibold text-gray-700 dark:text-gray-300">
-            Une erreur s&apos;est produite
+            Une erreur s&apos;est produite.
           </h2>
           <p className="text-gray-600 dark:text-gray-400">
             Nous sommes désolés, quelque chose s&apos;est mal passé. Notre
