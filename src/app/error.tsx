@@ -3,6 +3,7 @@
 import { useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { AlertTriangle, RefreshCcw, Home } from "lucide-react";
+import * as Sentry from "@sentry/nextjs";
 
 export default function Error({
   error,
@@ -12,7 +13,21 @@ export default function Error({
   reset: () => void;
 }) {
   useEffect(() => {
-    // Log l'erreur pour le monitoring
+    // Capturer l'erreur dans Sentry avec contexte
+    Sentry.captureException(error, {
+      tags: {
+        error_boundary: "app",
+      },
+      contexts: {
+        errorInfo: {
+          digest: error.digest,
+          message: error.message,
+          name: error.name,
+        },
+      },
+    });
+
+    // Log l'erreur pour le monitoring local
     console.error("Error caught by error boundary:", error);
   }, [error]);
 
