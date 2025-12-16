@@ -4,6 +4,7 @@ import { sendEmail } from "@/lib/email";
 import { isRateLimited } from "@/lib/rate-limiter";
 import { replaceImagePlaceholders } from "@/lib/image-utils";
 import { generateInvoiceDownloadUrl } from "@/lib/invoice-security";
+import { captureEmailError, addBreadcrumb } from "@/lib/monitoring/sentry";
 
 interface Props {
   params: Promise<{ bookingId: string }>;
@@ -95,6 +96,11 @@ export async function POST(request: Request, { params }: Props) {
   try {
     const { bookingId } = await params;
 
+    addBreadcrumb(
+      `Confirmation email requested for booking ${bookingId}`,
+      "email"
+    );
+
     // Protection rate limiting par booking ID (maximum 3 tentatives par minute)
     if (
       isRateLimited(`booking-confirmation-${bookingId}`, {
@@ -103,6 +109,12 @@ export async function POST(request: Request, { params }: Props) {
       })
     ) {
       console.log(`🚫 Rate limit dépassé pour la réservation ${bookingId}`);
+      addBreadcrumb(
+        `Rate limit exceeded for booking ${bookingId}`,
+        "rate-limit",
+        undefined,
+        "warning"
+      );
       return NextResponse.json(
         {
           error:
@@ -350,6 +362,28 @@ export async function POST(request: Request, { params }: Props) {
     return NextResponse.json({ message: "Confirmation envoyée avec succès" });
   } catch (error) {
     console.error("Erreur lors de l'envoi de la confirmation:", error);
+
+    // Obtenir l'ID de la réservation depuis params si disponible
+    let bookingId: string | undefined;
+    try {
+      const resolvedParams = await params;
+      bookingId = resolvedParams.bookingId;
+    } catch {
+      // Params non disponible
+    }
+
+    captureEmailError(
+      error as Error,
+      {
+        to: bookingId || "unknown-booking",
+        subject: "Confirmation de réservation",
+        type: "booking-confirmation",
+      },
+      {
+        booking: bookingId ? { id: bookingId } : undefined,
+      }
+    );
+
     return NextResponse.json(
       { error: "Erreur interne du serveur" },
       { status: 500 }

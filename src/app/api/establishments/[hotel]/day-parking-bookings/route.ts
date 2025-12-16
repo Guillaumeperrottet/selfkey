@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { createDirectChargePaymentIntent } from "@/lib/stripe-connect";
 import { sendDayParkingConfirmation } from "@/lib/email";
+import { captureError, addBreadcrumb } from "@/lib/monitoring/sentry";
 
 interface Props {
   params: Promise<{ hotel: string }>;
@@ -10,6 +11,9 @@ interface Props {
 export async function POST(request: NextRequest, { params }: Props) {
   try {
     const { hotel } = await params;
+
+    addBreadcrumb(`Day parking booking requested for ${hotel}`, "booking");
+
     const body = await request.json();
 
     const {
@@ -286,6 +290,32 @@ export async function POST(request: NextRequest, { params }: Props) {
       "Erreur lors de la création de la réservation parking jour:",
       error
     );
+
+    // Obtenir les infos de contexte si disponibles
+    let hotelSlug: string | undefined;
+    let clientEmail: string | undefined;
+    let dayParkingDuration: string | undefined;
+
+    try {
+      const { hotel } = await params;
+      hotelSlug = hotel;
+      const body = await request.json();
+      clientEmail = body.clientEmail;
+      dayParkingDuration = body.dayParkingDuration;
+    } catch {
+      // Contexte non disponible
+    }
+
+    captureError(error as Error, {
+      establishment: hotelSlug ? { slug: hotelSlug, name: "" } : undefined,
+      extra: {
+        operation: "create-day-parking-booking",
+        bookingType: "day-parking",
+        clientEmail,
+        duration: dayParkingDuration,
+      },
+    });
+
     return NextResponse.json(
       { error: "Erreur interne du serveur" },
       { status: 500 }

@@ -4,11 +4,20 @@ import { prisma } from "@/lib/prisma";
 import { sendDayParkingConfirmation } from "@/lib/email";
 import { stripe, stripeWebhookSecret } from "@/lib/stripe";
 import { sendBookingWebhook } from "@/lib/api/webhook";
+import {
+  capturePaymentError,
+  captureError,
+  captureEmailError,
+  addBreadcrumb,
+} from "@/lib/monitoring/sentry";
 
 const endpointSecret = stripeWebhookSecret!;
 
 export async function POST(request: NextRequest) {
   console.log("🔗 Webhook Stripe reçu !");
+
+  addBreadcrumb("Stripe webhook received", "webhook");
+
   const body = await request.text();
   const signature = request.headers.get("stripe-signature");
 
@@ -22,8 +31,24 @@ export async function POST(request: NextRequest) {
   try {
     event = stripe.webhooks.constructEvent(body, signature, endpointSecret);
     console.log("✅ Webhook vérifié, type d'événement:", event.type);
+
+    // Ajouter un breadcrumb pour tracer le webhook
+    addBreadcrumb(`Stripe webhook received: ${event.type}`, "webhook", {
+      eventId: event.id,
+      eventType: event.type,
+    });
   } catch (err) {
     console.error("❌ Erreur de vérification du webhook:", err);
+
+    // Capturer l'erreur de signature invalide
+    captureError(err, {
+      extra: {
+        context: "stripe_webhook_signature_verification",
+        hasSignature: !!signature,
+        bodyLength: body.length,
+      },
+    });
+
     return NextResponse.json({ error: "Invalid signature" }, { status: 400 });
   }
 
@@ -91,6 +116,10 @@ async function handleAccountDeauthorized(data: { account: string }) {
 
 async function handlePaymentSucceeded(paymentIntent: Stripe.PaymentIntent) {
   try {
+    addBreadcrumb(`Payment succeeded: ${paymentIntent.id}`, "payment", {
+      bookingType: paymentIntent.metadata.booking_type,
+    });
+
     console.log(`🎉 Payment succeeded for PaymentIntent: ${paymentIntent.id}`);
     console.log(
       "📋 Metadata:",
@@ -132,6 +161,30 @@ async function handlePaymentSucceeded(paymentIntent: Stripe.PaymentIntent) {
     console.log(`Payment succeeded for existing booking: ${paymentIntent.id}`);
   } catch (error) {
     console.error("Error handling payment success:", error);
+
+    // Capturer l'erreur avec contexte complet
+    capturePaymentError(
+      error instanceof Error ? error : new Error(String(error)),
+      {
+        paymentIntentId: paymentIntent.id,
+        amount: paymentIntent.amount / 100, // Convertir de centimes en unités
+        currency: paymentIntent.currency.toUpperCase(),
+        status: paymentIntent.status,
+      },
+      {
+        establishment: paymentIntent.metadata.hotel_slug
+          ? {
+              slug: paymentIntent.metadata.hotel_slug,
+              name: paymentIntent.metadata.establishment_name || "Unknown",
+            }
+          : undefined,
+        booking: paymentIntent.metadata.booking_id
+          ? {
+              id: paymentIntent.metadata.booking_id,
+            }
+          : undefined,
+      }
+    );
   }
 }
 
@@ -156,6 +209,27 @@ async function handlePaymentFailed(paymentIntent: Stripe.PaymentIntent) {
     }
   } catch (error) {
     console.error("Error handling payment failure:", error);
+
+    // Capturer l'erreur de traitement d'échec de paiement
+    capturePaymentError(
+      error instanceof Error ? error : new Error(String(error)),
+      {
+        paymentIntentId: paymentIntent.id,
+        amount: paymentIntent.amount / 100,
+        currency: paymentIntent.currency.toUpperCase(),
+        status: "failed",
+        errorCode: paymentIntent.last_payment_error?.code,
+        errorMessage: paymentIntent.last_payment_error?.message,
+      },
+      {
+        establishment: paymentIntent.metadata.hotel_slug
+          ? {
+              slug: paymentIntent.metadata.hotel_slug,
+              name: paymentIntent.metadata.establishment_name || "Unknown",
+            }
+          : undefined,
+      }
+    );
   }
 }
 
@@ -256,11 +330,40 @@ async function createDayParkingBookingFromMetadata(
           "❌ Erreur lors de l'envoi de l'email de confirmation:",
           emailError
         );
+
+        captureEmailError(
+          emailError as Error,
+          {
+            to: metadata.client_email,
+            subject: "Day parking confirmation",
+            type: "day-parking-confirmation",
+          },
+          {
+            establishment: {
+              slug: metadata.hotel_slug,
+              name: establishment.name,
+            },
+            booking: { id: booking.id, bookingNumber: booking.bookingNumber },
+          }
+        );
+
         // Ne pas faire échouer la création de la réservation si l'email échoue
       }
     }
   } catch (error) {
     console.error("Error creating day parking booking from metadata:", error);
+
+    captureError(error as Error, {
+      establishment: paymentIntent.metadata.hotel_slug
+        ? { slug: paymentIntent.metadata.hotel_slug, name: "" }
+        : undefined,
+      extra: {
+        operation: "create-day-parking-from-webhook",
+        booking_type: "day-parking",
+        payment_intent_id: paymentIntent.id,
+      },
+    });
+
     throw error;
   }
 }
@@ -354,6 +457,19 @@ async function createNightParkingBookingFromMetadata(
     // Cette logique peut être ajoutée plus tard si besoin
   } catch (error) {
     console.error("Error creating night parking booking from metadata:", error);
+
+    captureError(error as Error, {
+      establishment: paymentIntent.metadata.hotel_slug
+        ? { slug: paymentIntent.metadata.hotel_slug, name: "" }
+        : undefined,
+      extra: {
+        operation: "create-night-parking-from-webhook",
+        booking_type: "night-parking",
+        payment_intent_id: paymentIntent.id,
+        room_id: paymentIntent.metadata.room_id,
+      },
+    });
+
     throw error;
   }
 }
@@ -575,6 +691,23 @@ async function createClassicBookingFromMetadata(
           "❌ Erreur lors de l'envoi de l'email de confirmation classique:",
           emailError
         );
+
+        captureEmailError(
+          emailError as Error,
+          {
+            to: metadata.client_email,
+            subject: "Classic booking confirmation",
+            type: "classic-booking-confirmation",
+          },
+          {
+            establishment: {
+              slug: metadata.hotel_slug,
+              name: establishment.name,
+            },
+            booking: { id: booking.id, bookingNumber: booking.bookingNumber },
+          }
+        );
+
         // Ne pas faire échouer la création de la réservation si l'email échoue
       }
     } else {
@@ -582,6 +715,19 @@ async function createClassicBookingFromMetadata(
     }
   } catch (error) {
     console.error("Error creating classic booking from metadata:", error);
+
+    captureError(error as Error, {
+      establishment: paymentIntent.metadata.hotel_slug
+        ? { slug: paymentIntent.metadata.hotel_slug, name: "" }
+        : undefined,
+      extra: {
+        operation: "create-classic-booking-from-webhook",
+        booking_type: "classic",
+        payment_intent_id: paymentIntent.id,
+        room_id: paymentIntent.metadata.room_id,
+      },
+    });
+
     throw error;
   }
 }

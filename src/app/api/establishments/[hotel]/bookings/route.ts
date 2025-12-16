@@ -15,6 +15,7 @@ import {
   compressPricingOptions,
   type EnrichedPricingOption,
 } from "@/lib/booking/pricing-options";
+import { captureError, addBreadcrumb } from "@/lib/monitoring/sentry";
 
 export async function POST(
   request: NextRequest,
@@ -22,6 +23,9 @@ export async function POST(
 ) {
   try {
     const { hotel } = await params;
+
+    addBreadcrumb(`Classic booking creation requested for ${hotel}`, "booking");
+
     const body = await request.json();
     const {
       roomId,
@@ -393,6 +397,31 @@ export async function POST(
     });
   } catch (error) {
     console.error("Erreur API booking:", error);
+
+    // Obtenir les infos de contexte si disponibles
+    let hotelSlug: string | undefined;
+    let roomId: string | undefined;
+    let clientEmail: string | undefined;
+
+    try {
+      const { hotel } = await params;
+      hotelSlug = hotel;
+      const body = await request.json();
+      roomId = body.roomId;
+      clientEmail = body.clientEmail;
+    } catch {
+      // Contexte non disponible
+    }
+
+    captureError(error as Error, {
+      establishment: hotelSlug ? { slug: hotelSlug, name: "" } : undefined,
+      extra: {
+        operation: "create-classic-booking",
+        bookingType: "classic",
+        roomId,
+        clientEmail,
+      },
+    });
 
     return NextResponse.json(
       { error: "Erreur interne du serveur" },
