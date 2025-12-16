@@ -1,5 +1,8 @@
-import { describe, it, expect } from "vitest";
-import { calculatePricingOptionsTotal } from "@/lib/pricing/options";
+import { describe, it, expect, beforeEach, afterEach, vi } from "vitest";
+import {
+  calculatePricingOptionsTotal,
+  fetchPricingOptions,
+} from "@/lib/pricing/options";
 import type { PricingOption } from "@/lib/pricing/options";
 
 describe("Pricing Options Calculator", () => {
@@ -441,6 +444,164 @@ describe("Pricing Options Calculator", () => {
         optionsWithDecimals
       );
       expect(total).toBe(11.5);
+    });
+  });
+
+  describe("fetchPricingOptions", () => {
+    beforeEach(() => {
+      global.fetch = vi.fn();
+    });
+
+    afterEach(() => {
+      vi.restoreAllMocks();
+    });
+
+    it("récupère les options de prix depuis l'API", async () => {
+      const mockResponse = {
+        pricingOptions: [
+          {
+            id: "opt-1",
+            name: "Test Option",
+            description: "Description",
+            type: "select" as const,
+            isRequired: false,
+            isActive: true,
+            displayOrder: 1,
+            values: [],
+          },
+        ],
+      };
+
+      (global.fetch as any).mockResolvedValue({
+        ok: true,
+        json: async () => mockResponse,
+      });
+
+      const result = await fetchPricingOptions("test-hotel");
+
+      expect(global.fetch).toHaveBeenCalledWith(
+        "/api/establishments/test-hotel/pricing-options"
+      );
+      expect(result).toEqual(mockResponse.pricingOptions);
+    });
+
+    it("retourne un tableau vide si la réponse est vide", async () => {
+      (global.fetch as any).mockResolvedValue({
+        ok: true,
+        json: async () => ({}),
+      });
+
+      const result = await fetchPricingOptions("test-hotel");
+
+      expect(result).toEqual([]);
+    });
+
+    it("retourne un tableau vide si la requête échoue", async () => {
+      (global.fetch as any).mockResolvedValue({
+        ok: false,
+        status: 404,
+      });
+
+      const result = await fetchPricingOptions("test-hotel");
+
+      expect(result).toEqual([]);
+    });
+
+    it("gère les erreurs réseau", async () => {
+      const consoleErrorSpy = vi
+        .spyOn(console, "error")
+        .mockImplementation(() => {});
+
+      (global.fetch as any).mockRejectedValue(new Error("Network error"));
+
+      const result = await fetchPricingOptions("test-hotel");
+
+      expect(result).toEqual([]);
+      expect(consoleErrorSpy).toHaveBeenCalledWith(
+        "Erreur lors du chargement des options de prix:",
+        expect.any(Error)
+      );
+
+      consoleErrorSpy.mockRestore();
+    });
+
+    it("gère les réponses JSON invalides", async () => {
+      const consoleErrorSpy = vi
+        .spyOn(console, "error")
+        .mockImplementation(() => {});
+
+      (global.fetch as any).mockResolvedValue({
+        ok: true,
+        json: async () => {
+          throw new Error("Invalid JSON");
+        },
+      });
+
+      const result = await fetchPricingOptions("test-hotel");
+
+      expect(result).toEqual([]);
+      expect(consoleErrorSpy).toHaveBeenCalled();
+
+      consoleErrorSpy.mockRestore();
+    });
+
+    it("construit la bonne URL avec le slug de l'hôtel", async () => {
+      (global.fetch as any).mockResolvedValue({
+        ok: true,
+        json: async () => ({ pricingOptions: [] }),
+      });
+
+      await fetchPricingOptions("mon-camping-geneve");
+
+      expect(global.fetch).toHaveBeenCalledWith(
+        "/api/establishments/mon-camping-geneve/pricing-options"
+      );
+    });
+
+    it("retourne plusieurs options correctement structurées", async () => {
+      const mockResponse = {
+        pricingOptions: [
+          {
+            id: "opt-1",
+            name: "Option 1",
+            description: null,
+            type: "select" as const,
+            isRequired: true,
+            isActive: true,
+            displayOrder: 1,
+            values: [
+              {
+                id: "val-1",
+                label: "Value 1",
+                priceModifier: 10,
+                isDefault: true,
+                displayOrder: 1,
+              },
+            ],
+          },
+          {
+            id: "opt-2",
+            name: "Option 2",
+            description: "Description 2",
+            type: "checkbox" as const,
+            isRequired: false,
+            isActive: true,
+            displayOrder: 2,
+            values: [],
+          },
+        ],
+      };
+
+      (global.fetch as any).mockResolvedValue({
+        ok: true,
+        json: async () => mockResponse,
+      });
+
+      const result = await fetchPricingOptions("test-hotel");
+
+      expect(result).toHaveLength(2);
+      expect(result[0].id).toBe("opt-1");
+      expect(result[1].id).toBe("opt-2");
     });
   });
 });

@@ -1,12 +1,340 @@
-import { describe, it, expect } from "vitest";
+import { describe, it, expect, vi, beforeEach } from "vitest";
+import { mockPrisma } from "../../../tests/mocks/prisma";
+
+// Mock du module Prisma AVANT l'import des fonctions
+vi.mock("@/lib/database/prisma", () => ({
+  prisma: mockPrisma,
+}));
+
 import {
   calculateFees,
   calculateTouristTax,
   formatCHF,
   formatPercentage,
+  getEstablishmentFees,
+  getDayParkingFees,
+  calculateEstablishmentFees,
+  getTouristTaxSettings,
+  calculateEstablishmentTouristTax,
+  calculateCompleteBooking,
+  defaultPlatformConfig,
 } from "@/lib/pricing/fees";
 
 describe("Fee Calculator", () => {
+  beforeEach(() => {
+    // Réinitialiser les mocks avant chaque test
+    vi.clearAllMocks();
+  });
+
+  describe("getEstablishmentFees", () => {
+    it("récupère les frais d'un établissement existant", async () => {
+      mockPrisma.establishment.findUnique.mockResolvedValue({
+        id: "est-1",
+        slug: "test-hotel",
+        name: "Test Hotel",
+        commissionRate: 5.5,
+        dayParkingCommissionRate: 7.0,
+        fixedFee: 2.5,
+        touristTaxEnabled: true,
+        touristTaxAmount: 3.0,
+      } as any);
+
+      const result = await getEstablishmentFees("test-hotel");
+
+      expect(result.commissionRate).toBe(0.055); // Converti de % en décimal
+      expect(result.fixedFee).toBe(2.5);
+      expect(mockPrisma.establishment.findUnique).toHaveBeenCalledWith({
+        where: { slug: "test-hotel" },
+        select: {
+          commissionRate: true,
+          dayParkingCommissionRate: true,
+          fixedFee: true,
+        },
+      });
+    });
+
+    it("retourne les frais par défaut si l'établissement n'existe pas", async () => {
+      mockPrisma.establishment.findUnique.mockResolvedValue(null);
+
+      const result = await getEstablishmentFees("inexistant");
+
+      expect(result.commissionRate).toBe(defaultPlatformConfig.commissionRate);
+      expect(result.fixedFee).toBe(defaultPlatformConfig.fixedFee);
+    });
+
+    it("retourne les frais par défaut en cas d'erreur de base de données", async () => {
+      mockPrisma.establishment.findUnique.mockRejectedValue(
+        new Error("Database error")
+      );
+
+      const result = await getEstablishmentFees("test-hotel");
+
+      expect(result.commissionRate).toBe(defaultPlatformConfig.commissionRate);
+      expect(result.fixedFee).toBe(defaultPlatformConfig.fixedFee);
+    });
+  });
+
+  describe("getDayParkingFees", () => {
+    it("récupère les frais de parking jour pour un établissement", async () => {
+      mockPrisma.establishment.findUnique.mockResolvedValue({
+        id: "est-1",
+        slug: "test-hotel",
+        dayParkingCommissionRate: 8.0,
+        fixedFee: 2.0,
+      } as any);
+
+      const result = await getDayParkingFees("test-hotel");
+
+      expect(result.commissionRate).toBe(0.08); // Converti de % en décimal
+      expect(result.fixedFee).toBe(0); // Pas de frais fixe pour parking jour
+    });
+
+    it("retourne les frais par défaut si l'établissement n'existe pas", async () => {
+      mockPrisma.establishment.findUnique.mockResolvedValue(null);
+
+      const result = await getDayParkingFees("inexistant");
+
+      expect(result.commissionRate).toBe(0.05); // 5% par défaut
+      expect(result.fixedFee).toBe(0);
+    });
+
+    it("retourne les frais par défaut en cas d'erreur", async () => {
+      mockPrisma.establishment.findUnique.mockRejectedValue(
+        new Error("Database error")
+      );
+
+      const result = await getDayParkingFees("test-hotel");
+
+      expect(result.commissionRate).toBe(0.05);
+      expect(result.fixedFee).toBe(0);
+    });
+  });
+
+  describe("calculateEstablishmentFees", () => {
+    it("calcule les frais pour un établissement spécifique", async () => {
+      mockPrisma.establishment.findUnique.mockResolvedValue({
+        id: "est-1",
+        slug: "luxury-hotel",
+        commissionRate: 700, // 7% stocké comme 700 (sera divisé par 100 dans getEstablishmentFees)
+        fixedFee: 4.0,
+      } as any);
+
+      const result = await calculateEstablishmentFees(200, "luxury-hotel");
+
+      expect(result.originalAmount).toBe(200);
+      expect(result.commission).toBe(14); // 200 * 0.07
+      expect(result.fixedFee).toBe(4);
+      expect(result.totalFees).toBe(18);
+      expect(result.netAmount).toBe(182);
+    });
+  });
+
+  describe("getTouristTaxSettings", () => {
+    it("récupère les paramètres de taxe de séjour d'un établissement", async () => {
+      mockPrisma.establishment.findUnique.mockResolvedValue({
+        id: "est-1",
+        slug: "geneva-hotel",
+        touristTaxEnabled: true,
+        touristTaxAmount: 3.75,
+      } as any);
+
+      const result = await getTouristTaxSettings("geneva-hotel");
+
+      expect(result.touristTaxEnabled).toBe(true);
+      expect(result.touristTaxAmount).toBe(3.75);
+    });
+
+    it("retourne les valeurs par défaut si l'établissement n'existe pas", async () => {
+      mockPrisma.establishment.findUnique.mockResolvedValue(null);
+
+      const result = await getTouristTaxSettings("inexistant");
+
+      expect(result.touristTaxEnabled).toBe(true);
+      expect(result.touristTaxAmount).toBe(3.0);
+    });
+
+    it("retourne les valeurs par défaut en cas d'erreur", async () => {
+      mockPrisma.establishment.findUnique.mockRejectedValue(
+        new Error("Database error")
+      );
+
+      const result = await getTouristTaxSettings("test-hotel");
+
+      expect(result.touristTaxEnabled).toBe(true);
+      expect(result.touristTaxAmount).toBe(3.0);
+    });
+  });
+
+  describe("calculateEstablishmentTouristTax", () => {
+    it("calcule la taxe de séjour pour un établissement spécifique", async () => {
+      mockPrisma.establishment.findUnique.mockResolvedValue({
+        id: "est-1",
+        slug: "geneva-hotel",
+        touristTaxEnabled: true,
+        touristTaxAmount: 3.75,
+      } as any);
+
+      const result = await calculateEstablishmentTouristTax(
+        2,
+        3,
+        "geneva-hotel"
+      );
+
+      expect(result.enabled).toBe(true);
+      expect(result.taxPerPerson).toBe(3.75);
+      expect(result.numberOfAdults).toBe(2);
+      expect(result.numberOfNights).toBe(3);
+      expect(result.totalTax).toBe(22.5); // 2 * 3 * 3.75
+    });
+
+    it("retourne 0 si la taxe est désactivée pour l'établissement", async () => {
+      mockPrisma.establishment.findUnique.mockResolvedValue({
+        id: "est-1",
+        slug: "no-tax-hotel",
+        touristTaxEnabled: false,
+        touristTaxAmount: 3.0,
+      } as any);
+
+      const result = await calculateEstablishmentTouristTax(
+        2,
+        3,
+        "no-tax-hotel"
+      );
+
+      expect(result.enabled).toBe(false);
+      expect(result.totalTax).toBe(0);
+    });
+  });
+
+  describe("calculateCompleteBooking", () => {
+    it("calcule le prix total d'une réservation complète", async () => {
+      // Mock pour la taxe de séjour
+      mockPrisma.establishment.findUnique
+        .mockResolvedValueOnce({
+          id: "est-1",
+          slug: "test-hotel",
+          touristTaxEnabled: true,
+          touristTaxAmount: 3.0,
+        } as any)
+        // Mock pour les frais
+        .mockResolvedValueOnce({
+          id: "est-1",
+          slug: "test-hotel",
+          commissionRate: 500, // 5% stocké comme 500
+          fixedFee: 3.0,
+        } as any);
+
+      const result = await calculateCompleteBooking(
+        100, // roomPrice
+        2, // numberOfAdults
+        3, // numberOfNights
+        "test-hotel",
+        15 // pricingOptionsTotal
+      );
+
+      expect(result.roomPrice).toBe(100);
+      expect(result.pricingOptionsTotal).toBe(15);
+      expect(result.touristTax.totalTax).toBe(18); // 2 * 3 * 3
+      expect(result.subtotal).toBe(133); // 100 + 15 + 18
+      expect(result.fees.totalFees).toBe(9.65); // (133 * 0.05) + 3
+      expect(result.totalAmount).toBe(133); // Client paie le sous-total
+    });
+
+    it("calcule correctement sans options de prix", async () => {
+      mockPrisma.establishment.findUnique
+        .mockResolvedValueOnce({
+          id: "est-1",
+          slug: "simple-hotel",
+          touristTaxEnabled: true,
+          touristTaxAmount: 3.0,
+        } as any)
+        .mockResolvedValueOnce({
+          id: "est-1",
+          slug: "simple-hotel",
+          commissionRate: 500, // 5% stocké comme 500
+          fixedFee: 3.0,
+        } as any);
+
+      const result = await calculateCompleteBooking(
+        50,
+        1,
+        1,
+        "simple-hotel"
+        // pas de pricingOptionsTotal
+      );
+
+      expect(result.roomPrice).toBe(50);
+      expect(result.pricingOptionsTotal).toBe(0);
+      expect(result.touristTax.totalTax).toBe(3); // 1 * 1 * 3
+      expect(result.subtotal).toBe(53); // 50 + 0 + 3
+      expect(result.fees.totalFees).toBe(5.65); // (53 * 0.05) + 3
+      expect(result.totalAmount).toBe(53);
+    });
+
+    it("gère le cas où la taxe de séjour est désactivée", async () => {
+      mockPrisma.establishment.findUnique
+        .mockResolvedValueOnce({
+          id: "est-1",
+          slug: "no-tax-hotel",
+          touristTaxEnabled: false,
+          touristTaxAmount: 3.0,
+        } as any)
+        .mockResolvedValueOnce({
+          id: "est-1",
+          slug: "no-tax-hotel",
+          commissionRate: 500, // 5% stocké comme 500
+          fixedFee: 3.0,
+        } as any);
+
+      const result = await calculateCompleteBooking(
+        100,
+        2,
+        2,
+        "no-tax-hotel",
+        10
+      );
+
+      expect(result.touristTax.enabled).toBe(false);
+      expect(result.touristTax.totalTax).toBe(0);
+      expect(result.subtotal).toBe(110); // 100 + 10 + 0
+      expect(result.totalAmount).toBe(110);
+    });
+
+    it("simule une réservation réelle complète", async () => {
+      mockPrisma.establishment.findUnique
+        .mockResolvedValueOnce({
+          id: "est-1",
+          slug: "lakeside-hotel",
+          touristTaxEnabled: true,
+          touristTaxAmount: 3.5,
+        } as any)
+        .mockResolvedValueOnce({
+          id: "est-1",
+          slug: "lakeside-hotel",
+          commissionRate: 650, // 6.5% stocké comme 650
+          fixedFee: 2.5,
+        } as any);
+
+      const result = await calculateCompleteBooking(
+        120, // chambre double
+        2, // 2 adultes
+        4, // 4 nuits
+        "lakeside-hotel",
+        30 // petit déjeuner + parking
+      );
+
+      expect(result.roomPrice).toBe(120);
+      expect(result.pricingOptionsTotal).toBe(30);
+      expect(result.touristTax.totalTax).toBe(28); // 2 * 4 * 3.5
+      expect(result.subtotal).toBe(178); // 120 + 30 + 28
+      expect(result.fees.commission).toBe(11.57); // 178 * 0.065
+      expect(result.fees.fixedFee).toBe(2.5);
+      expect(result.fees.totalFees).toBe(14.07);
+      expect(result.fees.netAmount).toBe(163.93); // Ce que reçoit l'hôte
+      expect(result.totalAmount).toBe(178); // Ce que paie le client
+    });
+  });
+
   describe("calculateFees", () => {
     it("calcule correctement les frais avec commission et frais fixe", () => {
       const result = calculateFees(100, 5, 3);

@@ -1,0 +1,260 @@
+name: CI/CD Pipeline
+
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+    branches: [main, develop]
+
+jobs:
+  test:
+    name: Tests
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: "pnpm"
+
+      - name: Install pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 8
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Generate Prisma Client
+        run: npx prisma generate
+        env:
+          DATABASE_URL: postgresql://dummy:dummy@localhost:5432/dummy
+
+      - name: Run tests
+        run: pnpm test:run
+        env:
+          # Base de données (dummy pour les tests)
+          DATABASE_URL: postgresql://dummy:dummy@localhost:5432/selfkey_test
+
+          # Authentification (dummy mais format valide)
+          BETTER_AUTH_SECRET: test-secret-key-at-least-32-characters-long-for-github-actions
+          BETTER_AUTH_URL: http://localhost:3000
+          NEXT_PUBLIC_APP_URL: http://localhost:3000
+
+          # Google OAuth (dummy)
+          GOOGLE_CLIENT_ID: dummy-google-client-id
+          GOOGLE_CLIENT_SECRET: dummy-google-client-secret
+
+          # Stripe (test keys)
+          STRIPE_SECRET_KEY: sk_test_dummy_secret_key
+          NEXT_PUBLIC_STRIPE_PUBLIC_KEY: pk_test_dummy_public_key
+          STRIPE_WEBHOOK_SECRET: whsec_dummy_webhook_secret
+
+          # Cloudinary (dummy)
+          CLOUDINARY_CLOUD_NAME: dummy-cloud-name
+          CLOUDINARY_API_KEY: dummy-api-key
+          CLOUDINARY_API_SECRET: dummy-api-secret
+
+          # Email Resend (dummy)
+          RESEND_API_KEY: re_dummy_api_key
+
+          # Sentry (dummy)
+          SENTRY_DSN: https://dummy@dummy.ingest.sentry.io/dummy
+          NEXT_PUBLIC_SENTRY_DSN: https://dummy@dummy.ingest.sentry.io/dummy
+          SENTRY_AUTH_TOKEN: dummy-sentry-auth-token
+          SENTRY_ORG: dummy-org
+          SENTRY_PROJECT: dummy-project
+          SENTRY_ENVIRONMENT: test
+          NEXT_PUBLIC_SENTRY_ENVIRONMENT: test
+
+          # Vercel Analytics (dummy)
+          NEXT_PUBLIC_VERCEL_ANALYTICS_ID: dummy-analytics-id
+
+          # Node environment
+          NODE_ENV: test
+
+      - name: Generate coverage report
+        run: pnpm test:coverage
+        continue-on-error: true
+        env:
+          DATABASE_URL: postgresql://dummy:dummy@localhost:5432/selfkey_test
+          BETTER_AUTH_SECRET: test-secret-key-at-least-32-characters-long-for-github-actions
+          BETTER_AUTH_URL: http://localhost:3000
+          NEXT_PUBLIC_APP_URL: http://localhost:3000
+          GOOGLE_CLIENT_ID: dummy-google-client-id
+          GOOGLE_CLIENT_SECRET: dummy-google-client-secret
+          STRIPE_SECRET_KEY: sk_test_dummy_secret_key
+          NEXT_PUBLIC_STRIPE_PUBLIC_KEY: pk_test_dummy_public_key
+          STRIPE_WEBHOOK_SECRET: whsec_dummy_webhook_secret
+          CLOUDINARY_CLOUD_NAME: dummy-cloud-name
+          CLOUDINARY_API_KEY: dummy-api-key
+          CLOUDINARY_API_SECRET: dummy-api-secret
+          RESEND_API_KEY: re_dummy_api_key
+          SENTRY_DSN: https://dummy@dummy.ingest.sentry.io/dummy
+          NEXT_PUBLIC_SENTRY_DSN: https://dummy@dummy.ingest.sentry.io/dummy
+          SENTRY_ENVIRONMENT: test
+          NEXT_PUBLIC_SENTRY_ENVIRONMENT: test
+          NODE_ENV: test
+
+      - name: Upload coverage report
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: coverage-report
+          path: coverage/
+          retention-days: 30
+
+  build:
+    name: Build
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: "pnpm"
+
+      - name: Install pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 8
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Generate Prisma Client
+        run: npx prisma generate
+        env:
+          DATABASE_URL: postgresql://dummy:dummy@localhost:5432/dummy
+
+      - name: TypeScript type check
+        run: npx tsc --noEmit
+        env:
+          # Variables d'environnement requises pour le type checking
+          DATABASE_URL: postgresql://dummy:dummy@localhost:5432/selfkey_build
+          BETTER_AUTH_SECRET: build-secret-key-at-least-32-characters-long-for-github-actions
+          BETTER_AUTH_URL: http://localhost:3000
+          NEXT_PUBLIC_APP_URL: http://localhost:3000
+          GOOGLE_CLIENT_ID: dummy-google-client-id
+          GOOGLE_CLIENT_SECRET: dummy-google-client-secret
+          STRIPE_SECRET_KEY: sk_test_dummy_secret_key
+          NEXT_PUBLIC_STRIPE_PUBLIC_KEY: pk_test_dummy_public_key
+          STRIPE_WEBHOOK_SECRET: whsec_dummy_webhook_secret
+          CLOUDINARY_CLOUD_NAME: dummy-cloud-name
+          CLOUDINARY_API_KEY: dummy-api-key
+          CLOUDINARY_API_SECRET: dummy-api-secret
+          RESEND_API_KEY: re_dummy_api_key
+          SENTRY_DSN: https://dummy@dummy.ingest.sentry.io/dummy
+          NEXT_PUBLIC_SENTRY_DSN: https://dummy@dummy.ingest.sentry.io/dummy
+          SENTRY_AUTH_TOKEN: dummy-sentry-auth-token
+          SENTRY_ORG: dummy-org
+          SENTRY_PROJECT: dummy-project
+          SENTRY_ENVIRONMENT: production
+          NEXT_PUBLIC_SENTRY_ENVIRONMENT: production
+          NEXT_PUBLIC_VERCEL_ANALYTICS_ID: dummy-analytics-id
+
+      - name: Build Next.js application
+        run: pnpm build
+        env:
+          # Variables d'environnement requises pour le build
+          DATABASE_URL: postgresql://dummy:dummy@localhost:5432/selfkey_build
+          BETTER_AUTH_SECRET: build-secret-key-at-least-32-characters-long-for-github-actions
+          BETTER_AUTH_URL: http://localhost:3000
+          NEXT_PUBLIC_APP_URL: http://localhost:3000
+          GOOGLE_CLIENT_ID: dummy-google-client-id
+          GOOGLE_CLIENT_SECRET: dummy-google-client-secret
+          STRIPE_SECRET_KEY: sk_test_dummy_secret_key
+          NEXT_PUBLIC_STRIPE_PUBLIC_KEY: pk_test_dummy_public_key
+          STRIPE_WEBHOOK_SECRET: whsec_dummy_webhook_secret
+          CLOUDINARY_CLOUD_NAME: dummy-cloud-name
+          CLOUDINARY_API_KEY: dummy-api-key
+          CLOUDINARY_API_SECRET: dummy-api-secret
+          RESEND_API_KEY: re_dummy_api_key
+          SENTRY_DSN: https://dummy@dummy.ingest.sentry.io/dummy
+          NEXT_PUBLIC_SENTRY_DSN: https://dummy@dummy.ingest.sentry.io/dummy
+          SENTRY_AUTH_TOKEN: dummy-sentry-auth-token
+          SENTRY_ORG: dummy-org
+          SENTRY_PROJECT: dummy-project
+          SENTRY_ENVIRONMENT: production
+          NEXT_PUBLIC_SENTRY_ENVIRONMENT: production
+          NEXT_PUBLIC_VERCEL_ANALYTICS_ID: dummy-analytics-id
+          # Désactiver la télémétrie Next.js en CI
+          NEXT_TELEMETRY_DISABLED: 1
+
+      - name: Upload build artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: next-build
+          path: .next/
+          retention-days: 7
+
+  lint:
+    name: Lint
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: "pnpm"
+
+      - name: Install pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 8
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Run ESLint
+        run: pnpm lint
+        continue-on-error: false
+
+  summary:
+    name: Summary
+    runs-on: ubuntu-latest
+    needs: [test, build, lint]
+    if: always()
+
+    steps:
+      - name: Check job statuses
+        run: |
+          echo "## 📊 Pipeline Results" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+
+          if [ "${{ needs.test.result }}" == "success" ]; then
+            echo "✅ Tests: Passed" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "❌ Tests: Failed" >> $GITHUB_STEP_SUMMARY
+          fi
+
+          if [ "${{ needs.build.result }}" == "success" ]; then
+            echo "✅ Build: Passed" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "❌ Build: Failed" >> $GITHUB_STEP_SUMMARY
+          fi
+
+          if [ "${{ needs.lint.result }}" == "success" ]; then
+            echo "✅ Lint: Passed" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "❌ Lint: Failed" >> $GITHUB_STEP_SUMMARY
+          fi
+
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "🚀 Pipeline completed for commit: \`${{ github.sha }}\`" >> $GITHUB_STEP_SUMMARY
+
+      - name: Fail if any job failed
+        if: needs.test.result != 'success' || needs.build.result != 'success' || needs.lint.result != 'success'
+        run: exit 1

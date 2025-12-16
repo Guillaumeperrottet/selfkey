@@ -1,7 +1,17 @@
-import { describe, it, expect } from "vitest";
+import { describe, it, expect, beforeEach, vi } from "vitest";
+import { mockPrisma } from "../../../tests/mocks/prisma";
+
+// Mock Prisma AVANT d'importer les fonctions
+vi.mock("@/lib/database/prisma", () => ({ prisma: mockPrisma }));
+
 import {
   calculateStayDuration,
   validateBookingDates,
+  checkRoomAvailability,
+  getAvailableRooms,
+  getCurrentDateTime,
+  isRoomCurrentlyAvailable,
+  getCurrentlyAvailableRooms,
 } from "@/lib/booking/availability";
 
 describe("Availability Utils", () => {
@@ -370,6 +380,447 @@ describe("Availability Utils", () => {
         expect(result.error).toContain("14");
         expect(result.error).toContain("jours");
       });
+    });
+  });
+
+  describe("checkRoomAvailability", () => {
+    beforeEach(() => {
+      vi.clearAllMocks();
+    });
+
+    it("retourne disponible quand il n'y a pas de conflit", async () => {
+      mockPrisma.booking.findMany.mockResolvedValue([]);
+
+      const checkIn = new Date("2025-07-10");
+      const checkOut = new Date("2025-07-15");
+
+      const result = await checkRoomAvailability("room-1", checkIn, checkOut);
+
+      expect(result.isAvailable).toBe(true);
+      expect(result.conflictingBookings).toBeUndefined();
+      expect(mockPrisma.booking.findMany).toHaveBeenCalledWith(
+        expect.objectContaining({
+          where: expect.objectContaining({
+            roomId: "room-1",
+            paymentStatus: "succeeded",
+          }),
+        })
+      );
+    });
+
+    it("détecte un conflit quand une réservation existe", async () => {
+      const existingBooking = {
+        id: "booking-1",
+        checkInDate: new Date("2025-07-12"),
+        checkOutDate: new Date("2025-07-14"),
+        clientFirstName: "Jean",
+        clientLastName: "Dupont",
+      };
+
+      mockPrisma.booking.findMany.mockResolvedValue([existingBooking]);
+
+      const checkIn = new Date("2025-07-10");
+      const checkOut = new Date("2025-07-15");
+
+      const result = await checkRoomAvailability("room-1", checkIn, checkOut);
+
+      expect(result.isAvailable).toBe(false);
+      expect(result.conflictingBookings).toHaveLength(1);
+      expect(result.conflictingBookings?.[0].clientFirstName).toBe("Jean");
+    });
+
+    it("exclut une réservation spécifique (mode édition)", async () => {
+      mockPrisma.booking.findMany.mockResolvedValue([]);
+
+      const checkIn = new Date("2025-07-10");
+      const checkOut = new Date("2025-07-15");
+
+      await checkRoomAvailability(
+        "room-1",
+        checkIn,
+        checkOut,
+        "booking-to-exclude"
+      );
+
+      expect(mockPrisma.booking.findMany).toHaveBeenCalledWith(
+        expect.objectContaining({
+          where: expect.objectContaining({
+            id: { not: "booking-to-exclude" },
+          }),
+        })
+      );
+    });
+
+    it("gère plusieurs conflits", async () => {
+      const conflicts = [
+        {
+          id: "booking-1",
+          checkInDate: new Date("2025-07-12"),
+          checkOutDate: new Date("2025-07-14"),
+          clientFirstName: "Jean",
+          clientLastName: "Dupont",
+        },
+        {
+          id: "booking-2",
+          checkInDate: new Date("2025-07-16"),
+          checkOutDate: new Date("2025-07-18"),
+          clientFirstName: "Marie",
+          clientLastName: "Martin",
+        },
+      ];
+
+      mockPrisma.booking.findMany.mockResolvedValue(conflicts);
+
+      const checkIn = new Date("2025-07-10");
+      const checkOut = new Date("2025-07-20");
+
+      const result = await checkRoomAvailability("room-1", checkIn, checkOut);
+
+      expect(result.isAvailable).toBe(false);
+      expect(result.conflictingBookings).toHaveLength(2);
+    });
+  });
+
+  describe("getAvailableRooms", () => {
+    beforeEach(() => {
+      vi.clearAllMocks();
+    });
+
+    it("retourne les chambres disponibles pour une période", async () => {
+      const mockRooms = [
+        { id: "room-1", name: "Chambre 1", price: 100, isActive: true },
+        { id: "room-2", name: "Chambre 2", price: 120, isActive: true },
+      ];
+
+      mockPrisma.establishment.findUnique.mockResolvedValue({
+        enableDogOption: false,
+      } as any);
+
+      mockPrisma.room.findMany.mockResolvedValue(mockRooms as any);
+      mockPrisma.booking.findMany.mockResolvedValue([]);
+
+      const checkIn = new Date("2025-07-10");
+      const checkOut = new Date("2025-07-15");
+
+      const result = await getAvailableRooms("test-hotel", checkIn, checkOut);
+
+      expect(result).toHaveLength(2);
+      expect(result[0].id).toBe("room-1");
+      expect(result[0].available).toBe(1);
+    });
+
+    it("filtre les chambres occupées", async () => {
+      const mockRooms = [
+        { id: "room-1", name: "Chambre 1", price: 100, isActive: true },
+        { id: "room-2", name: "Chambre 2", price: 120, isActive: true },
+      ];
+
+      mockPrisma.establishment.findUnique.mockResolvedValue({
+        enableDogOption: false,
+      } as any);
+
+      mockPrisma.room.findMany.mockResolvedValue(mockRooms as any);
+
+      // room-1 est occupée
+      mockPrisma.booking.findMany
+        .mockResolvedValueOnce([
+          {
+            id: "booking-1",
+            checkInDate: new Date("2025-07-12"),
+            checkOutDate: new Date("2025-07-14"),
+            clientFirstName: "Jean",
+            clientLastName: "Dupont",
+          },
+        ] as any)
+        .mockResolvedValueOnce([]); // room-2 est disponible
+
+      const checkIn = new Date("2025-07-10");
+      const checkOut = new Date("2025-07-15");
+
+      const result = await getAvailableRooms("test-hotel", checkIn, checkOut);
+
+      expect(result).toHaveLength(1);
+      expect(result[0].id).toBe("room-2");
+    });
+
+    it("filtre les chambres selon l'option chien (avec chien)", async () => {
+      const mockRooms = [
+        {
+          id: "room-1",
+          name: "Chambre avec chien",
+          price: 100,
+          isActive: true,
+          allowDogs: true,
+        },
+      ];
+
+      mockPrisma.establishment.findUnique.mockResolvedValue({
+        enableDogOption: true,
+      } as any);
+
+      mockPrisma.room.findMany.mockResolvedValue(mockRooms as any);
+      mockPrisma.booking.findMany.mockResolvedValue([]);
+
+      const checkIn = new Date("2025-07-10");
+      const checkOut = new Date("2025-07-15");
+
+      await getAvailableRooms("test-hotel", checkIn, checkOut, true);
+
+      expect(mockPrisma.room.findMany).toHaveBeenCalledWith(
+        expect.objectContaining({
+          where: expect.objectContaining({
+            allowDogs: true,
+          }),
+        })
+      );
+    });
+
+    it("filtre les chambres selon l'option chien (sans chien)", async () => {
+      mockPrisma.establishment.findUnique.mockResolvedValue({
+        enableDogOption: true,
+      } as any);
+
+      mockPrisma.room.findMany.mockResolvedValue([]);
+
+      const checkIn = new Date("2025-07-10");
+      const checkOut = new Date("2025-07-15");
+
+      await getAvailableRooms("test-hotel", checkIn, checkOut, false);
+
+      expect(mockPrisma.room.findMany).toHaveBeenCalledWith(
+        expect.objectContaining({
+          where: expect.objectContaining({
+            allowDogs: false,
+          }),
+        })
+      );
+    });
+
+    it("retourne un tableau vide si aucune chambre n'existe", async () => {
+      mockPrisma.establishment.findUnique.mockResolvedValue({
+        enableDogOption: false,
+      } as any);
+
+      mockPrisma.room.findMany.mockResolvedValue([]);
+
+      const checkIn = new Date("2025-07-10");
+      const checkOut = new Date("2025-07-15");
+
+      const result = await getAvailableRooms("test-hotel", checkIn, checkOut);
+
+      expect(result).toEqual([]);
+    });
+  });
+
+  describe("getCurrentDateTime", () => {
+    it("retourne la date et heure actuelle", () => {
+      const before = new Date();
+      const result = getCurrentDateTime();
+      const after = new Date();
+
+      expect(result.getTime()).toBeGreaterThanOrEqual(before.getTime());
+      expect(result.getTime()).toBeLessThanOrEqual(after.getTime());
+    });
+  });
+
+  describe("isRoomCurrentlyAvailable", () => {
+    beforeEach(() => {
+      vi.clearAllMocks();
+    });
+
+    it("retourne true si aucune réservation", async () => {
+      mockPrisma.establishment.findFirst.mockResolvedValue({
+        checkoutTime: "12:00",
+      } as any);
+
+      mockPrisma.booking.findMany.mockResolvedValue([]);
+
+      const result = await isRoomCurrentlyAvailable("room-1", "test-hotel");
+
+      expect(result).toBe(true);
+    });
+
+    it("retourne false si la chambre est occupée toute la journée", async () => {
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+
+      const tomorrow = new Date(today);
+      tomorrow.setDate(tomorrow.getDate() + 1);
+
+      mockPrisma.establishment.findFirst.mockResolvedValue({
+        checkoutTime: "12:00",
+      } as any);
+
+      mockPrisma.booking.findMany.mockResolvedValue([
+        {
+          id: "booking-1",
+          checkInDate: new Date(today.getTime() - 24 * 60 * 60 * 1000),
+          checkOutDate: new Date(tomorrow.getTime() + 24 * 60 * 60 * 1000),
+          paymentStatus: "succeeded",
+        },
+      ] as any);
+
+      const result = await isRoomCurrentlyAvailable("room-1", "test-hotel");
+
+      expect(result).toBe(false);
+    });
+
+    it("retourne false avant l'heure de checkout pour un départ aujourd'hui", async () => {
+      vi.useFakeTimers();
+      const today = new Date("2025-07-15T10:00:00"); // 10h du matin
+      vi.setSystemTime(today);
+
+      const todayMidnight = new Date(today);
+      todayMidnight.setHours(0, 0, 0, 0);
+
+      mockPrisma.establishment.findFirst.mockResolvedValue({
+        checkoutTime: "12:00", // Checkout à midi
+      } as any);
+
+      mockPrisma.booking.findMany.mockResolvedValue([
+        {
+          id: "booking-1",
+          checkInDate: new Date("2025-07-14"),
+          checkOutDate: todayMidnight, // Départ aujourd'hui
+          paymentStatus: "succeeded",
+        },
+      ] as any);
+
+      const result = await isRoomCurrentlyAvailable("room-1", "test-hotel");
+
+      expect(result).toBe(false); // Avant midi = occupé
+
+      vi.useRealTimers();
+    });
+
+    it("retourne false si une arrivée est prévue aujourd'hui", async () => {
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+
+      mockPrisma.establishment.findFirst.mockResolvedValue({
+        checkoutTime: "12:00",
+      } as any);
+
+      mockPrisma.booking.findMany.mockResolvedValue([
+        {
+          id: "booking-1",
+          checkInDate: today,
+          checkOutDate: new Date(today.getTime() + 2 * 24 * 60 * 60 * 1000),
+          paymentStatus: "succeeded",
+        },
+      ] as any);
+
+      const result = await isRoomCurrentlyAvailable("room-1", "test-hotel");
+
+      expect(result).toBe(false);
+    });
+
+    it("utilise l'heure de checkout par défaut si non configurée", async () => {
+      mockPrisma.establishment.findFirst.mockResolvedValue(null);
+      mockPrisma.booking.findMany.mockResolvedValue([]);
+
+      const result = await isRoomCurrentlyAvailable("room-1", "test-hotel");
+
+      expect(result).toBe(true);
+    });
+  });
+
+  describe("getCurrentlyAvailableRooms", () => {
+    beforeEach(() => {
+      vi.clearAllMocks();
+    });
+
+    it("retourne toutes les chambres avec leur disponibilité", async () => {
+      const mockRooms = [
+        {
+          id: "room-1",
+          name: "Chambre 1",
+          price: 100,
+          isActive: true,
+          hotelSlug: "test-hotel",
+        },
+        {
+          id: "room-2",
+          name: "Chambre 2",
+          price: 120,
+          isActive: true,
+          hotelSlug: "test-hotel",
+        },
+      ];
+
+      mockPrisma.room.findMany.mockResolvedValue(mockRooms as any);
+      mockPrisma.establishment.findFirst.mockResolvedValue({
+        checkoutTime: "12:00",
+      } as any);
+      mockPrisma.booking.findMany.mockResolvedValue([]);
+
+      const result = await getCurrentlyAvailableRooms("test-hotel");
+
+      expect(result).toHaveLength(2);
+      expect(result[0].available).toBe(true);
+      expect(result[1].available).toBe(true);
+    });
+
+    it("marque les chambres occupées comme non disponibles", async () => {
+      const mockRooms = [
+        {
+          id: "room-1",
+          name: "Chambre 1",
+          price: 100,
+          isActive: true,
+          hotelSlug: "test-hotel",
+        },
+      ];
+
+      mockPrisma.room.findMany.mockResolvedValue(mockRooms as any);
+      mockPrisma.establishment.findFirst.mockResolvedValue({
+        checkoutTime: "12:00",
+      } as any);
+
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+
+      mockPrisma.booking.findMany.mockResolvedValue([
+        {
+          id: "booking-1",
+          checkInDate: today,
+          checkOutDate: new Date(today.getTime() + 2 * 24 * 60 * 60 * 1000),
+          paymentStatus: "succeeded",
+        },
+      ] as any);
+
+      const result = await getCurrentlyAvailableRooms("test-hotel");
+
+      expect(result).toHaveLength(1);
+      expect(result[0].available).toBe(false);
+    });
+
+    it("filtre uniquement les chambres actives", async () => {
+      const mockRooms = [
+        {
+          id: "room-1",
+          name: "Chambre active",
+          price: 100,
+          isActive: true,
+          hotelSlug: "test-hotel",
+        },
+      ];
+
+      mockPrisma.room.findMany.mockResolvedValue(mockRooms as any);
+      mockPrisma.establishment.findFirst.mockResolvedValue({
+        checkoutTime: "12:00",
+      } as any);
+      mockPrisma.booking.findMany.mockResolvedValue([]);
+
+      await getCurrentlyAvailableRooms("test-hotel");
+
+      expect(mockPrisma.room.findMany).toHaveBeenCalledWith(
+        expect.objectContaining({
+          where: expect.objectContaining({
+            isActive: true,
+          }),
+        })
+      );
     });
   });
 });

@@ -1,5 +1,9 @@
 # SelfKey - Plateforme Digitale de Gestion Hôtelière et Touristique
 
+![Tests](https://github.com/Guillaumeperrottet/selfkey/actions/workflows/ci.yml/badge.svg)
+![Coverage](https://img.shields.io/badge/coverage-92%25-brightgreen)
+![Tests](https://img.shields.io/badge/tests-171%20passing-success)
+
 **Solution complète de réservation et de gestion des taxes de séjour pour simplifier l'administration touristique**
 
 ---
