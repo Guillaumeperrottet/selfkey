@@ -160,6 +160,8 @@ jobs:
           SENTRY_ENVIRONMENT: production
           NEXT_PUBLIC_SENTRY_ENVIRONMENT: production
           NEXT_PUBLIC_VERCEL_ANALYTICS_ID: dummy-analytics-id
+          # Désactiver Sentry upload en CI
+          SENTRY_DISABLE_AUTO_UPLOAD: true
 
       - name: Build Next.js application
         run: pnpm build
@@ -188,6 +190,8 @@ jobs:
           NEXT_PUBLIC_VERCEL_ANALYTICS_ID: dummy-analytics-id
           # Désactiver la télémétrie Next.js en CI
           NEXT_TELEMETRY_DISABLED: 1
+          # Désactiver Sentry upload en CI
+          SENTRY_DISABLE_AUTO_UPLOAD: true
 
       - name: Upload build artifacts
         uses: actions/upload-artifact@v4
