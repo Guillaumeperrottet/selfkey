@@ -51,6 +51,8 @@ jobs:
 
           # Stripe (test keys)
           STRIPE_SECRET_KEY: sk_test_dummy_secret_key
+          STRIPE_TEST_SECRET_KEY: sk_test_dummy_test_key
+          STRIPE_LIVE_SECRET_KEY: sk_live_dummy_live_key
           NEXT_PUBLIC_STRIPE_PUBLIC_KEY: pk_test_dummy_public_key
           STRIPE_WEBHOOK_SECRET: whsec_dummy_webhook_secret
 
@@ -88,6 +90,8 @@ jobs:
           GOOGLE_CLIENT_ID: dummy-google-client-id
           GOOGLE_CLIENT_SECRET: dummy-google-client-secret
           STRIPE_SECRET_KEY: sk_test_dummy_secret_key
+          STRIPE_TEST_SECRET_KEY: sk_test_dummy_test_key
+          STRIPE_LIVE_SECRET_KEY: sk_live_dummy_live_key
           NEXT_PUBLIC_STRIPE_PUBLIC_KEY: pk_test_dummy_public_key
           STRIPE_WEBHOOK_SECRET: whsec_dummy_webhook_secret
           CLOUDINARY_CLOUD_NAME: dummy-cloud-name
@@ -146,6 +150,8 @@ jobs:
           GOOGLE_CLIENT_ID: dummy-google-client-id
           GOOGLE_CLIENT_SECRET: dummy-google-client-secret
           STRIPE_SECRET_KEY: sk_test_dummy_secret_key
+          STRIPE_TEST_SECRET_KEY: sk_test_dummy_test_key
+          STRIPE_LIVE_SECRET_KEY: sk_live_dummy_live_key
           NEXT_PUBLIC_STRIPE_PUBLIC_KEY: pk_test_dummy_public_key
           STRIPE_WEBHOOK_SECRET: whsec_dummy_webhook_secret
           CLOUDINARY_CLOUD_NAME: dummy-cloud-name
@@ -174,6 +180,8 @@ jobs:
           GOOGLE_CLIENT_ID: dummy-google-client-id
           GOOGLE_CLIENT_SECRET: dummy-google-client-secret
           STRIPE_SECRET_KEY: sk_test_dummy_secret_key
+          STRIPE_TEST_SECRET_KEY: sk_test_dummy_test_key
+          STRIPE_LIVE_SECRET_KEY: sk_live_dummy_live_key
           NEXT_PUBLIC_STRIPE_PUBLIC_KEY: pk_test_dummy_public_key
           STRIPE_WEBHOOK_SECRET: whsec_dummy_webhook_secret
           CLOUDINARY_CLOUD_NAME: dummy-cloud-name

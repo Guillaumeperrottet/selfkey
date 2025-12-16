@@ -80,9 +80,13 @@ const sentryWebpackPluginOptions = {
 
   org: process.env.SENTRY_ORG,
   project: process.env.SENTRY_PROJECT,
+  authToken: process.env.SENTRY_AUTH_TOKEN,
 
   // Only print logs for uploading source maps in CI
   silent: !process.env.CI,
+
+  // Désactiver l'upload des source maps en CI si pas de token valide
+  disableLogger: process.env.CI === "true" || !process.env.SENTRY_AUTH_TOKEN,
 
   // For all available options, see:
   // https://docs.sentry.io/platforms/javascript/guides/nextjs/manual-setup/
@@ -105,8 +109,8 @@ const sentryWebpackPluginOptions = {
     treeshake: {
       removeDebugLogging: true,
     },
-    // Enables automatic instrumentation of Vercel Cron Monitors
-    automaticVercelMonitors: true,
+    // Désactiver automaticVercelMonitors en CI sans token Sentry valide
+    automaticVercelMonitors: process.env.CI !== "true",
   },
 };
 
