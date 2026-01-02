@@ -55,6 +55,10 @@ export function useFormConfig(hotelSlug: string) {
       "clientPostalCode",
       "clientCity",
       "clientCountry",
+      // Champs obligatoires pour l'identification
+      "clientBirthDate",
+      "clientIdNumber",
+      "clientVehicleNumber",
     ];
 
     // Vérifier d'abord si le champ est toujours obligatoire

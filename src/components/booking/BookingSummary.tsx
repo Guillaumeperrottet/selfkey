@@ -1103,14 +1103,14 @@ export function BookingSummary({ bookingId }: BookingSummaryProps) {
               {/* TVA incluse */}
               <div className="flex justify-start">
                 <span className="text-sm text-gray-500">
-                  (TVA 8.1%{" "}
+                  (TVA 3.8%{" "}
                   {(
                     ((booking.amount +
                       platformFees.total -
                       (touristTaxSettings.enabled
                         ? touristTaxSettings.total
                         : 0)) *
-                      8.1) /
+                      3.8) /
                     100
                   ).toFixed(2)}{" "}
                   {booking.currency} compris)

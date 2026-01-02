@@ -728,7 +728,7 @@ export function BookingsTable({ bookings, establishment }: BookingsTableProps) {
 
                 return `
               <div style="display: flex; justify-content: space-between; margin: 3px 0;">
-                <span style="color: #6b7280; font-size: 9px;">(TVA 8.1% ${tvaAmount.toFixed(2)} ${booking.currency || "CHF"} incluse)</span>
+                <span style="color: #6b7280; font-size: 9px;">(TVA 3.8% ${tvaAmount.toFixed(2)} ${booking.currency || "CHF"} incluse)</span>
               </div>
               `;
               })()}
