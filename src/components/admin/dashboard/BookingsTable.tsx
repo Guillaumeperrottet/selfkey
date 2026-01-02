@@ -718,10 +718,10 @@ export function BookingsTable({ bookings, establishment }: BookingsTableProps) {
                 <span style="font-weight: bold; color: #1e40af; font-size: 14px;">${booking.amount} ${booking.currency || "CHF"}</span>
               </div>
               ${(() => {
-                // Calcul de la TVA (8.1% sur le montant sans la taxe de séjour)
+                // Calcul de la TVA (3.8% sur le montant sans la taxe de séjour)
                 const totalWithoutTouristTax =
                   booking.amount - (booking.touristTaxTotal || 0);
-                const tvaRate = 0.081;
+                const tvaRate = 0.038;
                 const tvaAmount =
                   totalWithoutTouristTax -
                   totalWithoutTouristTax / (1 + tvaRate);

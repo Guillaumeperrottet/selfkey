@@ -455,15 +455,15 @@ export function InvoicePDF({ data }: InvoicePDFProps) {
           </View>
           <View style={styles.summaryRow}>
             <Text style={{ fontSize: 8, color: "#6b7280", marginTop: 5 }}>
-              (TVA 8.1%{" "}
+              (TVA 3.8%{" "}
               {formatCHF(
                 (() => {
-                  // Calcul de la TVA incluse (8.1% sur le montant sans taxe de séjour)
+                  // Calcul de la TVA incluse (3.8% sur le montant sans taxe de séjour)
                   const totalWithoutTouristTax =
                     data.finalAmount +
                     (data.platformFees?.totalFees || 0) -
                     data.touristTaxTotal;
-                  const tvaRate = 0.081;
+                  const tvaRate = 0.038;
                   return (
                     totalWithoutTouristTax -
                     totalWithoutTouristTax / (1 + tvaRate)
