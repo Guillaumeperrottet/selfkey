@@ -135,30 +135,23 @@ export async function POST(request: NextRequest, { params }: Params) {
     // Le contenu est déjà du HTML d'Unlayer, pas besoin de conversion
     const htmlContent = emailContent;
 
-    // Préparer les adresses en copie si activées
-    let bccAddresses: string[] = [];
-    if (
-      settings.enableEmailCopyOnConfirmation &&
-      settings.emailCopyAddresses &&
-      settings.emailCopyAddresses.length > 0
-    ) {
-      bccAddresses = settings.emailCopyAddresses;
-      console.log(
-        `📧 Email de test envoyé avec copie à ${bccAddresses.length} adresse(s): ${bccAddresses.join(", ")}`
-      );
-    }
+    // NOTE: Pour les emails de TEST, on n'envoie PAS de copie BCC
+    // pour éviter de spammer les adresses configurées pour les vraies réservations
+    console.log(
+      `📧 Email de TEST - Envoi uniquement à: ${testEmail} (pas de copie BCC)`
+    );
 
     // Préparer le sujet selon le type de template
     const templateTypeLabel =
       templateType === "withDogs" ? " - Avec chien" : "";
-    const emailSubject = `Confirmation de réservation - Test${templateTypeLabel} (${hotel})`;
+    const emailSubject = `[TEST] Confirmation de réservation${templateTypeLabel} (${hotel})`;
 
     // Envoyer l'email via Resend - HTML pur d'Unlayer sans wrapper
+    // IMPORTANT: Pas de BCC pour les tests !
     const emailResult = await sendEmail({
       to: testEmail,
       from: settings.confirmationEmailFrom,
       subject: emailSubject,
-      bcc: bccAddresses.length > 0 ? bccAddresses : undefined,
       html: htmlContent, // HTML pur généré par Unlayer
     });
 

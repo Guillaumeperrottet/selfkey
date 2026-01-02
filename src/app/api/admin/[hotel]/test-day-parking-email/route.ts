@@ -97,6 +97,11 @@ export async function POST(request: NextRequest, { params }: Props) {
       .replace(/\n/g, "<br>")
       .replace(/\t/g, "&nbsp;&nbsp;&nbsp;&nbsp;");
 
+    // NOTE: Pour les emails de TEST, on n'envoie PAS de copie BCC
+    console.log(
+      `📧 Email de TEST parking jour - Envoi uniquement à: ${testEmail}`
+    );
+
     // Envoyer l'email via Resend - HTML pur d'Unlayer sans wrapper
     const emailResult = await sendEmail({
       to: testEmail,
