@@ -3,7 +3,6 @@
 import { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Calendar as CalendarComponent } from "@/components/ui/calendar";
@@ -96,6 +95,7 @@ export function DateSelector({
   const [hasDog, setHasDog] = useState(initialHasDog || false);
   const [loading, setLoading] = useState(false);
   const [isCalendarOpen, setIsCalendarOpen] = useState(false);
+  const [isCheckInCalendarOpen, setIsCheckInCalendarOpen] = useState(false);
 
   // États pour les options de prix
   const [pricingOptions, setPricingOptions] = useState<PricingOption[]>([]);
@@ -457,39 +457,116 @@ export function DateSelector({
             >
               {t.dates.checkIn}
             </Label>
-            <Input
-              id="checkIn"
-              type="date"
-              value={checkInDate}
-              onChange={(e) => handleCheckInChange(e.target.value)}
-              disabled={!establishment.allowFutureBookings}
-              className={`mt-1 h-12 text-base ${
-                !establishment.allowFutureBookings
-                  ? "bg-gray-50 cursor-not-allowed opacity-60"
-                  : ""
-              }`}
-              title={t.dates.selectCheckIn}
-              min={
-                establishment.bookingWindowStartDate
-                  ? new Date(establishment.bookingWindowStartDate)
-                      .toISOString()
-                      .split("T")[0]
-                  : today
-              }
-              max={
-                establishment.bookingWindowEndDate
-                  ? new Date(establishment.bookingWindowEndDate)
-                      .toISOString()
-                      .split("T")[0]
-                  : establishment.allowFutureBookings
-                    ? new Date(
-                        new Date().setFullYear(new Date().getFullYear() + 1)
-                      )
-                        .toISOString()
-                        .split("T")[0]
-                    : undefined
-              }
-            />
+            <Popover
+              open={isCheckInCalendarOpen}
+              onOpenChange={setIsCheckInCalendarOpen}
+            >
+              <PopoverTrigger asChild>
+                <Button
+                  variant="outline"
+                  className={`w-full justify-start text-left font-normal h-12 text-base mt-1 ${
+                    !establishment.allowFutureBookings
+                      ? "bg-gray-50 cursor-not-allowed opacity-60"
+                      : ""
+                  }`}
+                  disabled={!establishment.allowFutureBookings}
+                >
+                  <CalendarIcon className="mr-2 h-4 w-4" />
+                  {format(new Date(checkInDate), "EEEE dd MMMM yyyy", {
+                    locale: dateLocale,
+                  })}
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent className="w-auto p-0" align="start">
+                <CalendarComponent
+                  mode="single"
+                  selected={new Date(checkInDate)}
+                  onSelect={(date) => {
+                    if (date) {
+                      const year = date.getFullYear();
+                      const month = String(date.getMonth() + 1).padStart(
+                        2,
+                        "0"
+                      );
+                      const day = String(date.getDate()).padStart(2, "0");
+                      const newDate = `${year}-${month}-${day}`;
+                      handleCheckInChange(newDate);
+                      setIsCheckInCalendarOpen(false);
+                    }
+                  }}
+                  disabled={(date) => {
+                    const year = date.getFullYear();
+                    const month = String(date.getMonth() + 1).padStart(2, "0");
+                    const day = String(date.getDate()).padStart(2, "0");
+                    const dateStr = `${year}-${month}-${day}`;
+
+                    // Désactiver les dates dans le passé
+                    if (dateStr < today) return true;
+
+                    // Vérifier la période de réservation si définie
+                    if (
+                      establishment.bookingWindowStartDate &&
+                      establishment.bookingWindowEndDate
+                    ) {
+                      const windowStart = new Date(
+                        establishment.bookingWindowStartDate
+                      );
+                      const windowEnd = new Date(
+                        establishment.bookingWindowEndDate
+                      );
+                      windowStart.setHours(0, 0, 0, 0);
+                      windowEnd.setHours(23, 59, 59, 999);
+
+                      const checkDate = new Date(dateStr + "T00:00:00");
+
+                      // Désactiver les dates hors de la période
+                      if (checkDate < windowStart || checkDate > windowEnd) {
+                        return true;
+                      }
+                    }
+
+                    // Vérifier les restrictions futures
+                    if (establishment.allowFutureBookings) {
+                      const maxFutureDate = new Date();
+                      maxFutureDate.setFullYear(
+                        maxFutureDate.getFullYear() + 1
+                      );
+                      const futureYear = maxFutureDate.getFullYear();
+                      const futureMonth = String(
+                        maxFutureDate.getMonth() + 1
+                      ).padStart(2, "0");
+                      const futureDay = String(
+                        maxFutureDate.getDate()
+                      ).padStart(2, "0");
+                      const maxFutureDateStr = `${futureYear}-${futureMonth}-${futureDay}`;
+                      if (dateStr > maxFutureDateStr) return true;
+                    } else {
+                      // Si pas de réservations futures et pas de période définie, limiter à quelques mois
+                      if (
+                        !establishment.bookingWindowStartDate &&
+                        !establishment.bookingWindowEndDate
+                      ) {
+                        const maxDate = new Date();
+                        maxDate.setMonth(maxDate.getMonth() + 6);
+                        const limitYear = maxDate.getFullYear();
+                        const limitMonth = String(
+                          maxDate.getMonth() + 1
+                        ).padStart(2, "0");
+                        const limitDay = String(maxDate.getDate()).padStart(
+                          2,
+                          "0"
+                        );
+                        const maxDateStr = `${limitYear}-${limitMonth}-${limitDay}`;
+                        if (dateStr > maxDateStr) return true;
+                      }
+                    }
+
+                    return false;
+                  }}
+                  initialFocus
+                />
+              </PopoverContent>
+            </Popover>
           </div>
           <div>
             <Label
@@ -556,8 +633,10 @@ export function DateSelector({
 
                       const checkDate = new Date(dateStr + "T00:00:00");
 
-                      // Désactiver les dates hors de la période
-                      if (checkDate > windowEnd) return true;
+                      // Désactiver les dates hors de la période (avant le début OU après la fin)
+                      if (checkDate < windowStart || checkDate > windowEnd) {
+                        return true;
+                      }
                     }
 
                     // Calculer la date minimum (lendemain du check-in)
