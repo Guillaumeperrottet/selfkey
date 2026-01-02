@@ -120,17 +120,18 @@ const DEFAULT_FORM_FIELDS: FormField[] = [
   {
     id: "clientIdNumber",
     label: "N° de permis ou carte d'identité / ID or License Number",
-    required: false,
+    required: true,
     enabled: true,
-    description: "Numéro d'identification officiel / Official ID number",
+    description:
+      "Numéro d'identification officiel (obligatoire) / Official ID number (required)",
   },
   {
     id: "clientVehicleNumber",
     label: "N° d'immatriculation du véhicule / License Plate",
-    required: false,
+    required: true,
     enabled: true,
     description:
-      "Plaque d'immatriculation pour le parking / License plate for parking",
+      "Plaque d'immatriculation (obligatoire) / License plate (required)",
   },
 ];
 
