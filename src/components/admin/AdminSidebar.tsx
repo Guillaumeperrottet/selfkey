@@ -25,6 +25,7 @@ import {
   MapPin,
   Euro,
   Receipt,
+  Calendar,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
@@ -77,6 +78,12 @@ const baseNavigation = [
     id: "bookings",
     name: "Réservations",
     icon: Users,
+    group: "bookings",
+  },
+  {
+    id: "planning",
+    name: "Planning",
+    icon: Calendar,
     group: "bookings",
   },
 

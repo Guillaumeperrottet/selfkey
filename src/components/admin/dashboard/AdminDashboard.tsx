@@ -20,6 +20,7 @@ import { DashboardCharts } from "@/components/admin/dashboard/DashboardCharts";
 import { DashboardPublicAccess } from "@/components/admin/dashboard/DashboardPublicAccess";
 import { ChartColorSelector } from "@/components/shared/ChartColorSelector";
 import { TouristTaxDashboard } from "@/components/admin/dashboard/TouristTaxDashboard";
+import { BookingCalendar } from "@/components/admin/dashboard/BookingCalendar";
 import ExcelExportManager from "@/components/admin/settings/ExcelExportManager";
 import { StatsConfigDialog } from "@/components/admin/dashboard/StatsConfigDialog";
 import { DashboardLayoutEditor } from "@/components/admin/dashboard/DashboardLayoutEditor";
@@ -319,6 +320,14 @@ export function AdminDashboard({
       title: "Réservations",
       content:
         "Visualisez toutes vos réservations : passées, actuelles et futures. Gérez les arrivées, départs et suivez l'historique complet.",
+      position: "right" as const,
+      offset: { x: 20, y: 0 },
+    },
+    {
+      target: '[data-tutorial="nav-planning"]',
+      title: "Planning",
+      content:
+        "Vue calendrier mensuel de toutes vos réservations. Visualisez l'occupation, survolez les réservations pour voir les détails, et imprimez le planning.",
       position: "right" as const,
       offset: { x: 20, y: 0 },
     },
@@ -1048,6 +1057,18 @@ export function AdminDashboard({
           <div className="max-w-6xl mx-auto">
             <TouristTaxDashboard bookings={allBookings} />
           </div>
+        );
+
+      case "planning":
+        return (
+          <BookingCalendar
+            bookings={allBookings}
+            rooms={dbRooms.map((room) => ({
+              ...room,
+              price:
+                roomsWithInventory.find((r) => r.id === room.id)?.price || 0,
+            }))}
+          />
         );
 
       case "settings":
