@@ -126,6 +126,9 @@ pg_dump "$PROD_URL" \
   --no-privileges \
   --column-inserts \
   --exclude-table=_prisma_migrations \
+  --exclude-table=session \
+  --exclude-table=api_logs \
+  --exclude-table=webhook_logs \
   > "$BACKUP_FILE"
 
 BACKUP_SIZE=$(du -h "$BACKUP_FILE" | cut -f1)
