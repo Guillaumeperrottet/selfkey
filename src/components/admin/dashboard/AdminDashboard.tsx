@@ -20,7 +20,7 @@ import { DashboardCharts } from "@/components/admin/dashboard/DashboardCharts";
 import { DashboardPublicAccess } from "@/components/admin/dashboard/DashboardPublicAccess";
 import { ChartColorSelector } from "@/components/shared/ChartColorSelector";
 import { TouristTaxDashboard } from "@/components/admin/dashboard/TouristTaxDashboard";
-import { BookingCalendar } from "@/components/admin/dashboard/BookingCalendar";
+import { BookingPlanning } from "@/components/admin/dashboard/BookingPlanning";
 import ExcelExportManager from "@/components/admin/settings/ExcelExportManager";
 import { StatsConfigDialog } from "@/components/admin/dashboard/StatsConfigDialog";
 import { DashboardLayoutEditor } from "@/components/admin/dashboard/DashboardLayoutEditor";
@@ -1061,7 +1061,7 @@ export function AdminDashboard({
 
       case "planning":
         return (
-          <BookingCalendar
+          <BookingPlanning
             bookings={allBookings}
             rooms={dbRooms.map((room) => ({
               ...room,

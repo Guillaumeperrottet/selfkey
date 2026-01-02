@@ -1,7 +1,7 @@
 "use client";
 
 import { useMemo, useState, useCallback } from "react";
-import { Calendar, dateFnsLocalizer, Event, View } from "react-big-calendar";
+import { Calendar, dateFnsLocalizer, Event } from "react-big-calendar";
 import { format, parse, startOfWeek, getDay } from "date-fns";
 import { fr } from "date-fns/locale";
 import "react-big-calendar/lib/css/react-big-calendar.css";
@@ -13,13 +13,6 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import {
   Calendar as CalendarIcon,
   Printer,
@@ -83,26 +76,28 @@ interface CalendarEvent extends Event {
 }
 
 export function BookingCalendar({ bookings, rooms }: BookingCalendarProps) {
-  const [view, setView] = useState<View>("month");
   const [date, setDate] = useState(new Date());
-  const [selectedRoom, setSelectedRoom] = useState<string>("all");
 
-  // Filtrer les réservations par chambre
-  const filteredBookings = useMemo(() => {
-    if (selectedRoom === "all") return bookings;
-    return bookings.filter((booking) => booking.room?.name === selectedRoom);
-  }, [bookings, selectedRoom]);
+  // Préparer les ressources (chambres) pour le calendrier
+  const resources = useMemo(() => {
+    return rooms
+      .filter((room) => room.isActive)
+      .map((room) => ({
+        id: room.name,
+        title: room.name,
+      }));
+  }, [rooms]);
 
   // Transformer les réservations en événements pour le calendrier
   const events: CalendarEvent[] = useMemo(() => {
-    return filteredBookings.map((booking) => ({
-      title: `${booking.room?.name || "N/A"} - ${booking.clientFirstName} ${booking.clientLastName}`,
+    return bookings.map((booking) => ({
+      title: `${booking.clientFirstName} ${booking.clientLastName}`,
       start: new Date(booking.checkInDate),
       end: new Date(booking.checkOutDate),
       booking: booking,
       resourceId: booking.room?.name,
     }));
-  }, [filteredBookings]);
+  }, [bookings]);
 
   // Composant personnalisé pour l'affichage d'un événement
   const EventComponent = useCallback(({ event }: { event: CalendarEvent }) => {
@@ -117,9 +112,7 @@ export function BookingCalendar({ bookings, rooms }: BookingCalendarProps) {
       <TooltipProvider>
         <Tooltip delayDuration={100}>
           <TooltipTrigger asChild>
-            <div className="text-xs truncate px-1 cursor-pointer">
-              <strong>{booking.room?.name || "N/A"}</strong>
-              <br />
+            <div className="text-xs px-1 cursor-pointer h-full flex items-center font-medium">
               {booking.clientFirstName} {booking.clientLastName}
             </div>
           </TooltipTrigger>
@@ -180,13 +173,13 @@ export function BookingCalendar({ bookings, rooms }: BookingCalendarProps) {
     window.print();
   };
 
-  // Navigation mois précédent/suivant
+  // Navigation semaine précédente/suivante (par jour pour la vue ressource)
   const handleNavigate = (action: "PREV" | "NEXT" | "TODAY") => {
     const newDate = new Date(date);
     if (action === "PREV") {
-      newDate.setMonth(newDate.getMonth() - 1);
+      newDate.setDate(newDate.getDate() - 7); // Reculer de 7 jours
     } else if (action === "NEXT") {
-      newDate.setMonth(newDate.getMonth() + 1);
+      newDate.setDate(newDate.getDate() + 7); // Avancer de 7 jours
     } else {
       return new Date();
     }
@@ -246,21 +239,6 @@ export function BookingCalendar({ bookings, rooms }: BookingCalendarProps) {
               >
                 <ChevronRight className="h-4 w-4" />
               </Button>
-              <Select value={selectedRoom} onValueChange={setSelectedRoom}>
-                <SelectTrigger className="w-[200px]">
-                  <SelectValue placeholder="Toutes les chambres" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">Toutes les chambres</SelectItem>
-                  {rooms
-                    .filter((room) => room.isActive)
-                    .map((room) => (
-                      <SelectItem key={room.id} value={room.name}>
-                        {room.name}
-                      </SelectItem>
-                    ))}
-                </SelectContent>
-              </Select>
               <Button
                 variant="default"
                 size="sm"
@@ -282,11 +260,14 @@ export function BookingCalendar({ bookings, rooms }: BookingCalendarProps) {
             <Calendar
               localizer={localizer}
               events={events}
+              resources={resources}
+              resourceIdAccessor="id"
+              resourceTitleAccessor="title"
               startAccessor="start"
               endAccessor="end"
               style={{ height: 700 }}
-              view={view}
-              onView={setView}
+              view="day"
+              views={["day"]}
               date={date}
               onNavigate={setDate}
               messages={messages}
@@ -294,9 +275,14 @@ export function BookingCalendar({ bookings, rooms }: BookingCalendarProps) {
               components={{
                 event: EventComponent,
               }}
-              popup
               selectable={false}
               className="booking-calendar"
+              min={new Date(1970, 1, 1, 0, 0, 0)}
+              max={new Date(1970, 1, 1, 23, 59, 59)}
+              formats={{
+                dayHeaderFormat: (date: Date) =>
+                  format(date, "EEEE dd MMMM yyyy", { locale: fr }),
+              }}
             />
           </div>
         </CardContent>
@@ -310,16 +296,15 @@ export function BookingCalendar({ bookings, rooms }: BookingCalendarProps) {
         <CardContent>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm text-gray-600">
             <div>
-              <strong>Total réservations affichées:</strong>{" "}
-              {filteredBookings.length}
+              <strong>Total réservations:</strong> {bookings.length}
             </div>
             <div>
-              <strong>Chambres actives:</strong>{" "}
+              <strong>Places actives:</strong>{" "}
               {rooms.filter((r) => r.isActive).length}
             </div>
             <div>
-              <strong>Période:</strong>{" "}
-              {format(date, "MMMM yyyy", { locale: fr })}
+              <strong>Période affichée:</strong>{" "}
+              {format(date, "'Semaine du' dd MMMM yyyy", { locale: fr })}
             </div>
           </div>
         </CardContent>
@@ -471,6 +456,71 @@ export function BookingCalendar({ bookings, rooms }: BookingCalendarProps) {
           background-color: #6366f1;
           color: white;
           border-color: #6366f1;
+        }
+
+        /* Styles pour la vue avec ressources (places à gauche) */
+        .booking-calendar .rbc-time-view {
+          border: 1px solid #e5e7eb;
+          border-radius: 8px;
+          overflow: hidden;
+        }
+
+        .booking-calendar .rbc-time-header-content {
+          border-left: 1px solid #e5e7eb;
+        }
+
+        .booking-calendar .rbc-time-content {
+          border-top: 1px solid #e5e7eb;
+        }
+
+        .booking-calendar .rbc-day-slot {
+          min-height: 60px;
+        }
+
+        .booking-calendar .rbc-time-slot {
+          display: none; /* Masquer les heures pour un planning jour/nuit */
+        }
+
+        .booking-calendar .rbc-label {
+          display: none; /* Masquer les labels d'heures */
+        }
+
+        .booking-calendar .rbc-allday-cell {
+          display: none; /* Masquer la section "all day" */
+        }
+
+        .booking-calendar .rbc-time-header {
+          background-color: #f9fafb;
+        }
+
+        .booking-calendar .rbc-resource-header {
+          padding: 10px;
+          font-weight: 600;
+          background-color: #f9fafb;
+          border-right: 1px solid #e5e7eb;
+          border-bottom: 2px solid #e5e7eb;
+          text-align: left;
+          min-width: 120px;
+        }
+
+        .booking-calendar .rbc-time-gutter {
+          display: none; /* Masquer la colonne des heures */
+        }
+
+        .booking-calendar .rbc-events-container {
+          margin: 0;
+        }
+
+        .booking-calendar .rbc-event {
+          border: 1px solid #4f46e5;
+        }
+
+        .booking-calendar .rbc-event-label {
+          display: none;
+        }
+
+        .booking-calendar .rbc-event-content {
+          padding: 4px;
         }
       `}</style>
     </div>
