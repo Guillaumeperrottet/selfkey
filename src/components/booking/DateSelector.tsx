@@ -481,6 +481,11 @@ export function DateSelector({
                 <CalendarComponent
                   mode="single"
                   selected={new Date(checkInDate)}
+                  defaultMonth={
+                    establishment.bookingWindowStartDate
+                      ? new Date(establishment.bookingWindowStartDate)
+                      : new Date(checkInDate)
+                  }
                   onSelect={(date) => {
                     if (date) {
                       const year = date.getFullYear();
@@ -596,6 +601,11 @@ export function DateSelector({
                 <CalendarComponent
                   mode="single"
                   selected={checkOutDate ? new Date(checkOutDate) : undefined}
+                  defaultMonth={
+                    establishment.bookingWindowStartDate
+                      ? new Date(establishment.bookingWindowStartDate)
+                      : new Date(checkInDate)
+                  }
                   onSelect={(date) => {
                     if (date) {
                       // Utiliser une méthode qui évite les problèmes de fuseau horaire
