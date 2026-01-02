@@ -110,13 +110,39 @@ export function BookingPlanning({ bookings, rooms }: BookingPlanningProps) {
     );
   };
 
-  // Fonction pour vérifier si c'est le premier jour d'une réservation
+  // Fonction pour vérifier si c'est le premier jour d'une réservation dans la vue actuelle
   const isFirstDayOfBooking = (booking: Booking, day: Date): boolean => {
     const checkIn = new Date(booking.checkInDate);
     checkIn.setHours(0, 0, 0, 0);
     const currentDay = new Date(day);
     currentDay.setHours(0, 0, 0, 0);
-    return isSameDay(checkIn, currentDay);
+
+    // Premier jour de la réservation OU premier jour de la vue si la réservation a commencé avant
+    return (
+      isSameDay(checkIn, currentDay) ||
+      (checkIn < days[0] && isSameDay(currentDay, days[0]))
+    );
+  };
+
+  // Fonction pour calculer combien de jours consécutifs afficher pour une réservation
+  const getBookingSpan = (booking: Booking, startDay: Date): number => {
+    const checkOut = new Date(booking.checkOutDate);
+    checkOut.setHours(0, 0, 0, 0);
+
+    let span = 0;
+    let currentDay = new Date(startDay);
+
+    for (let i = days.indexOf(startDay); i < days.length; i++) {
+      currentDay = new Date(days[i]);
+      currentDay.setHours(0, 0, 0, 0);
+
+      if (currentDay >= checkOut) break;
+      if (!isBookingActiveOnDay(booking, currentDay)) break;
+
+      span++;
+    }
+
+    return span;
   };
 
   // Navigation
@@ -299,94 +325,125 @@ export function BookingPlanning({ bookings, rooms }: BookingPlanningProps) {
                 </tr>
               </thead>
               <tbody>
-                {activeRooms.map((room) => (
-                  <tr key={room.id}>
-                    <td className="sticky left-0 z-10 bg-gray-50 border border-gray-300 p-2 font-medium">
-                      {room.name}
-                    </td>
-                    {days.map((day, dayIndex) => {
-                      const booking = getBookingForRoomAndDay(room.name, day);
-                      const isToday = isSameDay(day, new Date());
-                      const isFirstDay = booking
-                        ? isFirstDayOfBooking(booking, day)
-                        : false;
+                {activeRooms.map((room) => {
+                  // Pour chaque chambre, on génère les cellules en tenant compte des réservations continues
+                  const renderedDays = new Set<number>();
 
-                      return (
-                        <td
-                          key={dayIndex}
-                          className={`border border-gray-300 p-1 ${
-                            isToday ? "bg-yellow-50" : "bg-white"
-                          }`}
-                        >
-                          {booking ? (
-                            <TooltipProvider>
-                              <Tooltip delayDuration={100}>
-                                <TooltipTrigger asChild>
-                                  <div
-                                    className={`h-8 rounded px-2 py-1 text-xs font-medium text-white cursor-pointer flex items-center justify-center ${
-                                      isFirstDay
-                                        ? "bg-indigo-600"
-                                        : "bg-indigo-500"
-                                    }`}
+                  return (
+                    <tr key={room.id}>
+                      <td className="sticky left-0 z-10 bg-gray-50 border border-gray-300 p-2 font-medium">
+                        {room.name}
+                      </td>
+                      {days.map((day, dayIndex) => {
+                        // Si ce jour a déjà été rendu (faisant partie d'une réservation avec colspan), on le saute
+                        if (renderedDays.has(dayIndex)) {
+                          return null;
+                        }
+
+                        const booking = getBookingForRoomAndDay(room.name, day);
+                        const isToday = isSameDay(day, new Date());
+
+                        if (!booking) {
+                          // Pas de réservation : cellule vide normale
+                          return (
+                            <td
+                              key={dayIndex}
+                              className={`border border-gray-300 p-1 ${
+                                isToday ? "bg-yellow-50" : "bg-white"
+                              }`}
+                            />
+                          );
+                        }
+
+                        // Il y a une réservation : vérifier si c'est le début
+                        const isFirstDay = isFirstDayOfBooking(booking, day);
+
+                        if (isFirstDay) {
+                          // Calculer le colspan (nombre de jours consécutifs)
+                          const span = getBookingSpan(booking, day);
+
+                          // Marquer les jours suivants comme déjà rendus
+                          for (let i = 1; i < span; i++) {
+                            renderedDays.add(dayIndex + i);
+                          }
+
+                          return (
+                            <td
+                              key={dayIndex}
+                              colSpan={span}
+                              className={`border border-gray-300 p-0 relative ${
+                                isToday ? "bg-yellow-50" : "bg-white"
+                              }`}
+                            >
+                              <TooltipProvider>
+                                <Tooltip delayDuration={100}>
+                                  <TooltipTrigger asChild>
+                                    <div className="h-8 rounded bg-indigo-600 px-2 py-1 text-xs font-medium text-white cursor-pointer flex items-center justify-center w-full">
+                                      {`${booking.clientFirstName} ${booking.clientLastName[0]}.`}
+                                    </div>
+                                  </TooltipTrigger>
+                                  <TooltipContent
+                                    side="top"
+                                    className="max-w-xs"
                                   >
-                                    {isFirstDay &&
-                                      `${booking.clientFirstName} ${booking.clientLastName[0]}.`}
-                                  </div>
-                                </TooltipTrigger>
-                                <TooltipContent side="top" className="max-w-xs">
-                                  <div className="space-y-1 text-sm">
-                                    <div className="font-semibold border-b pb-1">
-                                      Réservation #{booking.bookingNumber}
-                                    </div>
-                                    <div>
-                                      <strong>Client:</strong>{" "}
-                                      {booking.clientFirstName}{" "}
-                                      {booking.clientLastName}
-                                    </div>
-                                    <div>
-                                      <strong>Email:</strong>{" "}
-                                      {booking.clientEmail}
-                                    </div>
-                                    {booking.clientPhone && (
-                                      <div>
-                                        <strong>Tél:</strong>{" "}
-                                        {booking.clientPhone}
+                                    <div className="space-y-1 text-sm">
+                                      <div className="font-semibold border-b pb-1">
+                                        Réservation #{booking.bookingNumber}
                                       </div>
-                                    )}
-                                    <div>
-                                      <strong>Arrivée:</strong>{" "}
-                                      {format(
-                                        new Date(booking.checkInDate),
-                                        "dd/MM/yyyy",
-                                        { locale: fr }
+                                      <div>
+                                        <strong>Client:</strong>{" "}
+                                        {booking.clientFirstName}{" "}
+                                        {booking.clientLastName}
+                                      </div>
+                                      <div>
+                                        <strong>Email:</strong>{" "}
+                                        {booking.clientEmail}
+                                      </div>
+                                      {booking.clientPhone && (
+                                        <div>
+                                          <strong>Tél:</strong>{" "}
+                                          {booking.clientPhone}
+                                        </div>
                                       )}
+                                      <div>
+                                        <strong>Arrivée:</strong>{" "}
+                                        {format(
+                                          new Date(booking.checkInDate),
+                                          "dd/MM/yyyy",
+                                          { locale: fr }
+                                        )}
+                                      </div>
+                                      <div>
+                                        <strong>Départ:</strong>{" "}
+                                        {format(
+                                          new Date(booking.checkOutDate),
+                                          "dd/MM/yyyy",
+                                          { locale: fr }
+                                        )}
+                                      </div>
+                                      <div>
+                                        <strong>Personnes:</strong>{" "}
+                                        {booking.guests}
+                                      </div>
+                                      <div>
+                                        <strong>Montant:</strong>{" "}
+                                        {booking.amount.toFixed(2)} CHF
+                                      </div>
                                     </div>
-                                    <div>
-                                      <strong>Départ:</strong>{" "}
-                                      {format(
-                                        new Date(booking.checkOutDate),
-                                        "dd/MM/yyyy",
-                                        { locale: fr }
-                                      )}
-                                    </div>
-                                    <div>
-                                      <strong>Personnes:</strong>{" "}
-                                      {booking.guests}
-                                    </div>
-                                    <div>
-                                      <strong>Montant:</strong>{" "}
-                                      {booking.amount.toFixed(2)} CHF
-                                    </div>
-                                  </div>
-                                </TooltipContent>
-                              </Tooltip>
-                            </TooltipProvider>
-                          ) : null}
-                        </td>
-                      );
-                    })}
-                  </tr>
-                ))}
+                                  </TooltipContent>
+                                </Tooltip>
+                              </TooltipProvider>
+                            </td>
+                          );
+                        }
+
+                        // Si on arrive ici, c'est une cellule qui fait partie d'une réservation
+                        // mais qui n'est pas le premier jour. Elle sera sautée grâce à renderedDays.
+                        return null;
+                      })}
+                    </tr>
+                  );
+                })}
               </tbody>
             </table>
           </div>
