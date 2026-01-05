@@ -24,7 +24,6 @@ import {
 import {
   format,
   addDays,
-  startOfWeek,
   isSameDay,
   addMonths,
   startOfMonth,
@@ -32,6 +31,7 @@ import {
   getYear,
   setMonth,
   setYear,
+  getDaysInMonth,
 } from "date-fns";
 import { fr } from "date-fns/locale";
 import {
@@ -41,6 +41,11 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
 
 interface Booking {
   id: string;
@@ -74,14 +79,14 @@ interface BookingPlanningProps {
 }
 
 export function BookingPlanning({ bookings, rooms }: BookingPlanningProps) {
-  const [startDate, setStartDate] = useState(() =>
-    startOfWeek(new Date(), { weekStartsOn: 1 })
-  );
+  const [currentDate, setCurrentDate] = useState(() => new Date());
 
-  // Générer 14 jours à partir de startDate
+  // Générer tous les jours du mois courant
   const days = useMemo(() => {
-    return Array.from({ length: 14 }, (_, i) => addDays(startDate, i));
-  }, [startDate]);
+    const start = startOfMonth(currentDate);
+    const daysInMonth = getDaysInMonth(currentDate);
+    return Array.from({ length: daysInMonth }, (_, i) => addDays(start, i));
+  }, [currentDate]);
 
   // Fonction pour vérifier si une réservation est active un jour donné
   const isBookingActiveOnDay = (booking: Booking, day: Date): boolean => {
@@ -146,44 +151,16 @@ export function BookingPlanning({ bookings, rooms }: BookingPlanningProps) {
   };
 
   // Navigation
-  const handlePrevious = () => {
-    setStartDate((prev) => addDays(prev, -7));
-  };
-
-  const handleNext = () => {
-    setStartDate((prev) => addDays(prev, 7));
-  };
-
   const handlePreviousMonth = () => {
-    setStartDate((prev) => {
-      const newDate = addMonths(prev, -1);
-      return startOfWeek(startOfMonth(newDate), { weekStartsOn: 1 });
-    });
+    setCurrentDate((prev) => addMonths(prev, -1));
   };
 
   const handleNextMonth = () => {
-    setStartDate((prev) => {
-      const newDate = addMonths(prev, 1);
-      return startOfWeek(startOfMonth(newDate), { weekStartsOn: 1 });
-    });
+    setCurrentDate((prev) => addMonths(prev, 1));
   };
 
   const handleToday = () => {
-    setStartDate(startOfWeek(new Date(), { weekStartsOn: 1 }));
-  };
-
-  const handleMonthChange = (month: number) => {
-    setStartDate((prev) => {
-      const newDate = setMonth(prev, month);
-      return startOfWeek(startOfMonth(newDate), { weekStartsOn: 1 });
-    });
-  };
-
-  const handleYearChange = (year: number) => {
-    setStartDate((prev) => {
-      const newDate = setYear(prev, year);
-      return startOfWeek(startOfMonth(newDate), { weekStartsOn: 1 });
-    });
+    setCurrentDate(new Date());
   };
 
   const handlePrint = () => {
@@ -204,87 +181,119 @@ export function BookingPlanning({ bookings, rooms }: BookingPlanningProps) {
                 Planning des réservations
               </CardTitle>
               <CardDescription>
-                Vue planning sur 2 semaines - Places à gauche, dates en haut
+                Vue mensuelle complète -{" "}
+                {format(currentDate, "MMMM yyyy", { locale: fr })}
               </CardDescription>
             </div>
-            <div className="flex items-center gap-2 flex-wrap">
-              {/* Navigation par mois */}
-              <div className="flex items-center gap-1 border-r pr-2">
+            <div className="flex items-center gap-3">
+              {/* Navigation style Google Calendar */}
+              <div className="flex items-center gap-1">
                 <Button
                   variant="outline"
                   size="sm"
                   onClick={handlePreviousMonth}
-                  title="Mois précédent"
+                  className="h-9 w-9 p-0"
                 >
                   <ChevronLeft className="h-4 w-4" />
-                  <ChevronLeft className="h-4 w-4 -ml-2" />
                 </Button>
-                <Button variant="outline" size="sm" onClick={handlePrevious}>
-                  <ChevronLeft className="h-4 w-4" />
+
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={handleToday}
+                  className="h-9 px-3 font-medium"
+                >
+                  Aujourd&apos;hui
                 </Button>
-              </div>
 
-              {/* Sélecteurs Mois/Année */}
-              <Select
-                value={getMonth(startDate).toString()}
-                onValueChange={(value) => handleMonthChange(parseInt(value))}
-              >
-                <SelectTrigger className="w-[130px] h-8">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  {Array.from({ length: 12 }, (_, i) => (
-                    <SelectItem key={i} value={i.toString()}>
-                      {format(new Date(2000, i, 1), "MMMM", { locale: fr })}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-
-              <Select
-                value={getYear(startDate).toString()}
-                onValueChange={(value) => handleYearChange(parseInt(value))}
-              >
-                <SelectTrigger className="w-[100px] h-8">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  {Array.from({ length: 5 }, (_, i) => {
-                    const year = new Date().getFullYear() - 1 + i;
-                    return (
-                      <SelectItem key={year} value={year.toString()}>
-                        {year}
-                      </SelectItem>
-                    );
-                  })}
-                </SelectContent>
-              </Select>
-
-              {/* Navigation par semaine */}
-              <div className="flex items-center gap-1 border-l pl-2">
-                <Button variant="outline" size="sm" onClick={handleNext}>
-                  <ChevronRight className="h-4 w-4" />
-                </Button>
                 <Button
                   variant="outline"
                   size="sm"
                   onClick={handleNextMonth}
-                  title="Mois suivant"
+                  className="h-9 w-9 p-0"
                 >
                   <ChevronRight className="h-4 w-4" />
-                  <ChevronRight className="h-4 w-4 -ml-2" />
                 </Button>
               </div>
 
-              <Button variant="outline" size="sm" onClick={handleToday}>
-                Aujourd&apos;hui
-              </Button>
+              <div className="h-6 w-px bg-gray-300" />
+
+              {/* Affichage du mois et année - Cliquable pour sélection rapide */}
+              <Popover>
+                <PopoverTrigger asChild>
+                  <Button
+                    variant="ghost"
+                    className="text-xl font-semibold text-gray-900 hover:bg-gray-100 h-auto px-4 py-2"
+                  >
+                    {format(currentDate, "MMMM yyyy", { locale: fr })}
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent className="w-auto p-4" align="center">
+                  <div className="space-y-4">
+                    <div>
+                      <label className="text-sm font-medium mb-2 block">
+                        Mois
+                      </label>
+                      <Select
+                        value={getMonth(currentDate).toString()}
+                        onValueChange={(value) => {
+                          setCurrentDate((prev) =>
+                            setMonth(prev, parseInt(value))
+                          );
+                        }}
+                      >
+                        <SelectTrigger className="w-[180px]">
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {Array.from({ length: 12 }, (_, i) => (
+                            <SelectItem key={i} value={i.toString()}>
+                              {format(new Date(2000, i, 1), "MMMM", {
+                                locale: fr,
+                              })}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    <div>
+                      <label className="text-sm font-medium mb-2 block">
+                        Année
+                      </label>
+                      <Select
+                        value={getYear(currentDate).toString()}
+                        onValueChange={(value) => {
+                          setCurrentDate((prev) =>
+                            setYear(prev, parseInt(value))
+                          );
+                        }}
+                      >
+                        <SelectTrigger className="w-[180px]">
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {Array.from({ length: 10 }, (_, i) => {
+                            const year = new Date().getFullYear() - 2 + i;
+                            return (
+                              <SelectItem key={year} value={year.toString()}>
+                                {year}
+                              </SelectItem>
+                            );
+                          })}
+                        </SelectContent>
+                      </Select>
+                    </div>
+                  </div>
+                </PopoverContent>
+              </Popover>
+
+              <div className="h-6 w-px bg-gray-300" />
 
               <Button
                 variant="default"
                 size="sm"
                 onClick={handlePrint}
-                className="flex items-center gap-2"
+                className="flex items-center gap-2 h-9"
               >
                 <Printer className="h-4 w-4" />
                 Imprimer
@@ -301,7 +310,7 @@ export function BookingPlanning({ bookings, rooms }: BookingPlanningProps) {
             <table className="planning-table w-full border-collapse">
               <thead>
                 <tr>
-                  <th className="sticky left-0 z-20 bg-gray-50 border border-gray-300 p-2 min-w-[120px] font-semibold">
+                  <th className="sticky left-0 z-20 bg-gray-50 border border-gray-300 p-1 w-20 min-w-20 max-w-20 font-semibold text-xs">
                     Places
                   </th>
                   {days.map((day, index) => {
@@ -309,15 +318,17 @@ export function BookingPlanning({ bookings, rooms }: BookingPlanningProps) {
                     return (
                       <th
                         key={index}
-                        className={`border border-gray-300 p-2 min-w-[80px] text-xs font-medium ${
+                        className={`border border-gray-300 p-1.5 min-w-[65px] text-xs font-medium ${
                           isToday ? "bg-yellow-100" : "bg-gray-50"
                         }`}
                       >
                         <div className="text-center">
-                          <div className="font-semibold">
+                          <div className="font-semibold text-xs">
                             {format(day, "EEE", { locale: fr })}
                           </div>
-                          <div>{format(day, "dd/MM", { locale: fr })}</div>
+                          <div className="text-xs">
+                            {format(day, "dd/MM", { locale: fr })}
+                          </div>
                         </div>
                       </th>
                     );
@@ -331,8 +342,19 @@ export function BookingPlanning({ bookings, rooms }: BookingPlanningProps) {
 
                   return (
                     <tr key={room.id}>
-                      <td className="sticky left-0 z-10 bg-gray-50 border border-gray-300 p-2 font-medium">
-                        {room.name}
+                      <td className="sticky left-0 z-10 bg-gray-50 border border-gray-300 p-2 w-20 min-w-20 max-w-20 font-medium text-xs h-10">
+                        <TooltipProvider>
+                          <Tooltip delayDuration={300}>
+                            <TooltipTrigger asChild>
+                              <div className="truncate cursor-default">
+                                {room.name}
+                              </div>
+                            </TooltipTrigger>
+                            <TooltipContent side="right">
+                              <p>{room.name}</p>
+                            </TooltipContent>
+                          </Tooltip>
+                        </TooltipProvider>
                       </td>
                       {days.map((day, dayIndex) => {
                         // Si ce jour a déjà été rendu (faisant partie d'une réservation avec colspan), on le saute
@@ -348,7 +370,7 @@ export function BookingPlanning({ bookings, rooms }: BookingPlanningProps) {
                           return (
                             <td
                               key={dayIndex}
-                              className={`border border-gray-300 p-1 ${
+                              className={`border border-gray-300 p-2 h-10 ${
                                 isToday ? "bg-yellow-50" : "bg-white"
                               }`}
                             />
@@ -371,7 +393,7 @@ export function BookingPlanning({ bookings, rooms }: BookingPlanningProps) {
                             <td
                               key={dayIndex}
                               colSpan={span}
-                              className={`border border-gray-300 p-0 relative ${
+                              className={`border border-gray-300 p-1 relative h-10 ${
                                 isToday ? "bg-yellow-50" : "bg-white"
                               }`}
                             >
@@ -446,28 +468,6 @@ export function BookingPlanning({ bookings, rooms }: BookingPlanningProps) {
                 })}
               </tbody>
             </table>
-          </div>
-        </CardContent>
-      </Card>
-
-      {/* Infos */}
-      <Card className="no-print">
-        <CardHeader>
-          <CardTitle className="text-sm">Informations</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm text-gray-600">
-            <div>
-              <strong>Total réservations:</strong> {bookings.length}
-            </div>
-            <div>
-              <strong>Places actives:</strong> {activeRooms.length}
-            </div>
-            <div>
-              <strong>Période:</strong>{" "}
-              {format(days[0], "dd MMM", { locale: fr })} -{" "}
-              {format(days[days.length - 1], "dd MMM yyyy", { locale: fr })}
-            </div>
           </div>
         </CardContent>
       </Card>
