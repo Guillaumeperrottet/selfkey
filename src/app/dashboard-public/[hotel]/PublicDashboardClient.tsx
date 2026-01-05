@@ -21,6 +21,15 @@ import {
   Filter,
   LayoutGrid,
   Sliders,
+  TrendingUp,
+  TrendingDown,
+  Minus,
+  Maximize,
+  DollarSign,
+  Moon,
+  Trophy,
+  ArrowRight,
+  ArrowLeft,
 } from "lucide-react";
 import { StatsConfigDialog } from "@/components/admin/dashboard/StatsConfigDialog";
 import { DashboardLayoutEditor } from "@/components/admin/dashboard/DashboardLayoutEditor";
@@ -78,6 +87,15 @@ export function PublicDashboardClient({
   rooms,
   bookings,
 }: PublicDashboardClientProps) {
+  // États pour le rafraîchissement automatique
+  const [liveBookings, setLiveBookings] = useState(bookings);
+  const [liveRooms, setLiveRooms] = useState(rooms);
+  const [lastUpdate, setLastUpdate] = useState(new Date());
+  const [isRefreshing, setIsRefreshing] = useState(false);
+  const [timeAgo, setTimeAgo] = useState("");
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const [isFullscreen, setIsFullscreen] = useState(false);
+
   // Initialiser le filtre depuis localStorage ou utiliser "all" par défaut
   const [periodFilter, setPeriodFilter] = useState<
     "today" | "week" | "month" | "quarter" | "year" | "all"
@@ -93,6 +111,77 @@ export function PublicDashboardClient({
     }
     return "all";
   });
+
+  // Fonction pour rafraîchir les données
+  const refreshData = useCallback(async () => {
+    if (isRefreshing) return;
+
+    setIsRefreshing(true);
+    try {
+      const token = new URLSearchParams(window.location.search).get("token");
+      const response = await fetch(
+        `/api/dashboard-public/${establishment.slug}?token=${encodeURIComponent(token || "")}`
+      );
+
+      if (response.ok) {
+        const data = await response.json();
+        setLiveBookings(data.bookings);
+        setLiveRooms(data.rooms);
+        setLastUpdate(new Date());
+      }
+    } catch (error) {
+      console.error("Erreur lors du rafraîchissement:", error);
+    } finally {
+      setIsRefreshing(false);
+    }
+  }, [establishment.slug, isRefreshing]);
+
+  // Rafraîchissement automatique toutes les 30 secondes
+  useEffect(() => {
+    const interval = setInterval(() => {
+      refreshData();
+    }, 30000); // 30 secondes
+
+    return () => clearInterval(interval);
+  }, [refreshData]);
+
+  // Mettre à jour le temps écoulé chaque seconde
+  useEffect(() => {
+    const updateTimeAgo = () => {
+      const seconds = Math.floor(
+        (new Date().getTime() - lastUpdate.getTime()) / 1000
+      );
+      if (seconds < 10) setTimeAgo("à l'instant");
+      else if (seconds < 60) setTimeAgo(`il y a ${seconds}s`);
+      else if (seconds < 3600)
+        setTimeAgo(`il y a ${Math.floor(seconds / 60)}min`);
+      else setTimeAgo(`il y a ${Math.floor(seconds / 3600)}h`);
+    };
+
+    updateTimeAgo();
+    const interval = setInterval(updateTimeAgo, 1000);
+    return () => clearInterval(interval);
+  }, [lastUpdate]);
+
+  // Gestion du mode plein écran
+  const toggleFullscreen = () => {
+    if (!document.fullscreenElement) {
+      document.documentElement.requestFullscreen();
+      setIsFullscreen(true);
+    } else {
+      document.exitFullscreen();
+      setIsFullscreen(false);
+    }
+  };
+
+  useEffect(() => {
+    const handleFullscreenChange = () => {
+      setIsFullscreen(!!document.fullscreenElement);
+    };
+    document.addEventListener("fullscreenchange", handleFullscreenChange);
+    return () =>
+      document.removeEventListener("fullscreenchange", handleFullscreenChange);
+  }, []);
 
   // Sauvegarder le filtre dans localStorage quand il change
   useEffect(() => {
@@ -187,79 +276,88 @@ export function PublicDashboardClient({
   };
 
   // Fonction pour obtenir la plage de dates selon la période
-  const getDateRange = (
-    period: "today" | "week" | "month" | "quarter" | "year" | "all"
-  ) => {
-    const now = new Date();
-    const startOfDay = new Date(now);
-    startOfDay.setHours(0, 0, 0, 0);
-    const endOfDay = new Date(now);
-    endOfDay.setHours(23, 59, 59, 999);
+  const getDateRange = useCallback(
+    (period: "today" | "week" | "month" | "quarter" | "year" | "all") => {
+      const now = new Date();
+      const startOfDay = new Date(now);
+      startOfDay.setHours(0, 0, 0, 0);
+      const endOfDay = new Date(now);
+      endOfDay.setHours(23, 59, 59, 999);
 
-    switch (period) {
-      case "today":
-        return { start: startOfDay, end: endOfDay };
-      case "week":
-        const startOfWeek = new Date(now);
-        const dayOfWeek = now.getDay();
-        const diff = dayOfWeek === 0 ? -6 : 1 - dayOfWeek; // Si dimanche, reculer de 6 jours
-        startOfWeek.setDate(now.getDate() + diff); // Lundi de la semaine en cours
-        startOfWeek.setHours(0, 0, 0, 0);
-        const endOfWeek = new Date(startOfWeek);
-        endOfWeek.setDate(startOfWeek.getDate() + 6); // Dimanche de la semaine en cours
-        endOfWeek.setHours(23, 59, 59, 999);
-        return { start: startOfWeek, end: endOfWeek };
-      case "month":
-        const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
-        const endOfMonth = new Date(
-          now.getFullYear(),
-          now.getMonth() + 1,
-          0,
-          23,
-          59,
-          59,
-          999
-        );
-        return { start: startOfMonth, end: endOfMonth };
-      case "quarter":
-        const currentQuarter = Math.floor(now.getMonth() / 3);
-        const startOfQuarter = new Date(
-          now.getFullYear(),
-          currentQuarter * 3,
-          1
-        );
-        const endOfQuarter = new Date(
-          now.getFullYear(),
-          currentQuarter * 3 + 3,
-          0,
-          23,
-          59,
-          59,
-          999
-        );
-        return { start: startOfQuarter, end: endOfQuarter };
-      case "year":
-        const startOfYear = new Date(now.getFullYear(), 0, 1);
-        const endOfYear = new Date(now.getFullYear(), 11, 31, 23, 59, 59, 999);
-        return { start: startOfYear, end: endOfYear };
-      case "all":
-        return { start: new Date(2020, 0, 1), end: now };
-      default:
-        return { start: startOfDay, end: endOfDay };
-    }
-  };
+      switch (period) {
+        case "today":
+          return { start: startOfDay, end: endOfDay };
+        case "week":
+          const startOfWeek = new Date(now);
+          const dayOfWeek = now.getDay();
+          const diff = dayOfWeek === 0 ? -6 : 1 - dayOfWeek; // Si dimanche, reculer de 6 jours
+          startOfWeek.setDate(now.getDate() + diff); // Lundi de la semaine en cours
+          startOfWeek.setHours(0, 0, 0, 0);
+          const endOfWeek = new Date(startOfWeek);
+          endOfWeek.setDate(startOfWeek.getDate() + 6); // Dimanche de la semaine en cours
+          endOfWeek.setHours(23, 59, 59, 999);
+          return { start: startOfWeek, end: endOfWeek };
+        case "month":
+          const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+          const endOfMonth = new Date(
+            now.getFullYear(),
+            now.getMonth() + 1,
+            0,
+            23,
+            59,
+            59,
+            999
+          );
+          return { start: startOfMonth, end: endOfMonth };
+        case "quarter":
+          const currentQuarter = Math.floor(now.getMonth() / 3);
+          const startOfQuarter = new Date(
+            now.getFullYear(),
+            currentQuarter * 3,
+            1
+          );
+          const endOfQuarter = new Date(
+            now.getFullYear(),
+            currentQuarter * 3 + 3,
+            0,
+            23,
+            59,
+            59,
+            999
+          );
+          return { start: startOfQuarter, end: endOfQuarter };
+        case "year":
+          const startOfYear = new Date(now.getFullYear(), 0, 1);
+          const endOfYear = new Date(
+            now.getFullYear(),
+            11,
+            31,
+            23,
+            59,
+            59,
+            999
+          );
+          return { start: startOfYear, end: endOfYear };
+        case "all":
+          return { start: new Date(2020, 0, 1), end: now };
+        default:
+          return { start: startOfDay, end: endOfDay };
+      }
+    },
+    []
+  );
 
   // Filtrer les réservations selon la période
   const filteredBookings = useMemo(() => {
     const { start, end } = getDateRange(periodFilter);
-    return bookings.filter((booking) => {
+    return liveBookings.filter((booking) => {
       const bookingDate = new Date(booking.bookingDate);
       return bookingDate >= start && bookingDate <= end;
     });
-  }, [bookings, periodFilter]);
+  }, [liveBookings, periodFilter, getDateRange]);
 
   // Transformer les données pour correspondre au format attendu par DashboardCharts
-  const roomsWithInventory = rooms.map((room) => ({
+  const roomsWithInventory = liveRooms.map((room) => ({
     ...room,
     inventory: 1, // Inventaire par défaut pour la compatibilité
   }));
@@ -283,14 +381,105 @@ export function PublicDashboardClient({
     [filteredBookings]
   );
 
+  // Calculer les statistiques de la période précédente
+  const getPreviousPeriodBookings = useMemo(() => {
+    if (periodFilter === "all") return [];
+
+    const { start, end } = getDateRange(periodFilter);
+    const duration = end.getTime() - start.getTime();
+    const prevStart = new Date(start.getTime() - duration);
+    const prevEnd = new Date(start.getTime() - 1);
+
+    return liveBookings.filter((booking) => {
+      const bookingDate = new Date(booking.bookingDate);
+      return bookingDate >= prevStart && bookingDate <= prevEnd;
+    });
+  }, [liveBookings, periodFilter, getDateRange]);
+
   // Calculer les statistiques de base sur les réservations filtrées
-  const totalRooms = rooms.length;
-  const activeRooms = rooms.filter((room) => room.isActive).length;
+  const totalRooms = liveRooms.length;
   const totalBookings = filteredBookings.length;
   const totalRevenue = filteredBookings.reduce(
     (sum, booking) => sum + booking.amount,
     0
   );
+
+  // Statistiques période précédente
+  const prevTotalBookings = getPreviousPeriodBookings.length;
+  const prevTotalRevenue = getPreviousPeriodBookings.reduce(
+    (sum, booking) => sum + booking.amount,
+    0
+  );
+
+  // Calcul des tendances
+  const bookingsTrend =
+    prevTotalBookings > 0
+      ? ((totalBookings - prevTotalBookings) / prevTotalBookings) * 100
+      : totalBookings > 0
+        ? 100
+        : 0;
+  const revenueTrend =
+    prevTotalRevenue > 0
+      ? ((totalRevenue - prevTotalRevenue) / prevTotalRevenue) * 100
+      : totalRevenue > 0
+        ? 100
+        : 0;
+
+  // Nouveaux KPIs
+  const averagePrice = totalBookings > 0 ? totalRevenue / totalBookings : 0;
+  const averageStay = useMemo(() => {
+    if (filteredBookings.length === 0) return 0;
+    const totalNights = filteredBookings.reduce((sum, booking) => {
+      const checkIn = new Date(booking.checkInDate);
+      const checkOut = new Date(booking.checkOutDate);
+      const nights = Math.ceil(
+        (checkOut.getTime() - checkIn.getTime()) / (1000 * 60 * 60 * 24)
+      );
+      return sum + nights;
+    }, 0);
+    return totalNights / filteredBookings.length;
+  }, [filteredBookings]);
+
+  // Top performer (chambre la plus réservée)
+  const topRoom = useMemo(() => {
+    const roomCounts = filteredBookings.reduce(
+      (acc, booking) => {
+        if (booking.room) {
+          acc[booking.room.name] = (acc[booking.room.name] || 0) + 1;
+        }
+        return acc;
+      },
+      {} as Record<string, number>
+    );
+
+    const entries = Object.entries(roomCounts);
+    if (entries.length === 0) return null;
+
+    const [name, count] = entries.reduce((max, curr) =>
+      curr[1] > max[1] ? curr : max
+    );
+    return { name, count };
+  }, [filteredBookings]);
+
+  // Prochaines arrivées (7 prochains jours)
+  const upcomingArrivals = useMemo(() => {
+    const now = new Date();
+    const sevenDaysLater = new Date(now.getTime() + 7 * 24 * 60 * 60 * 1000);
+    return liveBookings.filter((booking) => {
+      const checkIn = new Date(booking.checkInDate);
+      return checkIn >= now && checkIn <= sevenDaysLater;
+    }).length;
+  }, [liveBookings]);
+
+  // Prochains départs (7 prochains jours)
+  const upcomingDepartures = useMemo(() => {
+    const now = new Date();
+    const sevenDaysLater = new Date(now.getTime() + 7 * 24 * 60 * 60 * 1000);
+    return liveBookings.filter((booking) => {
+      const checkOut = new Date(booking.checkOutDate);
+      return checkOut >= now && checkOut <= sevenDaysLater;
+    }).length;
+  }, [liveBookings]);
 
   // Calculer le taux d'occupation en fonction de la période
   const getDaysInPeriod = () => {
@@ -309,8 +498,8 @@ export function PublicDashboardClient({
   // Calculer toutes les statistiques avec le hook
   const computedStats = useDashboardStats(
     filteredBookings,
-    bookings,
-    rooms,
+    liveBookings,
+    liveRooms,
     establishment,
     periodFilter,
     getDateRange
@@ -333,14 +522,46 @@ export function PublicDashboardClient({
                 Statistiques et performances
               </p>
             </div>
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-2 flex-wrap">
               <Badge
                 variant="outline"
                 className="flex items-center gap-2 text-sm px-3 py-1"
               >
-                <Calendar className="h-4 w-4" />
-                Mis à jour en temps réel
+                <div className="flex items-center gap-2">
+                  <div
+                    className={`w-2 h-2 rounded-full ${
+                      isRefreshing
+                        ? "bg-blue-500 animate-pulse"
+                        : "bg-green-500"
+                    }`}
+                  />
+                  <Calendar className="h-4 w-4" />
+                  <span className="hidden sm:inline">
+                    Mise à jour auto (30s)
+                  </span>
+                  <span className="text-xs text-muted-foreground">
+                    • {timeAgo}
+                  </span>
+                </div>
               </Badge>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={refreshData}
+                disabled={isRefreshing}
+                className="text-xs"
+              >
+                {isRefreshing ? "Actualisation..." : "Actualiser"}
+              </Button>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={toggleFullscreen}
+                className="text-xs hidden lg:flex"
+                title="Mode plein écran"
+              >
+                <Maximize className="h-4 w-4" />
+              </Button>
             </div>
           </div>
         </div>
@@ -438,23 +659,9 @@ export function PublicDashboardClient({
         />
 
         {/* Statistiques rapides */}
-        <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 mb-8">
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">
-                Places totales
-              </CardTitle>
-              <Building className="h-4 w-4 text-muted-foreground" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">{totalRooms}</div>
-              <p className="text-xs text-muted-foreground">
-                {activeRooms} actives
-              </p>
-            </CardContent>
-          </Card>
-
-          <Card>
+        <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-6 mb-8">
+          {/* Réservations avec tendance */}
+          <Card className="lg:col-span-2">
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <CardTitle className="text-sm font-medium">
                 Réservations
@@ -463,7 +670,39 @@ export function PublicDashboardClient({
             </CardHeader>
             <CardContent>
               <div className="text-2xl font-bold">{totalBookings}</div>
-              <p className="text-xs text-muted-foreground">
+              {periodFilter !== "all" && (
+                <div className="flex items-center gap-2 mt-2">
+                  {bookingsTrend > 0 ? (
+                    <Badge
+                      variant="outline"
+                      className="bg-green-50 text-green-700 border-green-200"
+                    >
+                      <TrendingUp className="h-3 w-3 mr-1" />+
+                      {bookingsTrend.toFixed(1)}%
+                    </Badge>
+                  ) : bookingsTrend < 0 ? (
+                    <Badge
+                      variant="outline"
+                      className="bg-red-50 text-red-700 border-red-200"
+                    >
+                      <TrendingDown className="h-3 w-3 mr-1" />
+                      {bookingsTrend.toFixed(1)}%
+                    </Badge>
+                  ) : (
+                    <Badge
+                      variant="outline"
+                      className="bg-gray-50 text-gray-700"
+                    >
+                      <Minus className="h-3 w-3 mr-1" />
+                      0%
+                    </Badge>
+                  )}
+                  <span className="text-xs text-muted-foreground">
+                    vs période précédente
+                  </span>
+                </div>
+              )}
+              <p className="text-xs text-muted-foreground mt-1">
                 {periodFilter === "today"
                   ? "Aujourd'hui"
                   : periodFilter === "week"
@@ -479,34 +718,55 @@ export function PublicDashboardClient({
             </CardContent>
           </Card>
 
-          <Card>
+          {/* Revenus avec tendance */}
+          <Card className="lg:col-span-2 bg-gradient-to-br from-green-50 to-emerald-50">
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">
+              <CardTitle className="text-sm font-medium text-green-900">
                 Revenus nets
               </CardTitle>
-              <BarChart3 className="h-4 w-4 text-muted-foreground" />
+              <DollarSign className="h-4 w-4 text-green-600" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">
+              <div className="text-2xl font-bold text-green-900">
                 {totalRevenue.toFixed(2)} CHF
               </div>
-              <p className="text-xs text-muted-foreground">
-                {periodFilter === "today"
-                  ? "Aujourd'hui"
-                  : periodFilter === "week"
-                    ? "Cette semaine"
-                    : periodFilter === "month"
-                      ? "Ce mois"
-                      : periodFilter === "quarter"
-                        ? "Ce trimestre"
-                        : periodFilter === "year"
-                          ? "Cette année"
-                          : "Depuis le début"}
-              </p>
+              {periodFilter !== "all" && (
+                <div className="flex items-center gap-2 mt-2">
+                  {revenueTrend > 0 ? (
+                    <Badge
+                      variant="outline"
+                      className="bg-green-100 text-green-800 border-green-300"
+                    >
+                      <TrendingUp className="h-3 w-3 mr-1" />+
+                      {revenueTrend.toFixed(1)}%
+                    </Badge>
+                  ) : revenueTrend < 0 ? (
+                    <Badge
+                      variant="outline"
+                      className="bg-red-50 text-red-700 border-red-200"
+                    >
+                      <TrendingDown className="h-3 w-3 mr-1" />
+                      {revenueTrend.toFixed(1)}%
+                    </Badge>
+                  ) : (
+                    <Badge
+                      variant="outline"
+                      className="bg-gray-50 text-gray-700"
+                    >
+                      <Minus className="h-3 w-3 mr-1" />
+                      0%
+                    </Badge>
+                  )}
+                  <span className="text-xs text-muted-foreground">
+                    vs période précédente
+                  </span>
+                </div>
+              )}
             </CardContent>
           </Card>
 
-          <Card>
+          {/* Taux d'occupation avec indicateur coloré */}
+          <Card className="lg:col-span-2">
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <CardTitle className="text-sm font-medium">
                 Taux d&apos;occupation
@@ -515,18 +775,102 @@ export function PublicDashboardClient({
             </CardHeader>
             <CardContent>
               <div className="text-2xl font-bold">{occupancyRate}%</div>
+              <div className="mt-2">
+                {occupancyRate >= 80 ? (
+                  <Badge className="bg-green-100 text-green-800 border-green-300">
+                    🔥 Excellent
+                  </Badge>
+                ) : occupancyRate >= 60 ? (
+                  <Badge className="bg-blue-100 text-blue-800 border-blue-300">
+                    ✓ Très bon
+                  </Badge>
+                ) : occupancyRate >= 40 ? (
+                  <Badge className="bg-yellow-100 text-yellow-800 border-yellow-300">
+                    → Correct
+                  </Badge>
+                ) : (
+                  <Badge className="bg-orange-100 text-orange-800 border-orange-300">
+                    ⚠️ À améliorer
+                  </Badge>
+                )}
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+
+        {/* Nouveaux KPIs */}
+        <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 mb-8">
+          <Card>
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium">Prix moyen</CardTitle>
+              <DollarSign className="h-4 w-4 text-muted-foreground" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold">
+                {averagePrice.toFixed(0)} CHF
+              </div>
+              <p className="text-xs text-muted-foreground">Par réservation</p>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium">
+                Durée moyenne
+              </CardTitle>
+              <Moon className="h-4 w-4 text-muted-foreground" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold">
+                {averageStay.toFixed(1)} nuits
+              </div>
+              <p className="text-xs text-muted-foreground">Par séjour</p>
+            </CardContent>
+          </Card>
+
+          {topRoom && (
+            <Card>
+              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                <CardTitle className="text-sm font-medium">
+                  Top performer
+                </CardTitle>
+                <Trophy className="h-4 w-4 text-yellow-500" />
+              </CardHeader>
+              <CardContent>
+                <div className="text-lg font-bold truncate">{topRoom.name}</div>
+                <p className="text-xs text-muted-foreground">
+                  {topRoom.count} réservations
+                </p>
+              </CardContent>
+            </Card>
+          )}
+
+          <Card>
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium">
+                Arrivées (7j)
+              </CardTitle>
+              <ArrowRight className="h-4 w-4 text-blue-500" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold">{upcomingArrivals}</div>
               <p className="text-xs text-muted-foreground">
-                {periodFilter === "today"
-                  ? "Aujourd'hui"
-                  : periodFilter === "week"
-                    ? "Cette semaine"
-                    : periodFilter === "month"
-                      ? "Ce mois"
-                      : periodFilter === "quarter"
-                        ? "Ce trimestre"
-                        : periodFilter === "year"
-                          ? "Cette année"
-                          : "Depuis le début"}
+                Prochains check-ins
+              </p>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium">
+                Départs (7j)
+              </CardTitle>
+              <ArrowLeft className="h-4 w-4 text-orange-500" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold">{upcomingDepartures}</div>
+              <p className="text-xs text-muted-foreground">
+                Prochains check-outs
               </p>
             </CardContent>
           </Card>
