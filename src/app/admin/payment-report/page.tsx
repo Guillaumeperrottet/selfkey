@@ -3,7 +3,6 @@
 import { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import {
   Select,
   SelectContent,
@@ -19,10 +18,11 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { Loader2 } from "lucide-react";
+import { Loader2, Search } from "lucide-react";
 import { format } from "date-fns";
 import { fr } from "date-fns/locale";
 import { generatePaymentReportPDF } from "@/lib/pdf-generator";
+import { DateRangePicker } from "@/components/admin/DateRangePicker";
 
 interface PaymentReportData {
   summary: {
@@ -99,93 +99,36 @@ interface PaymentReportData {
 export default function PaymentReportPage() {
   const [data, setData] = useState<PaymentReportData | null>(null);
   const [loading, setLoading] = useState(true);
-  const [selectedPeriod, setSelectedPeriod] = useState<string>("all");
-  const [selectedMonth, setSelectedMonth] = useState<string>("");
-  const [selectedYear, setSelectedYear] = useState<string>(
-    new Date().getFullYear().toString()
-  );
-  const [customStartDate, setCustomStartDate] = useState<string>("");
-  const [customEndDate, setCustomEndDate] = useState<string>("");
-  const [selectedEstablishment, setSelectedEstablishment] =
-    useState<string>("all");
 
-  // Générer la liste des mois
-  const months = [
-    { value: "0", label: "Janvier" },
-    { value: "1", label: "Février" },
-    { value: "2", label: "Mars" },
-    { value: "3", label: "Avril" },
-    { value: "4", label: "Mai" },
-    { value: "5", label: "Juin" },
-    { value: "6", label: "Juillet" },
-    { value: "7", label: "Août" },
-    { value: "8", label: "Septembre" },
-    { value: "9", label: "Octobre" },
-    { value: "10", label: "Novembre" },
-    { value: "11", label: "Décembre" },
-  ];
+  // Filtres temporaires (modifiables sans recharger)
+  const [tempDateRange, setTempDateRange] = useState<{
+    from: Date;
+    to: Date;
+  }>({
+    from: new Date(new Date().getFullYear(), 0, 1), // Début d'année par défaut
+    to: new Date(),
+  });
+  const [tempEstablishment, setTempEstablishment] = useState<string>("all");
 
-  // Générer la liste des années (5 dernières années)
-  const currentYear = new Date().getFullYear();
-  const years = Array.from({ length: 5 }, (_, i) => currentYear - i);
+  // Filtres appliqués (déclenchent le rechargement)
+  const [appliedDateRange, setAppliedDateRange] = useState(tempDateRange);
+  const [appliedEstablishment, setAppliedEstablishment] =
+    useState(tempEstablishment);
 
   const fetchData = async () => {
     setLoading(true);
     try {
       const params = new URLSearchParams();
 
-      // Calculer les dates selon la période sélectionnée
-      const now = new Date();
+      // Utiliser les filtres appliqués
+      params.set("startDate", appliedDateRange.from.toISOString());
+      params.set(
+        "endDate",
+        new Date(appliedDateRange.to.setHours(23, 59, 59, 999)).toISOString()
+      );
 
-      if (
-        selectedPeriod === "custom-range" &&
-        customStartDate &&
-        customEndDate
-      ) {
-        // Période personnalisée
-        params.set("startDate", new Date(customStartDate).toISOString());
-        params.set(
-          "endDate",
-          new Date(customEndDate + "T23:59:59").toISOString()
-        );
-      } else if (
-        selectedPeriod === "specific-month" &&
-        selectedMonth &&
-        selectedYear
-      ) {
-        // Mois spécifique sélectionné
-        const year = parseInt(selectedYear);
-        const month = parseInt(selectedMonth);
-        const startOfMonth = new Date(year, month, 1);
-        const endOfMonth = new Date(year, month + 1, 0, 23, 59, 59);
-        params.set("startDate", startOfMonth.toISOString());
-        params.set("endDate", endOfMonth.toISOString());
-      } else if (selectedPeriod === "current-month") {
-        const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
-        params.set("startDate", startOfMonth.toISOString());
-        params.set("endDate", now.toISOString());
-      } else if (selectedPeriod === "last-month") {
-        const startOfLastMonth = new Date(
-          now.getFullYear(),
-          now.getMonth() - 1,
-          1
-        );
-        const endOfLastMonth = new Date(now.getFullYear(), now.getMonth(), 0);
-        params.set("startDate", startOfLastMonth.toISOString());
-        params.set("endDate", endOfLastMonth.toISOString());
-      } else if (selectedPeriod === "current-year") {
-        const startOfYear = new Date(now.getFullYear(), 0, 1);
-        params.set("startDate", startOfYear.toISOString());
-        params.set("endDate", now.toISOString());
-      } else if (selectedPeriod === "last-year") {
-        const startOfLastYear = new Date(now.getFullYear() - 1, 0, 1);
-        const endOfLastYear = new Date(now.getFullYear() - 1, 11, 31);
-        params.set("startDate", startOfLastYear.toISOString());
-        params.set("endDate", endOfLastYear.toISOString());
-      }
-
-      if (selectedEstablishment !== "all") {
-        params.set("establishmentSlug", selectedEstablishment);
+      if (appliedEstablishment !== "all") {
+        params.set("establishmentSlug", appliedEstablishment);
       }
 
       const response = await fetch(`/api/admin/payment-report?${params}`);
@@ -198,25 +141,25 @@ export default function PaymentReportPage() {
     }
   };
 
+  // Charger les données au montage et quand les filtres appliqués changent
   useEffect(() => {
     fetchData();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [
-    selectedPeriod,
-    selectedMonth,
-    selectedYear,
-    customStartDate,
-    customEndDate,
-    selectedEstablishment,
-  ]);
+  }, [appliedDateRange, appliedEstablishment]);
+
+  // Appliquer les filtres temporaires
+  const handleApplyFilters = () => {
+    setAppliedDateRange(tempDateRange);
+    setAppliedEstablishment(tempEstablishment);
+  };
 
   const exportToPDF = () => {
     if (!data) return;
 
-    const periodLabel = getPeriodLabel(selectedPeriod);
+    const periodLabel = `Du ${format(appliedDateRange.from, "dd/MM/yyyy", { locale: fr })} au ${format(appliedDateRange.to, "dd/MM/yyyy", { locale: fr })}`;
     const establishmentName =
-      selectedEstablishment !== "all"
-        ? data.byEstablishment.find((e) => e.slug === selectedEstablishment)
+      appliedEstablishment !== "all"
+        ? data.byEstablishment.find((e) => e.slug === appliedEstablishment)
             ?.name
         : undefined;
 
@@ -224,28 +167,6 @@ export default function PaymentReportPage() {
       periodLabel,
       establishmentName,
     });
-  };
-
-  const getPeriodLabel = (period: string): string => {
-    if (period === "custom-range" && customStartDate && customEndDate) {
-      return `Du ${format(new Date(customStartDate), "dd/MM/yyyy", { locale: fr })} au ${format(new Date(customEndDate), "dd/MM/yyyy", { locale: fr })}`;
-    }
-    if (period === "specific-month" && selectedMonth && selectedYear) {
-      const monthName = months[parseInt(selectedMonth)].label;
-      return `${monthName} ${selectedYear}`;
-    }
-    switch (period) {
-      case "current-month":
-        return "Mois en cours";
-      case "last-month":
-        return "Mois dernier";
-      case "current-year":
-        return "Année en cours";
-      case "last-year":
-        return "Année dernière";
-      default:
-        return "Toute la période";
-    }
   };
 
   const exportToExcel = () => {
@@ -360,125 +281,34 @@ export default function PaymentReportPage() {
           <CardTitle>Filtres</CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <div>
+          <div className="flex flex-col md:flex-row gap-4 items-end">
+            {/* Date range picker */}
+            <div className="flex-1">
               <label className="block text-sm font-medium text-gray-700 mb-2">
                 Période
               </label>
-              <Select value={selectedPeriod} onValueChange={setSelectedPeriod}>
-                <SelectTrigger>
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">Toute la période</SelectItem>
-                  <SelectItem value="custom-range">
-                    Période personnalisée
-                  </SelectItem>
-                  <SelectItem value="specific-month">
-                    Mois spécifique
-                  </SelectItem>
-                  <SelectItem value="current-month">Mois en cours</SelectItem>
-                  <SelectItem value="last-month">Mois dernier</SelectItem>
-                  <SelectItem value="current-year">Année en cours</SelectItem>
-                  <SelectItem value="last-year">Année dernière</SelectItem>
-                </SelectContent>
-              </Select>
+              <DateRangePicker
+                value={tempDateRange}
+                onChange={setTempDateRange}
+                className="w-full"
+              />
             </div>
 
-            {/* Sélecteurs de dates personnalisées */}
-            {selectedPeriod === "custom-range" && (
-              <>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Date de début
-                  </label>
-                  <Input
-                    type="date"
-                    value={customStartDate}
-                    onChange={(e) => setCustomStartDate(e.target.value)}
-                    className="w-full"
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Date de fin
-                  </label>
-                  <Input
-                    type="date"
-                    value={customEndDate}
-                    onChange={(e) => setCustomEndDate(e.target.value)}
-                    className="w-full"
-                  />
-                </div>
-              </>
-            )}
-
-            {/* Sélecteurs de mois et année (visible si "Mois spécifique" est sélectionné) */}
-            {selectedPeriod === "specific-month" && (
-              <>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Mois
-                  </label>
-                  <Select
-                    value={selectedMonth}
-                    onValueChange={setSelectedMonth}
-                  >
-                    <SelectTrigger>
-                      <SelectValue placeholder="Sélectionner un mois" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {months.map((month) => (
-                        <SelectItem key={month.value} value={month.value}>
-                          {month.label}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Année
-                  </label>
-                  <Select value={selectedYear} onValueChange={setSelectedYear}>
-                    <SelectTrigger>
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {years.map((year) => (
-                        <SelectItem key={year} value={year.toString()}>
-                          {year}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
-              </>
-            )}
-
-            <div
-              className={
-                selectedPeriod === "specific-month" ||
-                selectedPeriod === "custom-range"
-                  ? "md:col-span-3"
-                  : ""
-              }
-            >
+            {/* Sélecteur d'établissement */}
+            <div className="flex-1">
               <label className="block text-sm font-medium text-gray-700 mb-2">
                 Établissement
               </label>
               <Select
-                value={selectedEstablishment}
-                onValueChange={setSelectedEstablishment}
+                value={tempEstablishment}
+                onValueChange={setTempEstablishment}
               >
                 <SelectTrigger>
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="all">Tous les établissements</SelectItem>
-                  {data.byEstablishment.map((est) => (
+                  {data?.byEstablishment.map((est) => (
                     <SelectItem key={est.slug} value={est.slug}>
                       {est.name}
                     </SelectItem>
@@ -486,6 +316,20 @@ export default function PaymentReportPage() {
                 </SelectContent>
               </Select>
             </div>
+
+            {/* Bouton Appliquer */}
+            <Button
+              onClick={handleApplyFilters}
+              className="flex items-center gap-2"
+              disabled={loading}
+            >
+              {loading ? (
+                <Loader2 className="h-4 w-4 animate-spin" />
+              ) : (
+                <Search className="h-4 w-4" />
+              )}
+              Appliquer
+            </Button>
           </div>
 
           {/* Boutons d'export */}
@@ -494,10 +338,16 @@ export default function PaymentReportPage() {
               onClick={exportToExcel}
               variant="outline"
               className="flex-1"
+              disabled={!data}
             >
               Export Excel
             </Button>
-            <Button onClick={exportToPDF} variant="outline" className="flex-1">
+            <Button
+              onClick={exportToPDF}
+              variant="outline"
+              className="flex-1"
+              disabled={!data}
+            >
               Export PDF
             </Button>
           </div>
