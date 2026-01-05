@@ -146,6 +146,10 @@ export async function GET(request: NextRequest) {
       (sum, booking) => sum + (booking.touristTaxTotal || 0),
       0
     );
+    const totalStripeFees = bookings.reduce(
+      (sum, booking) => sum + (booking.stripeFee || 0),
+      0
+    );
 
     // Calculer la TVA (3.8% sur tout sauf la taxe de séjour)
     const TVA_RATE = 0.038; // 3.8%
@@ -279,6 +283,7 @@ export async function GET(request: NextRequest) {
         totalOwnerAmount: totalOwnerAmount.toFixed(2),
         totalTouristTax: totalTouristTax.toFixed(2),
         totalPricingOptions: totalPricingOptions.toFixed(2),
+        totalStripeFees: totalStripeFees.toFixed(2),
         currency: "CHF",
       },
       byEstablishment: Object.values(byEstablishment),
@@ -349,6 +354,7 @@ export async function GET(request: NextRequest) {
           adults: booking.adults,
           children: booking.children,
           hasDog: booking.hasDog,
+          stripeFee: booking.stripeFee || null,
         };
       }),
     });

@@ -23,6 +23,7 @@ import { format } from "date-fns";
 import { fr } from "date-fns/locale";
 import { generatePaymentReportPDF } from "@/lib/pdf-generator";
 import { DateRangePicker } from "@/components/admin/DateRangePicker";
+import { toast } from "sonner";
 
 interface PaymentReportData {
   summary: {
@@ -34,6 +35,7 @@ interface PaymentReportData {
     totalOwnerAmount: string;
     totalTouristTax: string;
     totalPricingOptions: string;
+    totalStripeFees: string;
     currency: string;
   };
   byEstablishment: Array<{
@@ -93,12 +95,14 @@ interface PaymentReportData {
     adults: number;
     children: number;
     hasDog: boolean;
+    stripeFee: number | null;
   }>;
 }
 
 export default function PaymentReportPage() {
   const [data, setData] = useState<PaymentReportData | null>(null);
   const [loading, setLoading] = useState(true);
+  const [syncingFees, setSyncingFees] = useState(false);
 
   // Filtres temporaires (modifiables sans recharger)
   const [tempDateRange, setTempDateRange] = useState<{
@@ -153,6 +157,30 @@ export default function PaymentReportPage() {
     setAppliedEstablishment(tempEstablishment);
   };
 
+  // Synchroniser les frais Stripe
+  const handleSyncStripeFees = async () => {
+    setSyncingFees(true);
+    try {
+      const response = await fetch("/api/admin/sync-stripe-fees", {
+        method: "POST",
+      });
+      const result = await response.json();
+
+      if (result.success) {
+        toast.success(result.message);
+        // Recharger les données pour afficher les frais mis à jour
+        await fetchData();
+      } else {
+        toast.error("Erreur lors de la synchronisation");
+      }
+    } catch (error) {
+      console.error("Erreur:", error);
+      toast.error("Erreur lors de la synchronisation");
+    } finally {
+      setSyncingFees(false);
+    }
+  };
+
   const exportToPDF = () => {
     if (!data) return;
 
@@ -193,6 +221,7 @@ export default function PaymentReportPage() {
       "Taxe de séjour (TVA 0%)",
       "Total TTC",
       "Commission plateforme",
+      "Frais Stripe",
       "Montant propriétaire",
       "Devise",
       "Type",
@@ -220,6 +249,7 @@ export default function PaymentReportPage() {
       booking.touristTax.toFixed(2),
       booking.amount.toFixed(2),
       booking.platformCommission.toFixed(2),
+      booking.stripeFee ? booking.stripeFee.toFixed(2) : "N/A",
       booking.ownerAmount.toFixed(2),
       booking.currency,
       booking.bookingType,
@@ -335,6 +365,21 @@ export default function PaymentReportPage() {
           {/* Boutons d'export */}
           <div className="flex gap-2 mt-4">
             <Button
+              onClick={handleSyncStripeFees}
+              variant="default"
+              className="bg-orange-600 hover:bg-orange-700"
+              disabled={syncingFees || loading}
+            >
+              {syncingFees ? (
+                <>
+                  <Loader2 className="h-4 w-4 animate-spin mr-2" />
+                  Synchronisation...
+                </>
+              ) : (
+                "Sync Frais Stripe"
+              )}
+            </Button>
+            <Button
               onClick={exportToExcel}
               variant="outline"
               className="flex-1"
@@ -386,6 +431,18 @@ export default function PaymentReportPage() {
             <p className="text-2xl font-bold text-gray-900">
               {data.summary.totalCommission} {data.summary.currency}
             </p>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardContent className="pt-6">
+            <p className="text-sm font-medium text-gray-600 mb-2">
+              Frais Stripe
+            </p>
+            <p className="text-2xl font-bold text-orange-600">
+              {data.summary.totalStripeFees} {data.summary.currency}
+            </p>
+            <p className="text-xs text-gray-500 mt-1">Frais de transaction</p>
           </CardContent>
         </Card>
 

@@ -295,6 +295,7 @@ model Booking {
   hasDog                 Boolean       @default(false)
   bookingLocale          String        @default("fr") // Langue choisie lors de la réservation: "fr", "en", "de"
   internalNote           String?       // Note interne visible uniquement par les administrateurs
+  stripeFee              Float?        // Frais Stripe exacts (récupérés depuis balance_transaction)
   establishment          Establishment @relation(fields: [hotelSlug], references: [slug])
   room                   Room?         @relation(fields: [roomId], references: [id])
   invoice                Invoice?

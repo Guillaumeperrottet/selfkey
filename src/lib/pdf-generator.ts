@@ -10,6 +10,7 @@ interface PaymentReportData {
     totalCommission: string;
     totalOwnerAmount: string;
     totalTouristTax: string;
+    totalStripeFees: string;
     currency: string;
   };
   byEstablishment: Array<{
@@ -56,6 +57,7 @@ interface PaymentReportData {
     bookingType: string;
     stripePaymentIntentId: string | null;
     paymentStatus: string;
+    stripeFee: number | null;
   }>;
 }
 
@@ -122,6 +124,10 @@ export function generatePaymentReportPDF(
       [
         "Commission plateforme (revenus)",
         `${data.summary.totalCommission} ${data.summary.currency}`,
+      ],
+      [
+        "Frais Stripe (coûts)",
+        `${data.summary.totalStripeFees} ${data.summary.currency}`,
       ],
       [
         "Montant reversé aux propriétaires",
