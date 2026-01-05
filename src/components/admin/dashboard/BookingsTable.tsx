@@ -5,6 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { usePrint } from "@/hooks/use-print";
+import { toast } from "sonner";
 import {
   Table,
   TableBody,
@@ -89,6 +90,7 @@ interface Booking {
   children?: number;
   hasDog?: boolean;
   bookingLocale?: string;
+  internalNote?: string | null;
   room: {
     name: string;
     price?: number;
@@ -142,6 +144,9 @@ export function BookingsTable({ bookings, establishment }: BookingsTableProps) {
   const [selectedBooking, setSelectedBooking] = useState<Booking | null>(null);
   const [showDetails, setShowDetails] = useState(false);
   const [pricingOptions, setPricingOptions] = useState<PricingOption[]>([]);
+  const [editingInternalNote, setEditingInternalNote] = useState(false);
+  const [internalNoteValue, setInternalNoteValue] = useState("");
+  const [isSavingNote, setIsSavingNote] = useState(false);
   const { printTable, print } = usePrint();
 
   // Charger les pricing options pour pouvoir décoder les noms
@@ -308,6 +313,46 @@ export function BookingsTable({ bookings, establishment }: BookingsTableProps) {
     return filtered;
   }, [bookings, searchTerm, sortField, sortDirection, statusFilter]);
 
+  const handleSaveInternalNote = async () => {
+    if (!selectedBooking) return;
+
+    setIsSavingNote(true);
+    try {
+      const response = await fetch(`/api/bookings/${selectedBooking.id}`, {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          internalNote:
+            internalNoteValue.trim() === "" ? null : internalNoteValue.trim(),
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error("Erreur lors de la sauvegarde de la note");
+      }
+
+      // Mettre à jour le booking local
+      setSelectedBooking({
+        ...selectedBooking,
+        internalNote:
+          internalNoteValue.trim() === "" ? null : internalNoteValue.trim(),
+      });
+
+      setEditingInternalNote(false);
+      toast.success("Note interne enregistrée !");
+
+      // Recharger la page pour mettre à jour la liste
+      window.location.reload();
+    } catch (error) {
+      console.error("Erreur:", error);
+      toast.error("Impossible d'enregistrer la note");
+    } finally {
+      setIsSavingNote(false);
+    }
+  };
+
   const handleSort = (field: SortField) => {
     if (sortField === field) {
       setSortDirection(sortDirection === "asc" ? "desc" : "asc");
@@ -319,6 +364,8 @@ export function BookingsTable({ bookings, establishment }: BookingsTableProps) {
 
   const handleRowClick = (booking: Booking) => {
     setSelectedBooking(booking);
+    setInternalNoteValue(booking.internalNote || "");
+    setEditingInternalNote(false);
     setShowDetails(true);
   };
 
@@ -761,6 +808,19 @@ export function BookingsTable({ bookings, establishment }: BookingsTableProps) {
             : ""
         }
 
+        ${
+          booking.internalNote
+            ? `
+        <div class="info-section full-width" style="background: #fffbeb; border: 2px solid #f59e0b;">
+          <h3 class="section-title" style="color: #92400e;">📝 NOTE INTERNE (ADMIN UNIQUEMENT)</h3>
+          <div style="padding: 8px; background: white; border-radius: 3px; font-size: 10px; white-space: pre-wrap;">
+            ${booking.internalNote}
+          </div>
+        </div>
+        `
+            : ""
+        }
+
         <!-- Footer -->
         <div class="footer-info">
           <p>Document généré automatiquement • ${establishment?.name || "SelfKey"} • Système de réservation</p>
@@ -787,6 +847,7 @@ export function BookingsTable({ bookings, establishment }: BookingsTableProps) {
         Montant: `${booking.amount} ${booking.currency || "CHF"}`,
         Statut: status.label,
         "Réservé le": formatDateTime(booking.bookingDate),
+        "Note interne": booking.internalNote || "-",
       };
     });
 
@@ -801,6 +862,7 @@ export function BookingsTable({ bookings, establishment }: BookingsTableProps) {
       { key: "Montant" as const, label: "Montant" },
       { key: "Statut" as const, label: "Statut" },
       { key: "Réservé le" as const, label: "Réservé le" },
+      { key: "Note interne" as const, label: "Note interne" },
     ];
 
     const title = `Liste des réservations - ${filteredAndSortedBookings.length} réservation${filteredAndSortedBookings.length > 1 ? "s" : ""} • Généré le ${new Date().toLocaleDateString(
@@ -986,7 +1048,17 @@ export function BookingsTable({ bookings, establishment }: BookingsTableProps) {
                     onClick={() => handleRowClick(booking)}
                   >
                     <TableCell className="font-medium">
-                      {`${booking.clientFirstName} ${booking.clientLastName}`}
+                      <div className="flex items-center gap-2">
+                        <span>{`${booking.clientFirstName} ${booking.clientLastName}`}</span>
+                        {booking.internalNote && (
+                          <span
+                            className="text-amber-600"
+                            title="Cette réservation a une note interne"
+                          >
+                            📝
+                          </span>
+                        )}
+                      </div>
                     </TableCell>
                     <TableCell className="text-muted-foreground max-w-[180px] truncate">
                       {booking.clientEmail}
@@ -1655,6 +1727,67 @@ export function BookingsTable({ bookings, establishment }: BookingsTableProps) {
                       </div>
                     );
                   })()}
+                </div>
+
+                {/* Note interne */}
+                <div className="bg-amber-50 border border-amber-200 p-3 rounded-lg">
+                  <h3 className="font-semibold mb-2 flex items-center gap-2 text-sm text-amber-900">
+                    <FileText className="h-3 w-3" />
+                    Note interne (admin uniquement)
+                  </h3>
+                  <div className="space-y-2">
+                    {editingInternalNote ? (
+                      <div className="space-y-2">
+                        <textarea
+                          value={internalNoteValue}
+                          onChange={(e) => setInternalNoteValue(e.target.value)}
+                          className="w-full p-2 text-xs border rounded-md min-h-[80px] resize-y"
+                          placeholder="Ajoutez une note interne visible uniquement par l'équipe admin..."
+                        />
+                        <div className="flex gap-2">
+                          <button
+                            onClick={handleSaveInternalNote}
+                            disabled={isSavingNote}
+                            className="text-xs px-3 py-1.5 bg-amber-600 text-white rounded-md hover:bg-amber-700 disabled:opacity-50"
+                          >
+                            {isSavingNote ? "Enregistrement..." : "Enregistrer"}
+                          </button>
+                          <button
+                            onClick={() => {
+                              setEditingInternalNote(false);
+                              setInternalNoteValue(
+                                selectedBooking.internalNote || ""
+                              );
+                            }}
+                            disabled={isSavingNote}
+                            className="text-xs px-3 py-1.5 bg-gray-200 text-gray-700 rounded-md hover:bg-gray-300 disabled:opacity-50"
+                          >
+                            Annuler
+                          </button>
+                        </div>
+                      </div>
+                    ) : (
+                      <div>
+                        {selectedBooking.internalNote ? (
+                          <div className="text-xs whitespace-pre-wrap p-2 bg-white rounded border">
+                            {selectedBooking.internalNote}
+                          </div>
+                        ) : (
+                          <div className="text-xs text-muted-foreground italic">
+                            Aucune note interne pour cette réservation
+                          </div>
+                        )}
+                        <button
+                          onClick={() => setEditingInternalNote(true)}
+                          className="mt-2 text-xs px-3 py-1.5 bg-amber-100 text-amber-800 rounded-md hover:bg-amber-200"
+                        >
+                          {selectedBooking.internalNote
+                            ? "Modifier"
+                            : "Ajouter une note"}
+                        </button>
+                      </div>
+                    )}
+                  </div>
                 </div>
               </div>
             </div>

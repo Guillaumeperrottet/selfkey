@@ -62,8 +62,12 @@ export async function PATCH(request: Request, { params }: Props) {
       );
     }
 
-    // Vérifier que la réservation n'est pas encore payée
-    if (existingBooking.stripePaymentIntentId) {
+    // Si on modifie uniquement la note interne, autoriser même après paiement
+    const isOnlyInternalNote =
+      Object.keys(body).length === 1 && body.internalNote !== undefined;
+
+    // Vérifier que la réservation n'est pas encore payée (sauf pour la note interne)
+    if (existingBooking.stripePaymentIntentId && !isOnlyInternalNote) {
       return NextResponse.json(
         { error: "Impossible de modifier une réservation déjà payée" },
         { status: 400 }
@@ -81,13 +85,20 @@ export async function PATCH(request: Request, { params }: Props) {
       "clientCity",
       "clientCountry",
       "clientIdNumber",
+      "internalNote", // Note interne visible uniquement par les admins
     ];
 
     // Filtrer les champs autorisés
-    const updateData: Record<string, string> = {};
+    const updateData: Record<string, string | null> = {};
     Object.keys(body).forEach((key) => {
-      if (allowedFields.includes(key) && typeof body[key] === "string") {
-        updateData[key] = body[key];
+      if (allowedFields.includes(key)) {
+        // internalNote peut être null, les autres sont des strings
+        if (key === "internalNote") {
+          updateData[key] =
+            body[key] === null || body[key] === "" ? null : String(body[key]);
+        } else if (typeof body[key] === "string") {
+          updateData[key] = body[key];
+        }
       }
     });
 
