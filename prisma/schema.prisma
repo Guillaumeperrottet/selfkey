@@ -294,6 +294,7 @@ model Booking {
   touristTaxTotal        Float         @default(0)
   hasDog                 Boolean       @default(false)
   bookingLocale          String        @default("fr") // Langue choisie lors de la réservation: "fr", "en", "de"
+  internalNote           String?       // Note interne visible uniquement par les administrateurs
   establishment          Establishment @relation(fields: [hotelSlug], references: [slug])
   room                   Room?         @relation(fields: [roomId], references: [id])
   invoice                Invoice?
