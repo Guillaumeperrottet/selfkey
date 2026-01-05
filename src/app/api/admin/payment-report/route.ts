@@ -2,6 +2,9 @@ import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { auth } from "@/lib/auth";
 import { headers } from "next/headers";
+import Stripe from "stripe";
+
+const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!);
 
 export async function GET(request: NextRequest) {
   try {
@@ -59,6 +62,8 @@ export async function GET(request: NextRequest) {
     const startDate = searchParams.get("startDate");
     const endDate = searchParams.get("endDate");
     const establishmentSlug = searchParams.get("establishmentSlug");
+    const includeAccountFees =
+      searchParams.get("includeAccountFees") === "true";
 
     // Filtres de date
     const dateFilter: {
@@ -150,6 +155,31 @@ export async function GET(request: NextRequest) {
       (sum, booking) => sum + (booking.stripeFee || 0),
       0
     );
+
+    // Récupérer les frais de compte Stripe si demandé
+    let accountFees = 0;
+    if (includeAccountFees && startDate && endDate) {
+      try {
+        const balanceTransactions = await stripe.balanceTransactions.list({
+          type: "stripe_fee",
+          created: {
+            gte: Math.floor(new Date(startDate).getTime() / 1000),
+            lte: Math.floor(new Date(endDate).getTime() / 1000),
+          },
+          limit: 100,
+        });
+
+        accountFees = balanceTransactions.data.reduce((sum, txn) => {
+          return sum + Math.abs(txn.amount / 100); // Convertir en CHF et valeur absolue
+        }, 0);
+      } catch (error) {
+        console.error(
+          "Erreur lors de la récupération des frais de compte Stripe:",
+          error
+        );
+        // Ne pas bloquer le rapport si erreur
+      }
+    }
 
     // Calculer la TVA (3.8% sur tout sauf la taxe de séjour)
     const TVA_RATE = 0.038; // 3.8%
@@ -284,6 +314,8 @@ export async function GET(request: NextRequest) {
         totalTouristTax: totalTouristTax.toFixed(2),
         totalPricingOptions: totalPricingOptions.toFixed(2),
         totalStripeFees: totalStripeFees.toFixed(2),
+        accountFees: accountFees.toFixed(2),
+        totalStripeFeesWithAccount: (totalStripeFees + accountFees).toFixed(2),
         currency: "CHF",
       },
       byEstablishment: Object.values(byEstablishment),

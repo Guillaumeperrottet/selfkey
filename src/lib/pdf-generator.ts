@@ -11,6 +11,8 @@ interface PaymentReportData {
     totalOwnerAmount: string;
     totalTouristTax: string;
     totalStripeFees: string;
+    accountFees: string;
+    totalStripeFeesWithAccount: string;
     currency: string;
   };
   byEstablishment: Array<{
@@ -64,6 +66,7 @@ interface PaymentReportData {
 interface ExportOptions {
   periodLabel?: string;
   establishmentName?: string;
+  includeAccountFees?: boolean;
 }
 
 export function generatePaymentReportPDF(
@@ -112,32 +115,61 @@ export function generatePaymentReportPDF(
   yPos += 6;
 
   // Tableau résumé
+  const summaryBody = [
+    ["Nombre total de réservations", data.summary.totalBookings.toString()],
+    [
+      "Montant total encaissé",
+      `${data.summary.totalAmount} ${data.summary.currency}`,
+    ],
+    [
+      "Commission plateforme (revenus)",
+      `${data.summary.totalCommission} ${data.summary.currency}`,
+    ],
+    [
+      "Frais Stripe - transactions",
+      `${data.summary.totalStripeFees} ${data.summary.currency}`,
+    ],
+  ];
+
+  if (options.includeAccountFees) {
+    summaryBody.push(
+      [
+        "Frais Stripe - compte",
+        `${data.summary.accountFees} ${data.summary.currency}`,
+      ],
+      [
+        "Total frais Stripe",
+        `${data.summary.totalStripeFeesWithAccount} ${data.summary.currency}`,
+      ]
+    );
+  }
+
+  // Calculer le montant reversé par Stripe
+  const totalAmount = parseFloat(data.summary.totalAmount);
+  const stripeFees = options.includeAccountFees
+    ? parseFloat(data.summary.totalStripeFeesWithAccount)
+    : parseFloat(data.summary.totalStripeFees);
+  const amountFromStripe = (totalAmount - stripeFees).toFixed(2);
+
+  summaryBody.push(
+    [
+      "Montant reversé par Stripe",
+      `${amountFromStripe} ${data.summary.currency}`,
+    ],
+    [
+      "Montant reversé aux propriétaires",
+      `${data.summary.totalOwnerAmount} ${data.summary.currency}`,
+    ],
+    [
+      "Taxes de séjour collectées",
+      `${data.summary.totalTouristTax} ${data.summary.currency}`,
+    ]
+  );
+
   autoTable(doc, {
     startY: yPos,
     head: [["Indicateur", "Valeur"]],
-    body: [
-      ["Nombre total de réservations", data.summary.totalBookings.toString()],
-      [
-        "Montant total encaissé",
-        `${data.summary.totalAmount} ${data.summary.currency}`,
-      ],
-      [
-        "Commission plateforme (revenus)",
-        `${data.summary.totalCommission} ${data.summary.currency}`,
-      ],
-      [
-        "Frais Stripe (coûts)",
-        `${data.summary.totalStripeFees} ${data.summary.currency}`,
-      ],
-      [
-        "Montant reversé aux propriétaires",
-        `${data.summary.totalOwnerAmount} ${data.summary.currency}`,
-      ],
-      [
-        "Taxes de séjour collectées",
-        `${data.summary.totalTouristTax} ${data.summary.currency}`,
-      ],
-    ],
+    body: summaryBody,
     theme: "striped",
     headStyles: {
       fillColor: primaryColor,
@@ -250,7 +282,8 @@ export function generatePaymentReportPDF(
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   yPos = (doc as any).lastAutoTable.finalY + 10;
 
-  if (yPos > 240) {
+  // Nouvelle page si on est trop bas pour avoir assez d'espace
+  if (yPos > 220) {
     doc.addPage();
     yPos = 20;
   }
@@ -297,6 +330,7 @@ export function generatePaymentReportPDF(
 
   autoTable(doc, {
     startY: yPos,
+    margin: { bottom: 50 }, // Marge inférieure pour éviter le chevauchement
     head: [
       [
         "N°",

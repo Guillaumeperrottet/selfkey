@@ -50,6 +50,19 @@ export async function POST() {
       try {
         if (!booking.stripePaymentIntentId) continue;
 
+        // Ignorer les PaymentIntents de test/dev
+        const isTestPayment =
+          booking.stripePaymentIntentId.startsWith("pi_test_") ||
+          booking.stripePaymentIntentId.startsWith("pi_dev_") ||
+          booking.stripePaymentIntentId.startsWith("test_");
+
+        if (isTestPayment) {
+          console.log(
+            `⏭️  Booking ${booking.id}: PaymentIntent de test ignoré (${booking.stripePaymentIntentId})`
+          );
+          continue;
+        }
+
         // Récupérer le PaymentIntent avec le balance_transaction
         const paymentIntent = await stripe.paymentIntents.retrieve(
           booking.stripePaymentIntentId,

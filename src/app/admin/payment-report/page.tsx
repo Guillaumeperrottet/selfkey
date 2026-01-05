@@ -36,6 +36,8 @@ interface PaymentReportData {
     totalTouristTax: string;
     totalPricingOptions: string;
     totalStripeFees: string;
+    accountFees: string;
+    totalStripeFeesWithAccount: string;
     currency: string;
   };
   byEstablishment: Array<{
@@ -113,11 +115,14 @@ export default function PaymentReportPage() {
     to: new Date(),
   });
   const [tempEstablishment, setTempEstablishment] = useState<string>("all");
+  const [tempIncludeAccountFees, setTempIncludeAccountFees] = useState(false);
 
   // Filtres appliqués (déclenchent le rechargement)
   const [appliedDateRange, setAppliedDateRange] = useState(tempDateRange);
   const [appliedEstablishment, setAppliedEstablishment] =
     useState(tempEstablishment);
+  const [appliedIncludeAccountFees, setAppliedIncludeAccountFees] =
+    useState(false);
 
   const fetchData = async () => {
     setLoading(true);
@@ -135,6 +140,8 @@ export default function PaymentReportPage() {
         params.set("establishmentSlug", appliedEstablishment);
       }
 
+      params.set("includeAccountFees", appliedIncludeAccountFees.toString());
+
       const response = await fetch(`/api/admin/payment-report?${params}`);
       const result = await response.json();
       setData(result);
@@ -149,12 +156,13 @@ export default function PaymentReportPage() {
   useEffect(() => {
     fetchData();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [appliedDateRange, appliedEstablishment]);
+  }, [appliedDateRange, appliedEstablishment, appliedIncludeAccountFees]);
 
   // Appliquer les filtres temporaires
   const handleApplyFilters = () => {
     setAppliedDateRange(tempDateRange);
     setAppliedEstablishment(tempEstablishment);
+    setAppliedIncludeAccountFees(tempIncludeAccountFees);
   };
 
   // Synchroniser les frais Stripe
@@ -194,6 +202,7 @@ export default function PaymentReportPage() {
     generatePaymentReportPDF(data, {
       periodLabel,
       establishmentName,
+      includeAccountFees: appliedIncludeAccountFees,
     });
   };
 
@@ -362,6 +371,23 @@ export default function PaymentReportPage() {
             </Button>
           </div>
 
+          {/* Case à cocher pour frais de compte */}
+          <div className="flex items-center gap-2 mt-4">
+            <input
+              type="checkbox"
+              id="includeAccountFees"
+              checked={tempIncludeAccountFees}
+              onChange={(e) => setTempIncludeAccountFees(e.target.checked)}
+              className="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+            />
+            <label
+              htmlFor="includeAccountFees"
+              className="text-sm text-gray-700"
+            >
+              Inclure les frais de compte Stripe (frais mensuels)
+            </label>
+          </div>
+
           {/* Boutons d'export */}
           <div className="flex gap-2 mt-4">
             <Button
@@ -437,14 +463,45 @@ export default function PaymentReportPage() {
         <Card>
           <CardContent className="pt-6">
             <p className="text-sm font-medium text-gray-600 mb-2">
-              Frais Stripe
+              Frais Stripe (transactions)
             </p>
             <p className="text-2xl font-bold text-orange-600">
               {data.summary.totalStripeFees} {data.summary.currency}
             </p>
-            <p className="text-xs text-gray-500 mt-1">Frais de transaction</p>
+            <p className="text-xs text-gray-500 mt-1">Frais par transaction</p>
           </CardContent>
         </Card>
+
+        {appliedIncludeAccountFees && (
+          <>
+            <Card>
+              <CardContent className="pt-6">
+                <p className="text-sm font-medium text-gray-600 mb-2">
+                  Frais de compte Stripe
+                </p>
+                <p className="text-2xl font-bold text-orange-600">
+                  {data.summary.accountFees} {data.summary.currency}
+                </p>
+                <p className="text-xs text-gray-500 mt-1">Frais mensuels</p>
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardContent className="pt-6">
+                <p className="text-sm font-medium text-gray-600 mb-2">
+                  Total frais Stripe
+                </p>
+                <p className="text-2xl font-bold text-red-600">
+                  {data.summary.totalStripeFeesWithAccount}{" "}
+                  {data.summary.currency}
+                </p>
+                <p className="text-xs text-gray-500 mt-1">
+                  Transactions + compte
+                </p>
+              </CardContent>
+            </Card>
+          </>
+        )}
 
         <Card>
           <CardContent className="pt-6">
