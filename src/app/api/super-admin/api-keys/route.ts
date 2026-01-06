@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { generateApiKey } from "@/lib/api/auth";
+import { isSuperAdmin } from "@/lib/auth/check";
 
 /**
  * GET /api/super-admin/api-keys
@@ -8,11 +9,14 @@ import { generateApiKey } from "@/lib/api/auth";
  */
 export async function GET() {
   try {
-    // TODO: Vérifier que l'utilisateur est super-admin
-    // const session = await auth();
-    // if (!session?.user) {
-    //   return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-    // }
+    // Vérifier que l'utilisateur est super-admin
+    const adminCheck = await isSuperAdmin();
+    if (!adminCheck.valid) {
+      return NextResponse.json(
+        { error: "Unauthorized", message: adminCheck.message },
+        { status: 401 }
+      );
+    }
 
     const apiKeys = await prisma.apiKey.findMany({
       include: {
@@ -44,11 +48,14 @@ export async function GET() {
  */
 export async function POST(request: NextRequest) {
   try {
-    // TODO: Vérifier que l'utilisateur est super-admin
-    // const session = await auth();
-    // if (!session?.user) {
-    //   return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-    // }
+    // Vérifier que l'utilisateur est super-admin
+    const adminCheck = await isSuperAdmin();
+    if (!adminCheck.valid) {
+      return NextResponse.json(
+        { error: "Unauthorized", message: adminCheck.message },
+        { status: 401 }
+      );
+    }
 
     const body = await request.json();
     const { name, establishmentSlug, permissions } = body;

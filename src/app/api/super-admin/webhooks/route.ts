@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
+import { isSuperAdmin } from "@/lib/auth/check";
 
 /**
  * GET /api/super-admin/webhooks
@@ -7,6 +8,15 @@ import { prisma } from "@/lib/prisma";
  */
 export async function GET() {
   try {
+    // Vérifier que l'utilisateur est super-admin
+    const adminCheck = await isSuperAdmin();
+    if (!adminCheck.valid) {
+      return NextResponse.json(
+        { error: "Unauthorized", message: adminCheck.message },
+        { status: 401 }
+      );
+    }
+
     const webhooks = await prisma.webhook.findMany({
       include: {
         establishment: {
@@ -42,6 +52,15 @@ export async function GET() {
  */
 export async function POST(request: NextRequest) {
   try {
+    // Vérifier que l'utilisateur est super-admin
+    const adminCheck = await isSuperAdmin();
+    if (!adminCheck.valid) {
+      return NextResponse.json(
+        { error: "Unauthorized", message: adminCheck.message },
+        { status: 401 }
+      );
+    }
+
     const body = await request.json();
     const {
       name,
@@ -51,6 +70,7 @@ export async function POST(request: NextRequest) {
       format,
       retryCount,
       retryDelay,
+      secret,
     } = body;
 
     if (!name || !establishmentSlug || !url) {
@@ -59,6 +79,9 @@ export async function POST(request: NextRequest) {
         { status: 400 }
       );
     }
+
+    // Générer un secret automatiquement si non fourni (pour sécurité HMAC)
+    const webhookSecret = secret || generateWebhookSecret();
 
     const webhook = await prisma.webhook.create({
       data: {
@@ -69,6 +92,7 @@ export async function POST(request: NextRequest) {
         format: format || "json",
         retryCount: retryCount || 3,
         retryDelay: retryDelay || 60,
+        secret: webhookSecret,
         isActive: true,
       },
       include: {
@@ -84,6 +108,8 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({
       message: "Webhook created successfully",
       webhook,
+      // Retourner le secret une seule fois (comme pour les API keys)
+      generatedSecret: !secret ? webhookSecret : undefined,
     });
   } catch (error) {
     console.error("Error creating webhook:", error);
@@ -92,4 +118,19 @@ export async function POST(request: NextRequest) {
       { status: 500 }
     );
   }
+}
+
+/**
+ * Génère un secret aléatoire pour HMAC signature
+ */
+function generateWebhookSecret(): string {
+  const chars =
+    "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+  let secret = "whsec_";
+
+  for (let i = 0; i < 32; i++) {
+    secret += chars.charAt(Math.floor(Math.random() * chars.length));
+  }
+
+  return secret;
 }

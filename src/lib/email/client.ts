@@ -1,6 +1,17 @@
 import { Resend } from "resend";
 
-const resend = new Resend(process.env.RESEND_API_KEY);
+// Lazy initialization - ne crée le client que lors du premier appel
+let resend: Resend | null = null;
+
+function getResendClient(): Resend {
+  if (!resend) {
+    if (!process.env.RESEND_API_KEY) {
+      throw new Error("RESEND_API_KEY not configured");
+    }
+    resend = new Resend(process.env.RESEND_API_KEY);
+  }
+  return resend;
+}
 
 export interface EmailData {
   to: string;
@@ -14,11 +25,9 @@ export async function sendEmail(
   data: EmailData
 ): Promise<{ success: boolean; error?: string; data?: { id: string } }> {
   try {
-    if (!process.env.RESEND_API_KEY) {
-      throw new Error("RESEND_API_KEY not configured");
-    }
+    const client = getResendClient();
 
-    const result = await resend.emails.send({
+    const result = await client.emails.send({
       from: data.from,
       to: data.to,
       subject: data.subject,

@@ -1,5 +1,9 @@
 import { prisma } from "@/lib/prisma";
 import crypto from "crypto";
+import { sendWebhookDisabledAlert } from "@/lib/email/alerts";
+
+// Configuration : nombre d'échecs consécutifs avant désactivation
+const MAX_CONSECUTIVE_FAILURES = 10;
 
 /**
  * Types d'événements webhook supportés
@@ -25,6 +29,69 @@ interface WebhookPayload {
  */
 function generateSignature(payload: string, secret: string): string {
   return crypto.createHmac("sha256", secret).update(payload).digest("hex");
+}
+
+/**
+ * Vérifie les échecs consécutifs et désactive le webhook si nécessaire
+ */
+export async function checkAndDisableWebhook(webhookId: string): Promise<void> {
+  try {
+    // Récupérer les 10 derniers logs du webhook
+    const recentLogs = await prisma.webhookLog.findMany({
+      where: { webhookId },
+      orderBy: { createdAt: "desc" },
+      take: MAX_CONSECUTIVE_FAILURES,
+    });
+
+    // Si on a moins de 10 logs, pas assez de données
+    if (recentLogs.length < MAX_CONSECUTIVE_FAILURES) {
+      return;
+    }
+
+    // Vérifier si les 10 derniers sont tous des échecs
+    const allFailed = recentLogs.every((log) => !log.success);
+
+    if (allFailed) {
+      console.warn(
+        `⚠️ Webhook ${webhookId} a échoué ${MAX_CONSECUTIVE_FAILURES} fois consécutivement. Désactivation automatique...`
+      );
+
+      // Récupérer les informations du webhook pour l'email
+      const webhook = await prisma.webhook.findUnique({
+        where: { id: webhookId },
+        select: {
+          name: true,
+          url: true,
+          establishmentSlug: true,
+        },
+      });
+
+      // Désactiver le webhook
+      await prisma.webhook.update({
+        where: { id: webhookId },
+        data: { isActive: false },
+      });
+
+      // Envoyer un email d'alerte au super-admin
+      if (webhook) {
+        await sendWebhookDisabledAlert(
+          webhookId,
+          webhook.name,
+          webhook.url,
+          webhook.establishmentSlug,
+          MAX_CONSECUTIVE_FAILURES
+        );
+        console.log(
+          `✉️ Email d'alerte envoyé au super-admin pour le webhook ${webhookId}`
+        );
+      }
+    }
+  } catch (error) {
+    console.error(
+      `Error checking webhook ${webhookId} for auto-disable:`,
+      error
+    );
+  }
 }
 
 /**
@@ -183,6 +250,9 @@ async function sendWebhookWithRetry(
         bookingId,
         attempt + 1
       );
+    } else if (!success && attempt >= webhook.retryCount) {
+      // Toutes les tentatives ont échoué, vérifier si on doit désactiver le webhook
+      await checkAndDisableWebhook(webhookId);
     }
   } catch (err) {
     error = err instanceof Error ? err.message : "Unknown error";
@@ -222,6 +292,9 @@ async function sendWebhookWithRetry(
         bookingId,
         attempt + 1
       );
+    } else {
+      // Toutes les tentatives ont échoué, vérifier si on doit désactiver le webhook
+      await checkAndDisableWebhook(webhookId);
     }
   }
 }

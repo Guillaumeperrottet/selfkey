@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import crypto from "crypto";
+import { isSuperAdmin } from "@/lib/auth/check";
 
 /**
  * POST /api/super-admin/webhooks/test
@@ -8,6 +9,15 @@ import crypto from "crypto";
  */
 export async function POST(request: NextRequest) {
   try {
+    // Vérifier que l'utilisateur est super-admin
+    const adminCheck = await isSuperAdmin();
+    if (!adminCheck.valid) {
+      return NextResponse.json(
+        { error: "Unauthorized", message: adminCheck.message },
+        { status: 401 }
+      );
+    }
+
     const body = await request.json();
     const { webhookId, bookingId } = body;
 

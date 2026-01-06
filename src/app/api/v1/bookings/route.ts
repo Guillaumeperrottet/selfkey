@@ -5,6 +5,11 @@ import {
   hasPermission,
   logApiRequest,
 } from "@/lib/api/auth";
+import {
+  checkRateLimit,
+  addRateLimitHeaders,
+  getRateLimitKey,
+} from "@/lib/api/rate-limit";
 
 /**
  * GET /api/v1/bookings
@@ -37,6 +42,29 @@ export async function GET(request: NextRequest) {
       return NextResponse.json(
         { error: "Unauthorized - Invalid or missing API key" },
         { status: 401 }
+      );
+    }
+
+    // Rate limiting
+    const rateLimitKey = getRateLimitKey(request, apiKey.id);
+    const rateLimit = checkRateLimit(rateLimitKey);
+
+    if (!rateLimit.allowed) {
+      await logApiRequest(
+        apiKey.id,
+        "/api/v1/bookings",
+        "GET",
+        429,
+        request,
+        Date.now() - startTime
+      );
+      const headers = addRateLimitHeaders(new Headers(), rateLimit);
+      return NextResponse.json(
+        {
+          error: "Rate limit exceeded",
+          message: `Rate limit exceeded. Try again in ${Math.ceil((rateLimit.resetAt - Date.now()) / 1000)} seconds`,
+        },
+        { status: 429, headers }
       );
     }
 
@@ -148,16 +176,22 @@ export async function GET(request: NextRequest) {
       Date.now() - startTime
     );
 
-    return NextResponse.json({
-      success: true,
-      data: bookings,
-      pagination: {
-        total,
-        limit,
-        offset,
-        hasMore: offset + limit < total,
+    // Ajouter les headers de rate limit
+    const headers = addRateLimitHeaders(new Headers(), rateLimit);
+
+    return NextResponse.json(
+      {
+        success: true,
+        data: bookings,
+        pagination: {
+          total,
+          limit,
+          offset,
+          hasMore: offset + limit < total,
+        },
       },
-    });
+      { headers }
+    );
   } catch (error) {
     console.error("Error in GET /api/v1/bookings:", error);
     return NextResponse.json(

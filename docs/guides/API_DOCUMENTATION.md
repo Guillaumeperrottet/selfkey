@@ -2,17 +2,39 @@
 
 ## 📚 Vue d'ensemble
 
-L'API SelfKey permet aux partenaires autorisés (notamment les autorités policières) de récupérer automatiquement les informations de réservation pour :
+### À quoi sert l'API SelfKey ?
 
-- La déclaration des taxes de séjour
-- L'attribution d'avantages aux clients (transports gratuits, pass musées, etc.)
+L'API permet à vos partenaires (autorités, prestataires de services) d'**accéder aux données de réservation** de manière autonome et sécurisée. Au lieu de vous demander manuellement les informations, ils peuvent les récupérer automatiquement quand ils en ont besoin.
+
+**Cas d'usage concrets :**
+
+- 🏛️ **Autorités** : Récupérer les données pour les déclarations de taxes de séjour
+- 🚍 **Transports publics** : Envoyer des pass gratuits aux clients qui réservent
+- 🎫 **Offices de tourisme** : Proposer des avantages aux clients (musées, activités)
+- 📊 **Statistiques** : Analyser les flux touristiques dans une région
+
+### Webhooks vs API : Quelle différence ?
+
+**🔍 API (Pull) - "Je demande les infos"**
+
+- Votre partenaire **interroge** votre système quand il le souhaite
+- Exemple : "Donne-moi toutes les réservations du mois de janvier"
+- **Idéal pour** : Rapports mensuels, synchronisations planifiées, accès à la demande
+
+**🔔 Webhooks (Push) - "Je t'envoie les infos automatiquement"**
+
+- Vous **envoyez** les données automatiquement à chaque nouvelle réservation
+- Exemple : Dès qu'un client réserve → envoi immédiat des infos au partenaire
+- **Idéal pour** : Actions en temps réel, envoi de SMS/emails, alertes instantanées
+
+**En résumé :** L'API c'est "demander quand on veut", les webhooks c'est "recevoir automatiquement dès que ça arrive".
 
 ## 🔐 Authentification
 
 Toutes les requêtes API doivent inclure un header `X-API-Key` :
 
 ```bash
-X-API-Key: sk_live_votre_cle_secrete
+X-API-Key: votre_cle_api_secrete
 ```
 
 ### Obtenir une clé API
@@ -52,7 +74,7 @@ GET /api/v1/bookings
 **Exemple:**
 
 ```bash
-curl -H "X-API-Key: sk_live_abc123..." \
+curl -H "X-API-Key: votre_cle_api_ici" \
   "https://selfkey.ch/api/v1/bookings?establishmentSlug=selfcamp-fribourg&limit=10"
 ```
 
@@ -102,7 +124,7 @@ GET /api/v1/bookings/{bookingId}
 **Exemple:**
 
 ```bash
-curl -H "X-API-Key: sk_live_abc123..." \
+curl -H "X-API-Key: votre_cle_api_ici" \
   "https://selfkey.ch/api/v1/bookings/clxyz123abc"
 ```
 
@@ -121,9 +143,138 @@ curl -H "X-API-Key: sk_live_abc123..." \
 }
 ```
 
+### 3. Liste des établissements
+
+```http
+GET /api/v1/establishments
+```
+
+**Query Parameters:**
+
+- `city` (string) - Filtrer par ville
+- `country` (string) - Filtrer par pays (défaut: Switzerland)
+- `isPubliclyVisible` (boolean) - Afficher uniquement les établissements publics
+- `limit` (integer) - Nombre max de résultats (défaut: 50, max: 100)
+- `offset` (integer) - Offset pour pagination (défaut: 0)
+
+**Exemple:**
+
+```bash
+curl -H "X-API-Key: votre_cle_api_ici" \
+  "https://selfkey.ch/api/v1/establishments?city=Fribourg&limit=10"
+```
+
+**Réponse (200 OK):**
+
+```json
+{
+  "success": true,
+  "data": [
+    {
+      "id": "...",
+      "slug": "selfcamp-fribourg",
+      "name": "SelfCamp Fribourg",
+      "address": "Route de Beaumont 20",
+      "city": "Fribourg",
+      "country": "Switzerland",
+      "latitude": 46.8,
+      "longitude": 7.15,
+      "_count": {
+        "bookings": 150,
+        "rooms": 5
+      }
+    }
+  ],
+  "pagination": {
+    "total": 25,
+    "limit": 10,
+    "offset": 0,
+    "hasMore": true
+  }
+}
+```
+
+### 4. Détails d'un établissement
+
+```http
+GET /api/v1/establishments/{slug}
+```
+
+**Exemple:**
+
+```bash
+curl -H "X-API-Key: votre_cle_api_ici" \
+  "https://selfkey.ch/api/v1/establishments/selfcamp-fribourg"
+```
+
+**Réponse (200 OK):**
+
+```json
+{
+  "success": true,
+  "data": {
+    "id": "...",
+    "slug": "selfcamp-fribourg",
+    "name": "SelfCamp Fribourg",
+    "rooms": [...],
+    "pricingOptions": [...],
+    "_count": {
+      "bookings": 150
+    }
+  }
+}
+```
+
+## 🛡️ Rate Limiting
+
+**Protection automatique contre les abus**
+
+- **Limite par défaut** : 100 requêtes par minute par API key
+- **Headers de réponse** :
+  - `X-RateLimit-Limit`: Limite maximale
+  - `X-RateLimit-Remaining`: Requêtes restantes
+  - `X-RateLimit-Reset`: Timestamp de réinitialisation (epoch)
+  - `Retry-After`: Secondes à attendre (si limite dépassée)
+
+**Réponse (429 Too Many Requests):**
+
+```json
+{
+  "error": "Too Many Requests",
+  "message": "Rate limit exceeded. Try again in 45 seconds"
+}
+```
+
 ## 🔔 Webhooks
 
-Les webhooks permettent de recevoir automatiquement les données de réservation en temps réel.
+### Pourquoi utiliser les webhooks ?
+
+Les webhooks permettent de **recevoir automatiquement** les données de réservation **en temps réel**, sans avoir à interroger régulièrement l'API.
+
+**Avantages :**
+
+- ⚡ **Instantané** : Dès qu'un client réserve, vous êtes notifié immédiatement
+- 🔄 **Automatique** : Pas besoin de planifier des synchronisations
+- 💰 **Économique** : Moins de requêtes API = moins de charge serveur
+- 🎯 **Événements ciblés** : Recevez uniquement ce qui vous intéresse (réservation complétée, annulée, etc.)
+
+**Exemple concret :**  
+Un client réserve à 14h30 → Votre partenaire reçoit instantanément les données → Il peut envoyer un SMS de bienvenue avec un pass transport gratuit dans les 2 minutes.
+
+### Comment ça marche ?
+
+1. **Vous configurez** une URL où vous souhaitez recevoir les données (ex: `https://votre-systeme.com/recevoir-reservations`)
+2. **Vous choisissez** les événements à surveiller (`booking.completed`, `booking.cancelled`, etc.)
+3. **SelfKey envoie automatiquement** un POST avec les données à chaque événement
+4. **Votre système répond** avec un code 200 pour confirmer la réception
+
+### Configuration par établissement
+
+⚠️ **Important** : Les webhooks sont configurés **par établissement**, pas globalement.
+
+- Si vous gérez 3 hôtels, vous pouvez créer 3 webhooks (un par hôtel)
+- Chaque webhook peut avoir sa propre URL ou partager la même
+- Vous choisissez les événements pour chaque établissement
 
 ### Configuration
 
@@ -134,6 +285,7 @@ Les webhooks permettent de recevoir automatiquement les données de réservation
    - **Établissement** : Sélectionnez
    - **URL** : `https://api.police.ch/receive-booking`
    - **Format** : JSON (ou CSV)
+   - **Secret** : (Optionnel - généré automatiquement si vide)
 
 ### Format des données envoyées
 
@@ -155,24 +307,21 @@ Les webhooks permettent de recevoir automatiquement les données de réservation
 Content-Type: application/json
 User-Agent: SelfKey-Webhook/1.0
 X-Webhook-Event: booking.completed
-X-Webhook-Signature: <HMAC SHA256 si secret configuré>
+X-Webhook-Signature: <HMAC SHA256 - TOUJOURS présent>
+X-Webhook-Attempt: 1
 ```
 
-### Retry automatique
+### 🔐 Sécurité HMAC (Automatique)
 
-- **3 tentatives** par défaut
-- **Délai exponentiel** : 60s, 120s, 180s
-- Les échecs sont loggés et visibles dans l'interface
+**⚠️ Important** : Un secret HMAC est **automatiquement généré** pour chaque webhook si vous n'en fournissez pas. Ceci garantit que les données reçues proviennent bien de SelfKey.
 
-### Sécurité (optionnel)
-
-Vous pouvez configurer un secret pour vérifier l'authenticité des webhooks :
+**Vérification côté receveur (obligatoire) :**
 
 ```javascript
 const crypto = require("crypto");
 const signature = req.headers["x-webhook-signature"];
 const body = JSON.stringify(req.body);
-const secret = "votre_secret";
+const secret = "whsec_xxxxx"; // Fourni lors de la création
 
 const expectedSignature = crypto
   .createHmac("sha256", secret)
@@ -180,9 +329,24 @@ const expectedSignature = crypto
   .digest("hex");
 
 if (signature !== expectedSignature) {
-  throw new Error("Invalid signature");
+  throw new Error("Invalid signature - possible tampering");
 }
 ```
+
+### Retry automatique
+
+- **3 tentatives** par défaut (configurable)
+- **Délai exponentiel** : 60s, 120s, 180s
+- Les échecs sont loggés et visibles dans l'interface
+
+### 🛡️ Désactivation automatique
+
+**Protection contre les webhooks défaillants :**
+
+- Si un webhook échoue **10 fois consécutivement**, il est **automatiquement désactivé**
+- Un email d'alerte est envoyé au super-admin
+- Vous pouvez le réactiver manuellement après correction du problème
+- Vérifiez régulièrement les logs dans `/super-admin/monitoring-api`
 
 ## 🧪 Mode Test / Sandbox
 
@@ -216,6 +380,47 @@ curl -X POST https://votre-domaine.com/api/super-admin/webhooks/test \
   -H "Content-Type: application/json" \
   -d '{"webhookId": "webhook_id_here"}'
 ```
+
+### ⚠️ Désactivation automatique
+
+**Protection contre les pannes**
+
+Si un webhook échoue **10 fois consécutivement**, il sera **automatiquement désactivé** pour éviter de surcharger le système.
+
+**Ce qui se passe :**
+
+1. ❌ Le webhook échoue 10 fois de suite
+2. 🔴 Le système le désactive automatiquement
+3. 📧 Un email d'alerte est envoyé au super-admin
+4. 📝 Un log détaillé est conservé pour analyse
+
+**Email d'alerte**
+
+L'email contient :
+
+- Nom et URL du webhook
+- Établissement concerné
+- Nombre d'échecs consécutifs
+- Actions recommandées
+- Lien direct vers l'interface
+
+**Pour réactiver un webhook :**
+
+1. Corrigez le problème côté partenaire
+2. Allez sur `/super-admin/webhooks`
+3. Activez à nouveau le webhook
+4. Testez avec le bouton Play 🎬
+
+**Configuration email :**
+
+Ajoutez dans `.env.local` :
+
+```bash
+SUPER_ADMIN_EMAIL=votre-email@example.com
+RESEND_API_KEY=re_xxxxx
+```
+
+Voir [WEBHOOK_EMAIL_ALERTS.md](../features/WEBHOOK_EMAIL_ALERTS.md) pour plus de détails.
 
 ### Scénarios de test
 
@@ -304,7 +509,7 @@ const axios = require("axios");
 async function getBookings() {
   const response = await axios.get("https://selfkey.ch/api/v1/bookings", {
     headers: {
-      "X-API-Key": "sk_live_abc123...",
+      "X-API-Key": "votre_cle_api_ici",
     },
     params: {
       establishmentSlug: "selfcamp-fribourg",
@@ -343,7 +548,7 @@ def get_bookings():
     response = requests.get(
         'https://selfkey.ch/api/v1/bookings',
         headers={
-            'X-API-Key': 'sk_live_abc123...'
+            'X-API-Key': 'votre_cle_api_ici'
         },
         params={
             'establishmentSlug': 'selfcamp-fribourg',

@@ -13,20 +13,17 @@ import {
 
 interface RouteParams {
   params: Promise<{
-    bookingId: string;
+    slug: string;
   }>;
 }
 
 /**
- * GET /api/v1/bookings/:bookingId
- * Récupère tous les détails d'une réservation confirmée et payée
- *
- * Retourne TOUS les champs de la réservation + relations (room, establishment)
- * Note: Seules les réservations avec paymentStatus='succeeded' sont accessibles
+ * GET /api/v1/establishments/:slug
+ * Récupère tous les détails d'un établissement
  */
 export async function GET(request: NextRequest, { params }: RouteParams) {
   const startTime = Date.now();
-  const { bookingId } = await params;
+  const { slug } = await params;
 
   try {
     // Authentification
@@ -34,7 +31,7 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
     if (!apiKey) {
       await logApiRequest(
         null,
-        `/api/v1/bookings/${bookingId}`,
+        `/api/v1/establishments/${slug}`,
         "GET",
         401,
         request,
@@ -53,7 +50,7 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
     if (!rateLimit.allowed) {
       await logApiRequest(
         apiKey.id,
-        `/api/v1/bookings/${bookingId}`,
+        `/api/v1/establishments/${slug}`,
         "GET",
         429,
         request,
@@ -69,91 +66,84 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
       );
     }
 
-    // Récupérer la réservation avec toutes les relations
-    const booking = await prisma.booking.findUnique({
-      where: {
-        id: bookingId,
-        paymentStatus: "succeeded", // ✅ Filtrer automatiquement uniquement les paiements réussis
-      },
-      include: {
-        room: {
-          select: {
-            id: true,
-            name: true,
-            price: true,
-            accessCode: true,
-            allowDogs: true,
-            hotelSlug: true,
-            isActive: true,
-          },
-        },
-        establishment: {
-          select: {
-            id: true,
-            slug: true,
-            name: true,
-            address: true,
-            city: true,
-            postalCode: true,
-            country: true,
-            latitude: true,
-            longitude: true,
-            hotelContactEmail: true,
-            hotelContactPhone: true,
-            touristTaxAmount: true,
-            touristTaxEnabled: true,
-            commissionRate: true,
-            fixedFee: true,
-            billingCompanyName: true,
-            billingAddress: true,
-            billingCity: true,
-            billingPostalCode: true,
-            billingCountry: true,
-            vatNumber: true,
-          },
-        },
-        invoice: {
-          select: {
-            id: true,
-            filename: true,
-            generatedAt: true,
-          },
-        },
-      },
-    });
-
-    if (!booking) {
+    // Vérifier les permissions
+    if (!hasPermission(apiKey, "establishments", "read", slug)) {
       await logApiRequest(
         apiKey.id,
-        `/api/v1/bookings/${bookingId}`,
-        "GET",
-        404,
-        request,
-        Date.now() - startTime
-      );
-      return NextResponse.json({ error: "Booking not found" }, { status: 404 });
-    }
-
-    // Vérifier les permissions (accès à l'établissement)
-    if (!hasPermission(apiKey, "bookings", "read", booking.hotelSlug)) {
-      await logApiRequest(
-        apiKey.id,
-        `/api/v1/bookings/${bookingId}`,
+        `/api/v1/establishments/${slug}`,
         "GET",
         403,
         request,
         Date.now() - startTime
       );
       return NextResponse.json(
-        { error: "Forbidden - You don't have access to this establishment" },
+        { error: "Forbidden - Insufficient permissions" },
         { status: 403 }
+      );
+    }
+
+    // Récupérer l'établissement avec toutes les relations
+    const establishment = await prisma.establishment.findUnique({
+      where: { slug },
+      include: {
+        rooms: {
+          where: {
+            isActive: true,
+          },
+          select: {
+            id: true,
+            name: true,
+            price: true,
+            isActive: true,
+            allowDogs: true,
+          },
+        },
+        pricingOptions: {
+          where: {
+            isActive: true,
+          },
+          include: {
+            values: {
+              orderBy: {
+                displayOrder: "asc",
+              },
+            },
+          },
+          orderBy: {
+            displayOrder: "asc",
+          },
+        },
+        _count: {
+          select: {
+            bookings: {
+              where: {
+                paymentStatus: "succeeded",
+              },
+            },
+          },
+        },
+      },
+    });
+
+    if (!establishment) {
+      await logApiRequest(
+        apiKey.id,
+        `/api/v1/establishments/${slug}`,
+        "GET",
+        404,
+        request,
+        Date.now() - startTime
+      );
+      return NextResponse.json(
+        { error: "Establishment not found" },
+        { status: 404 }
       );
     }
 
     // Logger la requête réussie
     await logApiRequest(
       apiKey.id,
-      `/api/v1/bookings/${bookingId}`,
+      `/api/v1/establishments/${slug}`,
       "GET",
       200,
       request,
@@ -166,12 +156,12 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
     return NextResponse.json(
       {
         success: true,
-        data: booking,
+        data: establishment,
       },
       { headers }
     );
   } catch (error) {
-    console.error(`Error in GET /api/v1/bookings/${bookingId}:`, error);
+    console.error(`Error in GET /api/v1/establishments/${slug}:`, error);
     return NextResponse.json(
       {
         error: "Internal Server Error",

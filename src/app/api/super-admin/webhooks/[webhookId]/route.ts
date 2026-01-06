@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
+import { isSuperAdmin } from "@/lib/auth/check";
 
 interface RouteParams {
   params: Promise<{
@@ -13,6 +14,15 @@ interface RouteParams {
  */
 export async function DELETE(request: NextRequest, { params }: RouteParams) {
   try {
+    // Vérifier que l'utilisateur est super-admin
+    const adminCheck = await isSuperAdmin();
+    if (!adminCheck.valid) {
+      return NextResponse.json(
+        { error: "Unauthorized", message: adminCheck.message },
+        { status: 401 }
+      );
+    }
+
     const { webhookId } = await params;
 
     await prisma.webhook.delete({
@@ -37,6 +47,15 @@ export async function DELETE(request: NextRequest, { params }: RouteParams) {
  */
 export async function PATCH(request: NextRequest, { params }: RouteParams) {
   try {
+    // Vérifier que l'utilisateur est super-admin
+    const adminCheck = await isSuperAdmin();
+    if (!adminCheck.valid) {
+      return NextResponse.json(
+        { error: "Unauthorized", message: adminCheck.message },
+        { status: 401 }
+      );
+    }
+
     const { webhookId } = await params;
     const body = await request.json();
     const { isActive } = body;
