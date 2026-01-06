@@ -824,19 +824,24 @@ export default function MonitoringApiPage() {
                     </div>
 
                     {/* Query Params */}
-                    {selectedLog.queryParams && Object.keys(selectedLog.queryParams).length > 0 && (
-                      <div>
-                        <h3 className="font-semibold mb-2">🔍 Query Params</h3>
-                        <pre className="bg-blue-50 dark:bg-blue-900/20 p-4 rounded-lg overflow-x-auto text-xs">
-                          {JSON.stringify(selectedLog.queryParams, null, 2)}
-                        </pre>
-                      </div>
-                    )}
+                    {selectedLog.queryParams &&
+                      Object.keys(selectedLog.queryParams).length > 0 && (
+                        <div>
+                          <h3 className="font-semibold mb-2">
+                            🔍 Query Params
+                          </h3>
+                          <pre className="bg-blue-50 dark:bg-blue-900/20 p-4 rounded-lg overflow-x-auto text-xs">
+                            {JSON.stringify(selectedLog.queryParams, null, 2)}
+                          </pre>
+                        </div>
+                      )}
 
                     {/* Response Metadata */}
                     {selectedLog.responseBody && (
                       <div>
-                        <h3 className="font-semibold mb-2">📊 Métadonnées de réponse</h3>
+                        <h3 className="font-semibold mb-2">
+                          📊 Métadonnées de réponse
+                        </h3>
                         <pre className="bg-green-50 dark:bg-green-900/20 p-4 rounded-lg overflow-x-auto text-xs">
                           {JSON.stringify(selectedLog.responseBody, null, 2)}
                         </pre>
