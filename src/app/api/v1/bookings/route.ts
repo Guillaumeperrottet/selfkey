@@ -166,14 +166,22 @@ export async function GET(request: NextRequest) {
       prisma.booking.count({ where }),
     ]);
 
-    // Logger la requête réussie
+    // Logger la requête réussie avec métadonnées
     await logApiRequest(
       apiKey.id,
       "/api/v1/bookings",
       "GET",
       200,
       request,
-      Date.now() - startTime
+      Date.now() - startTime,
+      undefined, // pas de requestBody pour GET
+      {
+        total,
+        returned: bookings.length,
+        limit,
+        offset,
+        hasMore: offset + limit < total,
+      }
     );
 
     // Ajouter les headers de rate limit

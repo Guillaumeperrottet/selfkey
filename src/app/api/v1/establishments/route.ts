@@ -186,14 +186,21 @@ export async function GET(request: NextRequest) {
       prisma.establishment.count({ where }),
     ]);
 
-    // Logger la requête réussie
+    // Logger la requête réussie avec métadonnées
     await logApiRequest(
       apiKey.id,
       "/api/v1/establishments",
       "GET",
       200,
       request,
-      Date.now() - startTime
+      Date.now() - startTime,
+      undefined,
+      {
+        total,
+        returned: establishments.length,
+        limit,
+        offset,
+      }
     );
 
     // Ajouter les headers de rate limit

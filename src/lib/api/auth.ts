@@ -96,9 +96,17 @@ export async function logApiRequest(
   statusCode: number,
   request: NextRequest,
   responseTime?: number,
-  requestBody?: Record<string, unknown>
+  requestBody?: Record<string, unknown>,
+  responseMetadata?: Record<string, unknown> // Métadonnées de la réponse (pas tout le contenu)
 ) {
   try {
+    // Extraire les query params de l'URL
+    const url = new URL(request.url);
+    const queryParams: Record<string, string> = {};
+    url.searchParams.forEach((value, key) => {
+      queryParams[key] = value;
+    });
+
     await prisma.apiLog.create({
       data: {
         apiKeyId: apiKeyId || undefined,
@@ -112,6 +120,11 @@ export async function logApiRequest(
         userAgent: request.headers.get("user-agent") || undefined,
         requestBody: requestBody
           ? JSON.parse(JSON.stringify(requestBody))
+          : undefined,
+        queryParams:
+          Object.keys(queryParams).length > 0 ? queryParams : undefined,
+        responseBody: responseMetadata
+          ? JSON.parse(JSON.stringify(responseMetadata))
           : undefined,
         responseTime,
       },

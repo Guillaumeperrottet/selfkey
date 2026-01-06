@@ -58,6 +58,8 @@ interface ApiLog {
   responseTime: number | null;
   createdAt: string;
   ipAddress: string | null;
+  queryParams: Record<string, string> | null;
+  responseBody: Record<string, unknown> | null;
   apiKey: {
     name: string;
   } | null;
@@ -820,6 +822,26 @@ export default function MonitoringApiPage() {
                         </span>
                       </div>
                     </div>
+
+                    {/* Query Params */}
+                    {selectedLog.queryParams && Object.keys(selectedLog.queryParams).length > 0 && (
+                      <div>
+                        <h3 className="font-semibold mb-2">🔍 Query Params</h3>
+                        <pre className="bg-blue-50 dark:bg-blue-900/20 p-4 rounded-lg overflow-x-auto text-xs">
+                          {JSON.stringify(selectedLog.queryParams, null, 2)}
+                        </pre>
+                      </div>
+                    )}
+
+                    {/* Response Metadata */}
+                    {selectedLog.responseBody && (
+                      <div>
+                        <h3 className="font-semibold mb-2">📊 Métadonnées de réponse</h3>
+                        <pre className="bg-green-50 dark:bg-green-900/20 p-4 rounded-lg overflow-x-auto text-xs">
+                          {JSON.stringify(selectedLog.responseBody, null, 2)}
+                        </pre>
+                      </div>
+                    )}
                   </div>
                 )}
               </div>

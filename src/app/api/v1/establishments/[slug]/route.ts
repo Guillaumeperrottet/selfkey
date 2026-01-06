@@ -140,14 +140,20 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
       );
     }
 
-    // Logger la requête réussie
+    // Logger la requête réussie avec métadonnées
     await logApiRequest(
       apiKey.id,
       `/api/v1/establishments/${slug}`,
       "GET",
       200,
       request,
-      Date.now() - startTime
+      Date.now() - startTime,
+      undefined,
+      {
+        establishmentName: establishment.name,
+        roomsCount: establishment.rooms.length,
+        bookingsCount: establishment._count?.bookings || 0,
+      }
     );
 
     // Ajouter les headers de rate limit
