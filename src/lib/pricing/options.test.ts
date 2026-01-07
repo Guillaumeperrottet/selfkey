@@ -604,4 +604,187 @@ describe("Pricing Options Calculator", () => {
       expect(result[1].id).toBe("opt-2");
     });
   });
+
+  describe("Options 'par nuit' (isPerNight)", () => {
+    const optionsWithPerNight: PricingOption[] = [
+      {
+        id: "dog-option",
+        name: "Chien",
+        description: "Supplément pour animal de compagnie",
+        type: "checkbox",
+        isRequired: false,
+        isActive: true,
+        displayOrder: 1,
+        values: [
+          {
+            id: "dog-yes",
+            label: "Oui",
+            priceModifier: 5,
+            isDefault: false,
+            displayOrder: 1,
+            isPerNight: true, // 5 CHF par nuit
+          },
+        ],
+      },
+      {
+        id: "breakfast-option",
+        name: "Petit déjeuner",
+        description: "Petit déjeuner continental",
+        type: "select",
+        isRequired: false,
+        isActive: true,
+        displayOrder: 2,
+        values: [
+          {
+            id: "breakfast-yes",
+            label: "Oui",
+            priceModifier: 15,
+            isDefault: false,
+            displayOrder: 1,
+            isPerNight: false, // 15 CHF au total
+          },
+        ],
+      },
+    ];
+
+    it("multiplie le prix par le nombre de nuits si isPerNight=true", () => {
+      const selectedOptions = {
+        "dog-option": ["dog-yes"],
+      };
+
+      // 1 nuit
+      const total1Night = calculatePricingOptionsTotal(
+        selectedOptions,
+        optionsWithPerNight,
+        1
+      );
+      expect(total1Night).toBe(5);
+
+      // 3 nuits
+      const total3Nights = calculatePricingOptionsTotal(
+        selectedOptions,
+        optionsWithPerNight,
+        3
+      );
+      expect(total3Nights).toBe(15); // 5 * 3
+
+      // 7 nuits
+      const total7Nights = calculatePricingOptionsTotal(
+        selectedOptions,
+        optionsWithPerNight,
+        7
+      );
+      expect(total7Nights).toBe(35); // 5 * 7
+    });
+
+    it("ne multiplie PAS le prix si isPerNight=false", () => {
+      const selectedOptions = {
+        "breakfast-option": "breakfast-yes",
+      };
+
+      // 1 nuit
+      const total1Night = calculatePricingOptionsTotal(
+        selectedOptions,
+        optionsWithPerNight,
+        1
+      );
+      expect(total1Night).toBe(15);
+
+      // 3 nuits
+      const total3Nights = calculatePricingOptionsTotal(
+        selectedOptions,
+        optionsWithPerNight,
+        3
+      );
+      expect(total3Nights).toBe(15); // Toujours 15, pas multiplié
+
+      // 7 nuits
+      const total7Nights = calculatePricingOptionsTotal(
+        selectedOptions,
+        optionsWithPerNight,
+        7
+      );
+      expect(total7Nights).toBe(15); // Toujours 15, pas multiplié
+    });
+
+    it("combine correctement options par nuit et options fixes", () => {
+      const selectedOptions = {
+        "dog-option": ["dog-yes"], // 5 CHF/nuit
+        "breakfast-option": "breakfast-yes", // 15 CHF au total
+      };
+
+      // 1 nuit: 5 + 15 = 20
+      const total1Night = calculatePricingOptionsTotal(
+        selectedOptions,
+        optionsWithPerNight,
+        1
+      );
+      expect(total1Night).toBe(20);
+
+      // 3 nuits: (5 * 3) + 15 = 30
+      const total3Nights = calculatePricingOptionsTotal(
+        selectedOptions,
+        optionsWithPerNight,
+        3
+      );
+      expect(total3Nights).toBe(30);
+
+      // 7 nuits: (5 * 7) + 15 = 50
+      const total7Nights = calculatePricingOptionsTotal(
+        selectedOptions,
+        optionsWithPerNight,
+        7
+      );
+      expect(total7Nights).toBe(50);
+    });
+
+    it("utilise 1 nuit par défaut si numberOfNights n'est pas fourni", () => {
+      const selectedOptions = {
+        "dog-option": ["dog-yes"],
+      };
+
+      // Sans spécifier numberOfNights (défaut = 1)
+      const total = calculatePricingOptionsTotal(
+        selectedOptions,
+        optionsWithPerNight
+      );
+      expect(total).toBe(5); // 5 * 1
+    });
+
+    it("gère isPerNight=undefined comme false", () => {
+      const optionsWithUndefined: PricingOption[] = [
+        {
+          id: "test-option",
+          name: "Test",
+          description: null,
+          type: "select",
+          isRequired: false,
+          isActive: true,
+          displayOrder: 1,
+          values: [
+            {
+              id: "test-value",
+              label: "Test",
+              priceModifier: 10,
+              isDefault: false,
+              displayOrder: 1,
+              // isPerNight non défini
+            },
+          ],
+        },
+      ];
+
+      const selectedOptions = {
+        "test-option": "test-value",
+      };
+
+      // Doit traiter comme isPerNight=false (pas de multiplication)
+      const total3Nights = calculatePricingOptionsTotal(
+        selectedOptions,
+        optionsWithUndefined,
+        3
+      );
+      expect(total3Nights).toBe(10); // Pas multiplié
+    });
+  });
 });

@@ -60,7 +60,8 @@ export function useBookingCart({
     // Total des options de prix
     const pricingOptionsTotal = calculatePricingOptionsTotal(
       selectedPricingOptions,
-      pricingOptions
+      pricingOptions,
+      duration
     );
 
     // Taxe de séjour

@@ -91,6 +91,7 @@ interface PricingOptionValue {
   priceModifier: number;
   isDefault: boolean;
   displayOrder: number;
+  isPerNight?: boolean;
 }
 
 interface PricingOption {

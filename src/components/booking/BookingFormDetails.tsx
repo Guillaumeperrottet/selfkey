@@ -207,9 +207,14 @@ export function BookingFormDetails({
   // Calculer le total des options de prix sélectionnées
   useEffect(() => {
     if (initialSelectedPricingOptions && pricingOptions.length > 0) {
+      const duration = calculateStayDuration(
+        new Date(checkInDate),
+        new Date(checkOutDate)
+      );
       const total = calculatePricingOptionsTotal(
         initialSelectedPricingOptions,
-        pricingOptions
+        pricingOptions,
+        duration
       );
       setPricingOptionsTotal(total);
     } else {

@@ -34,6 +34,7 @@ interface PricingOptionValue {
   priceModifier: number;
   isDefault: boolean;
   displayOrder: number;
+  isPerNight?: boolean;
 }
 
 interface PricingOption {
@@ -133,6 +134,7 @@ export function PricingOptionsManager({
       priceModifier: 0,
       isDefault: false,
       displayOrder: currentOption.values.length,
+      isPerNight: false,
     };
     updated[optionIndex].values.push(newValue);
     setPricingOptions(updated);
@@ -729,6 +731,18 @@ export function PricingOptionsManager({
                           }
                         />
                         <span className="text-xs">Défaut</span>
+                      </label>
+                      <label className="flex items-center gap-1">
+                        <input
+                          type="checkbox"
+                          checked={value.isPerNight || false}
+                          onChange={(e) =>
+                            updateValue(optionIndex, valueIndex, {
+                              isPerNight: e.target.checked,
+                            })
+                          }
+                        />
+                        <span className="text-xs">Par nuit</span>
                       </label>
                       <Button
                         variant="outline"

@@ -16,6 +16,7 @@ interface PricingOptionValue {
   id: string;
   label: string;
   priceModifier: number;
+  isPerNight?: boolean;
 }
 
 interface PricingOption {

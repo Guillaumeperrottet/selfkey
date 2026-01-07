@@ -22,6 +22,7 @@ interface PricingOptionValue {
   priceModifier: number;
   isDefault: boolean;
   displayOrder: number;
+  isPerNight?: boolean;
 }
 
 interface PricingOption {
@@ -263,7 +264,8 @@ export function PricingOptionsSelector({
                             {value.priceModifier !== 0 && (
                               <span className="text-gray-500 ml-2">
                                 ({value.priceModifier > 0 ? "+" : ""}
-                                {value.priceModifier.toFixed(2)} CHF)
+                                {value.priceModifier.toFixed(2)} CHF
+                                {value.isPerNight ? "/nuit" : ""})
                               </span>
                             )}
                           </SelectItem>
@@ -312,7 +314,8 @@ export function PricingOptionsSelector({
                             {value.priceModifier !== 0 && (
                               <span className="text-gray-500 ml-2">
                                 ({value.priceModifier > 0 ? "+" : ""}
-                                {value.priceModifier.toFixed(2)} CHF)
+                                {value.priceModifier.toFixed(2)} CHF
+                                {value.isPerNight ? "/nuit" : ""})
                               </span>
                             )}
                           </Label>
@@ -349,7 +352,8 @@ export function PricingOptionsSelector({
                             {value.priceModifier !== 0 && (
                               <span className="text-gray-500 ml-2">
                                 ({value.priceModifier > 0 ? "+" : ""}
-                                {value.priceModifier.toFixed(2)} CHF)
+                                {value.priceModifier.toFixed(2)} CHF
+                                {value.isPerNight ? "/nuit" : ""})
                               </span>
                             )}
                           </Label>

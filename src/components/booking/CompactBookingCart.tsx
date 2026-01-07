@@ -51,7 +51,8 @@ export function CompactBookingCart({
 
   const pricingOptionsTotal = calculatePricingOptionsTotal(
     selectedPricingOptions,
-    pricingOptions
+    pricingOptions,
+    duration
   );
 
   const total = basePrice + pricingOptionsTotal + touristTaxTotal;

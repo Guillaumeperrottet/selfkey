@@ -6,6 +6,7 @@ export interface PricingOptionValue {
   priceModifier: number;
   isDefault: boolean;
   displayOrder: number;
+  isPerNight?: boolean;
 }
 
 export interface PricingOption {
@@ -21,10 +22,14 @@ export interface PricingOption {
 
 /**
  * Calcule le total des options de prix sélectionnées
+ * @param selectedOptions - Map des options sélectionnées
+ * @param pricingOptions - Liste des options disponibles
+ * @param numberOfNights - Nombre de nuits (pour options "par nuit")
  */
 export function calculatePricingOptionsTotal(
   selectedOptions: Record<string, string | string[]>,
-  pricingOptions: PricingOption[]
+  pricingOptions: PricingOption[],
+  numberOfNights: number = 1
 ): number {
   let total = 0;
 
@@ -40,14 +45,18 @@ export function calculatePricingOptionsTotal(
       selectedValue.forEach((valueId) => {
         const value = option.values.find((v) => v.id === valueId);
         if (value) {
-          total += value.priceModifier;
+          // Multiplier par le nombre de nuits si isPerNight = true
+          const multiplier = value.isPerNight ? numberOfNights : 1;
+          total += value.priceModifier * multiplier;
         }
       });
     } else {
       // Pour select et radio - une seule valeur
       const value = option.values.find((v) => v.id === selectedValue);
       if (value) {
-        total += value.priceModifier;
+        // Multiplier par le nombre de nuits si isPerNight = true
+        const multiplier = value.isPerNight ? numberOfNights : 1;
+        total += value.priceModifier * multiplier;
       }
     }
   });

@@ -87,7 +87,8 @@ export function BookingCart({
 
   const pricingOptionsTotal = calculatePricingOptionsTotal(
     selectedPricingOptions,
-    pricingOptions
+    pricingOptions,
+    duration
   );
 
   const subtotal = basePrice + pricingOptionsTotal;

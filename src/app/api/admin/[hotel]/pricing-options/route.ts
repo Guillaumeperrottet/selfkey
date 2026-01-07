@@ -8,6 +8,7 @@ interface PricingOptionValue {
   priceModifier: number;
   isDefault: boolean;
   displayOrder: number;
+  isPerNight?: boolean;
 }
 
 interface PricingOption {
@@ -138,6 +139,7 @@ export async function POST(
             priceModifier: value.priceModifier,
             isDefault: value.isDefault,
             displayOrder: value.displayOrder,
+            isPerNight: value.isPerNight || false,
           },
         });
       }

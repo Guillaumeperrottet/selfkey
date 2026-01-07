@@ -325,6 +325,7 @@ model PricingOptionValue {
   priceModifier   Float
   isDefault       Boolean       @default(false)
   displayOrder    Int           @default(0)
+  isPerNight      Boolean       @default(false)
   createdAt       DateTime      @default(now())
   pricingOption   PricingOption @relation(fields: [pricingOptionId], references: [id], onDelete: Cascade)
 
