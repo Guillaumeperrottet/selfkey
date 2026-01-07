@@ -709,13 +709,25 @@ export function BookingsTable({ bookings, establishment }: BookingsTableProps) {
                                 const value = option.values.find(
                                   (v) => v.id === vid
                                 );
-                                if (value) price += value.priceModifier;
+                                if (value) {
+                                  // Multiplier par duration si isPerNight=true
+                                  const multiplier = value.isPerNight
+                                    ? duration
+                                    : 1;
+                                  price += value.priceModifier * multiplier;
+                                }
                               });
                             } else {
                               const value = option.values.find(
                                 (v) => v.id === valueId
                               );
-                              if (value) price = value.priceModifier;
+                              if (value) {
+                                // Multiplier par duration si isPerNight=true
+                                const multiplier = value.isPerNight
+                                  ? duration
+                                  : 1;
+                                price = value.priceModifier * multiplier;
+                              }
                             }
 
                             return `

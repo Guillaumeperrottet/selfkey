@@ -994,6 +994,12 @@ export function BookingSummary({ bookingId }: BookingSummaryProps) {
                   Object.keys(booking.selectedPricingOptions).length > 0 && (
                     <>
                       {(() => {
+                        const duration = Math.ceil(
+                          (new Date(booking.checkOutDate).getTime() -
+                            new Date(booking.checkInDate).getTime()) /
+                            (1000 * 60 * 60 * 24)
+                        );
+
                         // Vérifier si c'est le nouveau format enrichi
                         if (isEnrichedFormat(booking.selectedPricingOptions)) {
                           // NOUVEAU FORMAT : Utiliser directement les données enrichies
@@ -1033,18 +1039,27 @@ export function BookingSummary({ bookingId }: BookingSummaryProps) {
                                 const optionValue = option.values.find(
                                   (val) => val.id === valueId
                                 );
+                                if (!optionValue) return total;
+                                // Multiplier par duration si isPerNight=true
+                                const multiplier = optionValue.isPerNight
+                                  ? duration
+                                  : 1;
                                 return (
-                                  total +
-                                  (optionValue ? optionValue.priceModifier : 0)
+                                  total + optionValue.priceModifier * multiplier
                                 );
                               }, 0);
                             } else {
                               const optionValue = option.values.find(
                                 (val) => val.id === value
                               );
-                              optionPrice = optionValue
-                                ? optionValue.priceModifier
-                                : 0;
+                              if (optionValue) {
+                                // Multiplier par duration si isPerNight=true
+                                const multiplier = optionValue.isPerNight
+                                  ? duration
+                                  : 1;
+                                optionPrice =
+                                  optionValue.priceModifier * multiplier;
+                              }
                             }
                           }
 

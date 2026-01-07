@@ -129,15 +129,24 @@ export function CompactBookingCart({
                         const optionValue = option.values.find(
                           (val) => val.id === valueId
                         );
-                        return (
-                          total + (optionValue ? optionValue.priceModifier : 0)
-                        );
+                        if (!optionValue) return total;
+                        // Multiplier par duration si isPerNight=true
+                        const multiplier = optionValue.isPerNight
+                          ? duration
+                          : 1;
+                        return total + optionValue.priceModifier * multiplier;
                       }, 0);
                     } else {
                       const optionValue = option.values.find(
                         (val) => val.id === value
                       );
-                      optionPrice = optionValue ? optionValue.priceModifier : 0;
+                      if (optionValue) {
+                        // Multiplier par duration si isPerNight=true
+                        const multiplier = optionValue.isPerNight
+                          ? duration
+                          : 1;
+                        optionPrice = optionValue.priceModifier * multiplier;
+                      }
                     }
                   }
 

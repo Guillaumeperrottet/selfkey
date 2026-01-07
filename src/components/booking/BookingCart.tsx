@@ -129,11 +129,17 @@ export function BookingCart({
     if (Array.isArray(value)) {
       return value.reduce((total, valueId) => {
         const optionValue = option.values.find((v) => v.id === valueId);
-        return total + (optionValue ? optionValue.priceModifier : 0);
+        if (!optionValue) return total;
+        // Multiplier par duration si isPerNight=true
+        const multiplier = optionValue.isPerNight ? duration : 1;
+        return total + optionValue.priceModifier * multiplier;
       }, 0);
     } else {
       const optionValue = option.values.find((v) => v.id === value);
-      return optionValue ? optionValue.priceModifier : 0;
+      if (!optionValue) return 0;
+      // Multiplier par duration si isPerNight=true
+      const multiplier = optionValue.isPerNight ? duration : 1;
+      return optionValue.priceModifier * multiplier;
     }
   };
 

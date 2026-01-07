@@ -361,7 +361,8 @@ export function BookingFormDetails({
         currency: "CHF",
         selectedPricingOptions: enrichPricingOptions(
           initialSelectedPricingOptions || {},
-          pricingOptions
+          pricingOptions,
+          duration
         ),
         pricingOptionsTotal,
         touristTaxTotal,

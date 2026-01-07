@@ -87,7 +87,8 @@ export function compressPricingOptions(
  */
 export function enrichPricingOptions(
   selectedOptions: Record<string, string | string[]>,
-  availableOptions: PricingOption[]
+  availableOptions: PricingOption[],
+  duration: number = 1
 ): Record<string, EnrichedPricingOption | EnrichedPricingOption[]> {
   const enriched: Record<
     string,
@@ -117,13 +118,17 @@ export function enrichPricingOptions(
           return null;
         }
 
+        // Multiplier par duration si isPerNight=true
+        const multiplier = value.isPerNight ? duration : 1;
+        const calculatedPrice = value.priceModifier * multiplier;
+
         return {
           optionId: option.id,
           optionName: option.name,
           optionType: option.type,
           valueId: value.id,
           valueLabel: value.label,
-          priceModifier: value.priceModifier,
+          priceModifier: calculatedPrice,
           selectedAt: new Date().toISOString(),
         } as EnrichedPricingOption;
       })

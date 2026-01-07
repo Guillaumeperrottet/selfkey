@@ -120,6 +120,12 @@ export function InvoiceDownload({
       return [];
     }
 
+    // Calculer la durée du séjour pour les options "par nuit"
+    const duration = calculateStayDuration(
+      booking.checkInDate,
+      booking.checkOutDate
+    );
+
     // Vérifier si c'est le nouveau format enrichi
     if (isEnrichedFormat(booking.selectedPricingOptions)) {
       // NOUVEAU FORMAT : Utiliser directement les données enrichies
@@ -151,9 +157,11 @@ export function InvoiceDownload({
           valueId.forEach((vid) => {
             const value = option.values.find((v) => v.id === vid);
             if (value && value.priceModifier !== 0) {
+              // Multiplier par duration si isPerNight=true
+              const multiplier = value.isPerNight ? duration : 1;
               decodedOptions.push({
                 name: `${option.name}: ${value.label}`,
-                price: value.priceModifier,
+                price: value.priceModifier * multiplier,
               });
             }
           });
@@ -161,9 +169,11 @@ export function InvoiceDownload({
           // Select/Radio : une seule valeur
           const value = option.values.find((v) => v.id === valueId);
           if (value && value.priceModifier !== 0) {
+            // Multiplier par duration si isPerNight=true
+            const multiplier = value.isPerNight ? duration : 1;
             decodedOptions.push({
               name: `${option.name}: ${value.label}`,
-              price: value.priceModifier,
+              price: value.priceModifier * multiplier,
             });
           }
         }
