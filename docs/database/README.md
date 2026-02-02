@@ -4,6 +4,21 @@ Documentation complète sur la gestion de la base de données PostgreSQL.
 
 ## 📚 Documentation Disponible
 
+### [Migration vers Hobbyist-2](./MIGRATION_HOBBYIST2.md) 🔥 NOUVEAU
+
+**Économisez 375 CHF/mois (4,500 CHF/an) !**
+
+Guide complet pour passer de Business-4 à Hobbyist-2 sur Exoscale.
+
+**Ce que vous y trouverez :**
+
+- ✅ Comparaison des plans (Business-4 vs Hobbyist-2)
+- ✅ Processus de migration sécurisé (zéro downtime)
+- ✅ Méthode alternative (scaling direct)
+- ✅ Tests et validation
+- ✅ Plan de rollback
+- ✅ Monitoring post-migration
+
 ### [Workflow Ajout Champs BDD](./WORKFLOW_AJOUT_CHAMPS_BDD.md)
 
 Guide complet pour ajouter des champs dans la base de données.
