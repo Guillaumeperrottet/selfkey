@@ -444,7 +444,7 @@ export function BookingFormDetails({
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
-                    {[1, 2, 3, 4, 5, 6].map((num) => (
+                    {[1, 2, 3, 4, 5, 6, 7, 8, 9].map((num) => (
                       <SelectItem key={num} value={num.toString()}>
                         {num}{" "}
                         {num > 1 ? t.form.adults.toLowerCase() : t.form.adult}
@@ -470,7 +470,7 @@ export function BookingFormDetails({
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
-                      {[0, 1, 2, 3, 4].map((num) => (
+                      {[0, 1, 2, 3, 4, 5, 6, 7, 8, 9].map((num) => (
                         <SelectItem key={num} value={num.toString()}>
                           {num}{" "}
                           {num > 1
