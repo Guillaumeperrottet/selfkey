@@ -84,45 +84,45 @@ export function BookingFormDetails({
 
   // États pour les informations client
   const [clientFirstName, setClientFirstName] = useState(
-    initialData?.clientFirstName || ""
+    initialData?.clientFirstName || "",
   );
   const [clientLastName, setClientLastName] = useState(
-    initialData?.clientLastName || ""
+    initialData?.clientLastName || "",
   );
   const [clientEmail, setClientEmail] = useState(
-    initialData?.clientEmail || ""
+    initialData?.clientEmail || "",
   );
   const [clientPhone, setClientPhone] = useState(
-    initialData?.clientPhone || ""
+    initialData?.clientPhone || "",
   );
 
   // États pour les champs détaillés du client
   const [clientBirthDate, setClientBirthDate] = useState(
     initialData?.clientBirthDate
       ? new Date(initialData.clientBirthDate)
-      : undefined
+      : undefined,
   );
   const [clientAddress, setClientAddress] = useState(
-    initialData?.clientAddress || ""
+    initialData?.clientAddress || "",
   );
   const [clientPostalCode, setClientPostalCode] = useState(
-    initialData?.clientPostalCode || ""
+    initialData?.clientPostalCode || "",
   );
   const [clientCity, setClientCity] = useState(initialData?.clientCity || "");
   const [clientCountry, setClientCountry] = useState(
-    initialData?.clientCountry || "Suisse"
+    initialData?.clientCountry || "Suisse",
   );
   const [clientBirthPlace, setClientBirthPlace] = useState(
-    initialData?.clientBirthPlace || ""
+    initialData?.clientBirthPlace || "",
   );
   const [clientIdNumber, setClientIdNumber] = useState(
-    initialData?.clientIdNumber || ""
+    initialData?.clientIdNumber || "",
   );
   const [clientIdType, setClientIdType] = useState(
-    initialData?.clientIdType || "Carte d'identité"
+    initialData?.clientIdType || "Carte d'identité",
   );
   const [clientVehicleNumber, setClientVehicleNumber] = useState(
-    initialData?.clientVehicleNumber || ""
+    initialData?.clientVehicleNumber || "",
   );
 
   // États pour la taxe de séjour
@@ -138,7 +138,7 @@ export function BookingFormDetails({
 
   const duration = calculateStayDuration(
     new Date(checkInDate),
-    new Date(checkOutDate)
+    new Date(checkOutDate),
   );
 
   // Scroll vers le haut au montage du composant
@@ -151,7 +151,7 @@ export function BookingFormDetails({
     const loadTouristTaxSettings = async () => {
       try {
         const response = await fetch(
-          `/api/establishments/${hotelSlug}/tourist-tax-settings`
+          `/api/establishments/${hotelSlug}/tourist-tax-settings`,
         );
         const settings = await response.json();
 
@@ -161,7 +161,7 @@ export function BookingFormDetails({
         } else {
           console.error(
             "Erreur récupération paramètres taxe de séjour:",
-            settings.error
+            settings.error,
           );
           setTouristTaxEnabled(true);
           setTouristTaxAmount(3.0);
@@ -169,7 +169,7 @@ export function BookingFormDetails({
       } catch (error) {
         console.error(
           "Erreur lors du chargement des paramètres de taxe de séjour:",
-          error
+          error,
         );
         setTouristTaxEnabled(true);
         setTouristTaxAmount(3.0);
@@ -185,7 +185,7 @@ export function BookingFormDetails({
       adults, // Seulement les adultes (16+)
       duration, // Nombre de nuits
       touristTaxAmount,
-      touristTaxEnabled
+      touristTaxEnabled,
     );
     setTouristTaxTotal(taxCalculation.totalTax);
   }, [adults, duration, touristTaxEnabled, touristTaxAmount]);
@@ -209,12 +209,12 @@ export function BookingFormDetails({
     if (initialSelectedPricingOptions && pricingOptions.length > 0) {
       const duration = calculateStayDuration(
         new Date(checkInDate),
-        new Date(checkOutDate)
+        new Date(checkOutDate),
       );
       const total = calculatePricingOptionsTotal(
         initialSelectedPricingOptions,
         pricingOptions,
-        duration
+        duration,
       );
       setPricingOptionsTotal(total);
     } else {
@@ -311,7 +311,7 @@ export function BookingFormDetails({
 
     // Vérifier que tous les champs obligatoires sont remplis
     const missingFields = requiredFieldsValidation.filter(
-      (field) => !field.value
+      (field) => !field.value,
     );
 
     if (missingFields.length > 0 || adults < 1) {
@@ -362,7 +362,7 @@ export function BookingFormDetails({
         selectedPricingOptions: enrichPricingOptions(
           initialSelectedPricingOptions || {},
           pricingOptions,
-          duration
+          duration,
         ),
         pricingOptionsTotal,
         touristTaxTotal,
@@ -375,7 +375,7 @@ export function BookingFormDetails({
       const tempBookingId = `temp_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
       sessionStorage.setItem(
         `booking_${tempBookingId}`,
-        JSON.stringify(bookingData)
+        JSON.stringify(bookingData),
       );
 
       toastUtils.dismiss(loadingToast);
@@ -741,6 +741,9 @@ export function BookingFormDetails({
                           <SelectItem value="Pays-Bas">Netherlands</SelectItem>
                           <SelectItem value="Espagne">Spain</SelectItem>
                           <SelectItem value="Portugal">Portugal</SelectItem>
+                          <SelectItem value="République Tchèque">
+                            Czech Republic
+                          </SelectItem>
                           <SelectItem value="Royaume-Uni">
                             United Kingdom
                           </SelectItem>
