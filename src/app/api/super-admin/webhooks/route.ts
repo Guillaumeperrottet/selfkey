@@ -13,12 +13,24 @@ export async function GET() {
     if (!adminCheck.valid) {
       return NextResponse.json(
         { error: "Unauthorized", message: adminCheck.message },
-        { status: 401 }
+        { status: 401 },
       );
     }
 
     const webhooks = await prisma.webhook.findMany({
-      include: {
+      select: {
+        id: true,
+        name: true,
+        url: true,
+        events: true,
+        isActive: true,
+        format: true,
+        retryCount: true,
+        retryDelay: true,
+        secret: true, // Inclure le secret pour l'affichage
+        establishmentSlug: true,
+        createdAt: true,
+        updatedAt: true,
         establishment: {
           select: {
             slug: true,
@@ -41,7 +53,7 @@ export async function GET() {
     console.error("Error fetching webhooks:", error);
     return NextResponse.json(
       { error: "Internal Server Error" },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }
@@ -57,7 +69,7 @@ export async function POST(request: NextRequest) {
     if (!adminCheck.valid) {
       return NextResponse.json(
         { error: "Unauthorized", message: adminCheck.message },
-        { status: 401 }
+        { status: 401 },
       );
     }
 
@@ -76,7 +88,7 @@ export async function POST(request: NextRequest) {
     if (!name || !establishmentSlug || !url) {
       return NextResponse.json(
         { error: "Name, establishmentSlug and url are required" },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
@@ -115,7 +127,7 @@ export async function POST(request: NextRequest) {
     console.error("Error creating webhook:", error);
     return NextResponse.json(
       { error: "Internal Server Error" },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }
