@@ -1,20 +1,17 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
-import { auth } from "@/lib/auth";
+import { isSuperAdmin } from "@/lib/auth/check";
 
 export async function GET(request: NextRequest) {
   try {
-    // Vérifier l'authentification
-    const session = await auth.api.getSession({
-      headers: request.headers,
-    });
-
-    if (!session?.user?.id) {
-      return NextResponse.json({ error: "Non authentifié" }, { status: 401 });
+    // Vérifier que l'utilisateur est super-admin
+    const adminCheck = await isSuperAdmin();
+    if (!adminCheck.valid) {
+      return NextResponse.json(
+        { error: "Unauthorized", message: adminCheck.message },
+        { status: 401 },
+      );
     }
-
-    // Pour le moment, permettre à tout utilisateur connecté d'accéder à cette fonction
-    // Dans un vrai système, vous devriez vérifier si l'utilisateur est super admin
 
     // Récupérer tous les établissements avec leurs informations de commission
     const establishments = await prisma.establishment.findMany({
@@ -40,7 +37,7 @@ export async function GET(request: NextRequest) {
     console.error("Erreur lors de la récupération des établissements:", error);
     return NextResponse.json(
       { error: "Erreur interne du serveur" },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }

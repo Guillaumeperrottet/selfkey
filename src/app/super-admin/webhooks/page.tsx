@@ -117,8 +117,12 @@ export default function WebhooksPage() {
 
       if (estabRes.ok) {
         const data = await estabRes.json();
-        console.log("Establishments data:", data); // Debug
-        setEstablishments(data.establishments || data || []);
+        console.log("Establishments API response:", data);
+        console.log("Establishments array:", data.establishments);
+        // L'API retourne { success: true, establishments: [...] }
+        setEstablishments(
+          Array.isArray(data.establishments) ? data.establishments : [],
+        );
       }
     } catch (error) {
       console.error("Error loading data:", error);
