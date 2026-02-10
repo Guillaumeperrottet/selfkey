@@ -117,7 +117,8 @@ export default function WebhooksPage() {
 
       if (estabRes.ok) {
         const data = await estabRes.json();
-        setEstablishments(data.establishments || []);
+        console.log("Establishments data:", data); // Debug
+        setEstablishments(data.establishments || data || []);
       }
     } catch (error) {
       console.error("Error loading data:", error);
@@ -130,7 +131,7 @@ export default function WebhooksPage() {
   const loadWebhookLogs = async (webhookId: string) => {
     try {
       const response = await fetch(
-        `/api/super-admin/webhooks/${webhookId}/logs`
+        `/api/super-admin/webhooks/${webhookId}/logs`,
       );
       if (response.ok) {
         const data = await response.json();
@@ -241,11 +242,11 @@ export default function WebhooksPage() {
 
       if (data.result.success) {
         toast.success(
-          `✅ Webhook testé avec succès ! (${data.result.statusCode}) - ${data.result.executionTime}ms`
+          `✅ Webhook testé avec succès ! (${data.result.statusCode}) - ${data.result.executionTime}ms`,
         );
       } else {
         toast.error(
-          `❌ Erreur lors du test: ${data.result.error || `HTTP ${data.result.statusCode}`}`
+          `❌ Erreur lors du test: ${data.result.error || `HTTP ${data.result.statusCode}`}`,
         );
       }
 
